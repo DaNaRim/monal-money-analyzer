@@ -49,7 +49,7 @@ public final class LoggerConfig extends ConfigurationFactory {
     private static final Level ROLLING_FILE_LEVEL = Level.DEBUG;
 
     private static final String FILE_APPENDER = "FILE";
-    private static final String FILE_NAME = "smart-parking.log";
+    private static final String FILE_NAME = "logs.log";
     private static final String FILE_LOG_PATTERN
             = "%d %highlight{%-5p} %pid [%15.15thread] %style{%40.40logger{1}}{blue} : %m %n%throwable{5}";
     private static final Level FILE_LEVEL = Level.INFO;
