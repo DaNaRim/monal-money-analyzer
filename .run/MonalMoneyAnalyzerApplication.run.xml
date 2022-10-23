@@ -5,7 +5,7 @@
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.danarim.monal.MonalMoneyAnalyzerApplication" />
     <method v="2">
       <option name="Make" enabled="true" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="install" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="install -DskipTests" />
     </method>
   </configuration>
 </component>
