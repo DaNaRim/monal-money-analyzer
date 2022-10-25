@@ -1,6 +1,6 @@
 package com.danarim.monal.config;
 
-import com.danarim.monal.config.exeptions.ServerStartupException;
+import com.danarim.monal.config.exceptions.ServerStartupException;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;

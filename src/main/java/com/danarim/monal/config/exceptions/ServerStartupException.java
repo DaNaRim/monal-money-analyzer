@@ -1,4 +1,4 @@
-package com.danarim.monal.config.exeptions;
+package com.danarim.monal.config.exceptions;
 
 public class ServerStartupException extends RuntimeException {
 
