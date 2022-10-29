@@ -19,11 +19,15 @@ public class Role implements GrantedAuthority {
     @Column(unique = true,
             nullable = false,
             updatable = false,
-            columnDefinition = "VARCHAR(20) CHECK (role_name IN ('USER', 'ADMIN'))")
+            columnDefinition = "VARCHAR(20) CHECK (role_name IN ('ROLE_USER', 'ROLE_ADMIN'))")
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
 
     protected Role() {
+    }
+
+    public Role(RoleName roleName) {
+        this.roleName = roleName;
     }
 
     @Override

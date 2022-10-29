@@ -1,6 +1,7 @@
-package com.danarim.monal.config;
+package com.danarim.monal.failHandler;
 
-import com.danarim.monal.config.exeptions.BadRequestException;
+import com.danarim.monal.exceptions.AlreadyExistsException;
+import com.danarim.monal.exceptions.BadRequestException;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,13 +17,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.danarim.monal.exceptions.GenericErrorType.GLOBAL_ERROR;
+import static com.danarim.monal.exceptions.GenericErrorType.SERVER_ERROR;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
-    private static final String DEFAULT_ERROR_FIELD = "serverValidation";
-    private static final String DEFAULT_ERROR_TYPE = "globalError";
-
-    private static final String DEFAULT_SERVER_ERROR_TYPE = "serverError";
 
     private final MessageSource messages;
 
@@ -30,26 +29,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         this.messages = messages;
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    protected ResponseEntity<List<GenericError>> handleBadRequestException(BadRequestException e, WebRequest request) {
-
+    @ExceptionHandler({BadRequestException.class, AlreadyExistsException.class})
+    protected ResponseEntity<List<GenericErrorResponse>> handleBadRequestException(BadRequestException e,
+                                                                                   WebRequest request
+    ) {
         logger.debug("%s during request: %s : %s".formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
-        String field = e.getField() == null ? DEFAULT_ERROR_FIELD : e.getField();
-
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
-        GenericError error = new GenericError(DEFAULT_ERROR_TYPE, field, message);
+        GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), e.getField(), message);
 
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<List<GenericError>> handleInternalException(Exception e, WebRequest request) {
+    protected ResponseEntity<List<GenericErrorResponse>> handleInternalException(Exception e, WebRequest request) {
 
         logger.error("Internal server error during request: " + request.getContextPath(), e);
 
         String message = messages.getMessage("error.server.internal-error", null, request.getLocale());
-        GenericError error = new GenericError(DEFAULT_SERVER_ERROR_TYPE, DEFAULT_ERROR_FIELD, message);
+        GenericErrorResponse error = new GenericErrorResponse(SERVER_ERROR.getType(), SERVER_ERROR.getType(), message);
 
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -62,27 +60,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         logger.debug("%s during request: %s : %s".formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
-        ArrayList<GenericError> mappedErrors = mapErrors(e.getBindingResult());
+        ArrayList<GenericErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
         return new ResponseEntity<>(mappedErrors, headers, status);
     }
 
-    private static ArrayList<GenericError> mapErrors(BindingResult errors) {
-        ArrayList<GenericError> result = new ArrayList<>();
+    private static ArrayList<GenericErrorResponse> mapErrors(BindingResult errors) {
+        ArrayList<GenericErrorResponse> result = new ArrayList<>();
 
         errors.getFieldErrors().forEach(
-                error -> result.add(new GenericError(error.getCode(), error.getField(), error.getDefaultMessage()))
+                error -> result.add(new GenericErrorResponse(error.getCode(),
+                        error.getField(),
+                        error.getDefaultMessage()))
         );
         errors.getGlobalErrors().forEach(
-                error -> result.add(new GenericError(error.getCode(), DEFAULT_ERROR_TYPE, error.getDefaultMessage()))
+                error -> result.add(new GenericErrorResponse(error.getCode(),
+                        GLOBAL_ERROR.getType(),
+                        error.getDefaultMessage()))
         );
         return result;
-    }
-
-    private record GenericError(
-            String type,
-            String fieldName,
-            String message
-    ) {
-
     }
 }

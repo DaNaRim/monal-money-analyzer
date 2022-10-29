@@ -1,7 +1,10 @@
 package com.danarim.monal.config.security;
 
-import com.danarim.monal.config.security.auth.CustomAuthenticationProvider;
-import com.danarim.monal.config.security.auth.CustomUserDetailsService;
+import com.danarim.monal.config.security.filters.CustomAuthenticationFilter;
+import com.danarim.monal.config.security.filters.CustomAuthorizationFilter;
+import com.danarim.monal.config.security.filters.JwtRefreshFilter;
+import com.danarim.monal.failHandler.CustomAuthFailureHandler;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,76 +15,65 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
-    private final CustomAuthenticationProvider customAuthenticationProvider;
-    //    private final AuthenticationFailureHandler authenticationFailureHandler;
-    private final CustomUserDetailsService userDetailsService;
-//    private final SecurityProperties securityProperties;
+    private final ApplicationContext context;
 
-    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider,
-//                          AuthenticationFailureHandler authenticationFailureHandler,
-                          CustomUserDetailsService userDetailsService
-//                          SecurityProperties securityProperties
-    ) {
-        this.customAuthenticationProvider = customAuthenticationProvider;
-//        this.authenticationFailureHandler = authenticationFailureHandler;
-        this.userDetailsService = userDetailsService;
-//        this.securityProperties = securityProperties;
+    public SecurityConfig(ApplicationContext context) {
+        this.context = context;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
-//        if (securityProperties.getRememberMeKey() == null) {
-//            throw new IllegalStateException("Remember-me key is not set");
-//        }
-
         http
-                .csrf().disable()
                 .authorizeRequests(authz -> authz
                         .mvcMatchers(
+                                BACKEND_PREFIX + "/login",
+                                BACKEND_PREFIX + "/jwtTokenRefresh",
                                 BACKEND_PREFIX + "/registration"
                         ).permitAll()
+                        .mvcMatchers(BACKEND_PREFIX + "/registration").authenticated()
                         .mvcMatchers(BACKEND_PREFIX + "/**").authenticated()
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(formLoginConfigurer -> formLoginConfigurer
-                                .loginProcessingUrl(BACKEND_PREFIX + "/login")
-//                        .loginPage("/login").permitAll()
-                                .usernameParameter("username")
-                                .passwordParameter("password")
-//                        .defaultSuccessUrl("", true)
-//                        .failureHandler(authenticationFailureHandler)
+                .csrf().disable() //TODO enable csrf
+                .sessionManagement(sessionConfigurer -> sessionConfigurer
+                        .sessionCreationPolicy(STATELESS)
                 )
-                .logout(logoutConfigurer -> logoutConfigurer
-                        .clearAuthentication(true)
-                        .invalidateHttpSession(true)
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .deleteCookies("JSESSIONID", "remember-me")
-                );
-//                .rememberMe(rememberMeConfigurer -> rememberMeConfigurer
-//                        .key(securityProperties.getRememberMeKey())
-//                        .rememberMeParameter("remember-me")
-//                        .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
-//                        .userDetailsService(userDetailsService)
-//                        .useSecureCookie(true)
-//                );
+                .addFilter(customAuthenticationFilter(http))
+                .addFilterBefore(
+                        context.getBean(CustomAuthorizationFilter.class), UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterBefore(context.getBean(JwtRefreshFilter.class), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CustomAuthenticationFilter customAuthenticationFilter(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
+        CustomAuthenticationFilter filter = new CustomAuthenticationFilter(
+                authenticationManager(http),
+                context.getBean(CustomAuthFailureHandler.class),
+                context.getBean(JwtUtil.class)
+        );
+        filter.setFilterProcessesUrl(BACKEND_PREFIX + "/login");
+        filter.setAuthenticationFailureHandler(context.getBean(AuthenticationFailureHandler.class));
+        return filter;
     }
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
         return http
                 .getSharedObject(AuthenticationManagerBuilder.class)
-                .authenticationProvider(customAuthenticationProvider)
                 .build();
     }
 

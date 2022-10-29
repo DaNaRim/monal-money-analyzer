@@ -1,6 +1,6 @@
 package com.danarim.monal.user.web.validator;
 
-import com.danarim.monal.config.exeptions.InternalServerException;
+import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.user.web.dto.PasswordEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

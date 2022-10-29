@@ -1,29 +1,21 @@
 package com.danarim.monal.config.security.auth;
 
-import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.User;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserDao userDao;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    public CustomAuthenticationProvider(UserDao userDao,
-                                        @Lazy PasswordEncoder passwordEncoder
-    ) {
-        this.userDao = userDao;
+    public CustomAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -32,11 +24,28 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         final String name = authentication.getName();
         final String password = authentication.getCredentials().toString();
 
-        User user = userDao.findByEmail(name);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+        if (name == null) {
+            throw new UsernameNotFoundException("Username is null");
         }
+        if (password == null) {
+            throw new BadCredentialsException("Password is null");
+        }
+        User user = (User) userDetailsService.loadUserByUsername(name);
+
+        validateUser(user);
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BadCredentialsException("Wrong password");
+        }
+        return new UsernamePasswordAuthenticationToken(user, password, user.getRoles());
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return authentication == UsernamePasswordAuthenticationToken.class;
+    }
+
+    private static void validateUser(User user) {
         if (!user.isEnabled()) {
             throw new DisabledException("User is not enabled");
         }
@@ -46,17 +55,5 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (!user.isAccountNonLocked()) {
             throw new LockedException("User account is locked");
         }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Wrong password");
-        }
-
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        user.getRoles().forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority())));
-        return new UsernamePasswordAuthenticationToken(user, password, grantedAuthorities);
-    }
-
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication == UsernamePasswordAuthenticationToken.class;
     }
 }

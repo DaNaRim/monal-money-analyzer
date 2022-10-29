@@ -1,4 +1,4 @@
-package com.danarim.monal.config.exeptions;
+package com.danarim.monal.exceptions;
 
 import java.io.Serial;
 

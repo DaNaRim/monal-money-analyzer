@@ -1,6 +1,6 @@
 package com.danarim.monal.user.service;
 
-import com.danarim.monal.config.exeptions.AlreadyExistsException;
+import com.danarim.monal.exceptions.AlreadyExistsException;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.RoleName;
@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+
+import static com.danarim.monal.exceptions.GenericErrorType.FIELD_VALIDATION_ERROR;
 
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
@@ -30,6 +32,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (userDao.existsByEmail(registrationDto.email())) {
             throw new AlreadyExistsException(
                     "User with this email already exists",
+                    FIELD_VALIDATION_ERROR,
                     "email",
                     "validation.user.existing.email",
                     null
@@ -41,7 +44,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 registrationDto.lastName(),
                 registrationDto.email(),
                 encoder.encode(registrationDto.password()),
-                Collections.singleton(roleDao.findByRoleName(RoleName.USER))
+                Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER))
         );
         userDao.save(user);
     }
