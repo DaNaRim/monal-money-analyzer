@@ -76,7 +76,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String[] roles = decodedJWT.getClaim(CLAIM_AUTHORITIES).asArray(String.class);
         String tokenType = decodedJWT.getClaim(CLAIM_TOKEN_TYPE).asString();
 
-        if (tokenType.equals(TOKEN_TYPE_REFRESH)) {
+        if (!tokenType.equals(TOKEN_TYPE_ACCESS)) {
             throw new InvalidTokenTypeException("Invalid token type. provided: %s expected: %s"
                     .formatted(tokenType, TOKEN_TYPE_ACCESS));
         }

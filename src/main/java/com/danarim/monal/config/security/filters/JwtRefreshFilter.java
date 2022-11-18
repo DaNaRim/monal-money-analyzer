@@ -49,6 +49,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
 
         if (!request.getServletPath().equals(BACKEND_PREFIX + "/jwtTokenRefresh")) {
             filterChain.doFilter(request, response);
+            return;
         }
         try {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
