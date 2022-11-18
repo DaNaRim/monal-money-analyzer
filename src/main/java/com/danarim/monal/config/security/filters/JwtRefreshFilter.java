@@ -4,8 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
-import com.danarim.monal.exceptions.InvalidTokenTypeException;
+import com.danarim.monal.exceptions.BadRequestException;
+import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,8 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
-import static com.danarim.monal.config.security.JwtUtil.*;
 import static com.danarim.monal.config.security.filters.CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -47,7 +47,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (!request.getServletPath().equals(BACKEND_PREFIX + "/jwtTokenRefresh")) {
+        if (!request.getServletPath().equals(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -74,17 +74,22 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
         DecodedJWT decodedJWT = verifier.verify(token);
 
         String email = decodedJWT.getSubject();
-        String tokenType = decodedJWT.getClaim(CLAIM_TOKEN_TYPE).asString();
+        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
 
-        if (!tokenType.equals(TOKEN_TYPE_REFRESH)) {
-            throw new InvalidTokenTypeException("Invalid token type. provided: %s expected: %s"
-                    .formatted(tokenType, TOKEN_TYPE_REFRESH));
+        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_REFRESH)) {
+            throw new BadRequestException(
+                    "Invalid token type. provided: %s expected: %s".formatted(tokenType, JwtUtil.TOKEN_TYPE_REFRESH),
+                    GenericErrorType.GLOBAL_ERROR,
+                    null,
+                    "validation.auth.token.incorrectType",
+                    new Object[]{tokenType, JwtUtil.TOKEN_TYPE_REFRESH}
+            );
         }
         User user = (User) userDetailsService.loadUserByUsername(email);
 
         return Map.of(
-                KEY_ACCESS_TOKEN, jwtUtil.generateAccessToken(user, requestURL),
-                KEY_REFRESH_TOKEN, token
+                JwtUtil.KEY_ACCESS_TOKEN, jwtUtil.generateAccessToken(user, requestURL),
+                JwtUtil.KEY_REFRESH_TOKEN, token
         );
     }
 }

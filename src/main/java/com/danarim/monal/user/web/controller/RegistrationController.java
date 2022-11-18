@@ -3,6 +3,7 @@ package com.danarim.monal.user.web.controller;
 import com.danarim.monal.user.service.RegistrationService;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -24,6 +25,18 @@ public class RegistrationController {
     public void registerUserAccount(@RequestBody @Valid RegistrationDto registrationDto) {
 
         registrationService.registerNewUserAccount(registrationDto);
+    }
+
+    @GetMapping("/stub")
+    @Secured("ROLE_USER")
+    public String stub() {
+        return "stub"; //TODO remove
+    }
+
+    @GetMapping("/adminStub")
+    @Secured("ROLE_ADMIN")
+    public String authStub() {
+        return "authStub"; //TODO remove
     }
 
 }

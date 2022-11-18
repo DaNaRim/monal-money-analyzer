@@ -3,8 +3,8 @@ package com.danarim.monal.failHandler;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.GenericErrorType;
-import com.danarim.monal.exceptions.InvalidTokenTypeException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.*;
@@ -88,12 +88,12 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         String message;
         String type = GLOBAL_ERROR.getType();
 
-        if (e instanceof IllegalArgumentException) {
-            message = messages.getMessage("validation.auth.token.missing", null, locale);
+        if (e instanceof BadRequestException badReqEx) {
+            message = messages.getMessage(badReqEx.getMessageCode(), badReqEx.getMessageArgs(), locale);
+        } else if (e instanceof IllegalArgumentException) {
+            message = messages.getMessage("validation.auth.token.invalid.prefix", null, locale);
         } else if (e instanceof TokenExpiredException) {
             message = messages.getMessage("validation.auth.token.expired", null, locale);
-        } else if (e instanceof InvalidTokenTypeException) {
-            message = messages.getMessage("validation.auth.token.incorrectType", null, locale);
         } else if (e instanceof JWTDecodeException) {
             message = messages.getMessage("validation.auth.token.incorrect", null, locale);
         } else if (e instanceof JWTVerificationException || e instanceof NullPointerException) {
@@ -117,8 +117,8 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                                                   Locale locale,
                                                   AuthenticationException exception
     ) {
-        String type;
-        String fieldName;
+        String type = GenericErrorType.GLOBAL_ERROR.getType();
+        String fieldName = GenericErrorType.GLOBAL_ERROR.getType();
         String resultMessage;
         switch (authError) {
             case USERNAME_NOT_FOUND_EXCEPTION -> {
@@ -131,21 +131,12 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                 fieldName = "password";
                 resultMessage = messages.getMessage("validation.auth.badCredentials", null, locale);
             }
-            case DISABLED_EXCEPTION -> {
-                type = GenericErrorType.GLOBAL_ERROR.getType();
-                fieldName = GenericErrorType.GLOBAL_ERROR.getType();
-                resultMessage = messages.getMessage("validation.auth.disabled", null, locale);
-            }
-            case ACCOUNT_LOCKED_EXCEPTION -> {
-                type = GenericErrorType.GLOBAL_ERROR.getType();
-                fieldName = GenericErrorType.GLOBAL_ERROR.getType();
-                resultMessage = messages.getMessage("validation.auth.blocked", null, locale);
-            }
-            case ACCOUNT_EXPIRED_EXCEPTION -> {
-                type = GenericErrorType.GLOBAL_ERROR.getType();
-                fieldName = GenericErrorType.GLOBAL_ERROR.getType();
-                resultMessage = messages.getMessage("validation.auth.expired", null, locale);
-            }
+            case DISABLED_EXCEPTION ->
+                    resultMessage = messages.getMessage("validation.auth.disabled", null, locale);
+            case ACCOUNT_LOCKED_EXCEPTION ->
+                    resultMessage = messages.getMessage("validation.auth.blocked", null, locale);
+            case ACCOUNT_EXPIRED_EXCEPTION ->
+                    resultMessage = messages.getMessage("validation.auth.expired", null, locale);
             default -> {
                 logger.error("Unexpected authentication error " + exception.getMessage(), exception);
 

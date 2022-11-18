@@ -6,6 +6,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), e.getField(), message);
 
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<List<GenericErrorResponse>> handleAccessDeniedException(AccessDeniedException e,
+                                                                                     WebRequest request
+    ) {
+        logger.debug("%s during request: %s : %s".formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        String message = messages.getMessage("error.access.denied", null, request.getLocale());
+        GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), GLOBAL_ERROR.getType(), message);
+
+        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

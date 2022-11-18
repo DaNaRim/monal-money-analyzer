@@ -22,22 +22,22 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) {
         final String name = authentication.getName();
-        final String password = authentication.getCredentials().toString();
+        final Object credentials = authentication.getCredentials();
 
         if (name == null) {
-            throw new UsernameNotFoundException("Username is null");
+            throw new UsernameNotFoundException("Username is null"); //displayed as user not found
         }
-        if (password == null) {
-            throw new BadCredentialsException("Password is null");
+        if (credentials == null || credentials.toString() == null) {
+            throw new BadCredentialsException("Password is null"); //displayed as invalid password
         }
         User user = (User) userDetailsService.loadUserByUsername(name);
 
         validateUser(user);
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (!passwordEncoder.matches(credentials.toString(), user.getPassword())) {
             throw new BadCredentialsException("Wrong password");
         }
-        return new UsernamePasswordAuthenticationToken(user, password, user.getRoles());
+        return new UsernamePasswordAuthenticationToken(user, credentials, user.getRoles());
     }
 
     @Override

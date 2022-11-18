@@ -4,8 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
-import com.danarim.monal.exceptions.InvalidTokenTypeException;
+import com.danarim.monal.exceptions.BadRequestException;
+import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
@@ -23,8 +25,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
-import static com.danarim.monal.config.security.JwtUtil.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component("customAuthorizationFilter")
@@ -46,16 +46,20 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (request.getServletPath().equals(BACKEND_PREFIX + "/login")
-                || request.getServletPath().equals(BACKEND_PREFIX + "/jwtTokenRefresh")) {
+        if (request.getServletPath().equals(WebConfig.BACKEND_PREFIX + "/login")
+                || request.getServletPath().equals(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")) {
             filterChain.doFilter(request, response);
             return;
         }
         try {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
 
-            if (authorizationHeader == null || !authorizationHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
-                throw new IllegalArgumentException("Authorization header is missing or invalid");
+            if (authorizationHeader == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            if (!authorizationHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
+                throw new IllegalArgumentException("Authorization header is invalid");
             }
             String token = authorizationHeader.substring(AUTHORIZATION_HEADER_PREFIX.length());
             processAuthorization(token);
@@ -73,12 +77,17 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         DecodedJWT decodedJWT = verifier.verify(token);
 
         String username = decodedJWT.getSubject();
-        String[] roles = decodedJWT.getClaim(CLAIM_AUTHORITIES).asArray(String.class);
-        String tokenType = decodedJWT.getClaim(CLAIM_TOKEN_TYPE).asString();
+        String[] roles = decodedJWT.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
+        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
 
-        if (!tokenType.equals(TOKEN_TYPE_ACCESS)) {
-            throw new InvalidTokenTypeException("Invalid token type. provided: %s expected: %s"
-                    .formatted(tokenType, TOKEN_TYPE_ACCESS));
+        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
+            throw new BadRequestException(
+                    "Invalid token type. provided: %s expected: %s".formatted(tokenType, JwtUtil.TOKEN_TYPE_ACCESS),
+                    GenericErrorType.GLOBAL_ERROR,
+                    null,
+                    "validation.auth.token.incorrectType",
+                    new Object[]{tokenType, JwtUtil.TOKEN_TYPE_ACCESS}
+            );
         }
         Collection<GrantedAuthority> authorities = new HashSet<>();
         for (String role : roles) {

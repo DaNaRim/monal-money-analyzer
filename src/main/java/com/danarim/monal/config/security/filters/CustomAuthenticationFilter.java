@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.danarim.monal.config.security.JwtUtil.KEY_ACCESS_TOKEN;
-import static com.danarim.monal.config.security.JwtUtil.KEY_REFRESH_TOKEN;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @Component("customAuthenticationFilter")
@@ -47,9 +45,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         try {
             authBody = new ObjectMapper().readValue(request.getInputStream(), AuthenticationBody.class);
         } catch (IOException e) {
-            authenticationFailureHandler.handleInvalidAuthenticationBody(request,
-                    response); //handle ex and return response
-            return null;
+            //handle ex and return response
+            authenticationFailureHandler.handleInvalidAuthenticationBody(request, response);
+            return null; //stub
         }
         final String username = authBody.username;
         final String password = authBody.password;
@@ -69,8 +67,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         User user = (User) authResult.getPrincipal();
 
         Map<String, String> tokens = Map.of(
-                KEY_ACCESS_TOKEN, jwtUtil.generateAccessToken(user, request.getRequestURL().toString()),
-                KEY_REFRESH_TOKEN, jwtUtil.generateRefreshToken(user, request.getRequestURL().toString())
+                JwtUtil.KEY_ACCESS_TOKEN, jwtUtil.generateAccessToken(user, request.getRequestURL().toString()),
+                JwtUtil.KEY_REFRESH_TOKEN, jwtUtil.generateRefreshToken(user, request.getRequestURL().toString())
         );
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
