@@ -23,7 +23,6 @@ import java.util.Locale;
 
 import static com.danarim.monal.exceptions.GenericErrorType.GLOBAL_ERROR;
 import static com.danarim.monal.exceptions.GenericErrorType.SERVER_ERROR;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -69,7 +68,7 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                 messages.getMessage("validation.auth.invalidBody", null, locale)
         );
         response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(FORBIDDEN.value());
+        response.setStatus(UNAUTHORIZED.value());
         try {
             new ObjectMapper().writeValue(response.getOutputStream(), genericErrorResponse);
         } catch (IOException e) {
@@ -109,7 +108,7 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                 message
         );
         response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(FORBIDDEN.value());
+        response.setStatus(UNAUTHORIZED.value());
         new ObjectMapper().writeValue(response.getOutputStream(), genericErrorResponse);
     }
 
