@@ -28,6 +28,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Component("jwtRefreshFilter")
 public class JwtRefreshFilter extends OncePerRequestFilter {
 
+    public static final String REFRESH_TOKEN_ENDPOINT = "/jwtTokenRefresh";
+
     private final UserDetailsService userDetailsService;
     private final CustomAuthFailureHandler failureHandler;
     private final JwtUtil jwtUtil;
