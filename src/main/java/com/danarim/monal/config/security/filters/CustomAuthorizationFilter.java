@@ -46,8 +46,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (request.getServletPath().equals(WebConfig.BACKEND_PREFIX + "/login")
-                || request.getServletPath().equals(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")) {
+        if (request.getPathInfo().equals(WebConfig.BACKEND_PREFIX + "/login")
+                || request.getPathInfo().equals(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }

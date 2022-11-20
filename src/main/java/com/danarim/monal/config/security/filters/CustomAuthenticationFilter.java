@@ -47,7 +47,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         } catch (IOException e) {
             //handle ex and return response
             authenticationFailureHandler.handleInvalidAuthenticationBody(request, response);
-            return null; //stub
+            return null; //stub //TODO throw exception
         }
         final String username = authBody.username;
         final String password = authBody.password;

@@ -49,7 +49,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (!request.getServletPath().equals(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")) {
+        if (!request.getPathInfo().equals(WebConfig.BACKEND_PREFIX + REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }
