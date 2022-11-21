@@ -40,8 +40,8 @@ class RegistrationServiceImplTest {
 
         RegistrationDto registrationDto = new RegistrationDto(
                 "test", "test",
-                "email",
-                "password", "password"
+                "password", "password",
+                "email"
         );
 
         registrationService.registerNewUserAccount(registrationDto);
@@ -58,8 +58,8 @@ class RegistrationServiceImplTest {
 
         RegistrationDto registrationDto = new RegistrationDto(
                 "test", "test",
-                "existsEmail",
-                "password", "password"
+                "password", "password",
+                "existsEmail"
         );
 
         AlreadyExistsException e = assertThrows(AlreadyExistsException.class,
