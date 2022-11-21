@@ -1,19 +1,23 @@
-package com.danarim.monal.config.security.filters;
+package com.danarim.monal.config.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.exceptions.AuthorizationException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.GenericErrorType;
-import com.danarim.monal.failHandler.CustomAuthFailureHandler;
+import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,16 +31,14 @@ import java.util.HashSet;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@Component("customAuthorizationFilter")
+@Component
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     public static final String AUTHORIZATION_HEADER_PREFIX = "Bearer ";
 
-    private final CustomAuthFailureHandler failureHandler;
     private final JwtUtil jwtUtil;
 
-    public CustomAuthorizationFilter(CustomAuthFailureHandler failureHandler, JwtUtil jwtUtil) {
-        this.failureHandler = failureHandler;
+    public CustomAuthorizationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 
@@ -46,34 +48,36 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (request.getPathInfo().equals(WebConfig.BACKEND_PREFIX + "/login")
-                || request.getPathInfo().equals(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+
+        if (authorizationHeader == null
+                || request.getRequestURI().equals(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }
+        if (!authorizationHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
+            throw new AuthorizationException("validation.auth.token.invalid.prefix", null);
+        }
         try {
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
-
-            if (authorizationHeader == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-            if (!authorizationHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
-                throw new IllegalArgumentException("Authorization header is invalid");
-            }
             String token = authorizationHeader.substring(AUTHORIZATION_HEADER_PREFIX.length());
             processAuthorization(token);
 
             filterChain.doFilter(request, response);
+        } catch (BadRequestException e) {
+            throw new AuthorizationException(e, e.getMessageCode(), e.getMessageArgs());
+        } catch (TokenExpiredException e) {
+            throw new AuthorizationException(e, "validation.auth.token.expired", null);
+        } catch (JWTDecodeException | UsernameNotFoundException e) {
+            throw new AuthorizationException(e, "validation.auth.token.incorrect", null);
+        } catch (JWTVerificationException e) {
+            throw new AuthorizationException(e, "validation.auth.token.invalid", null);
         } catch (Exception e) {
-            failureHandler.handleTokenException(e, request, response);
+            throw new InternalServerException("Unexpected Authorization exception", e);
         }
     }
 
     private void processAuthorization(String token) {
-        Algorithm algorithm = jwtUtil.getAlgorithm();
-        JWTVerifier verifier = JWT.require(algorithm).build();
-
+        JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm()).build();
         DecodedJWT decodedJWT = verifier.verify(token);
 
         String username = decodedJWT.getSubject();
@@ -93,9 +97,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         for (String role : roles) {
             authorities.add(new Role(RoleName.valueOf(role)));
         }
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(username, null, authorities);
-
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(username, null, authorities));
     }
 }

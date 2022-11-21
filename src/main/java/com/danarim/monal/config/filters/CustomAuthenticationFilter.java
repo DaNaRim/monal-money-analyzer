@@ -1,4 +1,4 @@
-package com.danarim.monal.config.security.filters;
+package com.danarim.monal.config.filters;
 
 import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.user.persistence.model.User;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
-@Component("customAuthenticationFilter")
+@Component
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -47,10 +47,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         final String username = authBody.username;
         final String password = authBody.password;
 
-        UsernamePasswordAuthenticationToken token
-                = new UsernamePasswordAuthenticationToken(username, password);
-
-        return authenticationManager.authenticate(token);
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 
     @Override

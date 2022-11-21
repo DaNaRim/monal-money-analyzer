@@ -1,17 +1,21 @@
-package com.danarim.monal.config.security.filters;
+package com.danarim.monal.config.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.exceptions.AuthorizationException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.GenericErrorType;
-import com.danarim.monal.failHandler.CustomAuthFailureHandler;
+import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.user.persistence.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,24 +26,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.danarim.monal.config.security.filters.CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@Component("jwtRefreshFilter")
+@Component
 public class JwtRefreshFilter extends OncePerRequestFilter {
 
     public static final String REFRESH_TOKEN_ENDPOINT = "/jwtTokenRefresh";
 
     private final UserDetailsService userDetailsService;
-    private final CustomAuthFailureHandler failureHandler;
     private final JwtUtil jwtUtil;
 
-    public JwtRefreshFilter(UserDetailsService userDetailsService,
-                            CustomAuthFailureHandler failureHandler,
-                            JwtUtil jwtUtil
-    ) {
+    public JwtRefreshFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
-        this.failureHandler = failureHandler;
         this.jwtUtil = jwtUtil;
     }
 
@@ -49,30 +47,37 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (!request.getPathInfo().equals(WebConfig.BACKEND_PREFIX + REFRESH_TOKEN_ENDPOINT)) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+
+        if (!request.getRequestURI().equals(WebConfig.BACKEND_PREFIX + REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }
+        if (authorizationHeader == null
+                || !authorizationHeader.startsWith(CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX)) {
+            throw new AuthorizationException("validation.auth.token.invalid.prefix", null);
+        }
         try {
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
-
-            if (authorizationHeader == null || !authorizationHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
-                throw new IllegalArgumentException("Authorization header is missing or invalid");
-            }
-            String token = authorizationHeader.substring(AUTHORIZATION_HEADER_PREFIX.length());
+            String token = authorizationHeader.substring(CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX.length());
 
             Map<String, String> tokens = processRefresh(token, request.getRequestURL().toString());
 
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+        } catch (BadRequestException e) {
+            throw new AuthorizationException(e, e.getMessageCode(), e.getMessageArgs());
+        } catch (TokenExpiredException e) {
+            throw new AuthorizationException(e, "validation.auth.token.expired", null);
+        } catch (JWTDecodeException | UsernameNotFoundException e) {
+            throw new AuthorizationException(e, "validation.auth.token.incorrect", null);
+        } catch (JWTVerificationException e) {
+            throw new AuthorizationException(e, "validation.auth.token.invalid", null);
         } catch (Exception e) {
-            failureHandler.handleTokenException(e, request, response);
+            throw new InternalServerException("Unexpected Authorization exception", e);
         }
     }
 
     private Map<String, String> processRefresh(String token, String requestURL) {
-        Algorithm algorithm = jwtUtil.getAlgorithm();
-        JWTVerifier verifier = JWT.require(algorithm).build();
-
+        JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm()).build();
         DecodedJWT decodedJWT = verifier.verify(token);
 
         String email = decodedJWT.getSubject();

@@ -1,9 +1,5 @@
 package com.danarim.monal.failHandler;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.GenericErrorType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
@@ -21,12 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static com.danarim.monal.exceptions.GenericErrorType.GLOBAL_ERROR;
-import static com.danarim.monal.exceptions.GenericErrorType.SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Component("CustomAuthenticationFailureHandler")
+@Component
 public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     private final MessageSource messages;
@@ -55,40 +49,6 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         response.setStatus(UNAUTHORIZED.value());
 
         new ObjectMapper().writeValue(response.getOutputStream(), List.of(errorResponse));
-    }
-
-    public void handleTokenException(Exception e,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response
-    ) throws IOException {
-        Locale locale = localeResolver.resolveLocale(request);
-
-        String message;
-        String type = GLOBAL_ERROR.getType();
-
-        if (e instanceof BadRequestException badReqEx) {
-            message = messages.getMessage(badReqEx.getMessageCode(), badReqEx.getMessageArgs(), locale);
-        } else if (e instanceof IllegalArgumentException) {
-            message = messages.getMessage("validation.auth.token.invalid.prefix", null, locale);
-        } else if (e instanceof TokenExpiredException) {
-            message = messages.getMessage("validation.auth.token.expired", null, locale);
-        } else if (e instanceof JWTDecodeException) {
-            message = messages.getMessage("validation.auth.token.incorrect", null, locale);
-        } else if (e instanceof JWTVerificationException || e instanceof NullPointerException) {
-            message = messages.getMessage("validation.auth.token.invalid", null, locale);
-        } else {
-            logger.error("Error processing token", e);
-            type = SERVER_ERROR.getType();
-            message = messages.getMessage("error.server.internal-error", null, locale);
-        }
-        GenericErrorResponse genericErrorResponse = new GenericErrorResponse(
-                type,
-                type,
-                message
-        );
-        response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(UNAUTHORIZED.value());
-        new ObjectMapper().writeValue(response.getOutputStream(), genericErrorResponse);
     }
 
     private GenericErrorResponse getErrorResponse(AuthError authError,

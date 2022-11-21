@@ -133,4 +133,13 @@ class CustomAuthenticationFilterIT {
                 .andReturn();
     }
 
+    @Test
+    void testNoBody() throws Exception {
+        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$[0].type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$[0].fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$[0].message").exists())
+                .andReturn();
+    }
 }

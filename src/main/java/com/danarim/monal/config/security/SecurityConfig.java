@@ -1,8 +1,9 @@
 package com.danarim.monal.config.security;
 
-import com.danarim.monal.config.security.filters.CustomAuthenticationFilter;
-import com.danarim.monal.config.security.filters.CustomAuthorizationFilter;
-import com.danarim.monal.config.security.filters.JwtRefreshFilter;
+import com.danarim.monal.config.filters.CustomAuthenticationFilter;
+import com.danarim.monal.config.filters.CustomAuthorizationFilter;
+import com.danarim.monal.config.filters.ExceptionHandlerFilter;
+import com.danarim.monal.config.filters.JwtRefreshFilter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -52,7 +54,8 @@ public class SecurityConfig {
                 .addFilterBefore(
                         context.getBean(CustomAuthorizationFilter.class), UsernamePasswordAuthenticationFilter.class
                 )
-                .addFilterBefore(context.getBean(JwtRefreshFilter.class), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(context.getBean(JwtRefreshFilter.class), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(context.getBean(ExceptionHandlerFilter.class), CorsFilter.class);
 
         return http.build();
     }

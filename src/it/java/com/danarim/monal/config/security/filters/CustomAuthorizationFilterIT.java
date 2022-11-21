@@ -1,6 +1,7 @@
 package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.config.filters.CustomAuthorizationFilter;
 import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.user.persistence.dao.RoleDao;
@@ -50,6 +51,8 @@ class CustomAuthorizationFilterIT {
     private UserDao userDao;
     @Autowired
     private RoleDao roleDao;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostConstruct
     public void init() {
@@ -193,6 +196,45 @@ class CustomAuthorizationFilterIT {
 
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
                         .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + refreshToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testExpiredToken() throws Exception {
+        User user = new User("t", "t", "e", "p", Set.of(new Role(RoleName.ROLE_USER)));
+
+        String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
+
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testInvalidToken() throws Exception {
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + "invalid"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testIncorrectToken() throws Exception {
+        User user = new User("t", "t", "e", "p", Set.of(new Role(RoleName.ROLE_USER)));
+
+        String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
+        accessToken = accessToken.substring(0, accessToken.length() - 1);
+
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
                 .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))

@@ -12,11 +12,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Component("jwtUtil")
+@Component
 public class JwtUtil {
 
-    public static final long ACCESS_TOKEN_EXPIRATION_IN_DAYS = 10L;
-    public static final long REFRESH_TOKEN_EXPIRATION_IN_DAYS = 30L;
+    public static final long ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 10L;
+    public static final long REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 30L;
 
     public static final String KEY_ACCESS_TOKEN = "access_token";
     public static final String KEY_REFRESH_TOKEN = "refresh_token";
@@ -41,7 +41,7 @@ public class JwtUtil {
         return algorithm;
     }
 
-    public String generateAccessToken(User user, String issuer) {
+    public String generateAccessToken(User user, String issuer, long expirationInDays) {
         List<String> userRolesList = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
@@ -49,7 +49,7 @@ public class JwtUtil {
         return JWT.create()
                 .withSubject(user.getUsername())
                 .withExpiresAt(
-                        new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(ACCESS_TOKEN_EXPIRATION_IN_DAYS))
+                        new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(expirationInDays))
                 )
                 .withIssuer(issuer)
                 .withClaim(CLAIM_TOKEN_TYPE, TOKEN_TYPE_ACCESS)
@@ -57,14 +57,22 @@ public class JwtUtil {
                 .sign(algorithm);
     }
 
-    public String generateRefreshToken(User user, String issuer) {
+    public String generateAccessToken(User user, String issuer) {
+        return generateAccessToken(user, issuer, ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS);
+    }
+
+    public String generateRefreshToken(User user, String issuer, long expirationInDays) {
         return JWT.create()
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(
-                        System.currentTimeMillis() + TimeUnit.DAYS.toMillis(REFRESH_TOKEN_EXPIRATION_IN_DAYS))
+                        System.currentTimeMillis() + TimeUnit.DAYS.toMillis(expirationInDays))
                 )
                 .withIssuer(issuer)
                 .withClaim(CLAIM_TOKEN_TYPE, TOKEN_TYPE_REFRESH)
                 .sign(algorithm);
+    }
+
+    public String generateRefreshToken(User user, String issuer) {
+        return generateRefreshToken(user, issuer, REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS);
     }
 }

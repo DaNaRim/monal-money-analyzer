@@ -1,6 +1,8 @@
 package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.config.filters.CustomAuthorizationFilter;
+import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
@@ -51,6 +53,8 @@ class JwtRefreshFilterIT {
     private UserDao userDao;
     @Autowired
     private RoleDao roleDao;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostConstruct
     public void init() {
@@ -136,6 +140,70 @@ class JwtRefreshFilterIT {
         ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
 
         String accessToken = node.get("access_token").asText();
+
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")
+                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testNoAuthPrefix() throws Exception {
+        String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
+
+        MvcResult result = mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+                        .contentType(APPLICATION_JSON)
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.access_token").isNotEmpty())
+                .andExpect(jsonPath("$.refresh_token").isNotEmpty())
+                .andReturn();
+
+        String json = result.getResponse().getContentAsString();
+        ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
+
+        String accessToken = node.get("access_token").asText();
+
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")
+                        .header(AUTHORIZATION, accessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testExpiredToken() throws Exception {
+        User user = new User("t", "t", "e", "p", Set.of(new Role(RoleName.ROLE_USER)));
+
+        String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
+
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")
+                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testInvalidToken() throws Exception {
+        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")
+                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + "invalid"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    void testIncorrectToken() throws Exception {
+        User user = new User("t", "t", "e", "p", Set.of(new Role(RoleName.ROLE_USER)));
+
+        String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
+        accessToken = accessToken.substring(0, accessToken.length() - 1);
 
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/jwtTokenRefresh")
                         .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
