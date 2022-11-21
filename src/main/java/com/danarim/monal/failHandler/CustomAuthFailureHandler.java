@@ -57,27 +57,6 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         new ObjectMapper().writeValue(response.getOutputStream(), List.of(errorResponse));
     }
 
-    public void handleInvalidAuthenticationBody(HttpServletRequest request,
-                                                HttpServletResponse response
-    ) {
-        Locale locale = localeResolver.resolveLocale(request);
-
-        GenericErrorResponse genericErrorResponse = new GenericErrorResponse(
-                GLOBAL_ERROR.getType(),
-                GLOBAL_ERROR.getType(),
-                messages.getMessage("validation.auth.invalidBody", null, locale)
-        );
-        response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(UNAUTHORIZED.value());
-        try {
-            new ObjectMapper().writeValue(response.getOutputStream(), genericErrorResponse);
-        } catch (IOException e) {
-            logger.error("Failed to handle invalid authentication body", e);
-            throw new InternalAuthenticationServiceException(
-                    "Error while writing invalid authentication body response", e);
-        }
-    }
-
     public void handleTokenException(Exception e,
                                      HttpServletRequest request,
                                      HttpServletResponse response
@@ -130,12 +109,13 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                 fieldName = "password";
                 resultMessage = messages.getMessage("validation.auth.badCredentials", null, locale);
             }
-            case DISABLED_EXCEPTION ->
-                    resultMessage = messages.getMessage("validation.auth.disabled", null, locale);
+            case DISABLED_EXCEPTION -> resultMessage = messages.getMessage("validation.auth.disabled", null, locale);
             case ACCOUNT_LOCKED_EXCEPTION ->
                     resultMessage = messages.getMessage("validation.auth.blocked", null, locale);
             case ACCOUNT_EXPIRED_EXCEPTION ->
                     resultMessage = messages.getMessage("validation.auth.expired", null, locale);
+            case CREDENTIALS_NOT_FOUND_EXCEPTION ->
+                    resultMessage = messages.getMessage("validation.auth.invalidBody", null, locale);
             default -> {
                 logger.error("Unexpected authentication error " + exception.getMessage(), exception);
 
@@ -153,6 +133,7 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         DISABLED_EXCEPTION(DisabledException.class.getSimpleName()),
         ACCOUNT_LOCKED_EXCEPTION(LockedException.class.getSimpleName()),
         ACCOUNT_EXPIRED_EXCEPTION(AccountExpiredException.class.getSimpleName()),
+        CREDENTIALS_NOT_FOUND_EXCEPTION(AuthenticationCredentialsNotFoundException.class.getSimpleName()),
         UNEXPECTED("UNEXPECTED");
 
         private final String errorClassName;

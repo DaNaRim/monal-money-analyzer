@@ -127,9 +127,9 @@ class CustomAuthenticationFilterIT {
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$[0].type").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$[0].fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$[0].message").exists())
                 .andReturn();
     }
 

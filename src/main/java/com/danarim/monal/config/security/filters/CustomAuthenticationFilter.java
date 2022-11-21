@@ -1,9 +1,9 @@
 package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.config.security.JwtUtil;
-import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,16 +23,13 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final CustomAuthFailureHandler authenticationFailureHandler;
     private final JwtUtil jwtUtil;
 
     public CustomAuthenticationFilter(AuthenticationManager authenticationManager,
-                                      CustomAuthFailureHandler authFailureHandler,
                                       JwtUtil jwtUtil
     ) {
         super.setAuthenticationManager(authenticationManager);
         this.authenticationManager = authenticationManager;
-        this.authenticationFailureHandler = authFailureHandler;
         this.jwtUtil = jwtUtil;
     }
 
@@ -45,9 +42,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         try {
             authBody = new ObjectMapper().readValue(request.getInputStream(), AuthenticationBody.class);
         } catch (IOException e) {
-            //handle ex and return response
-            authenticationFailureHandler.handleInvalidAuthenticationBody(request, response);
-            return null; //stub //TODO throw exception
+            throw new AuthenticationCredentialsNotFoundException("invalid AuthenticationBody", e);
         }
         final String username = authBody.username;
         final String password = authBody.password;

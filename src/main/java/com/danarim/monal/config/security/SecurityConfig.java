@@ -3,7 +3,6 @@ package com.danarim.monal.config.security;
 import com.danarim.monal.config.security.filters.CustomAuthenticationFilter;
 import com.danarim.monal.config.security.filters.CustomAuthorizationFilter;
 import com.danarim.monal.config.security.filters.JwtRefreshFilter;
-import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,7 +61,6 @@ public class SecurityConfig {
     public CustomAuthenticationFilter customAuthenticationFilter(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter(
                 authenticationManager(http),
-                context.getBean(CustomAuthFailureHandler.class),
                 context.getBean(JwtUtil.class)
         );
         filter.setFilterProcessesUrl(BACKEND_PREFIX + "/login");
