@@ -1,13 +1,20 @@
 package com.danarim.monal.config.security.auth;
 
+import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Handles authentication of a user
+ * <br>
+ * Exception handles by {@link CustomAuthFailureHandler}
+ */
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
@@ -19,6 +26,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Handles authentication of a user
+     * @return token for applying to security context
+     * @throws AuthenticationException if authentication fails
+     */
     @Override
     public Authentication authenticate(Authentication authentication) {
         final String name = authentication.getName();

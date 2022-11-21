@@ -1,7 +1,5 @@
 package com.danarim.monal.config.filters;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -11,7 +9,6 @@ import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.AuthorizationException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.GenericErrorType;
-import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +28,11 @@ import java.util.HashSet;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+/**
+ * Validate the JWT token and set the authentication in the security context if authentication is successful
+ * <br>
+ * Exception handles by {@link ExceptionHandlerFilter}
+ */
 @Component
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
@@ -42,6 +44,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Validate the JWT token from request body and pass to processAuthorization() method for further processing
+     *
+     * @throws AuthorizationException if authorization fails
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -71,14 +78,17 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             throw new AuthorizationException(e, "validation.auth.token.incorrect", null);
         } catch (JWTVerificationException e) {
             throw new AuthorizationException(e, "validation.auth.token.invalid", null);
-        } catch (Exception e) {
-            throw new InternalServerException("Unexpected Authorization exception", e);
         }
     }
 
+    /**
+     * Process token and set authentication in the security context
+     *
+     * @param token the JWT token
+     * @throws BadRequestException if provided token with not ACCESS type
+     */
     private void processAuthorization(String token) {
-        JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm()).build();
-        DecodedJWT decodedJWT = verifier.verify(token);
+        DecodedJWT decodedJWT = jwtUtil.decode(token);
 
         String username = decodedJWT.getSubject();
         String[] roles = decodedJWT.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);

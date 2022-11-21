@@ -31,6 +31,9 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         this.localeResolver = localeResolver;
     }
 
+    /**
+     * Returns a {@link GenericErrorType} single object to the client.
+     */
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -87,6 +90,11 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         return new GenericErrorResponse(type, fieldName, resultMessage);
     }
 
+    /**
+     * Enum that represents the possible authentication errors.
+     * <br>
+     * Used for simplify the error handling.
+     */
     private enum AuthError {
         USERNAME_NOT_FOUND_EXCEPTION(UsernameNotFoundException.class.getSimpleName()),
         BAD_CREDENTIALS_EXCEPTION(BadCredentialsException.class.getSimpleName()),

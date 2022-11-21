@@ -10,6 +10,9 @@ import org.thymeleaf.util.StringUtils;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+/**
+ * Check if the password and the password confirmation are the same
+ */
 @Component
 public class PasswordMatchesValidator implements ConstraintValidator<PasswordMatches, Object> {
 

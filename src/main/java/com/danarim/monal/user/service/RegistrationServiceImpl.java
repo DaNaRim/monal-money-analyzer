@@ -27,6 +27,13 @@ public class RegistrationServiceImpl implements RegistrationService {
         this.encoder = encoder;
     }
 
+    /**
+     * Register a new user with role {@link RoleName#ROLE_USER} and not activated account.
+     * For activation, user should follow the link in the email.
+     *
+     * @param registrationDto user data
+     * @throws AlreadyExistsException if user with the same email already exists
+     */
     @Override
     public void registerNewUserAccount(RegistrationDto registrationDto) {
         if (userDao.existsByEmail(registrationDto.email())) {
@@ -44,7 +51,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 registrationDto.lastName(),
                 registrationDto.email(),
                 encoder.encode(registrationDto.password()),
-                Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER))
+                Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER)) //To get role with correct id
         );
         userDao.save(user);
     }

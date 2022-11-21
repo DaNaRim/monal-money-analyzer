@@ -2,6 +2,9 @@ package com.danarim.monal.exceptions;
 
 import java.io.Serial;
 
+/**
+ * Used when an internal server error occurs.
+ */
 public class InternalServerException extends RuntimeException {
 
     @Serial

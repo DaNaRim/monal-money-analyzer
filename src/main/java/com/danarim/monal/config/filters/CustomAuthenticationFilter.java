@@ -1,6 +1,8 @@
 package com.danarim.monal.config.filters;
 
 import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.config.security.auth.CustomAuthenticationProvider;
+import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -19,6 +21,13 @@ import java.util.Map;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
+/**
+ * Filter to authenticate user
+ * <br>
+ * Authentication handles by {@link CustomAuthenticationProvider}
+ * <br>
+ * Exception handles by {@link CustomAuthFailureHandler}
+ */
 @Component
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -33,11 +42,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Process the authentication header.
+     *
+     * @throws AuthenticationCredentialsNotFoundException if the authentication header is missing or invalid.
+     * @throws AuthenticationException                    if authentication failed.
+     */
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request,
-                                                HttpServletResponse response
-    ) throws AuthenticationException {
-
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         AuthenticationBody authBody;
         try {
             authBody = new ObjectMapper().readValue(request.getInputStream(), AuthenticationBody.class);
@@ -50,6 +62,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 
+    /**
+     * If authentication is successful, generate a JWT token and return it in the response.
+     *
+     * @throws IOException if an error occurs while writing the response.
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,

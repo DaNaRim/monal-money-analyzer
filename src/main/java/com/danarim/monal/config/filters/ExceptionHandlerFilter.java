@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 
+/**
+ * Handle authorization exceptions and all exceptions that are not handled by other filters or handlers
+ */
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
 

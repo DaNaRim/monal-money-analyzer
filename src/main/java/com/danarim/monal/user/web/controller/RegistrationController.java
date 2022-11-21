@@ -10,6 +10,9 @@ import javax.validation.Valid;
 
 import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
 
+/**
+ * Responsible for user registration, activation and password reset.
+ */
 @RestController
 @RequestMapping(BACKEND_PREFIX)
 public class RegistrationController {

@@ -1,7 +1,9 @@
 package com.danarim.monal.config.security;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +14,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Responsible for generating and decoding JWT tokens
+ */
 @Component
 public class JwtUtil {
 
@@ -37,8 +42,11 @@ public class JwtUtil {
         this.algorithm = Algorithm.HMAC256(jwtSecret.getBytes());
     }
 
-    public Algorithm getAlgorithm() {
-        return algorithm;
+    /**
+     * See {@link JWTVerifier#verify(String)} for possible exceptions
+     */
+    public DecodedJWT decode(String token) {
+        return JWT.require(algorithm).build().verify(token);
     }
 
     public String generateAccessToken(User user, String issuer, long expirationInDays) {

@@ -1,7 +1,5 @@
 package com.danarim.monal.config.filters;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -11,7 +9,6 @@ import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.AuthorizationException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.GenericErrorType;
-import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.user.persistence.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,6 +25,11 @@ import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+/**
+ * Filter to refresh JWT token
+ * <br>
+ * Exception handles by {@link ExceptionHandlerFilter}
+ */
 @Component
 public class JwtRefreshFilter extends OncePerRequestFilter {
 
@@ -41,6 +43,13 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Process the authentication header and pass to processRefresh() method create a new JWT token
+     * <br>
+     * If the token is valid, a new token will be created and returned to the client
+     *
+     * @throws AuthorizationException if authorization fails
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -71,14 +80,16 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
             throw new AuthorizationException(e, "validation.auth.token.incorrect", null);
         } catch (JWTVerificationException e) {
             throw new AuthorizationException(e, "validation.auth.token.invalid", null);
-        } catch (Exception e) {
-            throw new InternalServerException("Unexpected Authorization exception", e);
         }
     }
 
+    /**
+     * Process the refresh token and return new access and refresh tokens if valid
+     *
+     * @throws BadRequestException if provided token with not REFRESH type
+     */
     private Map<String, String> processRefresh(String token, String requestURL) {
-        JWTVerifier verifier = JWT.require(jwtUtil.getAlgorithm()).build();
-        DecodedJWT decodedJWT = verifier.verify(token);
+        DecodedJWT decodedJWT = jwtUtil.decode(token);
 
         String email = decodedJWT.getSubject();
         String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();

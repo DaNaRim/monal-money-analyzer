@@ -8,12 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +23,15 @@ import java.util.List;
 import static com.danarim.monal.exceptions.GenericErrorType.GLOBAL_ERROR;
 import static com.danarim.monal.exceptions.GenericErrorType.SERVER_ERROR;
 
+/**
+ * Handles exceptions thrown by controllers.
+ * <br>
+ * All methods must return {@link ResponseEntity} with list of {@link GenericErrorResponse} as body.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final String LOG_TEMPLATE = "%s during request: %s : %s";
 
     private final MessageSource messages;
 
@@ -30,11 +39,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         this.messages = messages;
     }
 
+    /**
+     * Handles validation exceptions thrown by services.
+     */
     @ExceptionHandler({BadRequestException.class, AlreadyExistsException.class})
     protected ResponseEntity<List<GenericErrorResponse>> handleBadRequestException(BadRequestException e,
                                                                                    WebRequest request
     ) {
-        logger.debug("%s during request: %s : %s".formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
         GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), e.getField(), message);
@@ -42,11 +54,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles {@link AccessDeniedException} thrown by Spring Security when user is not authorized to access resource.
+     */
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<List<GenericErrorResponse>> handleAccessDeniedException(AccessDeniedException e,
                                                                                      WebRequest request
     ) {
-        logger.debug("%s during request: %s : %s".formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
         String message = messages.getMessage("error.access.denied", null, request.getLocale());
         GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), GLOBAL_ERROR.getType(), message);
@@ -54,6 +69,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.FORBIDDEN);
     }
 
+    /**
+     * Handles server exceptions.
+     */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<List<GenericErrorResponse>> handleInternalException(Exception e, WebRequest request) {
 
@@ -65,18 +83,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Handles validation errors thrown by {@link Validated} and {@link Valid} annotations.
+     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request
     ) {
-        logger.debug("%s during request: %s : %s".formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
         ArrayList<GenericErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
         return new ResponseEntity<>(mappedErrors, headers, status);
     }
 
+    /**
+     * Maps errors from {@link BindingResult} to list of {@link GenericErrorResponse}.
+     */
     private static ArrayList<GenericErrorResponse> mapErrors(BindingResult errors) {
         ArrayList<GenericErrorResponse> result = new ArrayList<>();
 
