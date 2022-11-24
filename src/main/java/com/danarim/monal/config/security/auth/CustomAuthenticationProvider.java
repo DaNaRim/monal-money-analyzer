@@ -28,6 +28,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     /**
      * Handles authentication of a user
+     *
      * @return token for applying to security context
      * @throws AuthenticationException if authentication fails
      */
@@ -36,10 +37,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         final String name = authentication.getName();
         final Object credentials = authentication.getCredentials();
 
-        if (name == null) { //TODO: check for blank
+        if (name == null || name.isBlank()) {
             throw new UsernameNotFoundException("Username is null"); //displayed as user not found
         }
-        if (credentials == null || credentials.toString() == null) {
+        if (credentials == null || credentials.toString() == null || credentials.toString().isBlank()) {
             throw new BadCredentialsException("Password is null"); //displayed as invalid password
         }
         User user = (User) userDetailsService.loadUserByUsername(name);
