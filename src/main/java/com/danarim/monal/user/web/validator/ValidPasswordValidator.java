@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import static com.danarim.monal.config.WebConfig.DEFAULT_LOCALE;
 @Component
 public class ValidPasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
-    private static final String PASSAY_MESSAGE_FILE_PATH = "src/main/resources/i18n/validation%s.properties";
+    private static final String PASSAY_MESSAGE_FILE_PATH = "i18n/validation%s.properties";
 
     private static final List<Rule> passwordRules = Arrays.asList(
             new LengthRule(8, 30),
@@ -69,18 +69,22 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
     /**
      * Generates a message resolver for the current locale.
      */
-    private static MessageResolver generateMessageResolver() {
-
+    private MessageResolver generateMessageResolver() {
         Locale locale = LocaleContextHolder.getLocale();
 
         String suffix = locale.equals(DEFAULT_LOCALE) ? "" : "_%s".formatted(locale.getLanguage());
 
         String path = String.format(PASSAY_MESSAGE_FILE_PATH, suffix);
 
-        try (FileInputStream fis = new FileInputStream(path)) {
+        try (InputStream ioStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+
+            if (ioStream == null) {
+                logger.error("Could not find validation properties file for locale: " + locale);
+                throw new InternalServerException("Cannot find the file: %s".formatted(path));
+            }
             Properties props = new Properties();
 
-            props.load(new InputStreamReader(fis, StandardCharsets.UTF_8));
+            props.load(new InputStreamReader(ioStream, StandardCharsets.UTF_8));
             return new PropertiesMessageResolver(props);
         } catch (IOException e) {
             logger.error("Error while loading Passay messages file", e);

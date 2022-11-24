@@ -1,6 +1,7 @@
 package com.danarim.monal.user.web.validator;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.exceptions.InternalServerException;
 import com.google.common.collect.Iterables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,7 +80,7 @@ class ValidPasswordValidatorTest {
                 .findFirst()
                 .orElseThrow());
 
-        assertThrows(RuntimeException.class, () -> validator.isValid("12345678", context));
+        assertThrows(InternalServerException.class, () -> validator.isValid("12345678", context));
 
         verify(logger, times(1)).error(anyString(), any(Exception.class));
     }
