@@ -36,7 +36,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         final String name = authentication.getName();
         final Object credentials = authentication.getCredentials();
 
-        if (name == null) {
+        if (name == null) { //TODO: check for blank
             throw new UsernameNotFoundException("Username is null"); //displayed as user not found
         }
         if (credentials == null || credentials.toString() == null) {

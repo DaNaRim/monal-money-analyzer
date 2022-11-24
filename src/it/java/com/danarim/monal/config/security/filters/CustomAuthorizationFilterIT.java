@@ -1,7 +1,6 @@
 package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.config.WebConfig;
-import com.danarim.monal.config.filters.CustomAuthorizationFilter;
 import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.user.persistence.dao.RoleDao;
@@ -9,8 +8,6 @@ import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.user.persistence.model.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +19,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import java.util.Set;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -108,21 +106,17 @@ class CustomAuthorizationFilterIT {
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty())
-                .andExpect(jsonPath("$.refresh_token").isNotEmpty())
                 .andReturn();
 
-        String json = result.getResponse().getContentAsString();
-        ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
-
-        String accessToken = node.get("access_token").asText();
+        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        assertNotNull(accessTokenCookie);
 
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/adminStub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isForbidden());
     }
 
@@ -134,82 +128,30 @@ class CustomAuthorizationFilterIT {
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty())
-                .andExpect(jsonPath("$.refresh_token").isNotEmpty())
                 .andReturn();
 
-        String json = result.getResponse().getContentAsString();
-        ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
-
-        String accessToken = node.get(JwtUtil.KEY_ACCESS_TOKEN).asText();
+        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        assertNotNull(accessTokenCookie);
 
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/adminStub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void testNoAuthPrefix() throws Exception {
-        String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
-
-        MvcResult result = mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(loginJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty())
-                .andExpect(jsonPath("$.refresh_token").isNotEmpty())
-                .andReturn();
-
-        String json = result.getResponse().getContentAsString();
-        ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
-
-        String accessToken = node.get("access_token").asText();
-
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, accessToken))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.message").exists());
-    }
-
-    @Test
-    void testRefreshTokenAsAccess() throws Exception {
-        String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
-
-        MvcResult result = mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(loginJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty())
-                .andExpect(jsonPath("$.refresh_token").isNotEmpty())
-                .andReturn();
-
-        String json = result.getResponse().getContentAsString();
-        ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
-
-        String refreshToken = node.get("refresh_token").asText();
-
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + refreshToken))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
     void testExpiredToken() throws Exception {
-        User user = new User("t", "t", "e", "p", Set.of(new Role(RoleName.ROLE_USER)));
+        User user = new User("t", "e", "s", "t", Set.of(new Role(RoleName.ROLE_USER)));
 
         String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
 
+        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
                 .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -218,8 +160,10 @@ class CustomAuthorizationFilterIT {
 
     @Test
     void testInvalidToken() throws Exception {
+        Cookie invalidAccessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, "invalid");
+
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + "invalid"))
+                        .cookie(invalidAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
                 .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -228,13 +172,15 @@ class CustomAuthorizationFilterIT {
 
     @Test
     void testIncorrectToken() throws Exception {
-        User user = new User("t", "t", "e", "p", Set.of(new Role(RoleName.ROLE_USER)));
+        User user = new User("t", "e", "s", "t", Set.of(new Role(RoleName.ROLE_USER)));
 
         String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
+        Cookie incorrectAccessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+
         mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
-                        .header(AUTHORIZATION, CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX + accessToken))
+                        .cookie(incorrectAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
                 .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))

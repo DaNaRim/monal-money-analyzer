@@ -1,6 +1,7 @@
 package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
@@ -21,8 +22,7 @@ import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -87,8 +87,11 @@ class CustomAuthenticationFilterIT {
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty())
-                .andExpect(jsonPath("$.refresh_token").isNotEmpty());
+                .andExpect(cookie().exists(JwtUtil.KEY_ACCESS_TOKEN))
+                .andExpect(cookie().httpOnly(JwtUtil.KEY_ACCESS_TOKEN, true))
+                .andExpect(cookie().exists(JwtUtil.KEY_REFRESH_TOKEN))
+                .andExpect(cookie().httpOnly(JwtUtil.KEY_REFRESH_TOKEN, true));
+
     }
 
     @Test

@@ -14,12 +14,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Filter to authenticate user
@@ -43,9 +44,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     }
 
     /**
-     * Process the authentication header.
+     * Process the authentication from request body.
      *
-     * @throws AuthenticationCredentialsNotFoundException if the authentication header is missing or invalid.
+     * @throws AuthenticationCredentialsNotFoundException if the authentication body is missing or invalid.
      * @throws AuthenticationException                    if authentication failed.
      */
     @Override
@@ -63,7 +64,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     }
 
     /**
-     * If authentication is successful, generate a JWT token and return it in the response.
+     * If authentication is successful, generate a JWT tokens, set them in cookies and return AuthResponse
      *
      * @throws IOException if an error occurs while writing the response.
      */
@@ -75,17 +76,49 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     ) throws IOException {
         User user = (User) authResult.getPrincipal();
 
-        Map<String, String> tokens = Map.of(
-                JwtUtil.KEY_ACCESS_TOKEN, jwtUtil.generateAccessToken(user, request.getRequestURL().toString()),
-                JwtUtil.KEY_REFRESH_TOKEN, jwtUtil.generateRefreshToken(user, request.getRequestURL().toString())
-        );
+        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString());
+        String refreshToken = jwtUtil.generateRefreshToken(user, request.getRequestURL().toString());
+
+        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+
+        Cookie refreshTokenCookie = new Cookie(JwtUtil.KEY_REFRESH_TOKEN, refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+
+        AuthResponseEntity authResponse = generateAuthResponse(user);
+
         response.setContentType(APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+        new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+    }
+
+    private static AuthResponseEntity generateAuthResponse(User user) {
+        return new AuthResponseEntity(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRoles().stream()
+                        .map(role -> role.getName().toString())
+                        .toArray(String[]::new)
+        );
     }
 
     private record AuthenticationBody(
             String username,
             String password
+    ) {
+
+    }
+
+    private record AuthResponseEntity(
+            String username,
+            String firstName,
+            String lastName,
+            String[] roles
     ) {
 
     }

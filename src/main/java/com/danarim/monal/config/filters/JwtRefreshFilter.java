@@ -1,29 +1,26 @@
 package com.danarim.monal.config.filters;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.AuthorizationException;
-import com.danarim.monal.exceptions.BadRequestException;
-import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.user.persistence.model.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Filter to refresh JWT token
@@ -33,7 +30,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Component
 public class JwtRefreshFilter extends OncePerRequestFilter {
 
-    public static final String REFRESH_TOKEN_ENDPOINT = "/jwtTokenRefresh";
+    public static final String REFRESH_TOKEN_ENDPOINT = "/jwtTokenRefresh"; //TODO /auth/refresh
 
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
@@ -44,11 +41,11 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Process the authentication header and pass to processRefresh() method create a new JWT token
+     * Process the authentication refresh token cookie and pass to processRefresh() method create a new JWT token
      * <br>
-     * If the token is valid, a new token will be created and returned to the client
+     * If the token is valid, a new token will be created and set in cookie
      *
-     * @throws AuthorizationException if authorization fails
+     * @throws AuthorizationException if refresh fails
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -56,58 +53,42 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        String token = Optional.ofNullable(WebUtils.getCookie(request, JwtUtil.KEY_ACCESS_TOKEN))
+                .map(Cookie::getValue)
+                .orElse(null);
 
         if (!request.getRequestURI().equals(WebConfig.BACKEND_PREFIX + REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (authorizationHeader == null
-                || !authorizationHeader.startsWith(CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX)) {
-            throw new AuthorizationException("validation.auth.token.invalid.prefix", null);
-        }
         try {
-            String token = authorizationHeader.substring(CustomAuthorizationFilter.AUTHORIZATION_HEADER_PREFIX.length());
+            Cookie accessTokenCookie = processRefresh(token, request.getRequestURL().toString());
 
-            Map<String, String> tokens = processRefresh(token, request.getRequestURL().toString());
-
-            new ObjectMapper().writeValue(response.getOutputStream(), tokens);
-        } catch (BadRequestException e) {
-            throw new AuthorizationException(e, e.getMessageCode(), e.getMessageArgs());
+            response.addCookie(accessTokenCookie);
         } catch (TokenExpiredException e) {
             throw new AuthorizationException(e, "validation.auth.token.expired", null);
-        } catch (JWTDecodeException | UsernameNotFoundException e) {
-            throw new AuthorizationException(e, "validation.auth.token.incorrect", null);
-        } catch (JWTVerificationException e) {
+        } catch (JWTVerificationException | UsernameNotFoundException e) {
             throw new AuthorizationException(e, "validation.auth.token.invalid", null);
         }
     }
 
     /**
-     * Process the refresh token and return new access and refresh tokens if valid
+     * Process the refresh token and if valid return new cookie with new access token
      *
-     * @throws BadRequestException if provided token with not REFRESH type
+     * @return Cookie with new access token
      */
-    private Map<String, String> processRefresh(String token, String requestURL) {
+    private Cookie processRefresh(String token, String requestURL) {
         DecodedJWT decodedJWT = jwtUtil.decode(token);
 
         String email = decodedJWT.getSubject();
-        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
-
-        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_REFRESH)) {
-            throw new BadRequestException(
-                    "Invalid token type. provided: %s expected: %s".formatted(tokenType, JwtUtil.TOKEN_TYPE_REFRESH),
-                    GenericErrorType.GLOBAL_ERROR,
-                    null,
-                    "validation.auth.token.incorrectType",
-                    new Object[]{tokenType, JwtUtil.TOKEN_TYPE_REFRESH}
-            );
-        }
         User user = (User) userDetailsService.loadUserByUsername(email);
 
-        return Map.of(
-                JwtUtil.KEY_ACCESS_TOKEN, jwtUtil.generateAccessToken(user, requestURL),
-                JwtUtil.KEY_REFRESH_TOKEN, token
-        );
+        String accessToken = jwtUtil.generateAccessToken(user, requestURL);
+
+        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+
+        return accessTokenCookie;
     }
 }
