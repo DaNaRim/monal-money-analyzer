@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtRefreshFilter extends OncePerRequestFilter {
 
-    public static final String REFRESH_TOKEN_ENDPOINT = "/jwtTokenRefresh"; //TODO /auth/refresh
+    public static final String REFRESH_TOKEN_ENDPOINT = "/auth/refresh";
 
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
