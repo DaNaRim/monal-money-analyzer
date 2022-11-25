@@ -87,7 +87,7 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
             props.load(new InputStreamReader(ioStream, StandardCharsets.UTF_8));
             return new PropertiesMessageResolver(props);
         } catch (IOException e) {
-            logger.error("Error while loading Passay messages file", e);
+            logger.error("Error while loading Passay messages file");
             throw new InternalServerException("Error while loading Passay messages file", e);
         }
     }

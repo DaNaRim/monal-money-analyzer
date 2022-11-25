@@ -82,6 +82,6 @@ class ValidPasswordValidatorTest {
 
         assertThrows(InternalServerException.class, () -> validator.isValid("12345678", context));
 
-        verify(logger, times(1)).error(anyString(), any(Exception.class));
+        verify(logger, times(1)).error(anyString());
     }
 }
