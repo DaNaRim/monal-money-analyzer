@@ -5,8 +5,11 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.exceptions.AuthorizationException;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.util.CookieUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -20,10 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Filter to refresh JWT token
+ * Filter to refresh JWT token and return auth user state to client
  * <br>
  * Exception handles by {@link ExceptionHandlerFilter}
  */
@@ -43,7 +45,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
     /**
      * Process the authentication refresh token cookie and pass to processRefresh() method create a new JWT token
      * <br>
-     * If the token is valid, a new token will be created and set in cookie
+     * If the token is valid, a new token will be created and set in cookie and auth response returned to client
      *
      * @throws AuthorizationException if refresh fails
      */
@@ -62,9 +64,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            Cookie accessTokenCookie = processRefresh(token, request.getRequestURL().toString());
-
-            response.addCookie(accessTokenCookie);
+            processRefresh(token, request, response);
         } catch (TokenExpiredException e) {
             throw new AuthorizationException(e, "validation.auth.token.expired", null);
         } catch (JWTVerificationException | UsernameNotFoundException e) {
@@ -73,22 +73,24 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Process the refresh token and if valid return new cookie with new access token
-     *
-     * @return Cookie with new access token
+     * Process the refresh token
+     * If refresh token valid set new cookie with new access token and return auth response to client
      */
-    private Cookie processRefresh(String token, String requestURL) {
+    private void processRefresh(String token,
+                                HttpServletRequest request,
+                                HttpServletResponse response
+    ) throws IOException {
         DecodedJWT decodedJWT = jwtUtil.decode(token);
 
         String email = decodedJWT.getSubject();
         User user = (User) userDetailsService.loadUserByUsername(email);
 
-        String accessToken = jwtUtil.generateAccessToken(user, requestURL);
+        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString());
 
-        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+        Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
+        response.addCookie(accessTokenCookie);
 
-        return accessTokenCookie;
+        AuthResponseEntity authResponseEntity = AuthResponseEntity.generateAuthResponse(user);
+        new ObjectMapper().writeValue(response.getWriter(), authResponseEntity);
     }
 }

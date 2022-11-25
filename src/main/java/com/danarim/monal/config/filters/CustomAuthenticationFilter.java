@@ -1,9 +1,11 @@
 package com.danarim.monal.config.filters;
 
 import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.config.security.auth.CustomAuthenticationProvider;
 import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +20,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -79,46 +80,21 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString());
         String refreshToken = jwtUtil.generateRefreshToken(user, request.getRequestURL().toString());
 
-        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
-
-        Cookie refreshTokenCookie = new Cookie(JwtUtil.KEY_REFRESH_TOKEN, refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+        Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
+        Cookie refreshTokenCookie = CookieUtil.createRefreshTokenCookie(refreshToken);
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
 
-        AuthResponseEntity authResponse = generateAuthResponse(user);
+        AuthResponseEntity authResponse = AuthResponseEntity.generateAuthResponse(user);
 
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
     }
 
-    private static AuthResponseEntity generateAuthResponse(User user) {
-        return new AuthResponseEntity(
-                user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getRoles().stream()
-                        .map(role -> role.getName().toString())
-                        .toArray(String[]::new)
-        );
-    }
-
-    private record AuthenticationBody(
+    protected record AuthenticationBody(
             String username,
             String password
-    ) {
-
-    }
-
-    private record AuthResponseEntity(
-            String username,
-            String firstName,
-            String lastName,
-            String[] roles
     ) {
 
     }
