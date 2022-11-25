@@ -39,7 +39,8 @@ public class SecurityConfig {
                         .mvcMatchers(
                                 BACKEND_PREFIX + "/login",
                                 BACKEND_PREFIX + "/jwtTokenRefresh",
-                                BACKEND_PREFIX + "/registration"
+                                BACKEND_PREFIX + "/registration",
+                                BACKEND_PREFIX + "/logout"
                         ).permitAll()
                         .mvcMatchers(BACKEND_PREFIX + "/registration").authenticated()
                         .mvcMatchers(BACKEND_PREFIX + "/**").authenticated()
