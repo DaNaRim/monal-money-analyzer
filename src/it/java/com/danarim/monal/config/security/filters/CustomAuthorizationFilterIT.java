@@ -91,10 +91,10 @@ class CustomAuthorizationFilterIT {
                 .andExpect(status().isOk())
                 .andExpect(forwardedUrl("/index.html"));
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub"))
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub"))
                 .andExpect(status().isForbidden());
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/adminStub"))
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/adminStub"))
                 .andExpect(status().isForbidden());
     }
 
@@ -102,7 +102,7 @@ class CustomAuthorizationFilterIT {
     void testLoggedUserAccess() throws Exception {
         String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
 
-        MvcResult result = mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        MvcResult result = mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
@@ -111,11 +111,11 @@ class CustomAuthorizationFilterIT {
         Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
         assertNotNull(accessTokenCookie);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(accessTokenCookie))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/adminStub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/adminStub")
                         .cookie(accessTokenCookie))
                 .andExpect(status().isForbidden());
     }
@@ -124,7 +124,7 @@ class CustomAuthorizationFilterIT {
     void testLoggedAdminAccess() throws Exception {
         String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(ADMIN_USERNAME, ADMIN_PASSWORD);
 
-        MvcResult result = mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        MvcResult result = mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
@@ -133,11 +133,11 @@ class CustomAuthorizationFilterIT {
         Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
         assertNotNull(accessTokenCookie);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(accessTokenCookie))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/adminStub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/adminStub")
                         .cookie(accessTokenCookie))
                 .andExpect(status().isOk());
     }
@@ -150,7 +150,7 @@ class CustomAuthorizationFilterIT {
 
         Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -162,7 +162,7 @@ class CustomAuthorizationFilterIT {
     void testInvalidToken() throws Exception {
         Cookie invalidAccessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, "invalid");
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(invalidAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -179,7 +179,7 @@ class CustomAuthorizationFilterIT {
 
         Cookie incorrectAccessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + "/stub")
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(incorrectAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))

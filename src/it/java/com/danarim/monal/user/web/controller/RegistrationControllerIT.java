@@ -46,7 +46,7 @@ class RegistrationControllerIT {
         final ObjectMapper mapper = new ObjectMapper();
         final ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
 
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/registration")
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/registration")
                         .contentType(APPLICATION_JSON)
                         .content(ow.writeValueAsString(registrationDto))
                 )
@@ -66,7 +66,7 @@ class RegistrationControllerIT {
         final ObjectMapper mapper = new ObjectMapper();
         final ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
 
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/registration")
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/registration")
                         .contentType(APPLICATION_JSON)
                         .content(ow.writeValueAsString(registrationDto))
                 )

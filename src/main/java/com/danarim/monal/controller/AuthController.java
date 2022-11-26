@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping(WebConfig.BACKEND_PREFIX)
+@RequestMapping(WebConfig.API_V1_PREFIX)
 public class AuthController {
 
     @PostMapping("/logout")

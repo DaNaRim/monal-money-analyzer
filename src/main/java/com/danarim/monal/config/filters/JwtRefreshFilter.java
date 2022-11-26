@@ -59,7 +59,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
                 .map(Cookie::getValue)
                 .orElse(null);
 
-        if (!request.getRequestURI().equals(WebConfig.BACKEND_PREFIX + REFRESH_TOKEN_ENDPOINT)) {
+        if (!request.getRequestURI().equals(WebConfig.API_V1_PREFIX + REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }

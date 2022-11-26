@@ -83,7 +83,7 @@ class CustomAuthenticationFilterIT {
     void testLogin() throws Exception {
         String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
 
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
@@ -99,7 +99,7 @@ class CustomAuthenticationFilterIT {
         String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}")
                 .formatted(USER_USERNAME + "wrong", USER_PASSWORD);
 
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isUnauthorized())
@@ -113,7 +113,7 @@ class CustomAuthenticationFilterIT {
         String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}")
                 .formatted(USER_USERNAME, USER_PASSWORD + "wrong");
 
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isUnauthorized())
@@ -126,7 +126,7 @@ class CustomAuthenticationFilterIT {
     void testInvalidBody() throws Exception {
         String loginJson = ("{\"username2\": 123\"%s\"}").formatted(USER_USERNAME);
 
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isUnauthorized())
@@ -138,7 +138,7 @@ class CustomAuthenticationFilterIT {
 
     @Test
     void testNoBody() throws Exception {
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login"))
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$[0].type").value(GenericErrorType.GLOBAL_ERROR.getType()))
                 .andExpect(jsonPath("$[0].fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))

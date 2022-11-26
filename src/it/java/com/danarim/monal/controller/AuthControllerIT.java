@@ -26,7 +26,7 @@ class AuthControllerIT {
 
     @Test
     void testLogout() throws Exception {
-        mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/logout"))
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/logout"))
                 .andExpect(status().isNoContent())
                 .andExpect(cookie().exists(JwtUtil.KEY_ACCESS_TOKEN))
                 .andExpect(cookie().httpOnly(JwtUtil.KEY_ACCESS_TOKEN, true))

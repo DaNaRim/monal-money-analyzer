@@ -91,7 +91,7 @@ class JwtRefreshFilterIT {
     void testRefreshToken() throws Exception {
         String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
 
-        MvcResult result = mockMvc.perform(post(WebConfig.BACKEND_PREFIX + "/login")
+        MvcResult result = mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
                         .contentType(APPLICATION_JSON)
                         .content(loginJson))
                 .andExpect(status().isOk())
@@ -102,7 +102,7 @@ class JwtRefreshFilterIT {
         assertNotNull(accessTokenCookie);
         assertNotNull(refreshTokenCookie);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
                         .cookie(accessTokenCookie)
                         .cookie(refreshTokenCookie))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class JwtRefreshFilterIT {
 
     @Test
     void testNoToken() throws Exception {
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT))
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
                 .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -128,7 +128,7 @@ class JwtRefreshFilterIT {
 
         Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
                         .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -140,7 +140,7 @@ class JwtRefreshFilterIT {
     void testInvalidToken() throws Exception {
         Cookie invalidRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, "invalid");
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
                         .cookie(invalidRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
@@ -157,7 +157,7 @@ class JwtRefreshFilterIT {
 
         Cookie incorrectRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
 
-        mockMvc.perform(get(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)
                         .cookie(incorrectRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))

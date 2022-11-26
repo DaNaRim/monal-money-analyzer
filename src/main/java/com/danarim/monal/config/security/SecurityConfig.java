@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
-import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
+import static com.danarim.monal.config.WebConfig.API_V1_PREFIX;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -37,13 +37,13 @@ public class SecurityConfig {
         http
                 .authorizeRequests(authz -> authz
                         .mvcMatchers(
-                                BACKEND_PREFIX + "/login",
-                                BACKEND_PREFIX + "/jwtTokenRefresh",
-                                BACKEND_PREFIX + "/registration",
-                                BACKEND_PREFIX + "/logout"
+                                API_V1_PREFIX + "/login",
+                                API_V1_PREFIX + "/jwtTokenRefresh",
+                                API_V1_PREFIX + "/registration",
+                                API_V1_PREFIX + "/logout"
                         ).permitAll()
-                        .mvcMatchers(BACKEND_PREFIX + "/registration").authenticated()
-                        .mvcMatchers(BACKEND_PREFIX + "/**").authenticated()
+                        .mvcMatchers(API_V1_PREFIX + "/registration").authenticated()
+                        .mvcMatchers(API_V1_PREFIX + "/**").authenticated()
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -67,7 +67,7 @@ public class SecurityConfig {
                 authenticationManager(http),
                 context.getBean(JwtUtil.class)
         );
-        filter.setFilterProcessesUrl(BACKEND_PREFIX + "/login");
+        filter.setFilterProcessesUrl(API_V1_PREFIX + "/login");
         filter.setAuthenticationFailureHandler(context.getBean(AuthenticationFailureHandler.class));
         return filter;
     }

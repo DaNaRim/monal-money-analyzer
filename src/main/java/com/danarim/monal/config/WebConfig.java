@@ -31,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
             DEFAULT_LOCALE
     );
 
-    public static final String BACKEND_PREFIX = "/api/v1";
+    public static final String API_V1_PREFIX = "/api/v1";
 
     private static final List<String> FRONTEND_URLS = List.of(
             "/",

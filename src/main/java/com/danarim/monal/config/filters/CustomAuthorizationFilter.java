@@ -55,7 +55,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 .orElse(null);
 
         if (token == null
-                || request.getRequestURI().equals(WebConfig.BACKEND_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)) {
+                || request.getRequestURI().equals(WebConfig.API_V1_PREFIX + JwtRefreshFilter.REFRESH_TOKEN_ENDPOINT)) {
             filterChain.doFilter(request, response);
             return;
         }

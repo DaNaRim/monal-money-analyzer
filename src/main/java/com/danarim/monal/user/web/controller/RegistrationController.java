@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.danarim.monal.config.WebConfig.BACKEND_PREFIX;
+import static com.danarim.monal.config.WebConfig.API_V1_PREFIX;
 
 /**
  * Responsible for user registration, activation and password reset.
  */
 @RestController
-@RequestMapping(BACKEND_PREFIX)
+@RequestMapping(API_V1_PREFIX)
 public class RegistrationController {
 
     private final RegistrationService registrationService;
