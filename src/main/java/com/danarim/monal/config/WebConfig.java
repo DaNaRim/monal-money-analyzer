@@ -1,8 +1,6 @@
 package com.danarim.monal.config;
 
-import com.danarim.monal.config.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +20,6 @@ import java.util.List;
 import java.util.Locale;
 
 @Configuration
-@EnableConfigurationProperties(SecurityProperties.class)
 public class WebConfig implements WebMvcConfigurer {
 
     public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
