@@ -2,7 +2,6 @@ package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
-import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.Role;
@@ -153,9 +152,7 @@ class CustomAuthorizationFilterIT {
         mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$").exists());
     }
 
     @Test
@@ -165,9 +162,7 @@ class CustomAuthorizationFilterIT {
         mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(invalidAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$").exists());
     }
 
     @Test
@@ -182,9 +177,7 @@ class CustomAuthorizationFilterIT {
         mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(incorrectAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$").exists());
     }
 }
 

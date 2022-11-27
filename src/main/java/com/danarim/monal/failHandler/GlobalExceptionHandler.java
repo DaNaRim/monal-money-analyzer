@@ -1,5 +1,7 @@
 package com.danarim.monal.failHandler;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.danarim.monal.exceptions.AlreadyExistsException;
 import com.danarim.monal.exceptions.BadRequestException;
 import org.springframework.context.MessageSource;
@@ -26,7 +28,7 @@ import static com.danarim.monal.exceptions.GenericErrorType.SERVER_ERROR;
 /**
  * Handles exceptions thrown by controllers.
  * <br>
- * All methods must return {@link ResponseEntity} with list of {@link GenericErrorResponse} as body.
+ * All methods except auth handlers must return {@link ResponseEntity} with list of {@link GenericErrorResponse} as body.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -67,6 +69,36 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), GLOBAL_ERROR.getType(), message);
 
         return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Handles {@link TokenExpiredException} thrown by auth refresh endpoint when token is expired.
+     *
+     * @return body with error message. Not {@link GenericErrorResponse} because it is not handled by frontend.
+     */
+    @ExceptionHandler(TokenExpiredException.class)
+    protected ResponseEntity<String> handleTokenExpiredException(TokenExpiredException e,
+                                                                 WebRequest request
+    ) {
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(messages.getMessage("validation.auth.token.expired", null, request.getLocale()));
+    }
+
+    /**
+     * Handles {@link JWTVerificationException} thrown by auth refresh endpoint when token is invalid.
+     *
+     * @return body with error message. Not {@link GenericErrorResponse} because it is not handled by frontend.
+     */
+    @ExceptionHandler(JWTVerificationException.class)
+    protected ResponseEntity<String> handleJWTVerificationException(JWTVerificationException e,
+                                                                    WebRequest request
+    ) {
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(messages.getMessage("validation.auth.token.invalid", null, request.getLocale()));
     }
 
     /**

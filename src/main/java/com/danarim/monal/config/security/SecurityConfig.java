@@ -3,7 +3,6 @@ package com.danarim.monal.config.security;
 import com.danarim.monal.config.filters.CustomAuthenticationFilter;
 import com.danarim.monal.config.filters.CustomAuthorizationFilter;
 import com.danarim.monal.config.filters.ExceptionHandlerFilter;
-import com.danarim.monal.config.filters.JwtRefreshFilter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,12 +36,11 @@ public class SecurityConfig {
         http
                 .authorizeRequests(authz -> authz
                         .mvcMatchers(
-                                API_V1_PREFIX + "/login",
-                                API_V1_PREFIX + "/jwtTokenRefresh",
                                 API_V1_PREFIX + "/registration",
+                                API_V1_PREFIX + "/login",
+                                API_V1_PREFIX + "/auth/refresh",
                                 API_V1_PREFIX + "/logout"
                         ).permitAll()
-                        .mvcMatchers(API_V1_PREFIX + "/registration").authenticated()
                         .mvcMatchers(API_V1_PREFIX + "/**").authenticated()
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
@@ -55,7 +53,6 @@ public class SecurityConfig {
                 .addFilterBefore(
                         context.getBean(CustomAuthorizationFilter.class), UsernamePasswordAuthenticationFilter.class
                 )
-                .addFilterBefore(context.getBean(JwtRefreshFilter.class), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(context.getBean(ExceptionHandlerFilter.class), CorsFilter.class);
 
         return http.build();

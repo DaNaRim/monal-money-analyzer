@@ -1,13 +1,22 @@
 package com.danarim.monal.util;
 
 import com.danarim.monal.config.security.JwtUtil;
+import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public final class CookieUtil {
 
     private CookieUtil() {
+    }
+
+    public static String getCookieValueByRequest(HttpServletRequest request, String cookieName) {
+        return Optional.ofNullable(WebUtils.getCookie(request, cookieName))
+                .map(Cookie::getValue)
+                .orElse(null);
     }
 
     public static Cookie createAccessTokenCookie(String accessToken) {

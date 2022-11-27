@@ -1,6 +1,5 @@
 package com.danarim.monal.config.filters;
 
-import com.danarim.monal.exceptions.AuthorizationException;
 import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.failHandler.GenericErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +17,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * Handle authorization exceptions and all exceptions that are not handled by other filters or handlers
+ * Handle all exceptions that are not handled by other filters or handlers
  */
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
@@ -38,16 +37,6 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (AuthorizationException e) {
-            Locale locale = localeResolver.resolveLocale(request);
-
-            GenericErrorResponse errorResponse = new GenericErrorResponse(
-                    GenericErrorType.GLOBAL_ERROR.getType(),
-                    GenericErrorType.GLOBAL_ERROR.getType(),
-                    messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale)
-            );
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
         } catch (RuntimeException e) {
             logger.error("Unexpected error caught by ExceptionHandlerFilter: " + e.getMessage(), e);
 
