@@ -37,7 +37,7 @@ const LoginPage = () => {
             .then(data => dispatch(setCredentials(data)))
             .then(() => navigate(onSuccessRedirect))
             .catch(e => {
-                if (e.status === 400) {
+                if (e.status === 401) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
                 } else {
