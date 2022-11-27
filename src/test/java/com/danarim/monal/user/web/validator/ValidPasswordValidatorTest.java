@@ -24,6 +24,8 @@ import static org.mockito.Mockito.*;
 
 class ValidPasswordValidatorTest {
 
+    private static final int SUPPORTED_LOCALE_COUNT = 1; //WebConfig.SUPPORTED_LOCALES.size()
+
     private static final MockedStatic<LogFactory> loggerFactoryMock = mockStatic(LogFactory.class);
     private static final Log logger = mock(Log.class);
 
@@ -43,10 +45,7 @@ class ValidPasswordValidatorTest {
         loggerFactoryMock.close();
     }
 
-    /**
-     * RepeatedTest param value is SUPPORTED_LOCALES size
-     */
-    @RepeatedTest(3)
+    @RepeatedTest(SUPPORTED_LOCALE_COUNT)
     void testIsValid() {
         Locale.setDefault(locales.next());
 
