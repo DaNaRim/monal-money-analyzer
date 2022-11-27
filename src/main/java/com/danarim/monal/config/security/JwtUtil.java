@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtUtil {
 
-    public static final long ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 10L;
-    public static final long REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 30L;
+    public static final long ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 1L;
+    public static final long REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 21L;
 
     public static final String KEY_ACCESS_TOKEN = "access_token";
     public static final String KEY_REFRESH_TOKEN = "refresh_token";
