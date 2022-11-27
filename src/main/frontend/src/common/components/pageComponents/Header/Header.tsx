@@ -13,9 +13,11 @@ import {useAppDispatch, useAppSelector} from "../../../../app/hooks";
 import {useLogoutMutation, useRefreshMutation} from "../../../../features/auth/authApiSlice";
 
 import styles from "./Header.module.scss";
+import {useNavigate} from "react-router";
 
 const Header = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     const username = useAppSelector(selectAuthUsername);
     const firstName = useAppSelector(selectAuthFirstname);
@@ -30,6 +32,7 @@ const Header = () => {
     const handleLogout = () => {
         logout();
         dispatch(clearAuthState());
+        navigate("/login");
     };
 
     useEffect(() => {
