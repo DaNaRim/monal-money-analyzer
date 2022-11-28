@@ -12,6 +12,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.LocaleResolver;
@@ -24,11 +25,14 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 /**
  * Validate the JWT token and set the authentication in the security context if authentication is successful
+ * Also check for csrf attacks
  * <br>
  * Exception handles by {@link ExceptionHandlerFilter}
  */
@@ -54,35 +58,45 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String token = CookieUtil.getCookieValueByRequest(request, JwtUtil.KEY_ACCESS_TOKEN);
+        String accessToken = CookieUtil.getCookieValueByRequest(request, JwtUtil.KEY_ACCESS_TOKEN);
+        String csrfToken = request.getHeader("X-CSRF-TOKEN");
 
-        if (token == null
-                || request.getRequestURI().equals(WebConfig.API_V1_PREFIX + "/auth/refresh")) {
+        if (accessToken == null || request.getRequestURI().equals(WebConfig.API_V1_PREFIX + "/auth/refresh")) {
             filterChain.doFilter(request, response);
             return;
         }
         try {
-            processAuthorization(token);
+            processAuthorization(accessToken, csrfToken, request.getRequestURI());
 
             filterChain.doFilter(request, response);
+        } catch (CsrfException e) {
+            processException(request, response, SC_FORBIDDEN, "validation.auth.csrf.invalid");
         } catch (TokenExpiredException e) {
-            processException(request, response, "validation.auth.token.expired");
+            processException(request, response, SC_UNAUTHORIZED, "validation.auth.token.expired");
         } catch (JWTVerificationException e) {
-            processException(request, response, "validation.auth.token.invalid");
+            processException(request, response, SC_UNAUTHORIZED, "validation.auth.token.invalid");
         }
     }
 
     /**
-     * Process token and set authentication in the security context
+     * Process accessToken and set authentication in the security context
      *
-     * @param token the JWT token
-     * @throws JWTVerificationException if token is invalid or expired
+     * @param accessToken the JWT accessToken
+     * @param csrfToken   csrf token from request header
+     * @param requestURI  request URI
+     * @throws CsrfException            if request send to api and csrfToken doesn't match with same from jwt
+     * @throws JWTVerificationException if accessToken is invalid or expired
      */
-    private void processAuthorization(String token) {
-        DecodedJWT decodedJWT = jwtUtil.decode(token);
+    private void processAuthorization(String accessToken, String csrfToken, String requestURI) {
+        DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
 
         String username = decodedJWT.getSubject();
         String[] roles = decodedJWT.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
+        String csrfTokenFromJwt = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+
+        if (requestURI.startsWith(WebConfig.API_V1_PREFIX) && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
+            throw new CsrfException("Invalid csrf token");
+        }
 
         Collection<GrantedAuthority> authorities = new HashSet<>();
         for (String role : roles) {
@@ -102,9 +116,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
      */
     private void processException(HttpServletRequest request,
                                   HttpServletResponse response,
+                                  int responseStatus,
                                   String exMessageCode
     ) throws IOException {
-        response.setStatus(SC_UNAUTHORIZED);
+        response.setStatus(responseStatus);
         Locale locale = localeResolver.resolveLocale(request);
 
         response.getWriter().write(messages.getMessage(exMessageCode, null, locale));

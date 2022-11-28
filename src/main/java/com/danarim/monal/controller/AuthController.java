@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(WebConfig.API_V1_PREFIX)
@@ -40,7 +41,9 @@ public class AuthController {
     }
 
     /**
-     * Process the authentication refresh token cookie, update the JWT token and return auth user state to client
+     * Process the authentication refresh token cookie,
+     * update the JWT access token
+     * and return auth user state to client
      *
      * @param request  http request
      * @param response http response
@@ -60,11 +63,13 @@ public class AuthController {
         } catch (UsernameNotFoundException e) {
             throw new JWTVerificationException("User not found", e);
         }
-        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString());
+        String csrfToken = UUID.randomUUID().toString();
+
+        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString(), csrfToken);
 
         Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
         response.addCookie(accessTokenCookie);
 
-        return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user));
+        return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
     }
 }

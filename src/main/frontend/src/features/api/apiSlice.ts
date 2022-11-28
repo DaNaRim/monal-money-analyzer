@@ -1,11 +1,19 @@
 import {createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {BaseQueryApi} from "@reduxjs/toolkit/dist/query/baseQueryTypes";
 import {clearAuthState, setCredentials} from "../auth/authSlice";
+import {RootState} from "../../app/store";
 
 const serverUrl = "/api/v1";
 
 const baseQuery = fetchBaseQuery({
     baseUrl: serverUrl,
+    prepareHeaders: (headers, {getState}) => {
+        const csrfToken = (getState() as RootState).auth.csrfToken;
+        if (csrfToken) {
+            headers.set("X-CSRF-TOKEN", csrfToken);
+        }
+        return headers;
+    }
 });
 
 const baseQueryWithReauth = async (args: string | FetchArgs,

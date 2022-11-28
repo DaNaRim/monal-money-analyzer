@@ -28,6 +28,7 @@ public class JwtUtil {
 
     public static final String CLAIM_TOKEN_TYPE = "token_type";
     public static final String CLAIM_AUTHORITIES = "roles";
+    public static final String CLAIM_CSRF_TOKEN = "xsrf";
 
     public static final String TOKEN_TYPE_ACCESS = "access";
     public static final String TOKEN_TYPE_REFRESH = "refresh";
@@ -49,7 +50,7 @@ public class JwtUtil {
         return JWT.require(algorithm).build().verify(token);
     }
 
-    public String generateAccessToken(User user, String issuer, long expirationInDays) {
+    public String generateAccessToken(User user, String issuer, String csrfToken, long expirationInDays) {
         List<String> userRolesList = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
@@ -62,11 +63,12 @@ public class JwtUtil {
                 .withIssuer(issuer)
                 .withClaim(CLAIM_TOKEN_TYPE, TOKEN_TYPE_ACCESS)
                 .withClaim(CLAIM_AUTHORITIES, userRolesList)
+                .withClaim(CLAIM_CSRF_TOKEN, csrfToken)
                 .sign(algorithm);
     }
 
-    public String generateAccessToken(User user, String issuer) {
-        return generateAccessToken(user, issuer, ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS);
+    public String generateAccessToken(User user, String issuer, String csrfToken) {
+        return generateAccessToken(user, issuer, csrfToken, ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS);
     }
 
     public String generateRefreshToken(User user, String issuer, long expirationInDays) {

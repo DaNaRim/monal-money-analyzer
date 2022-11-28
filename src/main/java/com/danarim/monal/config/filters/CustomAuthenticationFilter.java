@@ -20,6 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -77,7 +78,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     ) throws IOException {
         User user = (User) authResult.getPrincipal();
 
-        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString());
+        String csrfToken = UUID.randomUUID().toString();
+
+        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString(), csrfToken);
         String refreshToken = jwtUtil.generateRefreshToken(user, request.getRequestURL().toString());
 
         Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
@@ -86,7 +89,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
 
-        AuthResponseEntity authResponse = AuthResponseEntity.generateAuthResponse(user);
+        AuthResponseEntity authResponse = AuthResponseEntity.generateAuthResponse(user, csrfToken);
 
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);

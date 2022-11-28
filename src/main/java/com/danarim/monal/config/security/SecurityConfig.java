@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .csrf().disable() //TODO enable csrf
+                .csrf().disable() //csrf handles by CustomAuthorizationFilter
                 .sessionManagement(sessionConfigurer -> sessionConfigurer
                         .sessionCreationPolicy(STATELESS)
                 )

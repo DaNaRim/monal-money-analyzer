@@ -12,16 +12,19 @@ public record AuthResponseEntity(
         String username,
         String firstName,
         String lastName,
-        String[] roles
+        String[] roles,
+        String csrfToken
 ) {
-    public static AuthResponseEntity generateAuthResponse(User user) {
+
+    public static AuthResponseEntity generateAuthResponse(User user, String csrfToken) {
         return new AuthResponseEntity(
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRoles().stream()
                         .map(role -> role.getName().toString())
-                        .toArray(String[]::new)
+                        .toArray(String[]::new),
+                csrfToken
         );
     }
 
@@ -34,14 +37,16 @@ public record AuthResponseEntity(
             return false;
         }
         AuthResponseEntity that = (AuthResponseEntity) o;
-        return Objects.equals(username, that.username) && Objects.equals(firstName,
-                that.firstName) && Objects.equals(lastName, that.lastName) && Arrays.equals(roles,
-                that.roles);
+        return Objects.equals(username, that.username)
+                && Objects.equals(firstName, that.firstName)
+                && Objects.equals(lastName, that.lastName)
+                && Arrays.equals(roles, that.roles)
+                && Objects.equals(csrfToken, that.csrfToken);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(username, firstName, lastName);
+        int result = Objects.hash(username, firstName, lastName, csrfToken);
         result = 31 * result + Arrays.hashCode(roles);
         return result;
     }
@@ -53,6 +58,7 @@ public record AuthResponseEntity(
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", roles=" + Arrays.toString(roles) +
+                ", csrfToken='" + csrfToken + '\'' +
                 '}';
     }
 }

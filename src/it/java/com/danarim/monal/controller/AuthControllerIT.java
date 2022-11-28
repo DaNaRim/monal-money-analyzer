@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -119,11 +120,13 @@ class AuthControllerIT {
     void testExpiredToken() throws Exception {
         User user = new User("t", "e", "s", "t", Set.of(new Role(RoleName.ROLE_USER)));
 
-        String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
+        String csrfToken = UUID.randomUUID().toString();
+        String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
 
         Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
 
         mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/auth/refresh")
+                        .header("X-CSRF-TOKEN", csrfToken)
                         .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
@@ -143,12 +146,15 @@ class AuthControllerIT {
     void testIncorrectToken() throws Exception {
         User user = new User("t", "e", "s", "t", Set.of(new Role(RoleName.ROLE_USER)));
 
-        String accessToken = jwtUtil.generateAccessToken(user, "test", -1);
+        String csrfToken = UUID.randomUUID().toString();
+
+        String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
         Cookie incorrectRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
 
         mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/auth/refresh")
+                        .header("X-CSRF-TOKEN", csrfToken)
                         .cookie(incorrectRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());

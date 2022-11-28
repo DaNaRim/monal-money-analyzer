@@ -8,6 +8,7 @@ export type AuthResponseEntity = {
     firstName: string;
     lastName: string;
     roles: Role[];
+    csrfToken: string;
 }
 
 export type AuthState = {
@@ -15,6 +16,7 @@ export type AuthState = {
     firstName: string | null;
     lastName: string | null;
     roles: Role[];
+    csrfToken: string | null;
     initialized: boolean;
 }
 
@@ -23,6 +25,7 @@ const initialState: AuthState = {
     firstName: null,
     lastName: null,
     roles: [],
+    csrfToken: null,
     initialized: false,
 };
 
@@ -37,6 +40,7 @@ const authSlice = createSlice({
             state.firstName = response.firstName;
             state.lastName = response.lastName;
             state.roles = response.roles;
+            state.csrfToken = response.csrfToken;
 
             state.initialized = true;
         },
@@ -48,6 +52,7 @@ const authSlice = createSlice({
             state.firstName = null;
             state.lastName = null;
             state.roles = [];
+            state.csrfToken = null;
         },
     },
 });
