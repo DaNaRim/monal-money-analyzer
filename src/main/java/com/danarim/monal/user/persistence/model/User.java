@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -32,6 +33,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    private Date registrationDate;
+
     private Boolean isEmailVerified;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -43,11 +46,18 @@ public class User implements UserDetails {
     protected User() {
     }
 
-    public User(String firstName, String lastName, String email, String password, Set<Role> roles) {
+    public User(String firstName,
+                String lastName,
+                String email,
+                String password,
+                Date registrationDate,
+                Set<Role> roles
+    ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.registrationDate = new Date(registrationDate.getTime());
         this.isEmailVerified = false;
         this.roles = Collections.unmodifiableSet(roles);
     }

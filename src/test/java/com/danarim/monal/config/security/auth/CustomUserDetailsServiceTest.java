@@ -7,6 +7,7 @@ import com.danarim.monal.user.persistence.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Date;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,7 @@ class CustomUserDetailsServiceTest {
 
     @Test
     void testLoadUserByUsername() {
-        User user = new User("1", "1", EMAIL, "1", Set.of(new Role(RoleName.ROLE_USER)));
+        User user = new User("1", "1", EMAIL, "1", new Date(), Set.of(new Role(RoleName.ROLE_USER)));
 
         when(userDao.findByEmail(EMAIL)).thenReturn(user);
 

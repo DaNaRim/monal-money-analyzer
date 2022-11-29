@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -67,6 +68,7 @@ class AuthControllerIT {
                 "test",
                 USER_USERNAME,
                 userPassword,
+                new Date(),
                 Set.of(userRole)
         );
         user.setEmailVerified(true);
@@ -75,6 +77,7 @@ class AuthControllerIT {
                 "test",
                 ADMIN_USERNAME,
                 adminPassword,
+                new Date(),
                 Set.of(userRole, adminRole)
         );
         admin.setEmailVerified(true);
@@ -115,7 +118,7 @@ class AuthControllerIT {
 
     @Test
     void testExpiredToken() throws Exception {
-        User user = new User("t", "e", "s", "t", Set.of(new Role(RoleName.ROLE_USER)));
+        User user = new User("t", "e", "s", "t", new Date(), Set.of(new Role(RoleName.ROLE_USER)));
 
         String csrfToken = UUID.randomUUID().toString();
         String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
@@ -141,7 +144,7 @@ class AuthControllerIT {
 
     @Test
     void testIncorrectToken() throws Exception {
-        User user = new User("t", "e", "s", "t", Set.of(new Role(RoleName.ROLE_USER)));
+        User user = new User("t", "e", "s", "t", new Date(), Set.of(new Role(RoleName.ROLE_USER)));
 
         String csrfToken = UUID.randomUUID().toString();
 

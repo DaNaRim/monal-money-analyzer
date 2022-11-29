@@ -18,6 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -62,6 +63,7 @@ class CustomAuthenticationFilterIT {
                 "test",
                 USER_USERNAME,
                 userPassword,
+                new Date(),
                 Set.of(userRole)
         );
         user.setEmailVerified(true);
@@ -70,6 +72,7 @@ class CustomAuthenticationFilterIT {
                 "test",
                 ADMIN_USERNAME,
                 adminPassword,
+                new Date(),
                 Set.of(userRole, adminRole)
         );
         admin.setEmailVerified(true);

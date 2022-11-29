@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Date;
 
 import static com.danarim.monal.exceptions.GenericErrorType.FIELD_VALIDATION_ERROR;
 
@@ -51,6 +52,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 registrationDto.lastName(),
                 registrationDto.email(),
                 encoder.encode(registrationDto.password()),
+                new Date(),
                 Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER)) //To get role with correct id
         );
         userDao.save(user);
