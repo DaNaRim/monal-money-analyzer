@@ -33,8 +33,6 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 /**
  * Validate the JWT token and set the authentication in the security context if authentication is successful
  * Also check for csrf attacks
- * <br>
- * Exception handles by {@link ExceptionHandlerFilter}
  */
 @Component
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
