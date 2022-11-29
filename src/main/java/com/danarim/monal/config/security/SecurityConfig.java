@@ -43,6 +43,9 @@ public class SecurityConfig {
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .requiresChannel(channel -> channel
+                        .anyRequest().requiresSecure()
+                )
                 .csrf().disable() //csrf handles by CustomAuthorizationFilter
                 .sessionManagement(sessionConfigurer -> sessionConfigurer
                         .sessionCreationPolicy(STATELESS)

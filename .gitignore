@@ -35,3 +35,6 @@ build/
 logs/
 secrets*.properties
 .env
+
+keystore*
+certificate.crt

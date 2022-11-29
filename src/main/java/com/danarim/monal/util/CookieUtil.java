@@ -22,6 +22,7 @@ public final class CookieUtil {
     public static Cookie createAccessTokenCookie(String accessToken) {
         Cookie cookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
         return cookie;
@@ -30,6 +31,7 @@ public final class CookieUtil {
     public static Cookie createRefreshTokenCookie(String refreshToken) {
         Cookie cookie = new Cookie(JwtUtil.KEY_REFRESH_TOKEN, refreshToken);
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
         return cookie;
