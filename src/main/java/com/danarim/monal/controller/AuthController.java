@@ -48,7 +48,7 @@ public class AuthController {
      * @param request  http request
      * @param response http response
      * @return auth user state
-     * @throws JWTVerificationException if token is invalid, expired or user not found
+     * @throws JWTVerificationException if token is invalid, wrong type, expired or user not found
      */
     @PostMapping("auth/refresh")
     public ResponseEntity<AuthResponseEntity> refresh(HttpServletRequest request, HttpServletResponse response) {
@@ -57,6 +57,11 @@ public class AuthController {
         DecodedJWT decodedJWT = jwtUtil.decode(refreshToken);
 
         String email = decodedJWT.getSubject();
+        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+
+        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_REFRESH)) {
+            throw new JWTVerificationException("Invalid token type");
+        }
         User user;
         try {
             user = (User) userDetailsService.loadUserByUsername(email);

@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -97,8 +96,6 @@ class AuthControllerIT {
 
         Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
         Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
-        assertNotNull(accessTokenCookie);
-        assertNotNull(refreshTokenCookie);
 
         mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/auth/refresh")
                         .cookie(accessTokenCookie)
@@ -170,6 +167,26 @@ class AuthControllerIT {
                 .andExpect(cookie().exists(JwtUtil.KEY_REFRESH_TOKEN))
                 .andExpect(cookie().httpOnly(JwtUtil.KEY_REFRESH_TOKEN, true))
                 .andExpect(cookie().maxAge(JwtUtil.KEY_REFRESH_TOKEN, 0));
+    }
+
+    @Test
+    void testAccessTokenAsRefresh() throws Exception {
+        String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
+
+        MvcResult result = mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
+                        .contentType(APPLICATION_JSON)
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
+
+        refreshTokenCookie.setValue(accessTokenCookie.getValue());
+
+        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/auth/refresh")
+                        .cookie(refreshTokenCookie))
+                .andExpect(status().isUnauthorized());
     }
 
 }

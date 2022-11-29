@@ -85,7 +85,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
      * @param csrfToken   csrf token from request header
      * @param requestURI  request URI
      * @throws CsrfException            if request send to api and csrfToken doesn't match with same from jwt
-     * @throws JWTVerificationException if accessToken is invalid or expired
+     * @throws JWTVerificationException if accessToken is invalid, have wrong type or expired
      */
     private void processAuthorization(String accessToken, String csrfToken, String requestURI) {
         DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
@@ -93,7 +93,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String username = decodedJWT.getSubject();
         String[] roles = decodedJWT.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
         String csrfTokenFromJwt = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
 
+        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
+            throw new JWTVerificationException("Invalid token type");
+        }
         if (requestURI.startsWith(WebConfig.API_V1_PREFIX) && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
             throw new CsrfException("Invalid csrf token");
         }

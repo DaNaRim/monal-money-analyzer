@@ -24,7 +24,6 @@ import javax.servlet.http.Cookie;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -116,9 +115,6 @@ class CustomAuthorizationFilterIT {
         Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
         String csrfToken = authResponse.csrfToken();
 
-        assertNotNull(accessTokenCookie, "Missing accessToken cookie");
-        assertNotNull(csrfToken, "Missing csrf token");
-
         mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .header("X-CSRF-TOKEN", csrfToken)
                         .cookie(accessTokenCookie))
@@ -146,9 +142,6 @@ class CustomAuthorizationFilterIT {
         Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
         String csrfToken = authResponse.csrfToken();
 
-        assertNotNull(accessTokenCookie, "Missing accessToken cookie");
-        assertNotNull(csrfToken, "Missing csrf token");
-
         mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .header("X-CSRF-TOKEN", csrfToken)
                         .cookie(accessTokenCookie))
@@ -171,8 +164,6 @@ class CustomAuthorizationFilterIT {
                 .andReturn();
 
         Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
-
-        assertNotNull(accessTokenCookie, "Missing accessToken cookie");
 
         mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(accessTokenCookie))
@@ -222,6 +213,31 @@ class CustomAuthorizationFilterIT {
                         .cookie(incorrectAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
+    }
+
+    @Test
+    void testRefreshTokenAsAccess() throws Exception {
+        String loginJson = ("{\"username\": \"%s\",\"password\": \"%s\"}").formatted(USER_USERNAME, USER_PASSWORD);
+
+        MvcResult result = mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/login")
+                        .contentType(APPLICATION_JSON)
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = result.getResponse().getContentAsString();
+        AuthResponseEntity authResponse = new ObjectMapper().readValue(json, AuthResponseEntity.class);
+
+        String csrfToken = authResponse.csrfToken();
+        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
+
+        accessTokenCookie.setValue(refreshTokenCookie.getValue());
+
+        mockMvc.perform(get(WebConfig.API_V1_PREFIX + "/stub")
+                        .header("X-CSRF-TOKEN", csrfToken)
+                        .cookie(accessTokenCookie))
+                .andExpect(status().isUnauthorized());
     }
 }
 
