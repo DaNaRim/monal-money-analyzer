@@ -1,32 +1,26 @@
 package com.danarim.monal.user.web.controller;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.failHandler.GlobalExceptionHandler;
 import com.danarim.monal.user.service.RegistrationService;
 import com.danarim.monal.user.web.dto.RegistrationDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.danarim.monal.TestUtils.postExt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RegistrationController.class)
-@ContextConfiguration(classes = RegistrationController.class)
+@ContextConfiguration(classes = {RegistrationController.class, GlobalExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
-@ExtendWith(SpringExtension.class)
-@ExtendWith(MockitoExtension.class)
 class RegistrationControllerIT {
 
     @Autowired
@@ -43,13 +37,7 @@ class RegistrationControllerIT {
                 "test@test.test"
         );
 
-        final ObjectMapper mapper = new ObjectMapper();
-        final ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-
-        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/registration")
-                        .contentType(APPLICATION_JSON)
-                        .content(ow.writeValueAsString(registrationDto))
-                )
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
                 .andExpect(status().isCreated());
 
         verify(registrationService).registerNewUserAccount(registrationDto);
@@ -63,14 +51,12 @@ class RegistrationControllerIT {
                 "invalid"
         );
 
-        final ObjectMapper mapper = new ObjectMapper();
-        final ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
+                .andExpect(status().isBadRequest())
 
-        mockMvc.perform(post(WebConfig.API_V1_PREFIX + "/registration")
-                        .contentType(APPLICATION_JSON)
-                        .content(ow.writeValueAsString(registrationDto))
-                )
-                .andExpect(status().isBadRequest());
+                .andExpect(jsonPath("$[0].type").value("Pattern"))
+                .andExpect(jsonPath("$[0].fieldName").value("email"))
+                .andExpect(jsonPath("$[0].message").exists());
 
         verify(registrationService, never()).registerNewUserAccount(registrationDto);
     }
