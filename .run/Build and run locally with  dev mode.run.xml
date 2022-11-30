@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MonalMoneyAnalyzerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="Build and run locally with  dev mode" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="dev" />
     <module name="monal-money-analyzer" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.danarim.monal.MonalMoneyAnalyzerApplication" />
