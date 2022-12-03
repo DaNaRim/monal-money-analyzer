@@ -1,5 +1,6 @@
 package com.danarim.monal.user.web.controller;
 
+import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.RegistrationService;
 import com.danarim.monal.user.service.event.OnRegistrationCompleteEvent;
@@ -10,7 +11,6 @@ import com.danarim.monal.util.CookieUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
@@ -19,13 +19,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Locale;
 
-import static com.danarim.monal.config.WebConfig.API_V1_PREFIX;
-
 /**
  * Responsible for user registration, activation and password reset.
  */
 @RestController
-@RequestMapping(API_V1_PREFIX)
+@RequestMapping(WebConfig.API_V1_PREFIX)
 public class RegistrationController {
 
     private final RegistrationService registrationService;
@@ -71,18 +69,6 @@ public class RegistrationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendVerificationToken(@RequestParam("email") String userEmail) {
         registrationService.resendVerificationToken(userEmail);
-    }
-
-    @GetMapping("/stub")
-    @Secured("ROLE_USER")
-    public String stub() {
-        return "stub"; //TODO remove
-    }
-
-    @GetMapping("/adminStub")
-    @Secured("ROLE_ADMIN")
-    public String authStub() {
-        return "authStub"; //TODO remove
     }
 
 }
