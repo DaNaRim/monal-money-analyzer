@@ -4,10 +4,15 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.danarim.monal.exceptions.AlreadyExistsException;
 import com.danarim.monal.exceptions.BadRequestException;
+import com.danarim.monal.exceptions.InvalidTokenException;
+import com.danarim.monal.util.ApplicationMessage;
+import com.danarim.monal.util.ApplicationMessageType;
+import com.danarim.monal.util.CookieUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -15,8 +20,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,6 +107,51 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(messages.getMessage("validation.auth.token.invalid", null, request.getLocale()));
+    }
+
+    /**
+     * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and password reset.
+     *
+     * @param e        exception
+     * @param request  web request
+     * @param response http response
+     * @return redirect to login page with error message in cookie
+     */
+    @ExceptionHandler(InvalidTokenException.class)
+    protected View handleInvalidTokenException(InvalidTokenException e,
+                                               WebRequest request,
+                                               HttpServletResponse response
+    ) {
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        ApplicationMessage applicationMessage = new ApplicationMessage(
+                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale()),
+                ApplicationMessageType.ERROR,
+                "login",
+                e.getExpectClientActionCode()
+        );
+        response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
+
+        return new RedirectView("/login");
+    }
+
+    /**
+     * Handles {@link MailException} thrown by mail service.
+     *
+     * @param e       exception
+     * @param request web request
+     * @return list of single {@link GenericErrorResponse} with error message
+     */
+    @ExceptionHandler(MailException.class)
+    protected ResponseEntity<List<GenericErrorResponse>> handleMailException(MailException e,
+                                                                             WebRequest request
+    ) {
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        String message = messages.getMessage("error.mail.send", null, request.getLocale());
+        GenericErrorResponse error = new GenericErrorResponse(SERVER_ERROR.getType(), SERVER_ERROR.getType(), message);
+
+        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**

@@ -11,9 +11,42 @@
     text-align: center;
   }
 
+  .app_message {
+    width: 20rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 0.1rem solid;
+
+    &.info {
+      color: #1e88e5;
+      border-color: #1e88e5;
+      background-color: #bbdefb;
+    }
+
+    &.warning {
+      color: #ff9800;
+      border-color: #ff9800;
+      background-color: #ffe0b2;
+    }
+
+    &.error {
+      color: #f44336;
+      border-color: #f44336;
+      background-color: #ffcdd2;
+    }
+  }
+
   form {
     display: flex;
     flex-direction: column;
     width: 20rem;
+
+    input .server_error {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+      text-align: center;
+      color: red;
+    }
   }
 }

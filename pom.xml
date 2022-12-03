@@ -27,6 +27,7 @@
         <disruptor.version>3.4.4</disruptor.version>
         <mockito-inline.version>4.8.0</mockito-inline.version>
         <org.testcontainers.version>1.17.6</org.testcontainers.version>
+        <greenmail.version>1.6.11</greenmail.version>
         <checker-qual.version>3.12.0</checker-qual.version>
         <byte-buddy.version>1.10.22</byte-buddy.version>
         <objenesis.version>3.2</objenesis.version>
@@ -102,6 +103,8 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <!--Test dependencies-->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -124,6 +127,14 @@
             <version>${org.testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-junit5</artifactId>
+            <version>${greenmail.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--Logging-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -134,6 +145,8 @@
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
         </dependency>
+
+        <!--Tools-->
 
         <dependency>
             <groupId>com.auth0</groupId>

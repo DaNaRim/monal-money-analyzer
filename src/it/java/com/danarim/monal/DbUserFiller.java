@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
@@ -21,6 +22,8 @@ import java.util.Set;
  */
 @TestConfiguration
 public class DbUserFiller {
+
+    public static final String USER_NOT_ACTIVATED_USERNAME = "user_not_activated";
 
     public static final String USER_USERNAME = "user";
     public static final String USER_PASSWORD = "userPassword";
@@ -42,6 +45,7 @@ public class DbUserFiller {
     private PasswordEncoder passwordEncoder;
 
     @EventListener(ApplicationStartedEvent.class)
+    @Order(1)
     public void prepareDbWithUsersForTests() {
         logger.info("Filling the database with test users");
 
@@ -51,18 +55,20 @@ public class DbUserFiller {
         Role userRole = roleDao.findByRoleName(RoleName.ROLE_USER);
         Role adminRole = roleDao.findByRoleName(RoleName.ROLE_ADMIN);
 
-        User user = new User(
-                "test",
-                "test",
+        User notActivatedUser = new User("test", "test",
+                userPassword,
+                USER_NOT_ACTIVATED_USERNAME,
+                new Date(),
+                Set.of(userRole)
+        );
+        User user = new User("test", "test",
                 USER_USERNAME,
                 userPassword,
                 new Date(),
                 Set.of(userRole)
         );
         user.setEmailVerified(true);
-        User admin = new User(
-                "test",
-                "test",
+        User admin = new User("test", "test",
                 ADMIN_USERNAME,
                 adminPassword,
                 new Date(),
@@ -70,6 +76,7 @@ public class DbUserFiller {
         );
         admin.setEmailVerified(true);
 
+        userDao.save(notActivatedUser);
         userDao.save(user);
         userDao.save(admin);
 

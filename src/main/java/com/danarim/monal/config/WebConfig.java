@@ -24,6 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
+    //If you change list count of supported locales, you should also change SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
     public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(
             DEFAULT_LOCALE
     );
@@ -37,7 +38,9 @@ public class WebConfig implements WebMvcConfigurer {
     );
     private static final List<String> MESSAGES = List.of(
             "validation",
-            "errors"
+            "errors",
+            "mail",
+            "messages"
     );
 
     private static final List<String> SQL_INIT_SCRIPTS = List.of(

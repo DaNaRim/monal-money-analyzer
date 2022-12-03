@@ -1,15 +1,19 @@
 import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
-import authReducer from "../features/auth/authSlice";
 import {apiSlice} from "../features/api/apiSlice";
+import {appMessagesSlice} from "../features/appMessages/appMessagesSlice";
+import authReducer from "../features/auth/authSlice";
+
+const isDev = process.env.NODE_ENV === "development";
 
 export const store = configureStore({
     reducer: {
         [apiSlice.reducerPath]: apiSlice.reducer,
         auth: authReducer,
+        appMessages: appMessagesSlice.reducer,
     },
     middleware: getDefaultMiddleware => getDefaultMiddleware()
         .concat(apiSlice.middleware),
-    devTools: true,
+    devTools: isDev,
 });
 
 export type AppDispatch = typeof store.dispatch;

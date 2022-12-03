@@ -36,8 +36,11 @@ public class SecurityConfig {
                         .mvcMatchers(
                                 API_V1_PREFIX + "/registration",
                                 API_V1_PREFIX + "/login",
+                                API_V1_PREFIX + "/logout",
                                 API_V1_PREFIX + "/auth/refresh",
-                                API_V1_PREFIX + "/logout"
+
+                                API_V1_PREFIX + "/registrationConfirm",
+                                API_V1_PREFIX + "/resendVerificationToken"
                         ).permitAll()
                         .mvcMatchers(API_V1_PREFIX + "/**").authenticated()
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()

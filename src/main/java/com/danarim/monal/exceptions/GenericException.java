@@ -17,7 +17,7 @@ public class GenericException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1555464451457596737L;
 
-    private static final Object[] DEFAULT_MESSAGE_ARGS = new Object[0];
+    protected static final Object[] DEFAULT_MESSAGE_ARGS = new Object[0];
 
 
     private final GenericErrorType errorType;

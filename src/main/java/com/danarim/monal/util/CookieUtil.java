@@ -1,6 +1,9 @@
 package com.danarim.monal.util;
 
 import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.exceptions.InternalServerException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
@@ -9,6 +12,9 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public final class CookieUtil {
+
+    private static final String COOKIE_APP_MESSAGE_KEY = "serverMessage";
+    private static final long COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS = 4L;
 
     private CookieUtil() {
     }
@@ -51,6 +57,19 @@ public final class CookieUtil {
         cookie.setPath("/");
         cookie.setMaxAge(0);
         return cookie;
+    }
+
+    public static Cookie createAppMessageCookie(ApplicationMessage message) {
+        try {
+            String messageJson = new ObjectMapper().writeValueAsString(message);
+
+            Cookie cookie = new Cookie(COOKIE_APP_MESSAGE_KEY, messageJson);
+            cookie.setPath("/");
+            cookie.setMaxAge((int) TimeUnit.HOURS.toSeconds(COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS));
+            return cookie;
+        } catch (JsonProcessingException e) {
+            throw new InternalServerException("Failed to create application message cookie", e);
+        }
     }
 
 }

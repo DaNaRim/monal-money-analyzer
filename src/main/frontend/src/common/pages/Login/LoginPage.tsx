@@ -1,12 +1,13 @@
 import React from "react";
-import {useNavigate} from "react-router";
-import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
-import {useAppDispatch} from "../../../app/hooks";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-
-import styles from "./LoginPage.module.scss";
 import {useForm} from "react-hook-form";
+import {useNavigate} from "react-router";
+import {Link} from "react-router-dom";
+import {useAppDispatch, useAppSelector} from "../../../app/hooks";
+import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
+import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
 import {setCredentials} from "../../../features/auth/authSlice";
+import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
+import styles from "./LoginPage.module.scss";
 
 interface LoginFormFields extends Credentials {
     globalError?: string;
@@ -22,12 +23,14 @@ type GenericError = {
 const onSuccessRedirect: string = "/";
 
 const LoginPage = () => {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
     const {register, handleSubmit, setError, formState: {errors}} = useForm<LoginFormFields>();
 
     const [login, {isLoading}] = useLoginMutation();
 
-    const navigate = useNavigate();
-    const dispatch = useAppDispatch();
+    const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
 
     const handleLogin = (data: LoginFormFields) => {
         delete data.globalError;
@@ -35,6 +38,7 @@ const LoginPage = () => {
 
         login(data).unwrap()
             .then(data => dispatch(setCredentials(data)))
+            .then(() => dispatch(deleteAppMessage(appMessage)))
             .then(() => navigate(onSuccessRedirect))
             .catch(e => {
                 if (e.status === 401) {
@@ -49,10 +53,24 @@ const LoginPage = () => {
             });
     };
 
+    const getAppMessageClassName = (type: AppMessageType) => {
+        const classMap = {
+            "INFO": `${styles.app_message} ${styles.info}`,
+            "WARNING": `${styles.app_message} ${styles.warn}`,
+            "ERROR": `${styles.app_message} ${styles.error}`,
+        };
+        return classMap[type];
+    };
+
     return (
         <PageWrapper>
             <main className={styles.login_page}>
                 <h1>Login page</h1>
+                {appMessage && <p className={getAppMessageClassName(appMessage.type)}>{appMessage.message}</p>}
+                {appMessage && appMessage.expectClientActionCode === "token.verification.resend"
+                    && <Link to="/resendVerificationToken">Resend verification token</Link>
+                }
+
                 <form onSubmit={handleSubmit(handleLogin)}>
                     <label htmlFor="username">Email: </label>
                     <input type="email" {...register("username", {required: true})}/>
@@ -68,9 +86,8 @@ const LoginPage = () => {
                     {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
 
                     <input type="hidden" {...register("serverError")}/>
-                    {errors.serverError //TODO extract styles to separate file
-                        && <span style={{fontSize: "2rem", color: "red"}}>{errors.serverError.message}</span>
-                    }<br/>
+                    {errors.serverError && <span className={styles.server_error}>{errors.serverError.message}</span>}
+                    <br/>
 
                     {isLoading
                         ? <span>Loading...</span>

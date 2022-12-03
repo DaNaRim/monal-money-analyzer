@@ -1,5 +1,5 @@
-import {apiSlice} from "../api/apiSlice";
 import {RootState} from "../../app/store";
+import {apiSlice} from "../api/apiSlice";
 
 export type RegistrationDto = {
     firstName: string,
@@ -18,9 +18,17 @@ export const registrationApiSlice = apiSlice.injectEndpoints({
                 body,
             }),
         }),
+        resendVerificationToken: builder.mutation<RootState, string>({
+            query: (email) => ({
+                url: "/resendVerificationToken",
+                method: "POST",
+                params: {email},
+            }),
+        }),
     }),
 });
 
 export const {
     useRegisterMutation,
+    useResendVerificationTokenMutation,
 } = registrationApiSlice;
