@@ -5,16 +5,17 @@ import com.danarim.monal.exceptions.InternalServerException;
 import com.google.common.collect.Iterables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
 import javax.validation.ConstraintValidatorContext;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,9 +32,9 @@ class ValidPasswordValidatorTest {
 
     private static final Iterator<Locale> locales = Iterables.cycle(WebConfig.SUPPORTED_LOCALES).iterator();
 
-    private final ValidPasswordValidator validator = new ValidPasswordValidator();
-
     private final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+
+    private final ValidPasswordValidator validator = new ValidPasswordValidator();
 
     @BeforeAll
     public static void beforeClass() {
@@ -43,6 +44,11 @@ class ValidPasswordValidatorTest {
     @AfterAll
     static void afterAll() {
         loggerFactoryMock.close();
+    }
+
+    @BeforeEach
+    void setUp() {
+        reset(logger);
     }
 
     @RepeatedTest(SUPPORTED_LOCALE_COUNT)
@@ -73,7 +79,12 @@ class ValidPasswordValidatorTest {
     }
 
     @Test
-    void testIsValidIOException() {
+    void testIsValidNullPassword() {
+        assertFalse(validator.isValid(null, context));
+    }
+
+    @Test
+    void testIsValidMessagesFileNotFound() {
         Locale.setDefault(Stream.of(DateFormat.getAvailableLocales())
                 .filter(locale -> !WebConfig.SUPPORTED_LOCALES.contains(locale))
                 .findFirst()
@@ -82,5 +93,17 @@ class ValidPasswordValidatorTest {
         assertThrows(InternalServerException.class, () -> validator.isValid("12345678", context));
 
         verify(logger, times(1)).error(anyString());
+    }
+
+    @Test
+    void testIsValidIOException() {
+        Locale.setDefault(WebConfig.SUPPORTED_LOCALES.get(0));
+
+        try (MockedConstruction<Properties> ignored = mockConstruction(Properties.class,
+                (mock, context) -> doThrow(IOException.class).when(mock).load(any(InputStreamReader.class)))) {
+            assertThrows(InternalServerException.class, () -> validator.isValid("12345678", context));
+
+            verify(logger, times(1)).error(anyString());
+        }
     }
 }
