@@ -77,12 +77,12 @@ const LoginPage = () => {
 
                 <form onSubmit={handleSubmit(handleLogin)}>
                     <label htmlFor="username">Email: </label>
-                    <input type="email" {...register("username", {required: true})}/>
+                    <input type="email" id="username" {...register("username", {required: true})}/>
                     {errors.username?.type === "required" && <span>Email is required</span>}
                     {errors.username && <span>{errors.username.message}</span>}<br/>
 
                     <label htmlFor="password">Password: </label>
-                    <input type="password" {...register("password", {required: true})}/>
+                    <input type="password" id="password" {...register("password", {required: true})}/>
                     {errors.password?.type === "required" && <span>Password is required</span>}
                     {errors.password && <span>{errors.password.message}</span>}<br/>
 

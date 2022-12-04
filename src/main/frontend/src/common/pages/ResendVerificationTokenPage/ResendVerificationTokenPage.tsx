@@ -50,8 +50,8 @@ const ResendVerificationTokenPage = () => {
                 {successMessage && <div>{successMessage}</div>}
 
                 <form onSubmit={handleSubmit(handleResendToken)}>
-                    <label htmlFor="username">Email: </label>
-                    <input type="email" {...register("email", {required: true})}/>
+                    <label htmlFor="email">Email: </label>
+                    <input type="email" id="email" {...register("email", {required: true})}/>
                     {errors.username?.type === "required" && <span>Email is required</span>}
                     {errors.username && <span>{errors.username.message}</span>}<br/>
 
