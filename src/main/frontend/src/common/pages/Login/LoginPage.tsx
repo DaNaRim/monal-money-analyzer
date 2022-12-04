@@ -38,13 +38,17 @@ const LoginPage = () => {
 
         login(data).unwrap()
             .then(data => dispatch(setCredentials(data)))
-            .then(() => dispatch(deleteAppMessage(appMessage)))
+            .then(() => {
+                if (appMessage) {
+                    dispatch(deleteAppMessage(appMessage));
+                }
+            })
             .then(() => navigate(onSuccessRedirect))
             .catch(e => {
                 if (e.status === 401) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else {
+                } else if (e.status === 500) {
                     setError("serverError", {
                         type: "serverError",
                         message: "Server unavailable. please try again later",

@@ -35,7 +35,7 @@ export const appMessagesSlice = createSlice({
                     message: cookie.message,
                     type: cookie.type,
                     page: cookie.page,
-                    expectClientActionCode: cookie.expectClientActionCode
+                    expectClientActionCode: cookie.expectClientActionCode,
                 });
                 document.cookie = COOKIE_KEY_APPLICATION_MESSAGE + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             }
