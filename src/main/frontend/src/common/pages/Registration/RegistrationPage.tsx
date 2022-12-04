@@ -1,8 +1,8 @@
 import React from "react";
 import {useForm} from "react-hook-form";
+import {RegistrationDto, useRegisterMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 import styles from "./RegistrationPage.module.scss";
-import {RegistrationDto, useRegisterMutation} from "../../../features/registration/registrationApiSlice";
 
 interface RegistrationFormFields extends RegistrationDto {
     globalError?: string;
@@ -35,7 +35,7 @@ const RegistrationPage = () => {
                 if (e.status === 400) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else {
+                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
                     setError("serverError", {
                         type: "serverError",
                         message: "Server unavailable. please try again later",
@@ -70,15 +70,16 @@ const RegistrationPage = () => {
                     {errors.password && <span>{errors.password.message}</span>}<br/>
 
                     <label htmlFor="matchingPassword">MatchingPassword: </label>
-                    <input type="password" id="matchingPassword" {...register("matchingPassword", {required: true})}/><br/>
+                    <input type="password"
+                           id="matchingPassword" {...register("matchingPassword", {required: true})}/><br/>
                     {errors.matchingPassword?.type === "required" && <span>Matching password is required</span>}
 
                     <input type="hidden" {...register("globalError")}/>
                     {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
 
                     <input type="hidden" {...register("serverError")}/>
-                    {errors.serverError //TODO extract styles to separate file
-                        && <span style={{fontSize: "2rem", color: "red"}}>{errors.serverError.message}</span>
+                    {errors.serverError
+                        && <span className={styles.server_error}>{errors.serverError.message}</span>
                     }<br/>
 
                     {isLoading

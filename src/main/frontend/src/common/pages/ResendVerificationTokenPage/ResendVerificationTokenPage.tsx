@@ -34,7 +34,7 @@ const ResendVerificationTokenPage = () => {
                 if (e.status === 401) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else {
+                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
                     setError("serverError", {
                         type: "serverError",
                         message: "Server unavailable. please try again later",
