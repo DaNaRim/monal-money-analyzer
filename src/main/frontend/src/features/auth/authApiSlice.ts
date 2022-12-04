@@ -1,5 +1,5 @@
-import {AuthState} from "./authSlice";
 import {apiSlice} from "../api/apiSlice";
+import {AuthState} from "./authSlice";
 
 export type Credentials = {
     username: string,
@@ -21,6 +21,12 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
             }),
         }),
+        getAuthState: builder.mutation<AuthState, void>({
+            query: () => ({
+                url: "/auth/getState",
+                method: "POST",
+            }),
+        }),
         refresh: builder.mutation<AuthState, void>({
             query: () => ({
                 url: "/auth/refresh",
@@ -33,5 +39,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
 export const {
     useLoginMutation,
     useLogoutMutation,
+    useGetAuthStateMutation,
     useRefreshMutation,
 } = authApiSlice;

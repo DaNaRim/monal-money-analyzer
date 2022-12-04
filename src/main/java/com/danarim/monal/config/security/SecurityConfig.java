@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 API_V1_PREFIX + "/registration",
                                 API_V1_PREFIX + "/login",
                                 API_V1_PREFIX + "/logout",
+                                API_V1_PREFIX + "/auth/getState",
                                 API_V1_PREFIX + "/auth/refresh",
 
                                 API_V1_PREFIX + "/registrationConfirm",

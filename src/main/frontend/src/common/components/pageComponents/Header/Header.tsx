@@ -1,5 +1,8 @@
 import React, {useEffect} from "react";
+import {useNavigate} from "react-router";
 import {NavLink} from "react-router-dom";
+import {useAppDispatch, useAppSelector} from "../../../../app/hooks";
+import {useGetAuthStateMutation, useLogoutMutation} from "../../../../features/auth/authApiSlice";
 import {
     clearAuthState,
     selectAuthFirstname,
@@ -9,11 +12,8 @@ import {
     setCredentials,
     setInitialized,
 } from "../../../../features/auth/authSlice";
-import {useAppDispatch, useAppSelector} from "../../../../app/hooks";
-import {useLogoutMutation, useRefreshMutation} from "../../../../features/auth/authApiSlice";
 
 import styles from "./Header.module.scss";
-import {useNavigate} from "react-router";
 
 const Header = () => {
     const dispatch = useAppDispatch();
@@ -24,10 +24,9 @@ const Header = () => {
     const lastName = useAppSelector(selectAuthLastname);
 
     const isAuthInit = useAppSelector(selectAuthInitialized);
-    const [refresh, {isLoading: isRefreshLoading}] = useRefreshMutation();
-    const [logout, {isLoading: isLogoutLoading}] = useLogoutMutation();
 
-    const initAuth = () => refresh().unwrap();
+    const [getAuthState, {isLoading: isAuthStateLoading}] = useGetAuthStateMutation();
+    const [logout, {isLoading: isLogoutLoading}] = useLogoutMutation();
 
     const handleLogout = () => {
         logout();
@@ -37,14 +36,18 @@ const Header = () => {
 
     useEffect(() => {
         if (!isAuthInit) {
-            initAuth()
+            getAuthState().unwrap()
                 .then(res => dispatch(setCredentials(res)))
-                .catch(() => dispatch(setInitialized()));
+                .catch(() => {
+                    logout();
+                    dispatch(clearAuthState());
+                    dispatch(setInitialized());
+                });
         }
     }, []);
 
     const getAuthBlock = () => {
-        if (isRefreshLoading || isLogoutLoading) {
+        if (isAuthStateLoading || isLogoutLoading) {
             return <div>Loading...</div>;
         } else if (username) {
             return <div>

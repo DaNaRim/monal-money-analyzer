@@ -26,7 +26,7 @@ const LoginPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const {register, handleSubmit, setError, formState: {errors}} = useForm<LoginFormFields>();
+    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<LoginFormFields>();
 
     const [login, {isLoading}] = useLoginMutation();
 
@@ -45,6 +45,8 @@ const LoginPage = () => {
             })
             .then(() => navigate(onSuccessRedirect))
             .catch(e => {
+                setValue("password", "");
+
                 if (e.status === 401) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));

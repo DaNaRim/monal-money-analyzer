@@ -41,12 +41,42 @@ public class AuthController {
     }
 
     /**
+     * Uses when user refreshes the page or opens the app
+     * <br>
+     * Process the authentication access token cookie and return auth user state to client
+     *
+     * @return auth user state
+     * @throws JWTVerificationException if the access token is invalid, wrong type, expired or user not found
+     */
+    @PostMapping("auth/getState")
+    public ResponseEntity<AuthResponseEntity> getAuthState(HttpServletRequest request) {
+
+        String accessToken = CookieUtil.getCookieValueByRequest(request, JwtUtil.KEY_ACCESS_TOKEN);
+        DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
+
+        String email = decodedJWT.getSubject();
+        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+        String csrfToken = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+
+        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
+            throw new JWTVerificationException("Invalid token type");
+        }
+        User user;
+        try {
+            user = (User) userDetailsService.loadUserByUsername(email);
+        } catch (UsernameNotFoundException e) {
+            throw new JWTVerificationException("User not found", e);
+        }
+        return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
+    }
+
+    /**
+     * Uses when access token is expired.
+     * <br>
      * Process the authentication refresh token cookie,
      * update the JWT access token
      * and return auth user state to client
      *
-     * @param request  http request
-     * @param response http response
      * @return auth user state
      * @throws JWTVerificationException if token is invalid, wrong type, expired or user not found
      */
