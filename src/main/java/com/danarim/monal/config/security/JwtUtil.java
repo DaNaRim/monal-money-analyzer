@@ -34,13 +34,13 @@ public class JwtUtil {
     public static final String TOKEN_TYPE_REFRESH = "refresh";
 
     @Value("${secrets.jwtSecret}")
-    private String jwtSecret;
+    private char[] jwtSecret;
 
     private Algorithm algorithm;
 
     @PostConstruct
     private void postConstruct() {
-        this.algorithm = Algorithm.HMAC256(jwtSecret.getBytes());
+        this.algorithm = Algorithm.HMAC256(new String(jwtSecret).getBytes());
     }
 
     /**

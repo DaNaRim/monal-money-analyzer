@@ -160,7 +160,7 @@ public final class LoggerConfig extends ConfigurationFactory {
 
     private static AppenderComponentBuilder getSmtpAppender(ConfigurationBuilder<BuiltConfiguration> builder) {
         HashMap<String, String> properties = getSecurityProperties();
-        String username = properties.get("secrets.mail-username");
+        String username = properties.get("secrets.mail-username"); //TODO refactor
         String password = properties.get("secrets.mail-password");
 
         return builder.newAppender(SMTP_APPENDER, ATTRIBUTE_SMTP_PLUGIN)
