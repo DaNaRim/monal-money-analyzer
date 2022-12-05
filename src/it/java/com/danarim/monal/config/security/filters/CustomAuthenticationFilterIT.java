@@ -3,8 +3,8 @@ package com.danarim.monal.config.security.filters;
 import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.TestUtils;
 import com.danarim.monal.config.WebConfig;
-import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.exceptions.GenericErrorType;
+import com.danarim.monal.util.CookieUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,13 +28,13 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", AUTH_JSON_USER))
                 .andExpect(status().isOk())
 
-                .andExpect(cookie().exists(JwtUtil.KEY_ACCESS_TOKEN))
-                .andExpect(cookie().httpOnly(JwtUtil.KEY_ACCESS_TOKEN, true))
-                .andExpect(cookie().secure(JwtUtil.KEY_ACCESS_TOKEN, true))
+                .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
+                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
+                .andExpect(cookie().secure(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
 
-                .andExpect(cookie().exists(JwtUtil.KEY_REFRESH_TOKEN))
-                .andExpect(cookie().httpOnly(JwtUtil.KEY_REFRESH_TOKEN, true))
-                .andExpect(cookie().secure(JwtUtil.KEY_REFRESH_TOKEN, true));
+                .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
+                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
+                .andExpect(cookie().secure(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true));
 
     }
 

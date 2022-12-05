@@ -6,6 +6,7 @@ import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.util.CookieUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,13 +43,13 @@ class AuthControllerIT {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/logout"))
                 .andExpect(status().isNoContent())
 
-                .andExpect(cookie().exists(JwtUtil.KEY_ACCESS_TOKEN))
-                .andExpect(cookie().httpOnly(JwtUtil.KEY_ACCESS_TOKEN, true))
-                .andExpect(cookie().maxAge(JwtUtil.KEY_ACCESS_TOKEN, 0))
+                .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
+                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
+                .andExpect(cookie().maxAge(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, 0))
 
-                .andExpect(cookie().exists(JwtUtil.KEY_REFRESH_TOKEN))
-                .andExpect(cookie().httpOnly(JwtUtil.KEY_REFRESH_TOKEN, true))
-                .andExpect(cookie().maxAge(JwtUtil.KEY_REFRESH_TOKEN, 0));
+                .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
+                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
+                .andExpect(cookie().maxAge(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, 0));
     }
 
     @Test
@@ -58,8 +59,8 @@ class AuthControllerIT {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
-        Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
+        Cookie refreshTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_REFRESH_TOKEN_KEY);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
                         .cookie(accessTokenCookie)
@@ -70,13 +71,13 @@ class AuthControllerIT {
                 .andExpect(jsonPath("$.roles[0]").value("ROLE_USER"))
                 .andExpect(jsonPath("$.csrfToken").exists())
 
-                .andExpect(cookie().exists(JwtUtil.KEY_ACCESS_TOKEN))
-                .andExpect(cookie().value(JwtUtil.KEY_ACCESS_TOKEN, not(accessTokenCookie.getValue())))
-                .andExpect(cookie().httpOnly(JwtUtil.KEY_ACCESS_TOKEN, true))
-                .andExpect(cookie().secure(JwtUtil.KEY_ACCESS_TOKEN, true))
+                .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
+                .andExpect(cookie().value(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, not(accessTokenCookie.getValue())))
+                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
+                .andExpect(cookie().secure(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
 
                 //refresh token cookie doesn't change
-                .andExpect(cookie().doesNotExist(JwtUtil.KEY_REFRESH_TOKEN));
+                .andExpect(cookie().doesNotExist(CookieUtil.COOKIE_REFRESH_TOKEN_KEY));
     }
 
     @Test
@@ -96,7 +97,7 @@ class AuthControllerIT {
         String csrfToken = UUID.randomUUID().toString();
         String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
 
-        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
                         .cookie(accessTokenCookie))
@@ -109,7 +110,7 @@ class AuthControllerIT {
 
     @Test
     void testAuthRefreshInvalidToken() throws Exception {
-        Cookie invalidRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, "invalid");
+        Cookie invalidRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
                         .cookie(invalidRefreshTokenCookie))
@@ -129,7 +130,7 @@ class AuthControllerIT {
         String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
-        Cookie incorrectRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        Cookie incorrectRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
                         .cookie(incorrectRefreshTokenCookie))
@@ -146,8 +147,8 @@ class AuthControllerIT {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
-        Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
+        Cookie refreshTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_REFRESH_TOKEN_KEY);
 
         refreshTokenCookie.setValue(accessTokenCookie.getValue());
 
@@ -167,7 +168,7 @@ class AuthControllerIT {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
                         .cookie(accessTokenCookie))
@@ -197,7 +198,7 @@ class AuthControllerIT {
         String csrfToken = UUID.randomUUID().toString();
         String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
 
-        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
                         .cookie(accessTokenCookie))
@@ -210,7 +211,7 @@ class AuthControllerIT {
 
     @Test
     void testAuthGetStateInvalidToken() throws Exception {
-        Cookie invalidRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, "invalid");
+        Cookie invalidRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
                         .cookie(invalidRefreshTokenCookie))
@@ -230,7 +231,7 @@ class AuthControllerIT {
         String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
-        Cookie incorrectRefreshTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        Cookie incorrectRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
                         .cookie(incorrectRefreshTokenCookie))
@@ -247,8 +248,8 @@ class AuthControllerIT {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
-        Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
+        Cookie refreshTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_REFRESH_TOKEN_KEY);
 
         accessTokenCookie.setValue(refreshTokenCookie.getValue());
 
@@ -265,8 +266,8 @@ class AuthControllerIT {
 
         protected static ResultMatcher authCookiesDontChange() {
             return result -> {
-                cookie().doesNotExist(JwtUtil.KEY_ACCESS_TOKEN).match(result);
-                cookie().doesNotExist(JwtUtil.KEY_REFRESH_TOKEN).match(result);
+                cookie().doesNotExist(CookieUtil.COOKIE_ACCESS_TOKEN_KEY).match(result);
+                cookie().doesNotExist(CookieUtil.COOKIE_REFRESH_TOKEN_KEY).match(result);
             };
         }
     }

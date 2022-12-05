@@ -1,9 +1,9 @@
 package com.danarim.monal;
 
 import com.danarim.monal.config.WebConfig;
-import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.user.persistence.model.RoleName;
+import com.danarim.monal.util.CookieUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.test.web.servlet.MockMvc;
@@ -62,7 +62,7 @@ public final class TestUtils {
         String json = result.getResponse().getContentAsString();
         AuthResponseEntity authResponse = new ObjectMapper().readValue(json, AuthResponseEntity.class);
 
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
         String csrfToken = authResponse.csrfToken();
 
         return getExt(uri)

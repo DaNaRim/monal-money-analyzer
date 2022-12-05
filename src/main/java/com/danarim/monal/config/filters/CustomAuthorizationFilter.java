@@ -56,7 +56,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String accessToken = CookieUtil.getCookieValueByRequest(request, JwtUtil.KEY_ACCESS_TOKEN);
+        String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         String csrfToken = request.getHeader("X-CSRF-TOKEN");
 
         if (accessToken == null

@@ -51,7 +51,7 @@ public class AuthController {
     @PostMapping("auth/getState")
     public ResponseEntity<AuthResponseEntity> getAuthState(HttpServletRequest request) {
 
-        String accessToken = CookieUtil.getCookieValueByRequest(request, JwtUtil.KEY_ACCESS_TOKEN);
+        String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
 
         String email = decodedJWT.getSubject();
@@ -83,7 +83,7 @@ public class AuthController {
     @PostMapping("auth/refresh")
     public ResponseEntity<AuthResponseEntity> refresh(HttpServletRequest request, HttpServletResponse response) {
 
-        String refreshToken = CookieUtil.getCookieValueByRequest(request, JwtUtil.KEY_REFRESH_TOKEN);
+        String refreshToken = CookieUtil.getRefreshTokenValueByRequest(request);
         DecodedJWT decodedJWT = jwtUtil.decode(refreshToken);
 
         String email = decodedJWT.getSubject();

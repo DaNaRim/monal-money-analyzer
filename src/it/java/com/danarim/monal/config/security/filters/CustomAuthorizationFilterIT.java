@@ -7,6 +7,7 @@ import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,7 @@ class CustomAuthorizationFilterIT {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(accessTokenCookie))
@@ -90,7 +91,7 @@ class CustomAuthorizationFilterIT {
         String csrfToken = UUID.randomUUID().toString();
         String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
 
-        Cookie accessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
                         .header("X-CSRF-TOKEN", csrfToken)
@@ -101,7 +102,7 @@ class CustomAuthorizationFilterIT {
 
     @Test
     void testInvalidToken() throws Exception {
-        Cookie invalidAccessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, "invalid");
+        Cookie invalidAccessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(invalidAccessTokenCookie))
@@ -116,7 +117,7 @@ class CustomAuthorizationFilterIT {
         String accessToken = jwtUtil.generateAccessToken(user, "test", "doesn`t matter", -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
-        Cookie incorrectAccessTokenCookie = new Cookie(JwtUtil.KEY_ACCESS_TOKEN, accessToken);
+        Cookie incorrectAccessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
                         .cookie(incorrectAccessTokenCookie))
@@ -134,8 +135,8 @@ class CustomAuthorizationFilterIT {
         AuthResponseEntity authResponse = new ObjectMapper().readValue(json, AuthResponseEntity.class);
 
         String csrfToken = authResponse.csrfToken();
-        Cookie accessTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_ACCESS_TOKEN);
-        Cookie refreshTokenCookie = result.getResponse().getCookie(JwtUtil.KEY_REFRESH_TOKEN);
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
+        Cookie refreshTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_REFRESH_TOKEN_KEY);
 
         accessTokenCookie.setValue(refreshTokenCookie.getValue());
 

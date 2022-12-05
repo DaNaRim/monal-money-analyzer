@@ -23,9 +23,6 @@ public class JwtUtil {
     public static final long ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 1L;
     public static final long REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS = 21L;
 
-    public static final String KEY_ACCESS_TOKEN = "access_token";
-    public static final String KEY_REFRESH_TOKEN = "refresh_token";
-
     public static final String CLAIM_TOKEN_TYPE = "token_type";
     public static final String CLAIM_AUTHORITIES = "roles";
     public static final String CLAIM_CSRF_TOKEN = "xsrf";
