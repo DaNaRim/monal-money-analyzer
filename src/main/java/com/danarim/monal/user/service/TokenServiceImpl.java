@@ -5,7 +5,14 @@ import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service for working with not auth tokens.
@@ -14,9 +21,19 @@ import org.springframework.stereotype.Service;
 public class TokenServiceImpl implements TokenService {
 
     /**
+     * Rule for scheduled task. Delete all tokens that expired and stored in database for this count of days.
+     */
+    private static final int DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS = 7;
+    /**
+     * Delay for scheduled task that delete tokens.
+     */
+    private static final long DELETE_TOKENS_DELAY_IN_DAYS = 1L;
+    /**
      * @see InvalidTokenException expectClientActionCode field in InvalidTokenException class
      */
     private static final String CLIENT_ACTION_TOKEN_VERIFICATION_RESEND = "token.verification.resend";
+
+    private static final Log logger = LogFactory.getLog(TokenServiceImpl.class);
 
     private final TokenDao tokenDao;
 
@@ -75,5 +92,32 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void deleteToken(Token token) {
         tokenDao.delete(token);
+    }
+
+    /**
+     * Delete all tokens that expired before given date.
+     */
+    @Scheduled(fixedRate = DELETE_TOKENS_DELAY_IN_DAYS, timeUnit = TimeUnit.DAYS)
+    protected void deleteDeprecatedTokens() {
+        logger.info("Scheduled task: delete deprecated tokens started");
+
+        //Get date before which tokens will be deleted
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH, -DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS);
+
+        Date removeBeforeDate = calendar.getTime();
+        try {
+            int tokensToDelete = tokenDao.countTokensByExpiryDateBefore(removeBeforeDate);
+
+            if (tokensToDelete == 0) {
+                logger.info("Scheduled task: delete deprecated tokens finished. No tokens to delete");
+                return;
+            }
+            tokenDao.deleteByExpiryDateBefore(removeBeforeDate);
+            logger.info("Scheduled task: delete deprecated tokens finished. " + tokensToDelete + " tokens deleted");
+        } catch (RuntimeException e) {
+            logger.error("Scheduled task: delete deprecated tokens failed", e);
+        }
     }
 }

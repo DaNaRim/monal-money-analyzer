@@ -3,9 +3,12 @@ package com.danarim.monal.user.service;
 import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.model.*;
-import org.junit.jupiter.api.Test;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
@@ -19,10 +22,28 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TokenServiceImplTest {
 
+    private static final MockedStatic<LogFactory> loggerFactoryMock = mockStatic(LogFactory.class);
+    private static final Log logger = mock(Log.class);
+
     private final TokenDao tokenDao = mock(TokenDao.class);
 
     @InjectMocks
     private TokenServiceImpl tokenService;
+
+    @BeforeAll
+    public static void beforeClass() {
+        loggerFactoryMock.when(() -> LogFactory.getLog(any(Class.class))).thenReturn(logger);
+    }
+
+    @AfterAll
+    static void afterAll() {
+        loggerFactoryMock.close();
+    }
+
+    @BeforeEach
+    void setUp() {
+        reset(logger);
+    }
 
     @Test
     void createVerificationToken() {
@@ -102,5 +123,47 @@ class TokenServiceImplTest {
         Token token = mock(Token.class);
         tokenService.deleteToken(token);
         verify(tokenDao).delete(token);
+    }
+
+    @Test
+    @DisplayName("Test scheduled task to delete deprecated tokens")
+    void testDeleteDeprecatedTokens() {
+        when(tokenDao.countTokensByExpiryDateBefore(any(Date.class))).thenReturn(1);
+
+        tokenService.deleteDeprecatedTokens();
+
+        verify(tokenDao, times(1)).countTokensByExpiryDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).deleteByExpiryDateBefore(any(Date.class));
+
+        verify(logger, times(2)).info(anyString());
+    }
+
+    @Test
+    @DisplayName("Test scheduled task to delete deprecated tokens when no tokens are deprecated")
+    void testDeleteDeprecatedTokensNoTokens() {
+        when(tokenDao.countTokensByExpiryDateBefore(any(Date.class))).thenReturn(0);
+
+        tokenService.deleteDeprecatedTokens();
+
+        verify(tokenDao, times(1)).countTokensByExpiryDateBefore(any(Date.class));
+        verify(tokenDao, never()).deleteByExpiryDateBefore(any(Date.class));
+
+        verify(logger, times(2)).info(anyString());
+    }
+
+    @Test
+    @DisplayName("Test scheduled task to delete deprecated tokens when exception occurs")
+    void testDeleteDeprecatedTokensFailed() {
+        when(tokenDao.countTokensByExpiryDateBefore(any(Date.class))).thenReturn(1);
+        doThrow(RuntimeException.class).when(tokenDao).deleteByExpiryDateBefore(any(Date.class));
+
+        //expect no exception
+        tokenService.deleteDeprecatedTokens();
+
+        verify(tokenDao, times(1)).countTokensByExpiryDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).deleteByExpiryDateBefore(any(Date.class));
+
+        verify(logger, times(1)).info(anyString());
+        verify(logger, times(1)).error(anyString(), any(RuntimeException.class));
     }
 }
