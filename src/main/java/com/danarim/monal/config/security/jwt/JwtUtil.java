@@ -1,10 +1,8 @@
-package com.danarim.monal.config.security;
+package com.danarim.monal.config.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.danarim.monal.config.security.auth.JwtTokenDao;
-import com.danarim.monal.config.security.auth.JwtTokenEntity;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -153,7 +151,7 @@ public class JwtUtil {
      * @param jti token id
      * @return true if the token is blocked, false otherwise
      */
-    public boolean isTokenBlocked(long jti) {
+    public boolean isTokenBlocked(long jti) { //use long for not to be confused with an encoded token
         return jwtTokenDao.isTokenBlocked(jti);
     }
 }

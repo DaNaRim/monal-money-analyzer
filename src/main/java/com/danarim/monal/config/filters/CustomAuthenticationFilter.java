@@ -1,8 +1,8 @@
 package com.danarim.monal.config.filters;
 
-import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.config.security.auth.CustomAuthenticationProvider;
+import com.danarim.monal.config.security.jwt.JwtUtil;
 import com.danarim.monal.failHandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.util.CookieUtil;

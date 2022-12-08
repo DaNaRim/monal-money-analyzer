@@ -1,4 +1,4 @@
-package com.danarim.monal.config.security.auth;
+package com.danarim.monal.config.security.jwt;
 
 import com.danarim.monal.user.persistence.model.User;
 

@@ -2,6 +2,7 @@ package com.danarim.monal.config.security;
 
 import com.danarim.monal.config.filters.CustomAuthenticationFilter;
 import com.danarim.monal.config.filters.CustomAuthorizationFilter;
+import com.danarim.monal.config.security.jwt.JwtUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.danarim.monal.config.security.auth;
+package com.danarim.monal.config.security.jwt;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,6 +1,6 @@
 package com.danarim.monal.util;
 
-import com.danarim.monal.config.security.JwtUtil;
+import com.danarim.monal.config.security.jwt.JwtUtil;
 import com.danarim.monal.exceptions.InternalServerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

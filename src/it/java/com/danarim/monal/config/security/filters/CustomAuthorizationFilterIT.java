@@ -2,8 +2,8 @@ package com.danarim.monal.config.security.filters;
 
 import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
-import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
+import com.danarim.monal.config.security.jwt.JwtUtil;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
