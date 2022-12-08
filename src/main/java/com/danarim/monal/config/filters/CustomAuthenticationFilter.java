@@ -80,8 +80,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         String csrfToken = UUID.randomUUID().toString();
 
-        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString(), csrfToken);
-        String refreshToken = jwtUtil.generateRefreshToken(user, request.getRequestURL().toString());
+        String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
 
         Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
         Cookie refreshTokenCookie = CookieUtil.createRefreshTokenCookie(refreshToken);

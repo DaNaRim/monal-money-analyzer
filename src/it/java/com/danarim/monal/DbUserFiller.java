@@ -35,6 +35,8 @@ public class DbUserFiller {
     public static final String AUTH_JSON_USER = String.format(AUTH_JSON_TEMPLATE, USER_USERNAME, USER_PASSWORD);
     public static final String AUTH_JSON_ADMIN = String.format(AUTH_JSON_TEMPLATE, ADMIN_USERNAME, ADMIN_PASSWORD);
 
+    public static User testUser;
+
     private static final Log logger = LogFactory.getLog(DbUserFiller.class);
 
     @Autowired
@@ -77,7 +79,7 @@ public class DbUserFiller {
         admin.setEmailVerified(true);
 
         userDao.save(notActivatedUser);
-        userDao.save(user);
+        this.testUser = userDao.save(user);
         userDao.save(admin);
 
         logger.info("Database filled with test users");

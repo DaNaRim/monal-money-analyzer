@@ -4,9 +4,7 @@ import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.JwtUtil;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
-import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
-import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.util.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -18,8 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
-import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.danarim.monal.DbUserFiller.AUTH_JSON_USER;
@@ -86,10 +82,8 @@ class CustomAuthorizationFilterIT {
 
     @Test
     void testExpiredToken() throws Exception {
-        User user = new User("t", "e", "s", "t", new Date(), Set.of(new Role(RoleName.ROLE_USER)));
-
         String csrfToken = UUID.randomUUID().toString();
-        String accessToken = jwtUtil.generateAccessToken(user, "test", csrfToken, -1L);
+        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, csrfToken, -1L);
 
         Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
@@ -112,9 +106,7 @@ class CustomAuthorizationFilterIT {
 
     @Test
     void testIncorrectToken() throws Exception {
-        User user = new User("t", "e", "s", "t", new Date(), Set.of(new Role(RoleName.ROLE_USER)));
-
-        String accessToken = jwtUtil.generateAccessToken(user, "test", "doesn`t matter", -1L);
+        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, "doesn`t matter", -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
         Cookie incorrectAccessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
@@ -144,6 +136,21 @@ class CustomAuthorizationFilterIT {
                         .header("X-CSRF-TOKEN", csrfToken)
                         .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testBlockedToken() throws Exception {
+        MvcResult result = mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/login", AUTH_JSON_USER))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Cookie accessTokenCookie = result.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
+
+        jwtUtil.blockToken(accessTokenCookie.getValue());
+
+        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
+                        .cookie(accessTokenCookie))
+                .andExpect(status().isForbidden());
     }
 }
 

@@ -86,22 +86,15 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
      * @param csrfToken   csrf token from request header
      * @param requestURI  request URI
      * @throws CsrfException            if request send to api and csrfToken doesn't match with same from jwt
-     * @throws JWTVerificationException if accessToken is invalid, have wrong type or expired
+     * @throws JWTVerificationException if accessToken is invalid, have wrong type, expired or blocked
      */
     private void processAuthorization(String accessToken, String csrfToken, String requestURI) {
         DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
 
+        validateToken(decodedJWT, csrfToken, requestURI);
+
         String username = decodedJWT.getSubject();
         String[] roles = decodedJWT.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
-        String csrfTokenFromJwt = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
-        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
-
-        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
-            throw new JWTVerificationException("Invalid token type");
-        }
-        if (requestURI.startsWith(WebConfig.API_V1_PREFIX) && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
-            throw new CsrfException("Invalid csrf token");
-        }
 
         Collection<GrantedAuthority> authorities = new HashSet<>();
         for (String role : roles) {
@@ -112,11 +105,38 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Set UNAUTHORIZED status code and send error message to the client
+     * Checks token type, csrf token and is token blocked
      *
-     * @param request       the request
-     * @param response      the response
-     * @param exMessageCode message code to be sent to the client
+     * @param decodedJWT decoded JWT token
+     * @param csrfToken  csrf token from request header
+     * @param requestURI request URI
+     * @throws CsrfException            if request send to api and csrfToken doesn't match with same from jwt
+     * @throws JWTVerificationException if accessToken have wrong type or blocked
+     */
+    private void validateToken(DecodedJWT decodedJWT, String csrfToken, String requestURI) {
+
+        String csrfTokenFromJwt = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+        String tokenId = decodedJWT.getId();
+
+        if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
+            throw new JWTVerificationException("Invalid token type");
+        }
+        if (requestURI.startsWith(WebConfig.API_V1_PREFIX) && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
+            throw new CsrfException("Invalid csrf token");
+        }
+        if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {
+            throw new JWTVerificationException("Token is blocked");
+        }
+    }
+
+    /**
+     * Send error message to the client
+     *
+     * @param request        the request
+     * @param response       the response
+     * @param responseStatus status code to set in response
+     * @param exMessageCode  message code to be sent to the client
      * @throws IOException if writing to the response fails
      */
     private void processException(HttpServletRequest request,

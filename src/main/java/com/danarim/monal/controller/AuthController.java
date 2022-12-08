@@ -35,7 +35,17 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+
+        String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
+        String refreshToken = CookieUtil.getRefreshTokenValueByRequest(request);
+
+        if (accessToken != null) {
+            jwtUtil.blockToken(accessToken);
+        }
+        if (refreshToken != null) {
+            jwtUtil.blockToken(refreshToken);
+        }
         response.addCookie(CookieUtil.deleteAccessTokenCookie());
         response.addCookie(CookieUtil.deleteRefreshTokenCookie());
     }
@@ -57,9 +67,13 @@ public class AuthController {
         String email = decodedJWT.getSubject();
         String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
         String csrfToken = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+        String tokenId = decodedJWT.getId();
 
         if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
             throw new JWTVerificationException("Invalid token type");
+        }
+        if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {
+            throw new JWTVerificationException("Token is blocked");
         }
         User user;
         try {
@@ -88,9 +102,13 @@ public class AuthController {
 
         String email = decodedJWT.getSubject();
         String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+        String tokenId = decodedJWT.getId();
 
         if (!tokenType.equals(JwtUtil.TOKEN_TYPE_REFRESH)) {
             throw new JWTVerificationException("Invalid token type");
+        }
+        if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {
+            throw new JWTVerificationException("Token is blocked");
         }
         User user;
         try {
@@ -100,7 +118,7 @@ public class AuthController {
         }
         String csrfToken = UUID.randomUUID().toString();
 
-        String accessToken = jwtUtil.generateAccessToken(user, request.getRequestURL().toString(), csrfToken);
+        String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
 
         Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
         response.addCookie(accessTokenCookie);
