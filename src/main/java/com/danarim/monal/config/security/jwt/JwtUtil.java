@@ -4,12 +4,16 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.user.persistence.model.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,11 +34,23 @@ public class JwtUtil {
     public static final String TOKEN_TYPE_ACCESS = "access";
     public static final String TOKEN_TYPE_REFRESH = "refresh";
 
+    /**
+     * Rule for scheduled task. Delete all tokens that expired and stored in database for this count of days.
+     */
+    private static final int DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS = 1;
+    /**
+     * Delay for scheduled task that delete tokens.
+     */
+    private static final long DELETE_TOKENS_DELAY_IN_DAYS = 1L;
+
+    private static final Log logger = LogFactory.getLog(JwtUtil.class);
+
+    private final JwtTokenDao jwtTokenDao;
+
     @Value("${secrets.jwtSecret}")
     private byte[] jwtSecret; //byte[] is used to keep the secret safe
 
     private Algorithm algorithm;
-    private final JwtTokenDao jwtTokenDao;
 
     public JwtUtil(JwtTokenDao jwtTokenDao) {
         this.jwtTokenDao = jwtTokenDao;
@@ -153,5 +169,32 @@ public class JwtUtil {
      */
     public boolean isTokenBlocked(long jti) { //use long for not to be confused with an encoded token
         return jwtTokenDao.isTokenBlocked(jti);
+    }
+
+    /**
+     * Delete all tokens that expired before given date.
+     */
+    @Scheduled(fixedRate = DELETE_TOKENS_DELAY_IN_DAYS, timeUnit = TimeUnit.DAYS)
+    protected void deleteDeprecatedJwtTokens() {
+        logger.info("Scheduled task: delete deprecated jwt tokens started");
+
+        //Get date before which tokens will be deleted
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH, -DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS);
+
+        Date removeBeforeDate = calendar.getTime();
+        try {
+            int tokensToDelete = jwtTokenDao.countTokensByExpirationDateBefore(removeBeforeDate);
+
+            if (tokensToDelete == 0) {
+                logger.info("Scheduled task: delete deprecated jwt tokens finished. No tokens to delete");
+                return;
+            }
+            jwtTokenDao.deleteByExpirationDateBefore(removeBeforeDate);
+            logger.info("Scheduled task: delete deprecated jwt tokens finished. " + tokensToDelete + " tokens deleted");
+        } catch (RuntimeException e) {
+            logger.error("Scheduled task: delete deprecated jwt tokens failed", e);
+        }
     }
 }

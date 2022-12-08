@@ -9,14 +9,13 @@ import java.util.Date;
 
 @Entity
 @Table(name = "jwt_token")
-@Inheritance(strategy = InheritanceType.JOINED)
 public class JwtTokenEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1800737016704034901L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //jti
 
     @Column(nullable = false, updatable = false)

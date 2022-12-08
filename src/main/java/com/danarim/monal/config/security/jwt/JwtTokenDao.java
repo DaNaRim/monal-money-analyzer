@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 
 public interface JwtTokenDao extends JpaRepository<JwtTokenEntity, Long> {
 
@@ -15,4 +16,12 @@ public interface JwtTokenDao extends JpaRepository<JwtTokenEntity, Long> {
     @Modifying
     @Transactional
     void blockToken(long id);
+
+    int countTokensByExpirationDateBefore(Date date);
+
+    //Use Custom Query to optimize performance. Without it, spring executes a query for each token.
+    @Query("DELETE FROM JwtTokenEntity t WHERE t.expirationDate <= ?1")
+    @Modifying
+    @Transactional
+    void deleteByExpirationDateBefore(Date date);
 }
