@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 
+import static com.danarim.monal.config.security.SecurityConfig.PERMIT_ALL_API_ENDPOINTS;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
@@ -59,10 +60,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         String csrfToken = request.getHeader("X-CSRF-TOKEN");
 
-        if (accessToken == null
-                || request.getRequestURI().equals(WebConfig.API_V1_PREFIX + "/auth/getState")
-                || request.getRequestURI().equals(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                || request.getRequestURI().equals(WebConfig.API_V1_PREFIX + "/logout")) {
+        if (accessToken == null || PERMIT_ALL_API_ENDPOINTS.stream().anyMatch(request.getRequestURI()::contains)) {
             filterChain.doFilter(request, response);
             return;
         }

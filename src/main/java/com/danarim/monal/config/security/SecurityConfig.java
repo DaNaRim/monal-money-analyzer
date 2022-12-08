@@ -17,12 +17,26 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import static com.danarim.monal.config.WebConfig.API_V1_PREFIX;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
+
+    public static final List<String> PERMIT_ALL_API_ENDPOINTS = Stream.of(
+            "/login",
+            "/logout",
+            "/auth/getState",
+            "/auth/refresh",
+
+            "/registration",
+            "/registrationConfirm",
+            "/resendVerificationToken"
+    ).map(endpoint -> API_V1_PREFIX + endpoint).toList();
 
     private final ApplicationContext context;
 
@@ -34,16 +48,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
         http
                 .authorizeRequests(authz -> authz
-                        .mvcMatchers(
-                                API_V1_PREFIX + "/registration",
-                                API_V1_PREFIX + "/login",
-                                API_V1_PREFIX + "/logout",
-                                API_V1_PREFIX + "/auth/getState",
-                                API_V1_PREFIX + "/auth/refresh",
-
-                                API_V1_PREFIX + "/registrationConfirm",
-                                API_V1_PREFIX + "/resendVerificationToken"
-                        ).permitAll()
+                        .mvcMatchers(PERMIT_ALL_API_ENDPOINTS.toArray(String[]::new)).permitAll()
                         .mvcMatchers(API_V1_PREFIX + "/**").authenticated()
                         .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
