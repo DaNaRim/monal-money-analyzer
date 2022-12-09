@@ -15,8 +15,8 @@ public interface TokenDao extends JpaRepository<Token, Long> {
     int countTokensByExpiryDateBefore(Date date);
 
     //Use Custom Query to optimize performance. Without it, spring executes a query for each token.
-    @Transactional //Required for scheduled task
+    @Query("DELETE FROM Token t WHERE t.expiryDate <= ?1")
     @Modifying
-    @Query(value = "DELETE FROM token t WHERE t.expiry_date <= ?1", nativeQuery = true)
+    @Transactional
     void deleteByExpiryDateBefore(Date date);
 }
