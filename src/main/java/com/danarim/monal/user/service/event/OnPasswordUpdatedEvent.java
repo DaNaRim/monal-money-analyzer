@@ -6,16 +6,16 @@ import org.springframework.context.ApplicationEvent;
 import java.io.Serial;
 
 /**
- * Event that is fired when a user is registered.
+ * Event that is fired when a user changes his password.
  */
-public class OnRegistrationCompleteEvent extends ApplicationEvent {
+public class OnPasswordUpdatedEvent extends ApplicationEvent {
 
     @Serial
-    private static final long serialVersionUID = 6538004361049763191L;
+    private static final long serialVersionUID = -5143600406935561769L;
 
     private final User user;
 
-    public OnRegistrationCompleteEvent(User user) {
+    public OnPasswordUpdatedEvent(User user) {
         super(user);
         this.user = user;
     }

@@ -5,6 +5,8 @@ import LoginPage from "../common/pages/Login/LoginPage";
 import NotFoundPage from "../common/pages/NotFoundPage/NotFoundPage";
 import RegistrationPage from "../common/pages/Registration/RegistrationPage";
 import ResendVerificationTokenPage from "../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage";
+import ResetPasswordPage from "../common/pages/ResetPasswordPage/ResetPasswordPage";
+import ResetPasswordSetPage from "../common/pages/ResetPasswordSetPage/ResetPasswordSetPage";
 
 import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
 
@@ -21,6 +23,8 @@ const App = () => {
             <Route path="/registration" element={<RegistrationPage/>}/>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/resendVerificationToken" element={<ResendVerificationTokenPage/>}/>
+            <Route path="/resetPassword" element={<ResetPasswordPage/>}/>
+            <Route path="/resetPasswordSet" element={<ResetPasswordSetPage/>}/>
 
             <Route path="*" element={<NotFoundPage/>}/>
         </Routes>

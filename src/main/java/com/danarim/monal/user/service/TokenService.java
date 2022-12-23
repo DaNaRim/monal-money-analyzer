@@ -9,5 +9,9 @@ public interface TokenService {
 
     Token validateVerificationToken(String tokenValue);
 
+    Token createPasswordResetToken(User user);
+
+    Token validatePasswordResetToken(String tokenValue);
+
     void deleteToken(Token token);
 }

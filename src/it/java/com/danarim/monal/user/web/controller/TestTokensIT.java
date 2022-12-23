@@ -6,6 +6,7 @@ import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.web.dto.RegistrationDto;
+import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.ApplicationMessage;
 import com.danarim.monal.util.ApplicationMessageType;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +46,8 @@ class TestTokensIT {
     private TokenDao tokenDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void testVerificationToken() throws Exception {
@@ -119,5 +123,55 @@ class TestTokensIT {
         User user = userDao.findByEmail(registrationDto.email());
         assertNull(token, "Token should be deleted after verification");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
+    }
+
+    @Test
+    void testPasswordResetToken() throws Exception { //TODO check if able split into smaller tests
+        String email = "testPasswordResetToken@email.com";
+
+        RegistrationDto registrationDto = new RegistrationDto(
+                "John", "Doe",
+                "test1234", "test1234",
+                email
+        );
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
+                .andExpect(status().isCreated());
+
+        //reset password begins
+
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPassword")
+                        .param("email", email));
+
+        assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
+
+        String emailBody = greenMail.getReceivedMessages()[1].getContent().toString(); // 0 - verifacation, 1 - pass reset
+
+        int tokenStartIndex = emailBody.indexOf("token=") + 6;
+        String tokenValue = emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length
+
+        //reset password confirm
+
+        MvcResult resetConfirmResult = mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
+                        .param("token", tokenValue))
+                .andExpect(status().is3xxRedirection())
+                .andReturn();
+
+        Cookie resetPassCookie = resetConfirmResult.getResponse().getCookie("passwordResetToken");
+
+        //set new password
+
+        ResetPasswordDto resetPasswordDto = new ResetPasswordDto("newPassword", "newPassword");
+
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPasswordDto)
+                        .cookie(resetPassCookie))
+                .andExpect(status().isNoContent());
+
+        //check if password was changed
+        User user = userDao.findByEmail(email);
+        assertTrue(passwordEncoder.matches(resetPasswordDto.password(), user.getPassword()));
+
+        //check if token was deleted
+        Token token = tokenDao.findByTokenValue(tokenValue);
+        assertNull(token, "Token should be deleted after password reset");
     }
 }

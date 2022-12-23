@@ -32,6 +32,7 @@ public class TokenServiceImpl implements TokenService {
      * @see InvalidTokenException expectClientActionCode field in InvalidTokenException class
      */
     private static final String CLIENT_ACTION_TOKEN_VERIFICATION_RESEND = "token.verification.resend";
+    private static final String CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND = "token.password.reset.resend";
 
     private static final Log logger = LogFactory.getLog(TokenServiceImpl.class);
 
@@ -40,6 +41,10 @@ public class TokenServiceImpl implements TokenService {
     public TokenServiceImpl(TokenDao tokenDao) {
         this.tokenDao = tokenDao;
     }
+
+    /*
+      Verification token
+     */
 
     /**
      * Create a new token verification token and save it in the database.
@@ -64,7 +69,7 @@ public class TokenServiceImpl implements TokenService {
         Token verificationToken = tokenDao.findByTokenValue(tokenValue);
 
         if (verificationToken == null) {
-            throw new InvalidTokenException("invalidToken",
+            throw new InvalidTokenException("token not found",
                     "validation.token.invalid", null,
                     CLIENT_ACTION_TOKEN_VERIFICATION_RESEND
             );
@@ -74,21 +79,75 @@ public class TokenServiceImpl implements TokenService {
         if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
             String clientAction = isUserEnabled ? null : CLIENT_ACTION_TOKEN_VERIFICATION_RESEND;
 
-            throw new InvalidTokenException("invalidToken",
+            throw new InvalidTokenException("token type is not verification",
                     "validation.token.wrong-type", new Object[]{TokenType.VERIFICATION},
                     clientAction);
         }
         if (verificationToken.isExpired()) {
             String clientAction = isUserEnabled ? null : CLIENT_ACTION_TOKEN_VERIFICATION_RESEND;
 
-            throw new InvalidTokenException("tokenExpired", "validation.token.expired", null, clientAction);
+            throw new InvalidTokenException("token expired", "validation.token.expired", null, clientAction);
         }
         if (verificationToken.getUser().isEnabled()) {
-            throw new InvalidTokenException("userAlreadyEnable", "validation.token.user.enabled", null, null);
+            throw new InvalidTokenException("user already enable", "validation.token.user.enabled", null, null);
         }
         return verificationToken;
     }
 
+    /*
+      Password reset token
+     */
+
+    /**
+     * Create a new password reset token and save it in the database.
+     *
+     * @param user user to create token for
+     * @return password reset token
+     */
+    @Override
+    public Token createPasswordResetToken(User user) {
+        return tokenDao.save(new Token(user, TokenType.PASSWORD_RESET));
+    }
+
+    /**
+     * @param tokenValue token value
+     * @return Token object with the given value
+     * @throws InvalidTokenException if token is not found, wrong type or expired
+     */
+    @Override
+    public Token validatePasswordResetToken(String tokenValue) {
+        Token passwordResetToken = tokenDao.findByTokenValue(tokenValue);
+
+        if (passwordResetToken == null) {
+            throw new InvalidTokenException("token not found",
+                    "validation.token.invalid",
+                    null,
+                    CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND);
+        }
+        if (passwordResetToken.getTokenType() != TokenType.PASSWORD_RESET) {
+            throw new InvalidTokenException("token type is not password reset",
+                    "validation.token.wrong-type",
+                    new Object[]{TokenType.PASSWORD_RESET},
+                    CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND);
+        }
+        if (passwordResetToken.isExpired()) {
+            throw new InvalidTokenException("token expired",
+                    "validation.token.expired",
+                    null,
+                    CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND);
+        }
+        return passwordResetToken;
+    }
+
+    /*
+      Other methods
+     */
+
+    /**
+     * Deletes the given token from the database.
+     *
+     * @param token token to delete
+     */
     @Override
     public void deleteToken(Token token) {
         tokenDao.delete(token);

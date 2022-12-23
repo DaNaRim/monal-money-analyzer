@@ -14,7 +14,8 @@ import java.util.Locale;
 @Component
 public class MailUtil {
 
-    private static final String REGISTRATION_ENDPOINT = "/registrationConfirm";
+    private static final String ACCOUNT_CONFIRM_ENDPOINT = "/registrationConfirm";
+    private static final String PASSWORD_RESET_ENDPOINT = "/resetPasswordConfirm";
 
     private static final String TOKEN_LINK_TEMPLATE = "%s%s%s?token=%s";
 
@@ -29,7 +30,7 @@ public class MailUtil {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationTokenEmail(String tokenValue, String userEmail) {
+    public void sendVerificationEmail(String tokenValue, String userEmail) {
 
         Locale locale = LocaleContextHolder.getLocale();
         String contextPath = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
@@ -37,11 +38,28 @@ public class MailUtil {
         String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
                 contextPath,
                 WebConfig.API_V1_PREFIX,
-                REGISTRATION_ENDPOINT,
+                ACCOUNT_CONFIRM_ENDPOINT,
                 tokenValue);
 
         String subject = messages.getMessage("mail.verifyAccount.subject", null, locale);
         String message = messages.getMessage("mail.verifyAccount.link.enable", null, locale);
+
+        mailSender.send(constructEmail(subject, message + "\r\n" + confirmUrl, userEmail));
+    }
+
+    public void sendPasswordResetEmail(String tokenValue, String userEmail) {
+
+        Locale locale = LocaleContextHolder.getLocale();
+        String contextPath = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+
+        String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
+                contextPath,
+                WebConfig.API_V1_PREFIX,
+                PASSWORD_RESET_ENDPOINT,
+                tokenValue);
+
+        String subject = messages.getMessage("mail.resetPassword.subject", null, locale);
+        String message = messages.getMessage("mail.resetPassword.link.reset", null, locale);
 
         mailSender.send(constructEmail(subject, message + "\r\n" + confirmUrl, userEmail));
     }

@@ -7,6 +7,15 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+/**
+ * Data for user registration.
+ *
+ * @param firstName        user first name
+ * @param lastName         user last name
+ * @param password         user password
+ * @param matchingPassword confirmation of user password
+ * @param email            user email
+ */
 @PasswordMatches(message = "{validation.user.matching.password}")
 public record RegistrationDto(
 

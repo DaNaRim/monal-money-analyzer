@@ -35,7 +35,11 @@ public class SecurityConfig {
 
             "/registration",
             "/registrationConfirm",
-            "/resendVerificationToken"
+            "/resendVerificationToken",
+
+            "/resetPassword",
+            "/resetPasswordConfirm",
+            "/resetPasswordSet"
     ).map(endpoint -> API_V1_PREFIX + endpoint).toList();
 
     private final ApplicationContext context;

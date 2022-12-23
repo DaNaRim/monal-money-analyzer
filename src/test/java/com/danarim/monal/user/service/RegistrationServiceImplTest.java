@@ -8,6 +8,7 @@ import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.*;
 import com.danarim.monal.user.web.dto.RegistrationDto;
+import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.MailUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,22 +117,22 @@ class RegistrationServiceImplTest {
         Token verificationToken = new Token(user, TokenType.VERIFICATION);
         when(tokenService.createVerificationToken(user)).thenReturn(verificationToken);
 
-        registrationService.resendVerificationToken(user.getEmail());
+        registrationService.resendVerificationEmail(user.getEmail());
 
         verify(userDao).findByEmail(user.getEmail());
         verify(tokenService).createVerificationToken(user);
-        verify(mailUtil).sendVerificationTokenEmail(verificationToken.getTokenValue(), user.getEmail());
+        verify(mailUtil).sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
     }
 
     @Test
     void testResendVerificationTokenUserNotFound() {
         when(userDao.findByEmail("email")).thenReturn(null);
 
-        assertThrows(BadRequestException.class, () -> registrationService.resendVerificationToken("email"));
+        assertThrows(BadRequestException.class, () -> registrationService.resendVerificationEmail("email"));
 
         verify(userDao).findByEmail("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
-        verify(mailUtil, never()).sendVerificationTokenEmail(anyString(), anyString());
+        verify(mailUtil, never()).sendVerificationEmail(anyString(), anyString());
     }
 
     @Test
@@ -144,10 +145,64 @@ class RegistrationServiceImplTest {
 
         when(userDao.findByEmail(user.getEmail())).thenReturn(user);
 
-        assertThrows(BadRequestException.class, () -> registrationService.resendVerificationToken("email"));
+        assertThrows(BadRequestException.class, () -> registrationService.resendVerificationEmail("email"));
 
         verify(userDao).findByEmail(user.getEmail());
         verify(tokenService, never()).createVerificationToken(any(User.class));
-        verify(mailUtil, never()).sendVerificationTokenEmail(anyString(), anyString());
+        verify(mailUtil, never()).sendVerificationEmail(anyString(), anyString());
+    }
+
+    @Test
+    void testResetPassword() {
+        User user = mock(User.class);
+        Token resetToken = new Token(user, TokenType.PASSWORD_RESET);
+
+        when(userDao.findByEmail("email")).thenReturn(user);
+        when(tokenService.createPasswordResetToken(user)).thenReturn(resetToken);
+
+        registrationService.resetPassword("email");
+
+        verify(userDao).findByEmail("email");
+        verify(tokenService).createPasswordResetToken(any(User.class));
+        verify(mailUtil).sendPasswordResetEmail(anyString(), anyString());
+    }
+
+    @Test
+    void testResetPasswordUserNotFound() {
+        when(userDao.findByEmail("email")).thenReturn(null);
+
+        assertThrows(BadRequestException.class, () -> registrationService.resetPassword("email"));
+
+        verify(userDao).findByEmail("email");
+        verify(tokenService, never()).createPasswordResetToken(any(User.class));
+        verify(mailUtil, never()).sendPasswordResetEmail(anyString(), anyString());
+    }
+
+    @Test
+    void testValidatePasswordResetToken() {
+        registrationService.validatePasswordResetToken("token");
+
+        verify(tokenService).validatePasswordResetToken("token");
+    }
+
+    @Test
+    void testUpdateForgottenPassword() {
+        ResetPasswordDto resetPasswordDto = mock(ResetPasswordDto.class);
+        Token resetToken = mock(Token.class);
+        User user = mock(User.class);
+
+        when(tokenService.validatePasswordResetToken("token")).thenReturn(resetToken);
+        when(resetToken.getUser()).thenReturn(user);
+        when(resetPasswordDto.password()).thenReturn("password");
+        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+
+        User result = registrationService.updateForgottenPassword(resetPasswordDto, "token");
+
+        verify(tokenService).validatePasswordResetToken("token");
+        verify(passwordEncoder).encode("password");
+        verify(user).setPassword("encodedPassword");
+        verify(tokenService).deleteToken(resetToken);
+
+        assertEquals(user, result);
     }
 }

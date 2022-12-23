@@ -22,6 +22,9 @@ public final class CookieUtil {
     private static final String COOKIE_APP_MESSAGE_KEY = "serverMessage";
     private static final long COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS = 4L;
 
+    private static final String COOKIE_PASSWORD_RESET_TOKEN_KEY = "passwordResetToken";
+    private static final long COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS = 1L;
+
     private CookieUtil() {
     }
 
@@ -146,6 +149,48 @@ public final class CookieUtil {
         } catch (JsonProcessingException e) {
             throw new InternalServerException("Failed to create application message cookie", e);
         }
+    }
+
+    /*
+      Password reset token Cookie
+     */
+
+    /**
+     * Creates a new password reset token cookie. Expiration is {@link CookieUtil#COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS}
+     * <br>
+     * Used for updating the password that was forgotten
+     *
+     * @param token password reset token
+     * @return cookie with password reset token
+     */
+    public static Cookie createPasswordResetCookie(String token) {
+        Cookie cookie = new Cookie(COOKIE_PASSWORD_RESET_TOKEN_KEY, token);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) TimeUnit.HOURS.toSeconds(COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS));
+        return cookie;
+    }
+
+    /**
+     * Gets the password reset token from the request
+     *
+     * @param request http request
+     * @return password reset token or null if cookie not found
+     */
+    public static String getPasswordResetTokenValueByRequest(HttpServletRequest request) {
+        return getCookieValueByRequest(request, COOKIE_PASSWORD_RESET_TOKEN_KEY);
+    }
+
+    /**
+     * Creates a new password reset token cookie with null value and expiration 0.
+     * To delete the cookie you need to add it to the response.
+     *
+     * @return cookie with null value and expiration 0
+     */
+    public static Cookie deletePasswordResetCookie() {
+        Cookie cookie = new Cookie(COOKIE_PASSWORD_RESET_TOKEN_KEY, null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        return cookie;
     }
 
 }
