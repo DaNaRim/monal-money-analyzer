@@ -80,7 +80,7 @@ class TestTokensIT {
                 "ApplicationMessage type is not INFO, maybe exception was thrown during activation"
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
-        User user = userDao.findByEmail(registrationDto.email());
+        User user = userDao.findByEmailIgnoreCase(registrationDto.email());
         assertNull(token, "Token should be deleted after verification");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
     }
@@ -120,7 +120,7 @@ class TestTokensIT {
                 "ApplicationMessage type is not INFO, maybe exception was thrown during activation"
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
-        User user = userDao.findByEmail(registrationDto.email());
+        User user = userDao.findByEmailIgnoreCase(registrationDto.email());
         assertNull(token, "Token should be deleted after verification");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
     }
@@ -167,7 +167,7 @@ class TestTokensIT {
                 .andExpect(status().isNoContent());
 
         //check if password was changed
-        User user = userDao.findByEmail(email);
+        User user = userDao.findByEmailIgnoreCase(email);
         assertTrue(passwordEncoder.matches(resetPasswordDto.password(), user.getPassword()));
 
         //check if token was deleted

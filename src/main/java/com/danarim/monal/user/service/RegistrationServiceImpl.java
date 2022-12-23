@@ -52,7 +52,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     @Override
     public User registerNewUserAccount(RegistrationDto registrationDto) {
-        if (userDao.existsByEmail(registrationDto.email())) {
+        if (userDao.existsByEmailIgnoreCase(registrationDto.email())) {
             throw new AlreadyExistsException("User with email '" + registrationDto.email() + "' already exists",
                     FIELD_VALIDATION_ERROR,
                     "email",
@@ -93,7 +93,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     @Override
     public void resendVerificationEmail(String userEmail) {
-        User user = userDao.findByEmail(userEmail);
+        User user = userDao.findByEmailIgnoreCase(userEmail);
 
         if (user == null) {
             throw new BadRequestException("Can't find user with email " + userEmail,
@@ -123,7 +123,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     @Override
     public void resetPassword(String userEmail) {
-        User user = userDao.findByEmail(userEmail);
+        User user = userDao.findByEmailIgnoreCase(userEmail);
 
         if (user == null) {
             throw new BadRequestException("Can't find user with email " + userEmail,

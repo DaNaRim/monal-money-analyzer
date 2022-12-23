@@ -44,7 +44,7 @@ class RegistrationServiceImplTest {
 
     @Test
     void testRegisterUser() {
-        when(userDao.existsByEmail(anyString())).thenReturn(false);
+        when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(false);
         when(userDao.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         RegistrationDto registrationDto = new RegistrationDto(
@@ -55,7 +55,7 @@ class RegistrationServiceImplTest {
 
         registrationService.registerNewUserAccount(registrationDto);
 
-        verify(userDao).existsByEmail(registrationDto.email());
+        verify(userDao).existsByEmailIgnoreCase(registrationDto.email());
         verify(userDao).save(any(User.class));
         verify(passwordEncoder).encode(registrationDto.password());
         verify(roleDao).findByRoleName(RoleName.ROLE_USER);
@@ -63,7 +63,7 @@ class RegistrationServiceImplTest {
 
     @Test
     void testRegisterUserWithExistEmail() {
-        when(userDao.existsByEmail(anyString())).thenReturn(true);
+        when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(true);
 
         RegistrationDto registrationDto = new RegistrationDto(
                 "test", "test",
@@ -78,7 +78,7 @@ class RegistrationServiceImplTest {
         assertEquals(GenericErrorType.FIELD_VALIDATION_ERROR, e.getErrorType());
         assertNotNull(e.getMessageCode());
 
-        verify(userDao).existsByEmail(registrationDto.email());
+        verify(userDao).existsByEmailIgnoreCase(registrationDto.email());
     }
 
     @Test
@@ -113,24 +113,24 @@ class RegistrationServiceImplTest {
                 "test", "test",
                 "email", "password", new Date(), Set.of(new Role(RoleName.ROLE_USER))
         );
-        when(userDao.findByEmail("email")).thenReturn(user);
+        when(userDao.findByEmailIgnoreCase("email")).thenReturn(user);
         Token verificationToken = new Token(user, TokenType.VERIFICATION);
         when(tokenService.createVerificationToken(user)).thenReturn(verificationToken);
 
         registrationService.resendVerificationEmail(user.getEmail());
 
-        verify(userDao).findByEmail(user.getEmail());
+        verify(userDao).findByEmailIgnoreCase(user.getEmail());
         verify(tokenService).createVerificationToken(user);
         verify(mailUtil).sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
     }
 
     @Test
     void testResendVerificationTokenUserNotFound() {
-        when(userDao.findByEmail("email")).thenReturn(null);
+        when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
         assertThrows(BadRequestException.class, () -> registrationService.resendVerificationEmail("email"));
 
-        verify(userDao).findByEmail("email");
+        verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
         verify(mailUtil, never()).sendVerificationEmail(anyString(), anyString());
     }
@@ -143,11 +143,11 @@ class RegistrationServiceImplTest {
         );
         user.setEmailVerified(true);
 
-        when(userDao.findByEmail(user.getEmail())).thenReturn(user);
+        when(userDao.findByEmailIgnoreCase(user.getEmail())).thenReturn(user);
 
         assertThrows(BadRequestException.class, () -> registrationService.resendVerificationEmail("email"));
 
-        verify(userDao).findByEmail(user.getEmail());
+        verify(userDao).findByEmailIgnoreCase(user.getEmail());
         verify(tokenService, never()).createVerificationToken(any(User.class));
         verify(mailUtil, never()).sendVerificationEmail(anyString(), anyString());
     }
@@ -157,23 +157,23 @@ class RegistrationServiceImplTest {
         User user = mock(User.class);
         Token resetToken = new Token(user, TokenType.PASSWORD_RESET);
 
-        when(userDao.findByEmail("email")).thenReturn(user);
+        when(userDao.findByEmailIgnoreCase("email")).thenReturn(user);
         when(tokenService.createPasswordResetToken(user)).thenReturn(resetToken);
 
         registrationService.resetPassword("email");
 
-        verify(userDao).findByEmail("email");
+        verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService).createPasswordResetToken(any(User.class));
         verify(mailUtil).sendPasswordResetEmail(anyString(), anyString());
     }
 
     @Test
     void testResetPasswordUserNotFound() {
-        when(userDao.findByEmail("email")).thenReturn(null);
+        when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
         assertThrows(BadRequestException.class, () -> registrationService.resetPassword("email"));
 
-        verify(userDao).findByEmail("email");
+        verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createPasswordResetToken(any(User.class));
         verify(mailUtil, never()).sendPasswordResetEmail(anyString(), anyString());
     }

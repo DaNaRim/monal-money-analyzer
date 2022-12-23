@@ -28,14 +28,14 @@ class CustomUserDetailsServiceTest {
     void testLoadUserByUsername() {
         User user = new User("1", "1", EMAIL, "1", new Date(), Set.of(new Role(RoleName.ROLE_USER)));
 
-        when(userDao.findByEmail(EMAIL)).thenReturn(user);
+        when(userDao.findByEmailIgnoreCase(EMAIL)).thenReturn(user);
 
         assertEquals(user, customUserDetailsService.loadUserByUsername(EMAIL));
     }
 
     @Test
     void testUserNotFound() {
-        when(userDao.findByEmail(anyString())).thenReturn(null);
+        when(userDao.findByEmailIgnoreCase(anyString())).thenReturn(null);
 
         assertThrows(UsernameNotFoundException.class, () -> customUserDetailsService.loadUserByUsername(EMAIL));
     }
