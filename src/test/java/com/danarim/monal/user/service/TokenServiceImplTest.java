@@ -45,6 +45,10 @@ class TokenServiceImplTest {
         reset(logger);
     }
 
+    /*
+      Verification token
+     */
+
     @Test
     void createVerificationToken() {
         User user = mock(User.class);
@@ -117,6 +121,69 @@ class TokenServiceImplTest {
                 () -> tokenService.validateVerificationToken(tokenValue)
         );
     }
+
+    /*
+      Password reset token
+     */
+
+    @Test
+    void testCreatePasswordResetToken() {
+        User user = mock(User.class);
+        tokenService.createPasswordResetToken(user);
+        verify(tokenDao).save(any(Token.class));
+    }
+
+    @Test
+    void testValidatePasswordResetToken() {
+        User user = new User(
+                "test", "test",
+                "userEmail", "password",
+                new Date(), Set.of(new Role(RoleName.ROLE_USER))
+        );
+        Token passwordResetToken = new Token(user, TokenType.PASSWORD_RESET);
+
+        when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
+
+        Token resultToken = tokenService.validatePasswordResetToken(passwordResetToken.getTokenValue());
+
+        assertEquals(passwordResetToken, resultToken);
+    }
+
+    @Test
+    void testValidatePasswordResetTokenInvalid() {
+        when(tokenDao.findByTokenValue("invalid")).thenReturn(null);
+
+        assertThrows(InvalidTokenException.class, () -> tokenService.validatePasswordResetToken("invalid"));
+    }
+
+    @Test
+    void testValidatePasswordResetTokenExpired() {
+        Token passwordResetToken = new Token(mock(User.class), TokenType.PASSWORD_RESET);
+        passwordResetToken.setExpiryDate(new Date(0L));
+
+        when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
+
+        String tokenValue = passwordResetToken.getTokenValue();
+        assertThrows(InvalidTokenException.class,
+                () -> tokenService.validatePasswordResetToken(tokenValue)
+        );
+    }
+
+    @Test
+    void testValidatePasswordResetTokenWrongType() {
+        Token verificationToken = new Token(mock(User.class), TokenType.VERIFICATION);
+
+        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(verificationToken);
+
+        String tokenValue = verificationToken.getTokenValue();
+        assertThrows(InvalidTokenException.class,
+                () -> tokenService.validatePasswordResetToken(tokenValue)
+        );
+    }
+
+    /*
+      Other methods
+     */
 
     @Test
     void deleteToken() {

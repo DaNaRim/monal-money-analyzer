@@ -1,11 +1,10 @@
 import React from "react";
 import {useForm} from "react-hook-form";
-import {Credentials} from "../../../features/auth/authApiSlice";
-import {useResendVerificationTokenMutation} from "../../../features/registration/registrationApiSlice";
+import {useResetPasswordMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import styles from "../Login/LoginPage.module.scss"; //TODO own styles file
+import styles from "./ResetPasswordPage.module.scss";
 
-interface ResendVerificationTokenFields extends Credentials { //TODO remove extends Credentials
+interface ResetPasswordFields {
     email: string;
     globalError?: string;
     serverError?: string;
@@ -17,21 +16,18 @@ type GenericError = {
     message: string
 }
 
-const ResendVerificationTokenPage = () => {
-    const {register, handleSubmit, setError, formState: {errors}} = useForm<ResendVerificationTokenFields>();
+const ResetPasswordPage = () => {
+    const {register, handleSubmit, setError, formState: {errors}} = useForm<ResetPasswordFields>();
 
-    const [resendToken, {isLoading}] = useResendVerificationTokenMutation(); //TODO isSuccessful
+    const [resetPassword, {isLoading, isSuccess}] = useResetPasswordMutation();
 
-    const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
-
-    const handleResendToken = (data: ResendVerificationTokenFields) => {
+    const handleResetPassword = (data: ResetPasswordFields) => {
         delete data.globalError;
         delete data.serverError;
 
-        resendToken(data.email).unwrap()
-            .then(() => setSuccessMessage("Verification token has been sent to your email"))
+        resetPassword(data.email).unwrap()
             .catch(e => {
-                if (e.status === 401) {
+                if (e.status === 400) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
                 } else if (e.status === "FETCH_ERROR" || e.status === 500) {
@@ -45,15 +41,19 @@ const ResendVerificationTokenPage = () => {
 
     return (
         <PageWrapper>
-            <main className={styles.login_page}>
-                <h1>Resend verification token page</h1>
-                {successMessage && <div>{successMessage}</div>}
-
-                <form onSubmit={handleSubmit(handleResendToken)}>
+            <main className={styles.reset_password_page}>
+                <h1>Reset Password Page</h1>
+                {isSuccess
+                    && <span className={`${styles.app_message} ${styles.info}`}>
+                    Check your email for a link to reset your password. If it doesn't appear within a few minutes,
+                    check your spam folder.
+                </span>
+                }
+                <form onSubmit={handleSubmit(handleResetPassword)}>
                     <label htmlFor="email">Email: </label>
-                    <input type="email" id="email" {...register("email", {required: true})}/>
-                    {errors.username?.type === "required" && <span>Email is required</span>}
-                    {errors.username && <span>{errors.username.message}</span>}<br/>
+                    <input type="text" id="email" {...register("email", {required: true})}/><br/>
+                    {errors.email?.type === "required" && <span>Email is required</span>}
+                    {errors.email && <span>{errors.email.message}</span>}<br/>
 
                     <input type="hidden" {...register("globalError")}/>
                     {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
@@ -64,7 +64,7 @@ const ResendVerificationTokenPage = () => {
 
                     {isLoading
                         ? <span>Loading...</span>
-                        : <button type="submit">Resend token</button>
+                        : <button type="submit">Reset password</button>
                     }
                 </form>
             </main>
@@ -72,4 +72,4 @@ const ResendVerificationTokenPage = () => {
     );
 };
 
-export default ResendVerificationTokenPage;
+export default ResetPasswordPage;

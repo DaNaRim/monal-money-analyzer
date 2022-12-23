@@ -99,6 +99,7 @@ const LoginPage = () => {
                         ? <span>Loading...</span>
                         : <button type="submit">Login</button>
                     }
+                    <Link to={"/resetPassword"}>Forgot password?</Link>
                 </form>
             </main>
         </PageWrapper>

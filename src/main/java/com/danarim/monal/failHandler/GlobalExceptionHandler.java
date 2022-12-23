@@ -52,8 +52,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles validation exceptions thrown by services.
      */
-    @ExceptionHandler({BadRequestException.class, AlreadyExistsException.class})
+    @ExceptionHandler(BadRequestException.class)
     protected ResponseEntity<List<GenericErrorResponse>> handleBadRequestException(BadRequestException e,
+                                                                                   WebRequest request
+    ) {
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), e.getField(), message);
+
+        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    protected ResponseEntity<List<GenericErrorResponse>> handleBadRequestException(AlreadyExistsException e,
                                                                                    WebRequest request
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);

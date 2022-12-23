@@ -1,5 +1,6 @@
 package com.danarim.monal.config.security.jwt;
 
+import com.danarim.monal.user.persistence.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,9 @@ public interface JwtTokenDao extends JpaRepository<JwtTokenEntity, Long> {
     @Modifying
     @Transactional
     void deleteByExpirationDateBefore(Date date);
+
+    @Query("UPDATE JwtTokenEntity t SET t.isBlocked = true WHERE t.user = ?1")
+    @Modifying
+    @Transactional
+    void blockAllTokensForUser(User user);
 }

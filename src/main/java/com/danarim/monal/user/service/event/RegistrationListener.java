@@ -31,6 +31,6 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     private void sendVerificationTokenToUser(OnRegistrationCompleteEvent event) {
         User user = event.getUser();
         Token verificationToken = tokenService.createVerificationToken(user);
-        mailUtil.sendVerificationTokenEmail(verificationToken.getTokenValue(), user.getEmail());
+        mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
     }
 }

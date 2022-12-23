@@ -36,6 +36,6 @@ class RegistrationListenerTest {
         registrationListener.onApplicationEvent(new OnRegistrationCompleteEvent(user));
 
         verify(tokenService).createVerificationToken(user);
-        verify(mailUtil).sendVerificationTokenEmail(verificationToken.getTokenValue(), "userEmail");
+        verify(mailUtil).sendVerificationEmail(verificationToken.getTokenValue(), "userEmail");
     }
 }

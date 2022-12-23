@@ -162,6 +162,15 @@ public class JwtUtil {
     }
 
     /**
+     * Blocks all access and refresh tokens for the given user
+     *
+     * @param user user to block tokens for
+     */
+    public void blockAllTokensForUser(User user) {
+        jwtTokenDao.blockAllTokensForUser(user);
+    }
+
+    /**
      * Check if the given token is blocked
      *
      * @param jti token id

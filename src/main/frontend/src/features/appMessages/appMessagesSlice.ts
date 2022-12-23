@@ -1,11 +1,11 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../app/store";
 
 const COOKIE_KEY_APPLICATION_MESSAGE = "serverMessage";
 
 export type AppMessageType = "INFO" | "WARNING" | "ERROR";
 
-interface ApplicationMessage {
+export interface ApplicationMessage {
     message: string;
     type: AppMessageType;
     page: string | null;
@@ -40,6 +40,16 @@ export const appMessagesSlice = createSlice({
                 document.cookie = COOKIE_KEY_APPLICATION_MESSAGE + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             }
         },
+        addAppMessage: (state, action: PayloadAction<ApplicationMessage>) => {
+            const message = action.payload;
+
+            state.messages.push({
+                message: message.message,
+                type: message.type,
+                page: message.page,
+                expectClientActionCode: message.expectClientActionCode,
+            });
+        },
         deleteAppMessage: (state, action) => {
             const {message: msg} = action.payload;
 
@@ -48,7 +58,11 @@ export const appMessagesSlice = createSlice({
     },
 });
 
-export const {checkForServerMessages, deleteAppMessage} = appMessagesSlice.actions;
+export const {
+    checkForServerMessages,
+    addAppMessage,
+    deleteAppMessage,
+} = appMessagesSlice.actions;
 
 export const selectAppMessages = (state: RootState) => state.appMessages.messages;
 

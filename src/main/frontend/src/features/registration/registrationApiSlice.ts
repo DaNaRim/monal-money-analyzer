@@ -9,6 +9,11 @@ export type RegistrationDto = {
     matchingPassword: string
 }
 
+export type ResetPasswordDto = {
+    newPassword: string,
+    matchingPassword: string
+}
+
 export const registrationApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         register: builder.mutation<RootState, RegistrationDto>({
@@ -25,10 +30,26 @@ export const registrationApiSlice = apiSlice.injectEndpoints({
                 params: {email},
             }),
         }),
+        resetPassword: builder.mutation<RootState, string>({
+            query: (email) => ({
+                url: "/resetPassword",
+                method: "POST",
+                params: {email},
+            }),
+        }),
+        resetPasswordSet: builder.mutation<RootState, ResetPasswordDto>({
+            query: (body) => ({
+                url: "/resetPasswordSet",
+                method: "POST",
+                body,
+            }),
+        }),
     }),
 });
 
 export const {
     useRegisterMutation,
     useResendVerificationTokenMutation,
+    useResetPasswordMutation,
+    useResetPasswordSetMutation,
 } = registrationApiSlice;

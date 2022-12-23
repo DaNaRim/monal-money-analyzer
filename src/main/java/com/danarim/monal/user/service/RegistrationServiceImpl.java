@@ -8,6 +8,7 @@ import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.web.dto.RegistrationDto;
+import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.MailUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,19 +27,19 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RoleDao roleDao;
     private final TokenService tokenService;
 
-    private final PasswordEncoder encoder;
+    private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
 
     public RegistrationServiceImpl(UserDao userDao,
                                    RoleDao roleDao,
                                    TokenService tokenService,
-                                   PasswordEncoder encoder,
+                                   PasswordEncoder passwordEncoder,
                                    MailUtil mailUtil
     ) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.tokenService = tokenService;
-        this.encoder = encoder;
+        this.passwordEncoder = passwordEncoder;
         this.mailUtil = mailUtil;
     }
 
@@ -64,7 +65,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 registrationDto.firstName(),
                 registrationDto.lastName(),
                 registrationDto.email(),
-                encoder.encode(registrationDto.password()),
+                passwordEncoder.encode(registrationDto.password()),
                 new Date(),
                 Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER)) //To get role with correct id
         );
@@ -91,7 +92,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      * @throws BadRequestException if user not found or user already verified
      */
     @Override
-    public void resendVerificationToken(String userEmail) {
+    public void resendVerificationEmail(String userEmail) {
         User user = userDao.findByEmail(userEmail);
 
         if (user == null) {
@@ -111,7 +112,57 @@ public class RegistrationServiceImpl implements RegistrationService {
             );
         }
         Token verificationToken = tokenService.createVerificationToken(user);
+        mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), userEmail);
+    }
 
-        mailUtil.sendVerificationTokenEmail(verificationToken.getTokenValue(), userEmail);
+    /**
+     * Check if user with this email exists and send email with reset password link.
+     *
+     * @param userEmail user email to send verification link
+     * @throws BadRequestException if user not found
+     */
+    @Override
+    public void resetPassword(String userEmail) {
+        User user = userDao.findByEmail(userEmail);
+
+        if (user == null) {
+            throw new BadRequestException("Can't find user with email " + userEmail,
+                    FIELD_VALIDATION_ERROR,
+                    "email",
+                    "validation.user.email.notFound",
+                    null
+            );
+        }
+        Token passwordResetToken = tokenService.createPasswordResetToken(user);
+        mailUtil.sendPasswordResetEmail(passwordResetToken.getTokenValue(), userEmail);
+    }
+
+    /**
+     * Uses tokenService to validate token.
+     *
+     * @param tokenValue password reset token value
+     * @return Token object if token is valid
+     * @see TokenService#validatePasswordResetToken(String)
+     */
+    @Override
+    public Token validatePasswordResetToken(String tokenValue) {
+        return tokenService.validatePasswordResetToken(tokenValue);
+    }
+
+    /**
+     * Validate token, change user password and delete token from database.
+     *
+     * @param resetPasswordDto   reset password data
+     * @param resetPasswordToken password reset token value
+     * @return User object if password reset was successful
+     */
+    @Override
+    public User updateForgottenPassword(ResetPasswordDto resetPasswordDto, String resetPasswordToken) {
+        Token token = tokenService.validatePasswordResetToken(resetPasswordToken);
+        User user = token.getUser();
+        user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
+        tokenService.deleteToken(token);
+
+        return user;
     }
 }
