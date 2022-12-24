@@ -138,11 +138,19 @@ public class RegistrationServiceImpl implements RegistrationService {
      * @param resetPasswordDto   reset password data
      * @param resetPasswordToken password reset token value
      * @return User object if password reset was successful
+     * @throws BadFieldException if new password same as old password
      */
     @Override
     public User updateForgottenPassword(ResetPasswordDto resetPasswordDto, String resetPasswordToken) {
+
         Token token = tokenService.validatePasswordResetToken(resetPasswordToken);
         User user = token.getUser();
+
+        //check if password is not the same as old
+        if (passwordEncoder.matches(resetPasswordDto.password(), user.getPassword())) {
+            throw new BadFieldException("New password can't be the same as old",
+                    "validation.user.password.sameAsOld", null, "password");
+        }
         user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
         token.setUsed();
 
