@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TokenServiceImpl implements TokenService {
 
-
     /**
      * Delay between creating verification tokens for user
      */
