@@ -103,7 +103,6 @@ class RegistrationServiceImplTest {
         assertThrows(InvalidTokenException.class, () -> registrationService.confirmRegistration("token"));
 
         verify(tokenService).validateVerificationToken("token");
-        verify(tokenService, never()).deleteToken(any(Token.class));
     }
 
     @Test

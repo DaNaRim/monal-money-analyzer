@@ -152,16 +152,6 @@ public class TokenServiceImpl implements TokenService {
      */
 
     /**
-     * Deletes the given token from the database.
-     *
-     * @param token token to delete
-     */
-    @Override
-    public void deleteToken(Token token) {
-        tokenDao.delete(token);
-    }
-
-    /**
      * Delete all tokens that expired before given date.
      * <br>
      * Token becomes deprecated when it is expired and time {@link #DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS} passed.

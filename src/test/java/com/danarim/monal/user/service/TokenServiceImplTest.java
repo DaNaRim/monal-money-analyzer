@@ -231,13 +231,6 @@ class TokenServiceImplTest {
      */
 
     @Test
-    void deleteToken() {
-        Token token = mock(Token.class);
-        tokenService.deleteToken(token);
-        verify(tokenDao).delete(token);
-    }
-
-    @Test
     @DisplayName("Test scheduled task to delete deprecated tokens")
     void testDeleteDeprecatedTokens() {
         when(tokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(1);
