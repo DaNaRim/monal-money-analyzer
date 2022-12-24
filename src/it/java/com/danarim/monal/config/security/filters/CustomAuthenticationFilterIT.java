@@ -3,7 +3,7 @@ package com.danarim.monal.config.security.filters;
 import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.TestUtils;
 import com.danarim.monal.config.WebConfig;
-import com.danarim.monal.exceptions.GenericErrorType;
+import com.danarim.monal.failHandler.ResponseErrorType;
 import com.danarim.monal.util.CookieUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
                 .andExpect(status().isUnauthorized())
 
-                .andExpect(jsonPath("$[0].type").value(GenericErrorType.FIELD_VALIDATION_ERROR.getType()))
+                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("username"))
                 .andExpect(jsonPath("$[0].message").exists());
     }
@@ -57,7 +57,7 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
                 .andExpect(status().isUnauthorized())
 
-                .andExpect(jsonPath("$[0].type").value(GenericErrorType.FIELD_VALIDATION_ERROR.getType()))
+                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("password"))
                 .andExpect(jsonPath("$[0].message").exists());
     }
@@ -69,8 +69,8 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
                 .andExpect(status().isUnauthorized())
 
-                .andExpect(jsonPath("$[0].type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$[0].fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(jsonPath("$[0].fieldName").value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].message").exists());
     }
 
@@ -79,8 +79,8 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", ""))
                 .andExpect(status().isUnauthorized())
 
-                .andExpect(jsonPath("$[0].type").value(GenericErrorType.GLOBAL_ERROR.getType()))
-                .andExpect(jsonPath("$[0].fieldName").value(GenericErrorType.GLOBAL_ERROR.getType()))
+                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(jsonPath("$[0].fieldName").value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].message").exists());
     }
 }

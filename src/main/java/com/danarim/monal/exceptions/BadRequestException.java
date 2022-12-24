@@ -1,37 +1,63 @@
 package com.danarim.monal.exceptions;
 
+import com.danarim.monal.failHandler.ResponseErrorType;
+
 import java.io.Serial;
 
 /**
- * Used for service validation errors.
+ * Used when the request processing failed because of a validation error.
+ * <br>
+ * If validation error is caused by a specific field in the form, use {@link BadFieldException} instead.
+ * <br>
+ * This exception should use only for global errors.
+ *
+ * @see ResponseErrorType#GLOBAL_ERROR
  */
-public class BadRequestException extends GenericException {
+public class BadRequestException extends RuntimeException {
 
     @Serial
-    private static final long serialVersionUID = 8618658914791255458L;
+    private static final long serialVersionUID = -2223911471207197416L;
+
+    protected static final Object[] DEFAULT_MESSAGE_ARGS = new Object[0];
 
     /**
-     * Creates exception with {@link GenericErrorType} type.
-     * <br>
-     * If type is {@link GenericErrorType#GLOBAL_ERROR} or {@link GenericErrorType#SERVER_ERROR} then "field" is ignored
-     * and can be null.
-     *
-     * @param message     message for logging and debugging. Not used in response.
-     * @param errorType   type of error. see {@link GenericErrorType}.
-     * @param field       field name that caused the exception. Use null if exception is not related to a field.
-     * @param messageCode messageCode is used to get localized message from {@link org.springframework.context.MessageSource}.
-     * @param messageArgs messageArgs are used to provide arguments for messageCode. Can be null.
-     * @throws IllegalArgumentException if errorType is null. <br>
-     *                                  Or if errorType is {@link GenericErrorType#FIELD_VALIDATION_ERROR} and field is null. <br>
-     *                                  Or if messageCode is null.
-     * @see GenericException
+     * Used to get localized message from {@link org.springframework.context.MessageSource}.
      */
-    public BadRequestException(String message,
-                               GenericErrorType errorType,
-                               String field,
-                               String messageCode,
-                               Object[] messageArgs
-    ) {
-        super(message, errorType, field, messageCode, messageArgs);
+    private final String messageCode;
+
+    /**
+     * Used to provide arguments for messageCode.
+     */
+    private final transient Object[] messageArgs;
+
+    /**
+     * @param message     message for logging and debugging. Not used in response.
+     * @param messageCode used to get localized message from {@link org.springframework.context.MessageSource}.
+     * @param messageArgs arguments for messageCode. Can be null.
+     */
+    public BadRequestException(String message, String messageCode, Object[] messageArgs) {
+        super(message);
+        this.messageCode = messageCode;
+        this.messageArgs = messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
+    }
+
+    /**
+     * @param message     message for logging and debugging. Not used in response.
+     * @param cause       cause of the exception.
+     * @param messageCode used to get localized message from {@link org.springframework.context.MessageSource}.
+     * @param messageArgs arguments for messageCode. Can be null.
+     */
+    public BadRequestException(String message, Throwable cause, String messageCode, Object[] messageArgs) {
+        super(message, cause);
+        this.messageCode = messageCode;
+        this.messageArgs = messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
+    }
+
+    public String getMessageCode() {
+        return messageCode;
+    }
+
+    public Object[] getMessageArgs() {
+        return messageArgs.clone();
     }
 }

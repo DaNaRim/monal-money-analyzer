@@ -24,7 +24,7 @@ type GenericError = {
 const RegistrationPage = () => {
     const {register, handleSubmit, setError, formState: {errors}} = useForm<RegistrationFormFields>();
 
-    const [registerReq, {isLoading}] = useRegisterMutation();
+    const [registerReq, {isLoading, isSuccess}] = useRegisterMutation();
 
     const handleRegistration = (data: RegistrationFormFields) => {
         delete data.globalError;
@@ -48,6 +48,12 @@ const RegistrationPage = () => {
         <PageWrapper>
             <main className={styles.registration_page}>
                 <h1>Registration Page</h1>
+                {isSuccess &&
+                  <span className={`${styles.app_message} ${styles.info}`}>
+                        Registration successful. Please check your email to activate your account. If it doesn't appear
+                        within a few minutes, check your spam folder.
+                  </span>
+                }
                 <form onSubmit={handleSubmit(handleRegistration)}>
                     <label htmlFor="firstName">FirstName: </label>
                     <input type="text" id="firstName" {...register("firstName", {required: true})}/><br/>

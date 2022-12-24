@@ -3,6 +3,7 @@ package com.danarim.monal.user.web.controller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.failHandler.GlobalExceptionHandler;
+import com.danarim.monal.failHandler.ResponseErrorType;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
@@ -89,7 +90,7 @@ class RegistrationControllerIT {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
                 .andExpect(status().isBadRequest())
 
-                .andExpect(jsonPath("$[0].type").value("Pattern"))
+                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("email"))
                 .andExpect(jsonPath("$[0].message").exists());
 
@@ -110,7 +111,7 @@ class RegistrationControllerIT {
 
     @Test
     void testConfirmRegistrationInvalidToken() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null, null))
+        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
                 .when(registrationService).confirmRegistration(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm?token=someToken"))
@@ -152,7 +153,7 @@ class RegistrationControllerIT {
 
     @Test
     void testResetPasswordConfirmInvalidToken() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null, null))
+        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
                 .when(registrationService).validatePasswordResetToken(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm?token=someToken"))

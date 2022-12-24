@@ -1,6 +1,5 @@
 package com.danarim.monal.config;
 
-import com.danarim.monal.exceptions.ServerStartupException;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
@@ -185,7 +184,7 @@ public final class LoggerConfig extends ConfigurationFactory {
 
             return Maps.newHashMap(Maps.fromProperties(properties));
         } catch (IOException e) {
-            throw new ServerStartupException("Error while reading security.properties", e);
+            throw new RuntimeException("Error while reading security.properties", e);
         }
     }
 

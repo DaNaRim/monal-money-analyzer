@@ -3,20 +3,24 @@ import {RootState} from "../../app/store";
 
 const COOKIE_KEY_APPLICATION_MESSAGE = "serverMessage";
 
-export type AppMessageType = "INFO" | "WARNING" | "ERROR";
+export enum AppMessageType {
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
+}
 
 export interface ApplicationMessage {
     message: string;
     type: AppMessageType;
     page: string | null;
-    expectClientActionCode: string | null;
+    messageCode: string;
 }
 
-type AppMessageState = {
+type AppMessagesState = {
     messages: ApplicationMessage[]
 }
 
-const initialState: AppMessageState = {
+const initialState: AppMessagesState = {
     messages: [],
 };
 
@@ -35,9 +39,9 @@ export const appMessagesSlice = createSlice({
                     message: cookie.message,
                     type: cookie.type,
                     page: cookie.page,
-                    expectClientActionCode: cookie.expectClientActionCode,
+                    messageCode: cookie.messageCode,
                 });
-                document.cookie = COOKIE_KEY_APPLICATION_MESSAGE + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
             }
         },
         addAppMessage: (state, action: PayloadAction<ApplicationMessage>) => {
@@ -47,11 +51,11 @@ export const appMessagesSlice = createSlice({
                 message: message.message,
                 type: message.type,
                 page: message.page,
-                expectClientActionCode: message.expectClientActionCode,
+                messageCode: message.messageCode,
             });
         },
-        deleteAppMessage: (state, action) => {
-            const {message: msg} = action.payload;
+        deleteAppMessage: (state, action: PayloadAction<string>) => {
+            const msg = action.payload;
 
             state.messages = state.messages.filter(message => message.message !== msg);
         },

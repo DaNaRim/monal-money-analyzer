@@ -43,11 +43,11 @@ const ResetPasswordPage = () => {
         <PageWrapper>
             <main className={styles.reset_password_page}>
                 <h1>Reset Password Page</h1>
-                {isSuccess
-                    && <span className={`${styles.app_message} ${styles.info}`}>
+                {isSuccess &&
+                  <span className={`${styles.app_message} ${styles.info}`}>
                     Check your email for a link to reset your password. If it doesn't appear within a few minutes,
                     check your spam folder.
-                </span>
+                  </span>
                 }
                 <form onSubmit={handleSubmit(handleResetPassword)}>
                     <label htmlFor="email">Email: </label>

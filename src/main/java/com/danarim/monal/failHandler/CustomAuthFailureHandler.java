@@ -1,6 +1,5 @@
 package com.danarim.monal.failHandler;
 
-import com.danarim.monal.exceptions.GenericErrorType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.*;
@@ -20,6 +19,9 @@ import java.util.Locale;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+/**
+ * Handler for authentication failures.
+ */
 @Component
 public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
@@ -32,7 +34,11 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
     }
 
     /**
-     * Returns a {@link GenericErrorType} single object to the client.
+     * Processes an authentication form submission that failed.
+     * <br>
+     * Returns a {@link ResponseErrorType} single object as list to the client.
+     *
+     * @throws IOException if fails to write to the response
      */
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -46,7 +52,7 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                 .findFirst()
                 .orElse(AuthError.UNEXPECTED);
 
-        GenericErrorResponse errorResponse = getErrorResponse(authError, locale, exception);
+        ErrorResponse errorResponse = getErrorResponse(authError, locale, exception);
 
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(UNAUTHORIZED.value());
@@ -54,40 +60,47 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         new ObjectMapper().writeValue(response.getOutputStream(), List.of(errorResponse));
     }
 
-    private GenericErrorResponse getErrorResponse(AuthError authError,
-                                                  Locale locale,
-                                                  AuthenticationException exception
+    /**
+     * Generates a {@link ErrorResponse} object for the given {@link AuthError}.
+     *
+     * @param authError authentication error enum for easier error handling
+     * @param locale    locale
+     * @param exception original exception
+     * @return error response
+     */
+    private ErrorResponse getErrorResponse(AuthError authError,
+                                           Locale locale,
+                                           AuthenticationException exception
     ) {
-        String type = GenericErrorType.GLOBAL_ERROR.getType();
-        String fieldName = GenericErrorType.GLOBAL_ERROR.getType();
-        String resultMessage;
+        ErrorResponse errorResponse;
+
         switch (authError) {
-            case USERNAME_NOT_FOUND_EXCEPTION -> {
-                type = GenericErrorType.FIELD_VALIDATION_ERROR.getType();
-                fieldName = "username";
-                resultMessage = messages.getMessage("validation.auth.notFound", null, locale);
-            }
-            case BAD_CREDENTIALS_EXCEPTION -> {
-                type = GenericErrorType.FIELD_VALIDATION_ERROR.getType();
-                fieldName = "password";
-                resultMessage = messages.getMessage("validation.auth.badCredentials", null, locale);
-            }
-            case DISABLED_EXCEPTION -> resultMessage = messages.getMessage("validation.auth.disabled", null, locale);
+            case USERNAME_NOT_FOUND_EXCEPTION ->
+                    errorResponse = ErrorResponse.fieldError("validation.auth.notFound", "username",
+                            messages.getMessage("validation.auth.notFound", null, locale));
+            case BAD_CREDENTIALS_EXCEPTION ->
+                    errorResponse = ErrorResponse.fieldError("validation.auth.badCredentials", "password",
+                            messages.getMessage("validation.auth.badCredentials", null, locale));
+            case DISABLED_EXCEPTION ->
+                    errorResponse = ErrorResponse.globalError("validation.auth.disabled",
+                            messages.getMessage("validation.auth.disabled", null, locale));
             case ACCOUNT_LOCKED_EXCEPTION ->
-                    resultMessage = messages.getMessage("validation.auth.blocked", null, locale);
+                    errorResponse = ErrorResponse.globalError("validation.auth.blocked",
+                            messages.getMessage("validation.auth.blocked", null, locale));
             case ACCOUNT_EXPIRED_EXCEPTION ->
-                    resultMessage = messages.getMessage("validation.auth.expired", null, locale);
+                    errorResponse = ErrorResponse.globalError("validation.auth.expired",
+                            messages.getMessage("validation.auth.expired", null, locale));
             case CREDENTIALS_NOT_FOUND_EXCEPTION ->
-                    resultMessage = messages.getMessage("validation.auth.invalidBody", null, locale);
+                    errorResponse = ErrorResponse.globalError("validation.auth.invalidBody",
+                            messages.getMessage("validation.auth.invalidBody", null, locale));
             default -> {
                 logger.error("Unexpected authentication error " + exception.getMessage(), exception);
 
-                type = GenericErrorType.SERVER_ERROR.getType();
-                fieldName = GenericErrorType.SERVER_ERROR.getType();
-                resultMessage = messages.getMessage("validation.auth.unexpected", null, locale);
+                errorResponse = ErrorResponse.serverError("validation.auth.unexpected",
+                        messages.getMessage("validation.auth.unexpected", null, locale));
             }
         }
-        return new GenericErrorResponse(type, fieldName, resultMessage);
+        return errorResponse;
     }
 
     /**
