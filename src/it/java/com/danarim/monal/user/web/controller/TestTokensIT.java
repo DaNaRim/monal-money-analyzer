@@ -1,5 +1,6 @@
 package com.danarim.monal.user.web.controller;
 
+import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -33,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Test tokens functionality with email")
+@Import(DbUserFiller.class)
 class TestTokensIT {
 
     @RegisterExtension
@@ -81,27 +84,22 @@ class TestTokensIT {
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
         User user = userDao.findByEmailIgnoreCase(registrationDto.email());
-        assertNull(token, "Token should be deleted after verification");
+
         assertTrue(user.isEnabled(), "User should be enabled after verification");
+        assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 
     @Test
     void testVerificationTokenResend() throws Exception {
-        RegistrationDto registrationDto = new RegistrationDto(
-                "John", "Doe",
-                "test1234", "test1234",
-                "testVerificationTokenResend@email.com"
-        );
-        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
-                .andExpect(status().isCreated());
+        String userEmail = DbUserFiller.USER_NOT_ACTIVATED_USERNAME;
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resendVerificationToken")
-                        .param("email", registrationDto.email()))
+                        .param("email", userEmail))
                 .andExpect(status().isNoContent());
 
         assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
 
-        String emailBody = greenMail.getReceivedMessages()[1].getContent().toString();
+        String emailBody = greenMail.getReceivedMessages()[0].getContent().toString();
 
         int tokenStartIndex = emailBody.indexOf("token=") + 6;
         String tokenValue = emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length
@@ -120,9 +118,10 @@ class TestTokensIT {
                 "ApplicationMessage type is not INFO, maybe exception was thrown during activation"
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
-        User user = userDao.findByEmailIgnoreCase(registrationDto.email());
-        assertNull(token, "Token should be deleted after verification");
+        User user = userDao.findByEmailIgnoreCase(userEmail);
+
         assertTrue(user.isEnabled(), "User should be enabled after verification");
+        assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 
     @Test
@@ -140,11 +139,12 @@ class TestTokensIT {
         //reset password begins
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPassword")
-                        .param("email", email));
+                .param("email", email));
 
         assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
 
-        String emailBody = greenMail.getReceivedMessages()[1].getContent().toString(); // 0 - verifacation, 1 - pass reset
+        String emailBody = greenMail.getReceivedMessages()[1].getContent()
+                .toString(); // 0 - verifacation, 1 - pass reset
 
         int tokenStartIndex = emailBody.indexOf("token=") + 6;
         String tokenValue = emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length
@@ -172,6 +172,6 @@ class TestTokensIT {
 
         //check if token was deleted
         Token token = tokenDao.findByTokenValue(tokenValue);
-        assertNull(token, "Token should be deleted after password reset");
+        assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 }

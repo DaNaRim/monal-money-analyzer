@@ -34,11 +34,8 @@ public class DbUserFiller {
     public static final String AUTH_JSON_TEMPLATE = "{\"username\": \"%s\",\"password\": \"%s\"}";
     public static final String AUTH_JSON_USER = String.format(AUTH_JSON_TEMPLATE, USER_USERNAME, USER_PASSWORD);
     public static final String AUTH_JSON_ADMIN = String.format(AUTH_JSON_TEMPLATE, ADMIN_USERNAME, ADMIN_PASSWORD);
-
-    public static User testUser;
-
     private static final Log logger = LogFactory.getLog(DbUserFiller.class);
-
+    public static User testUser;
     @Autowired
     private UserDao userDao;
     @Autowired
@@ -58,8 +55,8 @@ public class DbUserFiller {
         Role adminRole = roleDao.findByRoleName(RoleName.ROLE_ADMIN);
 
         User notActivatedUser = new User("test", "test",
-                userPassword,
                 USER_NOT_ACTIVATED_USERNAME,
+                userPassword,
                 new Date(),
                 Set.of(userRole)
         );

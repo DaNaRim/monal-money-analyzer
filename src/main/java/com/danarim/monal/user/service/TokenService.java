@@ -13,5 +13,4 @@ public interface TokenService {
 
     Token validatePasswordResetToken(String tokenValue);
 
-    void deleteToken(Token token);
 }

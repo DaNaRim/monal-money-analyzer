@@ -1,5 +1,6 @@
 package com.danarim.monal.user.service;
 
+import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.model.*;
@@ -57,6 +58,15 @@ class TokenServiceImplTest {
     }
 
     @Test
+    void createVerificationTokenDelayNotPassed() {
+        User user = mock(User.class);
+
+        when(tokenDao.findLastTokenCreationDate(user, TokenType.VERIFICATION)).thenReturn(new Date());
+
+        assertThrows(BadRequestException.class, () -> tokenService.createVerificationToken(user));
+    }
+
+    @Test
     void validateVerificationToken() {
         User user = new User(
                 "test", "test",
@@ -82,7 +92,7 @@ class TokenServiceImplTest {
     @Test
     void validateVerificationTokenExpired() {
         Token verificationToken = new Token(mock(User.class), TokenType.VERIFICATION);
-        verificationToken.setExpiryDate(new Date(0L));
+        verificationToken.setExpirationDate(new Date(0L));
 
         when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(verificationToken);
 
@@ -99,6 +109,19 @@ class TokenServiceImplTest {
         when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
 
         String tokenValue = passwordResetToken.getTokenValue();
+        assertThrows(InvalidTokenException.class,
+                () -> tokenService.validateVerificationToken(tokenValue)
+        );
+    }
+
+    @Test
+    void validateVerificationTokenAlreadyUsed() {
+        Token verificationToken = new Token(mock(User.class), TokenType.VERIFICATION);
+        verificationToken.setUsed();
+
+        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(verificationToken);
+
+        String tokenValue = verificationToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
                 () -> tokenService.validateVerificationToken(tokenValue)
         );
@@ -134,6 +157,15 @@ class TokenServiceImplTest {
     }
 
     @Test
+    void createPasswordResetTokenDelayNotPassed() {
+        User user = mock(User.class);
+
+        when(tokenDao.findLastTokenCreationDate(user, TokenType.PASSWORD_RESET)).thenReturn(new Date());
+
+        assertThrows(BadRequestException.class, () -> tokenService.createPasswordResetToken(user));
+    }
+
+    @Test
     void testValidatePasswordResetToken() {
         User user = new User(
                 "test", "test",
@@ -157,9 +189,22 @@ class TokenServiceImplTest {
     }
 
     @Test
+    void testValidatePasswordResetTokenAlreadyUsed() {
+        Token passwordResetToken = new Token(mock(User.class), TokenType.PASSWORD_RESET);
+        passwordResetToken.setUsed();
+
+        when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
+
+        String tokenValue = passwordResetToken.getTokenValue();
+        assertThrows(InvalidTokenException.class,
+                () -> tokenService.validatePasswordResetToken(tokenValue)
+        );
+    }
+
+    @Test
     void testValidatePasswordResetTokenExpired() {
         Token passwordResetToken = new Token(mock(User.class), TokenType.PASSWORD_RESET);
-        passwordResetToken.setExpiryDate(new Date(0L));
+        passwordResetToken.setExpirationDate(new Date(0L));
 
         when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
 
@@ -186,21 +231,14 @@ class TokenServiceImplTest {
      */
 
     @Test
-    void deleteToken() {
-        Token token = mock(Token.class);
-        tokenService.deleteToken(token);
-        verify(tokenDao).delete(token);
-    }
-
-    @Test
     @DisplayName("Test scheduled task to delete deprecated tokens")
     void testDeleteDeprecatedTokens() {
-        when(tokenDao.countTokensByExpiryDateBefore(any(Date.class))).thenReturn(1);
+        when(tokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(1);
 
         tokenService.deleteDeprecatedTokens();
 
-        verify(tokenDao, times(1)).countTokensByExpiryDateBefore(any(Date.class));
-        verify(tokenDao, times(1)).deleteByExpiryDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).countTokensByExpirationDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).deleteByExpirationDateBefore(any(Date.class));
 
         verify(logger, times(2)).info(anyString());
     }
@@ -208,12 +246,12 @@ class TokenServiceImplTest {
     @Test
     @DisplayName("Test scheduled task to delete deprecated tokens when no tokens are deprecated")
     void testDeleteDeprecatedTokensNoTokens() {
-        when(tokenDao.countTokensByExpiryDateBefore(any(Date.class))).thenReturn(0);
+        when(tokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(0);
 
         tokenService.deleteDeprecatedTokens();
 
-        verify(tokenDao, times(1)).countTokensByExpiryDateBefore(any(Date.class));
-        verify(tokenDao, never()).deleteByExpiryDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).countTokensByExpirationDateBefore(any(Date.class));
+        verify(tokenDao, never()).deleteByExpirationDateBefore(any(Date.class));
 
         verify(logger, times(2)).info(anyString());
     }
@@ -221,14 +259,14 @@ class TokenServiceImplTest {
     @Test
     @DisplayName("Test scheduled task to delete deprecated tokens when exception occurs")
     void testDeleteDeprecatedTokensFailed() {
-        when(tokenDao.countTokensByExpiryDateBefore(any(Date.class))).thenReturn(1);
-        doThrow(RuntimeException.class).when(tokenDao).deleteByExpiryDateBefore(any(Date.class));
+        when(tokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(1);
+        doThrow(RuntimeException.class).when(tokenDao).deleteByExpirationDateBefore(any(Date.class));
 
         //expect no exception
         tokenService.deleteDeprecatedTokens();
 
-        verify(tokenDao, times(1)).countTokensByExpiryDateBefore(any(Date.class));
-        verify(tokenDao, times(1)).deleteByExpiryDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).countTokensByExpirationDateBefore(any(Date.class));
+        verify(tokenDao, times(1)).deleteByExpirationDateBefore(any(Date.class));
 
         verify(logger, times(1)).info(anyString());
         verify(logger, times(1)).error(anyString(), any(RuntimeException.class));

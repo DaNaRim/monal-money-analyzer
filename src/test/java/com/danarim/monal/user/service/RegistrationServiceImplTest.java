@@ -90,9 +90,10 @@ class RegistrationServiceImplTest {
 
         registrationService.confirmRegistration("token");
 
-        verify(tokenService).validateVerificationToken("token");
-        verify(tokenService).deleteToken(verificationToken);
         assertTrue(user.isEnabled());
+        assertTrue(verificationToken.isUsed());
+
+        verify(tokenService).validateVerificationToken("token");
     }
 
     @Test
@@ -102,7 +103,6 @@ class RegistrationServiceImplTest {
         assertThrows(InvalidTokenException.class, () -> registrationService.confirmRegistration("token"));
 
         verify(tokenService).validateVerificationToken("token");
-        verify(tokenService, never()).deleteToken(any(Token.class));
     }
 
     @Test
@@ -186,21 +186,20 @@ class RegistrationServiceImplTest {
     @Test
     void testUpdateForgottenPassword() {
         ResetPasswordDto resetPasswordDto = mock(ResetPasswordDto.class);
-        Token resetToken = mock(Token.class);
         User user = mock(User.class);
+        Token resetToken = new Token(user, TokenType.PASSWORD_RESET);
 
         when(tokenService.validatePasswordResetToken("token")).thenReturn(resetToken);
-        when(resetToken.getUser()).thenReturn(user);
         when(resetPasswordDto.password()).thenReturn("password");
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
 
         User result = registrationService.updateForgottenPassword(resetPasswordDto, "token");
 
+        assertEquals(user, result);
+        assertTrue(resetToken.isUsed());
+
         verify(tokenService).validatePasswordResetToken("token");
         verify(passwordEncoder).encode("password");
         verify(user).setPassword("encodedPassword");
-        verify(tokenService).deleteToken(resetToken);
-
-        assertEquals(user, result);
     }
 }
