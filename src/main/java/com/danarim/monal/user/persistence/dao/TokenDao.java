@@ -1,6 +1,8 @@
 package com.danarim.monal.user.persistence.dao;
 
 import com.danarim.monal.user.persistence.model.Token;
+import com.danarim.monal.user.persistence.model.TokenType;
+import com.danarim.monal.user.persistence.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,11 +14,14 @@ public interface TokenDao extends JpaRepository<Token, Long> {
 
     Token findByTokenValue(String tokenValue);
 
-    int countTokensByExpiryDateBefore(Date date);
+    @Query("select max(t.createdDate) from Token t where t.user = ?1 and t.tokenType = ?2")
+    Date findLastTokenCreationDate(User user, TokenType type);
+
+    int countTokensByExpirationDateBefore(Date date);
 
     //Use Custom Query to optimize performance. Without it, spring executes a query for each token.
-    @Query("DELETE FROM Token t WHERE t.expiryDate <= ?1")
+    @Query("DELETE FROM Token t WHERE t.expirationDate <= ?1")
     @Modifying
     @Transactional
-    void deleteByExpiryDateBefore(Date date);
+    void deleteByExpirationDateBefore(Date date);
 }

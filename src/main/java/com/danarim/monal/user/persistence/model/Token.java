@@ -29,7 +29,10 @@ public class Token implements Serializable {
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
-    private Date expiryDate;
+    private Date expirationDate;
+
+    @Column(nullable = false, updatable = false)
+    private Date createdDate;
 
     private boolean isUsed;
 
@@ -40,12 +43,13 @@ public class Token implements Serializable {
         this.tokenValue = UUID.randomUUID().toString();
         this.user = user;
         this.tokenType = tokenType;
-        this.expiryDate = calculateExpiryDate();
+        this.expirationDate = calculateExpiryDate();
+        this.createdDate = new Date();
         this.isUsed = false;
     }
 
     public boolean isExpired() {
-        return expiryDate.before(Calendar.getInstance().getTime());
+        return expirationDate.before(Calendar.getInstance().getTime());
     }
 
 
@@ -73,12 +77,12 @@ public class Token implements Serializable {
         this.user = user;
     }
 
-    public Date getExpiryDate() {
-        return new Date(expiryDate.getTime());
+    public Date getExpirationDate() {
+        return new Date(expirationDate.getTime());
     }
 
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = new Date(expiryDate.getTime());
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = new Date(expirationDate.getTime());
     }
 
     public boolean isUsed() {
