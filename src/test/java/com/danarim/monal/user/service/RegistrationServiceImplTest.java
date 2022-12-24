@@ -1,8 +1,7 @@
 package com.danarim.monal.user.service;
 
-import com.danarim.monal.exceptions.AlreadyExistsException;
+import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
-import com.danarim.monal.exceptions.GenericErrorType;
 import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
@@ -71,11 +70,10 @@ class RegistrationServiceImplTest {
                 "existsEmail"
         );
 
-        AlreadyExistsException e = assertThrows(AlreadyExistsException.class,
+        BadFieldException e = assertThrows(BadFieldException.class,
                 () -> registrationService.registerNewUserAccount(registrationDto));
 
         assertEquals("email", e.getField());
-        assertEquals(GenericErrorType.FIELD_VALIDATION_ERROR, e.getErrorType());
         assertNotNull(e.getMessageCode());
 
         verify(userDao).existsByEmailIgnoreCase(registrationDto.email());
@@ -128,7 +126,7 @@ class RegistrationServiceImplTest {
     void testResendVerificationTokenUserNotFound() {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
-        assertThrows(BadRequestException.class, () -> registrationService.resendVerificationEmail("email"));
+        assertThrows(BadFieldException.class, () -> registrationService.resendVerificationEmail("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
@@ -171,7 +169,7 @@ class RegistrationServiceImplTest {
     void testResetPasswordUserNotFound() {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
-        assertThrows(BadRequestException.class, () -> registrationService.resetPassword("email"));
+        assertThrows(BadFieldException.class, () -> registrationService.resetPassword("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createPasswordResetToken(any(User.class));

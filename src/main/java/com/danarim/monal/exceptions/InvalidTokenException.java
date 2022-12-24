@@ -2,7 +2,7 @@ package com.danarim.monal.exceptions;
 
 import java.io.Serial;
 
-import static com.danarim.monal.exceptions.GenericException.DEFAULT_MESSAGE_ARGS;
+import static com.danarim.monal.exceptions.BadFieldException.DEFAULT_MESSAGE_ARGS;
 
 /**
  * Exception for invalid token. Used with not auth tokens.

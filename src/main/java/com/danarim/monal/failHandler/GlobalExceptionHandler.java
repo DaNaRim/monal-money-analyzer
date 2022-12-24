@@ -2,7 +2,7 @@ package com.danarim.monal.failHandler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.danarim.monal.exceptions.AlreadyExistsException;
+import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.util.ApplicationMessage;
@@ -30,13 +30,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.danarim.monal.exceptions.GenericErrorType.GLOBAL_ERROR;
-import static com.danarim.monal.exceptions.GenericErrorType.SERVER_ERROR;
-
 /**
  * Handles exceptions thrown by controllers.
  * <br>
- * All methods except auth handlers must return {@link ResponseEntity} with list of {@link GenericErrorResponse} as body.
+ * All methods except auth handlers must return {@link ResponseEntity} with list of {@link ErrorResponse} as body.
+ * <br>
+ * The reason for returning list instead of single object is because frontend always expects list of errors for validation.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -50,51 +49,71 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles validation exceptions thrown by services.
+     * Handles validation exceptions with global type.
+     *
+     * @param e       exception caused by global validation error.
+     * @param request request where exception occurred.
+     * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(BadRequestException.class)
-    protected ResponseEntity<List<GenericErrorResponse>> handleBadRequestException(BadRequestException e,
-                                                                                   WebRequest request
+    protected ResponseEntity<List<ErrorResponse>> handleBadRequestException(BadRequestException e,
+                                                                            WebRequest request
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
-        GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), e.getField(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.BAD_REQUEST);
-    }
+        ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
 
-    @ExceptionHandler(AlreadyExistsException.class)
-    protected ResponseEntity<List<GenericErrorResponse>> handleBadRequestException(AlreadyExistsException e,
-                                                                                   WebRequest request
-    ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
-
-        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
-        GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), e.getField(), message);
-
-        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.BAD_REQUEST);
     }
 
     /**
+     * Handles validation exceptions that are caused by specific fields.
+     *
+     * @param e       exception caused by field validation.
+     * @param request request where exception occurred.
+     * @return response with list of {@link ErrorResponse} with one element.
+     */
+    @ExceptionHandler(BadFieldException.class)
+    protected ResponseEntity<List<ErrorResponse>> handleBadFieldException(BadFieldException e,
+                                                                          WebRequest request
+    ) {
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+
+        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+
+        ErrorResponse errorResponse = ErrorResponse.fieldError(e.getMessageCode(), e.getField(), message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
      * Handles {@link AccessDeniedException} thrown by Spring Security when user is not authorized to access resource.
+     *
+     * @param e       exception caused access denied.
+     * @param request request where exception occurred.
      */
     @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<List<GenericErrorResponse>> handleAccessDeniedException(AccessDeniedException e,
-                                                                                     WebRequest request
+    protected ResponseEntity<List<ErrorResponse>> handleAccessDeniedException(AccessDeniedException e,
+                                                                              WebRequest request
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
         String message = messages.getMessage("error.access.denied", null, request.getLocale());
-        GenericErrorResponse error = new GenericErrorResponse(GLOBAL_ERROR.getType(), GLOBAL_ERROR.getType(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.FORBIDDEN);
+        ErrorResponse errorResponse = ErrorResponse.globalError("error.access.denied", message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.FORBIDDEN);
     }
 
     /**
      * Handles {@link TokenExpiredException} thrown by auth refresh endpoint when token is expired.
      *
-     * @return body with error message. Not {@link GenericErrorResponse} because it is not handled by frontend.
+     * @param e       exception caused by expired token.
+     * @param request request where exception occurred.
+     * @return body with error message. Not {@link ErrorResponse} because it is not handled by frontend.
      */
     @ExceptionHandler(TokenExpiredException.class)
     protected ResponseEntity<String> handleTokenExpiredException(TokenExpiredException e,
@@ -109,7 +128,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link JWTVerificationException} thrown by auth refresh endpoint when token is invalid.
      *
-     * @return body with error message. Not {@link GenericErrorResponse} because it is not handled by frontend.
+     * @param e       exception caused by invalid jwt token.
+     * @param request request where exception occurred.
+     * @return body with error message. Not {@link ErrorResponse} because it is not handled by frontend.
      */
     @ExceptionHandler(JWTVerificationException.class)
     protected ResponseEntity<String> handleJWTVerificationException(JWTVerificationException e,
@@ -124,9 +145,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and password reset.
      *
-     * @param e        exception
-     * @param request  web request
-     * @param response http response
+     * @param e        exception caused by invalid token.
+     * @param request  request where exception occurred.
+     * @param response http response.
      * @return redirect to login page with error message in cookie
      */
     @ExceptionHandler(InvalidTokenException.class)
@@ -150,38 +171,49 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link MailException} thrown by mail service.
      *
-     * @param e       exception
-     * @param request web request
-     * @return list of single {@link GenericErrorResponse} with error message
+     * @param e       exception caused by mail service.
+     * @param request request where exception occurred.
+     * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(MailException.class)
-    protected ResponseEntity<List<GenericErrorResponse>> handleMailException(MailException e,
-                                                                             WebRequest request
+    protected ResponseEntity<List<ErrorResponse>> handleMailException(MailException e,
+                                                                      WebRequest request
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
         String message = messages.getMessage("error.mail.send", null, request.getLocale());
-        GenericErrorResponse error = new GenericErrorResponse(SERVER_ERROR.getType(), SERVER_ERROR.getType(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.INTERNAL_SERVER_ERROR);
+        ErrorResponse errorResponse = ErrorResponse.serverError("error.mail.send", message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
      * Handles server exceptions.
+     *
+     * @param e       exception caused by server.
+     * @param request request where exception occurred.
+     * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<List<GenericErrorResponse>> handleInternalException(Exception e, WebRequest request) {
+    protected ResponseEntity<List<ErrorResponse>> handleInternalException(Exception e, WebRequest request) {
 
         logger.error("Internal server error during request: " + request.getContextPath(), e);
 
         String message = messages.getMessage("error.server.internal-error", null, request.getLocale());
-        GenericErrorResponse error = new GenericErrorResponse(SERVER_ERROR.getType(), SERVER_ERROR.getType(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(error), HttpStatus.INTERNAL_SERVER_ERROR);
+        ErrorResponse errorResponse = ErrorResponse.serverError("error.server.internal-error", message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
      * Handles validation errors thrown by {@link Validated} and {@link Valid} annotations.
+     *
+     * @param e       exception caused by validation.
+     * @param headers http headers.
+     * @param status  http status.
+     * @param request request where exception occurred.
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
@@ -191,25 +223,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
-        ArrayList<GenericErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
+        ArrayList<ErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
         return new ResponseEntity<>(mappedErrors, headers, status);
     }
 
     /**
-     * Maps errors from {@link BindingResult} to list of {@link GenericErrorResponse}.
+     * Maps errors from {@link BindingResult} to list of {@link ErrorResponse}.
      */
-    private static ArrayList<GenericErrorResponse> mapErrors(BindingResult errors) {
-        ArrayList<GenericErrorResponse> result = new ArrayList<>();
+    private static ArrayList<ErrorResponse> mapErrors(BindingResult errors) {
+        ArrayList<ErrorResponse> result = new ArrayList<>();
 
         errors.getFieldErrors().forEach(
-                error -> result.add(new GenericErrorResponse(error.getCode(),
+                error -> result.add(ErrorResponse.fieldError(
+                        error.getCode(),
                         error.getField(),
-                        error.getDefaultMessage()))
+                        error.getDefaultMessage()
+                ))
         );
         errors.getGlobalErrors().forEach(
-                error -> result.add(new GenericErrorResponse(error.getCode(),
-                        GLOBAL_ERROR.getType(),
-                        error.getDefaultMessage()))
+                error -> result.add(ErrorResponse.globalError(
+                        error.getCode(),
+                        error.getDefaultMessage()
+                ))
         );
         return result;
     }

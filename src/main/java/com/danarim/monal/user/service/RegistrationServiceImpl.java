@@ -1,6 +1,6 @@
 package com.danarim.monal.user.service;
 
-import com.danarim.monal.exceptions.AlreadyExistsException;
+import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
@@ -16,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Date;
-
-import static com.danarim.monal.exceptions.GenericErrorType.FIELD_VALIDATION_ERROR;
 
 @Service
 @Transactional
@@ -48,17 +46,13 @@ public class RegistrationServiceImpl implements RegistrationService {
      * For activation, user should follow the link in the email.
      *
      * @param registrationDto user data
-     * @throws AlreadyExistsException if user with the same email already exists
+     * @throws BadFieldException if user with the same email already exists
      */
     @Override
     public User registerNewUserAccount(RegistrationDto registrationDto) {
         if (userDao.existsByEmailIgnoreCase(registrationDto.email())) {
-            throw new AlreadyExistsException("User with email '" + registrationDto.email() + "' already exists",
-                    FIELD_VALIDATION_ERROR,
-                    "email",
-                    "validation.user.existing.email",
-                    null
-            );
+            throw new BadFieldException("User with email '" + registrationDto.email() + "' already exists",
+                    "validation.user.existing.email", null, "email");
         }
 
         User user = new User(
@@ -89,27 +83,20 @@ public class RegistrationServiceImpl implements RegistrationService {
      * Send email with verification link to user.
      *
      * @param userEmail user email to send verification link
-     * @throws BadRequestException if user not found or user already verified
+     * @throws BadFieldException   if user not found
+     * @throws BadRequestException if user already verified
      */
     @Override
     public void resendVerificationEmail(String userEmail) {
         User user = userDao.findByEmailIgnoreCase(userEmail);
 
         if (user == null) {
-            throw new BadRequestException("Can't find user with email " + userEmail,
-                    FIELD_VALIDATION_ERROR,
-                    "email",
-                    "validation.user.email.notFound",
-                    null
-            );
+            throw new BadFieldException("Can't find user with email '" + userEmail + "'",
+                    "validation.user.email.notFound", null, "email");
         }
         if (user.isEnabled()) {
             throw new BadRequestException("User with email '" + userEmail + "' already verified",
-                    FIELD_VALIDATION_ERROR,
-                    "email",
-                    "validation.user.email.alreadyVerified",
-                    null
-            );
+                    "validation.user.email.alreadyVerified", null);
         }
         Token verificationToken = tokenService.createVerificationToken(user);
         mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), userEmail);
@@ -119,19 +106,15 @@ public class RegistrationServiceImpl implements RegistrationService {
      * Check if user with this email exists and send email with reset password link.
      *
      * @param userEmail user email to send verification link
-     * @throws BadRequestException if user not found
+     * @throws BadFieldException if user not found
      */
     @Override
     public void resetPassword(String userEmail) {
         User user = userDao.findByEmailIgnoreCase(userEmail);
 
         if (user == null) {
-            throw new BadRequestException("Can't find user with email " + userEmail,
-                    FIELD_VALIDATION_ERROR,
-                    "email",
-                    "validation.user.email.notFound",
-                    null
-            );
+            throw new BadFieldException("Can't find user with email '" + userEmail + "'",
+                    "validation.user.email.notFound", null, "email");
         }
         Token passwordResetToken = tokenService.createPasswordResetToken(user);
         mailUtil.sendPasswordResetEmail(passwordResetToken.getTokenValue(), userEmail);
