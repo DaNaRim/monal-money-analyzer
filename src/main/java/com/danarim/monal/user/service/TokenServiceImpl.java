@@ -58,7 +58,7 @@ public class TokenServiceImpl implements TokenService {
      *
      * @param tokenValue token value
      * @return Token object with the given value
-     * @throws InvalidTokenException if token is not found, wrong type, expired or user is already activated
+     * @throws InvalidTokenException if token is not found, wrong type, expired, already used or user is already activated
      */
     @Override
     public Token validateVerificationToken(String tokenValue) {
@@ -73,6 +73,9 @@ public class TokenServiceImpl implements TokenService {
                     "validation.token.wrong-type",
                     new Object[]{TokenType.VERIFICATION, verificationToken.getTokenType()}
             );
+        }
+        if (verificationToken.isUsed()) {
+            throw new InvalidTokenException("token already used", "validation.token.used", null);
         }
         if (verificationToken.isExpired()) {
             throw new InvalidTokenException("token expired", "validation.token.expired", null);
@@ -117,6 +120,9 @@ public class TokenServiceImpl implements TokenService {
                     new Object[]{TokenType.PASSWORD_RESET, passwordResetToken.getTokenType()}
             );
         }
+        if (passwordResetToken.isUsed()) {
+            throw new InvalidTokenException("token already used", "validation.token.used", null);
+        }
         if (passwordResetToken.isExpired()) {
             throw new InvalidTokenException("token expired", "validation.token.expired", null);
         }
@@ -139,6 +145,8 @@ public class TokenServiceImpl implements TokenService {
 
     /**
      * Delete all tokens that expired before given date.
+     * <br>
+     * Token becomes deprecated when it is expired and time {@link #DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS} passed.
      */
     @Scheduled(fixedRate = DELETE_TOKENS_DELAY_IN_DAYS, timeUnit = TimeUnit.DAYS)
     protected void deleteDeprecatedTokens() {

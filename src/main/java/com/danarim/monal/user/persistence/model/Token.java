@@ -31,6 +31,8 @@ public class Token implements Serializable {
 
     private Date expiryDate;
 
+    private boolean isUsed;
+
     protected Token() {
     }
 
@@ -39,11 +41,13 @@ public class Token implements Serializable {
         this.user = user;
         this.tokenType = tokenType;
         this.expiryDate = calculateExpiryDate();
+        this.isUsed = false;
     }
 
     public boolean isExpired() {
         return expiryDate.before(Calendar.getInstance().getTime());
     }
+
 
     public TokenType getTokenType() {
         return tokenType;
@@ -75,6 +79,14 @@ public class Token implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = new Date(expiryDate.getTime());
+    }
+
+    public boolean isUsed() {
+        return isUsed;
+    }
+
+    public void setUsed() {
+        isUsed = true;
     }
 
     private static Date calculateExpiryDate() {

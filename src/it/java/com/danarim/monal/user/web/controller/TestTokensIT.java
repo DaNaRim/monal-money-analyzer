@@ -81,8 +81,9 @@ class TestTokensIT {
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
         User user = userDao.findByEmailIgnoreCase(registrationDto.email());
-        assertNull(token, "Token should be deleted after verification");
+
         assertTrue(user.isEnabled(), "User should be enabled after verification");
+        assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 
     @Test
@@ -121,8 +122,9 @@ class TestTokensIT {
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
         User user = userDao.findByEmailIgnoreCase(registrationDto.email());
-        assertNull(token, "Token should be deleted after verification");
+
         assertTrue(user.isEnabled(), "User should be enabled after verification");
+        assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 
     @Test
@@ -140,11 +142,12 @@ class TestTokensIT {
         //reset password begins
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPassword")
-                        .param("email", email));
+                .param("email", email));
 
         assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
 
-        String emailBody = greenMail.getReceivedMessages()[1].getContent().toString(); // 0 - verifacation, 1 - pass reset
+        String emailBody = greenMail.getReceivedMessages()[1].getContent()
+                .toString(); // 0 - verifacation, 1 - pass reset
 
         int tokenStartIndex = emailBody.indexOf("token=") + 6;
         String tokenValue = emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length
@@ -172,6 +175,6 @@ class TestTokensIT {
 
         //check if token was deleted
         Token token = tokenDao.findByTokenValue(tokenValue);
-        assertNull(token, "Token should be deleted after password reset");
+        assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 }

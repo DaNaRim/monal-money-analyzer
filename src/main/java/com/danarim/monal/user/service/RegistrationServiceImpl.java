@@ -67,7 +67,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     /**
-     * Validate token, activate user account and delete token from database.
+     * Validate token, activate user account and mark token as used.
      *
      * @param tokenValue token value
      */
@@ -76,7 +76,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         Token token = tokenService.validateVerificationToken(tokenValue);
         User user = token.getUser();
         user.setEmailVerified(true);
-        tokenService.deleteToken(token);
+        token.setUsed();
     }
 
     /**
@@ -133,7 +133,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     /**
-     * Validate token, change user password and delete token from database.
+     * Validate token, change user password and mark token as used.
      *
      * @param resetPasswordDto   reset password data
      * @param resetPasswordToken password reset token value
@@ -144,7 +144,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         Token token = tokenService.validatePasswordResetToken(resetPasswordToken);
         User user = token.getUser();
         user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
-        tokenService.deleteToken(token);
+        token.setUsed();
 
         return user;
     }

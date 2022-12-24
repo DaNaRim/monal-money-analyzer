@@ -105,6 +105,19 @@ class TokenServiceImplTest {
     }
 
     @Test
+    void validateVerificationTokenAlreadyUsed() {
+        Token verificationToken = new Token(mock(User.class), TokenType.VERIFICATION);
+        verificationToken.setUsed();
+
+        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(verificationToken);
+
+        String tokenValue = verificationToken.getTokenValue();
+        assertThrows(InvalidTokenException.class,
+                () -> tokenService.validateVerificationToken(tokenValue)
+        );
+    }
+
+    @Test
     void validateVerificationTokenUserEnabled() {
         User user = new User(
                 "test", "test",
@@ -154,6 +167,19 @@ class TokenServiceImplTest {
         when(tokenDao.findByTokenValue("invalid")).thenReturn(null);
 
         assertThrows(InvalidTokenException.class, () -> tokenService.validatePasswordResetToken("invalid"));
+    }
+
+    @Test
+    void testValidatePasswordResetTokenAlreadyUsed() {
+        Token passwordResetToken = new Token(mock(User.class), TokenType.PASSWORD_RESET);
+        passwordResetToken.setUsed();
+
+        when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
+
+        String tokenValue = passwordResetToken.getTokenValue();
+        assertThrows(InvalidTokenException.class,
+                () -> tokenService.validatePasswordResetToken(tokenValue)
+        );
     }
 
     @Test
