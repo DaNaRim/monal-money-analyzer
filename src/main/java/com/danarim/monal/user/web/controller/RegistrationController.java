@@ -77,7 +77,7 @@ public class RegistrationController {
                 messages.getMessage("message.registration.confirmation.success", null, locale),
                 ApplicationMessageType.INFO,
                 "login",
-                null
+                "message.registration.confirmation.success"
         );
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 

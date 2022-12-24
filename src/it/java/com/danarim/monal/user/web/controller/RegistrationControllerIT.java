@@ -111,7 +111,7 @@ class RegistrationControllerIT {
 
     @Test
     void testConfirmRegistrationInvalidToken() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null, null))
+        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
                 .when(registrationService).confirmRegistration(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm?token=someToken"))
@@ -153,7 +153,7 @@ class RegistrationControllerIT {
 
     @Test
     void testResetPasswordConfirmInvalidToken() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null, null))
+        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
                 .when(registrationService).validatePasswordResetToken(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm?token=someToken"))

@@ -76,7 +76,7 @@ class TestTokensIT {
 
         ApplicationMessage appMessage = new ObjectMapper().readValue(cookie.getValue(), ApplicationMessage.class);
 
-        assertSame(ApplicationMessageType.INFO, appMessage.getType(),
+        assertSame(ApplicationMessageType.INFO, appMessage.type(),
                 "ApplicationMessage type is not INFO, maybe exception was thrown during activation"
         );
         Token token = tokenDao.findByTokenValue(tokenValue);
@@ -116,7 +116,7 @@ class TestTokensIT {
 
         ApplicationMessage appMessage = new ObjectMapper().readValue(cookie.getValue(), ApplicationMessage.class);
 
-        assertSame(ApplicationMessageType.INFO, appMessage.getType(),
+        assertSame(ApplicationMessageType.INFO, appMessage.type(),
                 "ApplicationMessage type is not INFO, maybe exception was thrown during activation"
         );
         Token token = tokenDao.findByTokenValue(tokenValue);

@@ -28,11 +28,7 @@ public class TokenServiceImpl implements TokenService {
      * Delay for scheduled task that delete tokens.
      */
     private static final long DELETE_TOKENS_DELAY_IN_DAYS = 1L;
-    /**
-     * @see InvalidTokenException expectClientActionCode field in InvalidTokenException class
-     */
-    private static final String CLIENT_ACTION_TOKEN_VERIFICATION_RESEND = "token.verification.resend";
-    private static final String CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND = "token.password.reset.resend";
+
 
     private static final Log logger = LogFactory.getLog(TokenServiceImpl.class);
 
@@ -69,27 +65,20 @@ public class TokenServiceImpl implements TokenService {
         Token verificationToken = tokenDao.findByTokenValue(tokenValue);
 
         if (verificationToken == null) {
-            throw new InvalidTokenException("token not found",
-                    "validation.token.invalid", null,
-                    CLIENT_ACTION_TOKEN_VERIFICATION_RESEND
+            throw new InvalidTokenException("token not found", "validation.token.invalid", null);
+        }
+        if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
+            throw new InvalidTokenException(
+                    "wrong token type expected: " + TokenType.VERIFICATION + " actual: " + verificationToken.getTokenType(),
+                    "validation.token.wrong-type",
+                    new Object[]{TokenType.VERIFICATION, verificationToken.getTokenType()}
             );
         }
-        boolean isUserEnabled = verificationToken.getUser().isEnabled();
-
-        if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
-            String clientAction = isUserEnabled ? null : CLIENT_ACTION_TOKEN_VERIFICATION_RESEND;
-
-            throw new InvalidTokenException("token type is not verification",
-                    "validation.token.wrong-type", new Object[]{TokenType.VERIFICATION},
-                    clientAction);
-        }
         if (verificationToken.isExpired()) {
-            String clientAction = isUserEnabled ? null : CLIENT_ACTION_TOKEN_VERIFICATION_RESEND;
-
-            throw new InvalidTokenException("token expired", "validation.token.expired", null, clientAction);
+            throw new InvalidTokenException("token expired", "validation.token.expired", null);
         }
         if (verificationToken.getUser().isEnabled()) {
-            throw new InvalidTokenException("user already enable", "validation.token.user.enabled", null, null);
+            throw new InvalidTokenException("user already enable", "validation.token.user.enabled", null);
         }
         return verificationToken;
     }
@@ -119,22 +108,17 @@ public class TokenServiceImpl implements TokenService {
         Token passwordResetToken = tokenDao.findByTokenValue(tokenValue);
 
         if (passwordResetToken == null) {
-            throw new InvalidTokenException("token not found",
-                    "validation.token.invalid",
-                    null,
-                    CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND);
+            throw new InvalidTokenException("token not found", "validation.token.invalid", null);
         }
         if (passwordResetToken.getTokenType() != TokenType.PASSWORD_RESET) {
-            throw new InvalidTokenException("token type is not password reset",
+            throw new InvalidTokenException(
+                    "wrong token type expected: " + TokenType.PASSWORD_RESET + " actual: " + passwordResetToken.getTokenType(),
                     "validation.token.wrong-type",
-                    new Object[]{TokenType.PASSWORD_RESET},
-                    CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND);
+                    new Object[]{TokenType.PASSWORD_RESET, passwordResetToken.getTokenType()}
+            );
         }
         if (passwordResetToken.isExpired()) {
-            throw new InvalidTokenException("token expired",
-                    "validation.token.expired",
-                    null,
-                    CLIENT_ACTION_TOKEN_PASSWORD_RESET_RESEND);
+            throw new InvalidTokenException("token expired", "validation.token.expired", null);
         }
         return passwordResetToken;
     }

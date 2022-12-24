@@ -20,8 +20,6 @@ type GenericError = {
     message: string
 }
 
-const onSuccessRedirect: string = "/";
-
 const LoginPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -40,10 +38,10 @@ const LoginPage = () => {
             .then(data => dispatch(setCredentials(data)))
             .then(() => {
                 if (appMessage) {
-                    dispatch(deleteAppMessage(appMessage));
+                    dispatch(deleteAppMessage(appMessage.messageCode));
                 }
             })
-            .then(() => navigate(onSuccessRedirect))
+            .then(() => navigate("/"))
             .catch(e => {
                 setValue("password", "");
 
@@ -68,14 +66,22 @@ const LoginPage = () => {
         return classMap[type];
     };
 
+    const suggestResendVerificationToken = () => { //TODO: identify token type
+        if (appMessage?.messageCode === "validation.token.invalid"
+            || appMessage?.messageCode === "validation.token.expired"
+            || appMessage?.messageCode === "validation.token.wrong-type") {
+
+            return <Link to="/resendVerificationToken">Resend verification token</Link>;
+        }
+        return null;
+    };
+
     return (
         <PageWrapper>
             <main className={styles.login_page}>
                 <h1>Login page</h1>
                 {appMessage && <p className={getAppMessageClassName(appMessage.type)}>{appMessage.message}</p>}
-                {appMessage && appMessage.expectClientActionCode === "token.verification.resend"
-                    && <Link to="/resendVerificationToken">Resend verification token</Link>
-                }
+                {suggestResendVerificationToken()}
 
                 <form onSubmit={handleSubmit(handleLogin)}>
                     <label htmlFor="username">Email: </label>

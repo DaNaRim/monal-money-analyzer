@@ -2,7 +2,7 @@ import React from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
 import {useAppDispatch} from "../../../app/hooks";
-import {addAppMessage} from "../../../features/appMessages/appMessagesSlice";
+import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 import styles from "./ResetPasswordSetPage.module.scss";
@@ -32,10 +32,10 @@ const ResetPasswordSetPage = () => {
 
         resetPasswordSetReq(data).unwrap()
             .then(() => dispatch(addAppMessage({
-                type: "INFO",
+                type: AppMessageType.INFO,
                 message: "Password reset successful. You can now login with your new password.",
                 page: "login",
-                expectClientActionCode: null,
+                messageCode: "message.password-reset.success",
             })))
             .then(() => navigate("/login"))
             .catch(e => {

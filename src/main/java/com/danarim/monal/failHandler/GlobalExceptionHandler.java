@@ -161,7 +161,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale()),
                 ApplicationMessageType.ERROR,
                 "login",
-                e.getExpectClientActionCode()
+                e.getMessageCode()
         );
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 

@@ -1,11 +1,10 @@
 import React from "react";
 import {useForm} from "react-hook-form";
-import {Credentials} from "../../../features/auth/authApiSlice";
 import {useResendVerificationTokenMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import styles from "../Login/LoginPage.module.scss"; //TODO own styles file
+import styles from "./ResendVerificationTokenPage.module.scss";
 
-interface ResendVerificationTokenFields extends Credentials { //TODO remove extends Credentials
+interface ResendVerificationTokenFields {
     email: string;
     globalError?: string;
     serverError?: string;
@@ -20,18 +19,15 @@ type GenericError = {
 const ResendVerificationTokenPage = () => {
     const {register, handleSubmit, setError, formState: {errors}} = useForm<ResendVerificationTokenFields>();
 
-    const [resendToken, {isLoading}] = useResendVerificationTokenMutation(); //TODO isSuccessful
-
-    const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+    const [resendToken, {isLoading, isSuccess}] = useResendVerificationTokenMutation();
 
     const handleResendToken = (data: ResendVerificationTokenFields) => {
         delete data.globalError;
         delete data.serverError;
 
         resendToken(data.email).unwrap()
-            .then(() => setSuccessMessage("Verification token has been sent to your email"))
             .catch(e => {
-                if (e.status === 401) {
+                if (e.status === 400) {
                     const errorData: GenericError[] = e.data;
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
                 } else if (e.status === "FETCH_ERROR" || e.status === 500) {
@@ -47,13 +43,17 @@ const ResendVerificationTokenPage = () => {
         <PageWrapper>
             <main className={styles.login_page}>
                 <h1>Resend verification token page</h1>
-                {successMessage && <div>{successMessage}</div>}
-
+                {isSuccess &&
+                  <span className={`${styles.app_message} ${styles.info}`}>
+                    Check your email for a link to verify your account. If it doesn't appear within a few minutes,
+                    check your spam folder.
+                  </span>
+                }
                 <form onSubmit={handleSubmit(handleResendToken)}>
                     <label htmlFor="email">Email: </label>
                     <input type="email" id="email" {...register("email", {required: true})}/>
-                    {errors.username?.type === "required" && <span>Email is required</span>}
-                    {errors.username && <span>{errors.username.message}</span>}<br/>
+                    {errors.email?.type === "required" && <span>Email is required</span>}
+                    {errors.email && <span>{errors.email.message}</span>}<br/>
 
                     <input type="hidden" {...register("globalError")}/>
                     {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
