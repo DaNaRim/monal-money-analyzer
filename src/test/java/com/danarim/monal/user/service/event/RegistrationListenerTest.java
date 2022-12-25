@@ -1,15 +1,14 @@
 package com.danarim.monal.user.service.event;
 
-import com.danarim.monal.user.persistence.model.*;
+import com.danarim.monal.user.persistence.model.Token;
+import com.danarim.monal.user.persistence.model.TokenType;
+import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.TokenService;
 import com.danarim.monal.util.MailUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Date;
-import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -24,13 +23,10 @@ class RegistrationListenerTest {
 
     @Test
     void onApplicationEvent() {
-        User user = new User(
-                "test", "test",
-                "userEmail", "password",
-                new Date(), Set.of(new Role(RoleName.ROLE_USER))
-        );
+        User user = mock(User.class);
         Token verificationToken = new Token(user, TokenType.VERIFICATION);
 
+        when(user.getEmail()).thenReturn("userEmail");
         when(tokenService.createVerificationToken(user)).thenReturn(verificationToken);
 
         registrationListener.onApplicationEvent(new OnRegistrationCompleteEvent(user));

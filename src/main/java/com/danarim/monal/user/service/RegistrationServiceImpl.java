@@ -121,18 +121,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     /**
-     * Uses tokenService to validate token.
-     *
-     * @param tokenValue password reset token value
-     * @return Token object if token is valid
-     * @see TokenService#validatePasswordResetToken(String)
-     */
-    @Override
-    public Token validatePasswordResetToken(String tokenValue) {
-        return tokenService.validatePasswordResetToken(tokenValue);
-    }
-
-    /**
      * Validate token, change user password and mark token as used.
      *
      * @param resetPasswordDto   reset password data

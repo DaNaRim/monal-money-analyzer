@@ -2,22 +2,20 @@ package com.danarim.monal.user.service;
 
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
-import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
-import com.danarim.monal.user.persistence.model.*;
+import com.danarim.monal.user.persistence.model.RoleName;
+import com.danarim.monal.user.persistence.model.Token;
+import com.danarim.monal.user.persistence.model.TokenType;
+import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.MailUtil;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Date;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,21 +34,17 @@ class RegistrationServiceImplTest {
     @InjectMocks
     private RegistrationServiceImpl registrationService;
 
-    @BeforeEach
-    void setUp() {
-        when(passwordEncoder.encode(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
-    }
-
     @Test
-    void testRegisterUser() {
-        when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(false);
-        when(userDao.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
+    void registerNewUserAccount() {
         RegistrationDto registrationDto = new RegistrationDto(
                 "test", "test",
                 "password", "password",
                 "email"
         );
+
+        when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(false);
+        when(userDao.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         registrationService.registerNewUserAccount(registrationDto);
 
@@ -61,72 +55,62 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void testRegisterUserWithExistEmail() {
-        when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(true);
-
+    void registerNewUserAccount_EmailExists_BadFieldException() {
         RegistrationDto registrationDto = new RegistrationDto(
                 "test", "test",
                 "password", "password",
                 "existsEmail"
         );
 
-        BadFieldException e = assertThrows(BadFieldException.class,
+        when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(true);
+
+        BadFieldException resultException = assertThrows(BadFieldException.class,
                 () -> registrationService.registerNewUserAccount(registrationDto));
 
-        assertEquals("email", e.getField());
-        assertNotNull(e.getMessageCode());
+        assertEquals("email", resultException.getField());
+        assertNotNull(resultException.getMessageCode());
 
         verify(userDao).existsByEmailIgnoreCase(registrationDto.email());
     }
 
     @Test
-    void testConfirmRegistration() {
-        User user = new User(
-                "test", "test",
-                "email", "password", new Date(), Set.of(new Role(RoleName.ROLE_USER))
-        );
+    void confirmRegistration() {
+        User user = mock(User.class);
         Token verificationToken = new Token(user, TokenType.VERIFICATION);
-        when(tokenService.validateVerificationToken("token")).thenReturn(verificationToken);
+
+        when(tokenService.validateVerificationToken("token"))
+                .thenReturn(verificationToken);
 
         registrationService.confirmRegistration("token");
 
-        assertTrue(user.isEnabled());
         assertTrue(verificationToken.isUsed());
 
+        verify(user).setEmailVerified(true);
         verify(tokenService).validateVerificationToken("token");
     }
 
     @Test
-    void testConfirmRegistrationFails() {
-        doThrow(InvalidTokenException.class).when(tokenService).validateVerificationToken("token");
-
-        assertThrows(InvalidTokenException.class, () -> registrationService.confirmRegistration("token"));
-
-        verify(tokenService).validateVerificationToken("token");
-    }
-
-    @Test
-    void testResendVerificationToken() {
-        User user = new User(
-                "test", "test",
-                "email", "password", new Date(), Set.of(new Role(RoleName.ROLE_USER))
-        );
-        when(userDao.findByEmailIgnoreCase("email")).thenReturn(user);
+    void resendVerificationEmail() {
+        User user = mock(User.class);
         Token verificationToken = new Token(user, TokenType.VERIFICATION);
+
+        when(user.isEnabled()).thenReturn(false);
+        when(userDao.findByEmailIgnoreCase("email")).thenReturn(user);
         when(tokenService.createVerificationToken(user)).thenReturn(verificationToken);
 
-        registrationService.resendVerificationEmail(user.getEmail());
+        registrationService.resendVerificationEmail("email");
 
-        verify(userDao).findByEmailIgnoreCase(user.getEmail());
+        verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService).createVerificationToken(user);
-        verify(mailUtil).sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
+        verify(mailUtil).sendVerificationEmail(verificationToken.getTokenValue(), "email");
     }
 
     @Test
-    void testResendVerificationTokenUserNotFound() {
+    void resendVerificationEmail_UserNotFound_BadFieldException() {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
-        assertThrows(BadFieldException.class, () -> registrationService.resendVerificationEmail("email"));
+        assertThrows(BadFieldException.class,
+                () -> registrationService.resendVerificationEmail("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
@@ -134,24 +118,22 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void testResendVerificationTokenUserEnabled() {
-        User user = new User(
-                "test", "test",
-                "email", "password", new Date(), Set.of(new Role(RoleName.ROLE_USER))
-        );
-        user.setEmailVerified(true);
+    void resendVerificationEmail_UserEnabled_BadRequestException() {
+        User user = mock(User.class);
 
-        when(userDao.findByEmailIgnoreCase(user.getEmail())).thenReturn(user);
+        when(user.isEnabled()).thenReturn(true);
+        when(userDao.findByEmailIgnoreCase("email")).thenReturn(user);
 
-        assertThrows(BadRequestException.class, () -> registrationService.resendVerificationEmail("email"));
+        assertThrows(BadRequestException.class,
+                () -> registrationService.resendVerificationEmail("email"));
 
-        verify(userDao).findByEmailIgnoreCase(user.getEmail());
+        verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
         verify(mailUtil, never()).sendVerificationEmail(anyString(), anyString());
     }
 
     @Test
-    void testResetPassword() {
+    void resetPassword() {
         User user = mock(User.class);
         Token resetToken = new Token(user, TokenType.PASSWORD_RESET);
 
@@ -166,10 +148,11 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void testResetPasswordUserNotFound() {
+    void resetPassword_UserNotFound_BadFieldException() {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
-        assertThrows(BadFieldException.class, () -> registrationService.resetPassword("email"));
+        assertThrows(BadFieldException.class,
+                () -> registrationService.resetPassword("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createPasswordResetToken(any(User.class));
@@ -177,29 +160,41 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void testValidatePasswordResetToken() {
-        registrationService.validatePasswordResetToken("token");
-
-        verify(tokenService).validatePasswordResetToken("token");
-    }
-
-    @Test
-    void testUpdateForgottenPassword() {
+    void updateForgottenPassword() {
         ResetPasswordDto resetPasswordDto = mock(ResetPasswordDto.class);
         User user = mock(User.class);
         Token resetToken = new Token(user, TokenType.PASSWORD_RESET);
 
-        when(tokenService.validatePasswordResetToken("token")).thenReturn(resetToken);
         when(resetPasswordDto.password()).thenReturn("password");
+        when(tokenService.validatePasswordResetToken("token")).thenReturn(resetToken);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
 
-        User result = registrationService.updateForgottenPassword(resetPasswordDto, "token");
+        User resultUser = registrationService.updateForgottenPassword(resetPasswordDto, "token");
 
-        assertEquals(user, result);
+        assertEquals(user, resultUser);
         assertTrue(resetToken.isUsed());
 
         verify(tokenService).validatePasswordResetToken("token");
         verify(passwordEncoder).encode("password");
         verify(user).setPassword("encodedPassword");
+    }
+
+    @Test
+    void updateForgottenPassword_SameAsOld_BadRequestException() {
+        ResetPasswordDto resetPasswordDto = mock(ResetPasswordDto.class);
+        User user = mock(User.class);
+        Token resetToken = new Token(user, TokenType.PASSWORD_RESET);
+
+        when(user.getPassword()).thenReturn("password");
+        when(resetPasswordDto.password()).thenReturn("password");
+        when(tokenService.validatePasswordResetToken("token")).thenReturn(resetToken);
+        when(passwordEncoder.matches("password", "password")).thenReturn(true);
+
+        assertThrows(BadRequestException.class,
+                () -> registrationService.updateForgottenPassword(resetPasswordDto, "token"));
+
+        verify(tokenService).validatePasswordResetToken("token");
+        verify(passwordEncoder).matches("password", "password");
+        verify(user, never()).setPassword(anyString());
     }
 }

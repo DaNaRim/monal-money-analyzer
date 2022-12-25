@@ -1,59 +1,57 @@
 package com.danarim.monal.user.web.validator;
 
 import com.danarim.monal.user.web.dto.RegistrationDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class PasswordMatchesValidatorTest {
 
-    private static final MockedStatic<LogFactory> loggerFactoryMock = mockStatic(LogFactory.class);
-    private static final Log logger = mock(Log.class);
+    private static final LogCaptor logCaptor = LogCaptor.forClass(PasswordMatchesValidator.class);
 
     private final PasswordMatchesValidator validator = new PasswordMatchesValidator();
 
-    @BeforeAll
-    public static void beforeClass() {
-        loggerFactoryMock.when(() -> LogFactory.getLog(any(Class.class))).thenReturn(logger);
+    @AfterAll
+    public static void tearDown() {
+        logCaptor.close();
     }
 
-    @AfterAll
-    static void afterAll() {
-        loggerFactoryMock.close();
+    @AfterEach
+    public void clearLogs() {
+        logCaptor.clearLogs();
     }
 
     @Test
-    void testWithValidRegistrationDto() {
-        RegistrationDto registrationDto = new RegistrationDto(
-                "test", "test",
-                "password", "password",
-                "email"
-        );
+    void isValid_RegistrationDto_True() {
+        RegistrationDto registrationDto = mock(RegistrationDto.class);
+
+        when(registrationDto.password()).thenReturn("password");
+        when(registrationDto.matchingPassword()).thenReturn("password");
+
         assertTrue(validator.isValid(registrationDto, null));
     }
 
     @Test
-    void testWithInvalidRegistrationDto() {
-        RegistrationDto regDtoWrongPassword = new RegistrationDto(
-                "test", "test",
-                "password", "invalid",
-                "email"
-        );
-        assertFalse(validator.isValid(regDtoWrongPassword, null));
+    void isValid_RegistrationDtoDifPasswords_False() {
+        RegistrationDto registrationDto = mock(RegistrationDto.class);
+
+        when(registrationDto.password()).thenReturn("password");
+        when(registrationDto.matchingPassword()).thenReturn("invalid");
+
+        assertFalse(validator.isValid(registrationDto, null));
     }
 
     @Test
-    void testWithInvalidClass() {
+    void isValid_InvalidClass_InternalServerException() {
         Object invalidClass = new Object();
-        assertThrows(RuntimeException.class, () -> validator.isValid(invalidClass, null));
-        verify(logger).error(anyString(), any(ClassCastException.class));
+        assertThrows(RuntimeException.class,
+                () -> validator.isValid(invalidClass, null));
+        assertThat(logCaptor.getErrorLogs()).hasSize(1);
     }
 }

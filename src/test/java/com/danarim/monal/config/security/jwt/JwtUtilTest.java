@@ -1,83 +1,85 @@
 package com.danarim.monal.config.security.jwt;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.jupiter.api.*;
+import nl.altindag.log.LogCaptor;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtUtilTest {
 
-    private static final MockedStatic<LogFactory> loggerFactoryMock = mockStatic(LogFactory.class);
-    private static final Log logger = mock(Log.class);
+    private static final LogCaptor logCaptor = LogCaptor.forClass(JwtUtil.class);
 
     private final JwtTokenDao jwtTokenDao = mock(JwtTokenDao.class);
 
     @InjectMocks
     private JwtUtil jwtUtil;
 
-    @BeforeAll
-    public static void beforeClass() {
-        loggerFactoryMock.when(() -> LogFactory.getLog(any(Class.class))).thenReturn(logger);
-    }
-
     @AfterAll
-    static void afterAll() {
-        loggerFactoryMock.close();
+    public static void tearDown() {
+        logCaptor.close();
     }
 
-    @BeforeEach
-    void setUp() {
-        reset(logger);
+    @AfterEach
+    public void clearLogs() {
+        logCaptor.clearLogs();
     }
 
     @Test
-    @DisplayName("Test scheduled task to delete deprecated jwt tokens")
     void deleteDeprecatedJwtTokens() {
-        when(jwtTokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(1);
+        when(jwtTokenDao.countTokensByExpirationDateBefore(any(Date.class)))
+                .thenReturn(1);
 
         jwtUtil.deleteDeprecatedJwtTokens();
 
-        verify(jwtTokenDao, times(1)).countTokensByExpirationDateBefore(any(Date.class));
-        verify(jwtTokenDao, times(1)).deleteByExpirationDateBefore(any(Date.class));
+        assertThat(logCaptor.getInfoLogs()).hasSize(2);
 
-        verify(logger, times(2)).info(anyString());
+        verify(jwtTokenDao, times(1))
+                .countTokensByExpirationDateBefore(any(Date.class));
+        verify(jwtTokenDao, times(1))
+                .deleteByExpirationDateBefore(any(Date.class));
     }
 
     @Test
-    @DisplayName("Test scheduled task to delete deprecated jwt tokens when no tokens are deprecated")
-    void testDeleteDeprecatedTokensNoTokens() {
-        when(jwtTokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(0);
+    void deleteDeprecatedJwtTokens_NoTokens_notDelete() {
+        when(jwtTokenDao.countTokensByExpirationDateBefore(any(Date.class)))
+                .thenReturn(0);
 
         jwtUtil.deleteDeprecatedJwtTokens();
 
-        verify(jwtTokenDao, times(1)).countTokensByExpirationDateBefore(any(Date.class));
-        verify(jwtTokenDao, never()).deleteByExpirationDateBefore(any(Date.class));
+        assertThat(logCaptor.getInfoLogs()).hasSize(2);
 
-        verify(logger, times(2)).info(anyString());
+        verify(jwtTokenDao, times(1))
+                .countTokensByExpirationDateBefore(any(Date.class));
+        verify(jwtTokenDao, never())
+                .deleteByExpirationDateBefore(any(Date.class));
     }
 
     @Test
-    @DisplayName("Test scheduled task to delete deprecated jwt tokens when exception occurs")
-    void testDeleteDeprecatedTokensFailed() {
-        when(jwtTokenDao.countTokensByExpirationDateBefore(any(Date.class))).thenReturn(1);
-        doThrow(RuntimeException.class).when(jwtTokenDao).deleteByExpirationDateBefore(any(Date.class));
+    void deleteDeprecatedJwtTokens_Failed_noException() {
+        when(jwtTokenDao.countTokensByExpirationDateBefore(any(Date.class)))
+                .thenReturn(1);
 
-        //expect no exception
+        doThrow(RuntimeException.class)
+                .when(jwtTokenDao).deleteByExpirationDateBefore(any(Date.class));
+
         jwtUtil.deleteDeprecatedJwtTokens();
 
-        verify(jwtTokenDao, times(1)).countTokensByExpirationDateBefore(any(Date.class));
-        verify(jwtTokenDao, times(1)).deleteByExpirationDateBefore(any(Date.class));
+        assertThat(logCaptor.getInfoLogs()).hasSize(1);
+        assertThat(logCaptor.getErrorLogs()).hasSize(1);
 
-        verify(logger, times(1)).info(anyString());
-        verify(logger, times(1)).error(anyString(), any(RuntimeException.class));
+        verify(jwtTokenDao, times(1))
+                .countTokensByExpirationDateBefore(any(Date.class));
+        verify(jwtTokenDao, times(1))
+                .deleteByExpirationDateBefore(any(Date.class));
     }
 }

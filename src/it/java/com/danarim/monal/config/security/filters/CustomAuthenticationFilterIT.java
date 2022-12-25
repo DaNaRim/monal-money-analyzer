@@ -24,7 +24,7 @@ class CustomAuthenticationFilterIT {
     private MockMvc mockMvc;
 
     @Test
-    void testLogin() throws Exception {
+    void login() throws Exception {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", AUTH_JSON_USER))
                 .andExpect(status().isOk())
 
@@ -35,11 +35,10 @@ class CustomAuthenticationFilterIT {
                 .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
                 .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
                 .andExpect(cookie().secure(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true));
-
     }
 
     @Test
-    void testWrongLogin() throws Exception {
+    void login_WrongUsername_Unauthorized() throws Exception {
         String loginJson = AUTH_JSON_TEMPLATE.formatted("wrong", USER_PASSWORD);
 
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
@@ -51,7 +50,7 @@ class CustomAuthenticationFilterIT {
     }
 
     @Test
-    void testWrongPassword() throws Exception {
+    void login_WrongPassword_Unauthorized() throws Exception {
         String loginJson = AUTH_JSON_TEMPLATE.formatted(USER_USERNAME, "wrong");
 
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
@@ -63,7 +62,7 @@ class CustomAuthenticationFilterIT {
     }
 
     @Test
-    void testInvalidBody() throws Exception {
+    void login_InvalidBody_Unauthorized() throws Exception {
         String loginJson = ("{\"username2\": 123\"%s\"}").formatted(USER_USERNAME);
 
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
@@ -75,7 +74,7 @@ class CustomAuthenticationFilterIT {
     }
 
     @Test
-    void testNoBody() throws Exception {
+    void login_NoBody_Unauthorized() throws Exception {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", ""))
                 .andExpect(status().isUnauthorized())
 
