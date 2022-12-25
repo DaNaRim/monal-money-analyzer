@@ -21,9 +21,8 @@ class PasswordUpdatedListenerTest {
     @Test
     void onApplicationEvent() {
         User user = mock(User.class);
-        OnPasswordUpdatedEvent event = new OnPasswordUpdatedEvent(user);
 
-        passwordUpdatedListener.onApplicationEvent(event);
+        passwordUpdatedListener.onApplicationEvent(new OnPasswordUpdatedEvent(user));
 
         verify(jwtUtil).blockAllTokensForUser(user);
     }

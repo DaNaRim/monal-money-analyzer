@@ -18,11 +18,10 @@ public final class CookieUtil {
 
     public static final String COOKIE_ACCESS_TOKEN_KEY = "access_token";
     public static final String COOKIE_REFRESH_TOKEN_KEY = "refresh_token";
+    public static final String COOKIE_APP_MESSAGE_KEY = "serverMessage";
+    public static final String COOKIE_PASSWORD_RESET_TOKEN_KEY = "passwordResetToken";
 
-    private static final String COOKIE_APP_MESSAGE_KEY = "serverMessage";
     private static final long COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS = 4L;
-
-    private static final String COOKIE_PASSWORD_RESET_TOKEN_KEY = "passwordResetToken";
     private static final long COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS = 1L;
 
     private CookieUtil() {
@@ -165,6 +164,8 @@ public final class CookieUtil {
      */
     public static Cookie createPasswordResetCookie(String token) {
         Cookie cookie = new Cookie(COOKIE_PASSWORD_RESET_TOKEN_KEY, token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge((int) TimeUnit.HOURS.toSeconds(COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS));
         return cookie;
@@ -188,6 +189,8 @@ public final class CookieUtil {
      */
     public static Cookie deletePasswordResetCookie() {
         Cookie cookie = new Cookie(COOKIE_PASSWORD_RESET_TOKEN_KEY, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         return cookie;

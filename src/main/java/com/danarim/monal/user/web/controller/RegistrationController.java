@@ -4,6 +4,7 @@ import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.RegistrationService;
+import com.danarim.monal.user.service.TokenService;
 import com.danarim.monal.user.service.event.OnPasswordUpdatedEvent;
 import com.danarim.monal.user.service.event.OnRegistrationCompleteEvent;
 import com.danarim.monal.user.web.dto.RegistrationDto;
@@ -31,14 +32,17 @@ import java.util.Locale;
 public class RegistrationController {
 
     private final RegistrationService registrationService;
+    private final TokenService tokenService;
     private final ApplicationEventPublisher eventPublisher;
     private final MessageSource messages;
 
     public RegistrationController(RegistrationService registrationService,
+                                  TokenService tokenService,
                                   ApplicationEventPublisher eventPublisher,
                                   MessageSource messages
     ) {
         this.registrationService = registrationService;
+        this.tokenService = tokenService;
         this.eventPublisher = eventPublisher;
         this.messages = messages;
     }
@@ -121,7 +125,7 @@ public class RegistrationController {
     @GetMapping("/resetPasswordConfirm")
     public View resetPasswordConfirm(@RequestParam("token") String tokenValue, HttpServletResponse response) {
 
-        Token passwordResetToken = registrationService.validatePasswordResetToken(tokenValue);
+        Token passwordResetToken = tokenService.validatePasswordResetToken(tokenValue);
 
         response.addCookie(CookieUtil.createPasswordResetCookie(passwordResetToken.getTokenValue()));
 
