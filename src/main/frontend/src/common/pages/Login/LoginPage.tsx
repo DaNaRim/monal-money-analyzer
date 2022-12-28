@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
 import {Link} from "react-router-dom";
@@ -16,6 +16,7 @@ interface LoginFormFields extends Credentials {
 
 type GenericError = {
     type: string,
+    errorCode: string,
     fieldName: "username" | "password" | "globalError" | "serverError",
     message: string
 }
@@ -27,6 +28,8 @@ const LoginPage = () => {
     const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<LoginFormFields>();
 
     const [login, {isLoading}] = useLoginMutation();
+
+    const [isAccountNotActivated, setIsAccountNotActivated] = useState<boolean>(false);
 
     const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
 
@@ -47,6 +50,12 @@ const LoginPage = () => {
 
                 if (e.status === 401) {
                     const errorData: GenericError[] = e.data;
+
+                    const accVerError = errorData.find(error => error.errorCode === "validation.auth.disabled");
+
+                    if (accVerError) {
+                        setIsAccountNotActivated(true);
+                    }
                     errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
                 } else if (e.status === "FETCH_ERROR" || e.status === 500) {
                     setError("serverError", {
@@ -66,10 +75,9 @@ const LoginPage = () => {
         return classMap[type];
     };
 
-    const suggestResendVerificationToken = () => { //TODO: identify token type
-        if (appMessage?.messageCode === "validation.token.invalid"
-            || appMessage?.messageCode === "validation.token.expired"
-            || appMessage?.messageCode === "validation.token.wrong-type") {
+    const suggestResendVerificationToken = () => {
+        if (appMessage?.messageCode === "validation.token.verification.not-found"
+            || appMessage?.messageCode === "validation.token.verification.expired") {
 
             return <Link to="/resendVerificationToken">Resend verification token</Link>;
         }
@@ -96,6 +104,7 @@ const LoginPage = () => {
 
                     <input type="hidden" {...register("globalError")}/>
                     {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
+                    {isAccountNotActivated && <Link to={"/resendVerificationToken"}>Resend verification token</Link>}
 
                     <input type="hidden" {...register("serverError")}/>
                     {errors.serverError && <span className={styles.server_error}>{errors.serverError.message}</span>}

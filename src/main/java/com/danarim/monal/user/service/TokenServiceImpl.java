@@ -80,7 +80,7 @@ public class TokenServiceImpl implements TokenService {
         Token verificationToken = tokenDao.findByTokenValue(tokenValue);
 
         if (verificationToken == null) {
-            throw new InvalidTokenException("token not found", "validation.token.invalid", null);
+            throw new InvalidTokenException("token not found", "validation.token.verification.not-found", null);
         }
         if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
             throw new InvalidTokenException(
@@ -93,10 +93,10 @@ public class TokenServiceImpl implements TokenService {
             throw new InvalidTokenException("token already used", "validation.token.used", null);
         }
         if (verificationToken.isExpired()) {
-            throw new InvalidTokenException("token expired", "validation.token.expired", null);
+            throw new InvalidTokenException("token expired", "validation.token.verification.expired", null);
         }
         if (verificationToken.getUser().isEnabled()) {
-            throw new InvalidTokenException("user already enable", "validation.token.user.enabled", null);
+            throw new InvalidTokenException("user already enable", "validation.token.verification.user-enabled", null);
         }
         return verificationToken;
     }
@@ -129,7 +129,7 @@ public class TokenServiceImpl implements TokenService {
         Token passwordResetToken = tokenDao.findByTokenValue(tokenValue);
 
         if (passwordResetToken == null) {
-            throw new InvalidTokenException("token not found", "validation.token.invalid", null);
+            throw new InvalidTokenException("token not found", "validation.token.not-found", null);
         }
         if (passwordResetToken.getTokenType() != TokenType.PASSWORD_RESET) {
             throw new InvalidTokenException(
