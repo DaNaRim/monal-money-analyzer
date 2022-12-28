@@ -5,9 +5,6 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
-import com.danarim.monal.util.ApplicationMessage;
-import com.danarim.monal.util.ApplicationMessageType;
-import com.danarim.monal.util.CookieUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,31 +17,28 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Handles exceptions thrown by controllers.
+ * Handles exceptions thrown by rest controllers.
  * <br>
  * All methods except auth handlers must return {@link ResponseEntity} with list of {@link ErrorResponse} as body.
  * <br>
  * The reason for returning list instead of single object is because frontend always expects list of errors for validation.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final String LOG_TEMPLATE = "%s during request: %s : %s";
+    protected static final String LOG_TEMPLATE = "%s during request: %s : %s";
 
     private final MessageSource messages;
 
-    public GlobalExceptionHandler(MessageSource messages) {
+    public RestExceptionHandler(MessageSource messages) {
         this.messages = messages;
     }
 
@@ -145,27 +139,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and password reset.
      *
-     * @param e        exception caused by invalid token.
-     * @param request  request where exception occurred.
-     * @param response http response.
-     * @return redirect to login page with error message in cookie
+     * @param e       exception caused by invalid token.
+     * @param request request where exception occurred.
+     * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(InvalidTokenException.class)
-    protected View handleInvalidTokenException(InvalidTokenException e,
-                                               WebRequest request,
-                                               HttpServletResponse response
+    protected ResponseEntity<List<ErrorResponse>> handleInvalidTokenException(InvalidTokenException e,
+                                                                              WebRequest request
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
-        ApplicationMessage applicationMessage = new ApplicationMessage(
-                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale()),
-                ApplicationMessageType.ERROR,
-                "login",
-                e.getMessageCode()
-        );
-        response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
+        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
 
-        return new RedirectView("/login");
+        ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.BAD_REQUEST);
     }
 
     /**

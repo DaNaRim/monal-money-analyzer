@@ -1,6 +1,5 @@
 package com.danarim.monal.user.web.controller;
 
-import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -35,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(DbUserFiller.class)
 class TokensIT {
 
     @RegisterExtension
