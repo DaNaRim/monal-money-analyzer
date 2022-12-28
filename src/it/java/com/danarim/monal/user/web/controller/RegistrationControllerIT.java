@@ -1,14 +1,12 @@
 package com.danarim.monal.user.web.controller;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.InvalidTokenException;
-import com.danarim.monal.failHandler.GlobalExceptionHandler;
 import com.danarim.monal.failHandler.ResponseErrorType;
-import com.danarim.monal.user.persistence.model.Token;
-import com.danarim.monal.user.persistence.model.TokenType;
+import com.danarim.monal.failHandler.RestExceptionHandler;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.RegistrationService;
-import com.danarim.monal.user.service.TokenService;
 import com.danarim.monal.user.service.event.OnPasswordUpdatedEvent;
 import com.danarim.monal.user.service.event.OnRegistrationCompleteEvent;
 import com.danarim.monal.user.web.dto.RegistrationDto;
@@ -29,14 +27,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.servlet.http.Cookie;
 
-import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.postExt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(RegistrationController.class)
-@ContextConfiguration(classes = {RegistrationController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {RegistrationController.class, RestExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
 class RegistrationControllerIT {
 
@@ -48,13 +45,11 @@ class RegistrationControllerIT {
 
     @MockBean
     private ApplicationListener<ApplicationEvent> listener;
+    @MockBean(name = "messageSource")
+    private MessageSource messages;
 
     @MockBean
     private RegistrationService registrationService;
-    @MockBean
-    private TokenService tokenService;
-    @MockBean(name = "messageSource")
-    private MessageSource messages;
 
     @BeforeEach
     void setUp() {
@@ -97,31 +92,6 @@ class RegistrationControllerIT {
     }
 
     @Test
-    void registrationConfirm() throws Exception {
-        when(messages.getMessage(anyString(), any(), any())).thenReturn("test");
-
-        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", "someToken"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"))
-                .andExpect(cookie().exists("serverMessage"));
-
-        verify(registrationService).confirmRegistration("someToken");
-    }
-
-    @Test
-    void registrationConfirm_InvalidToken_ErrorInAppMesCookie() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
-                .when(registrationService).confirmRegistration(anyString());
-
-        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", "someToken"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"))
-                .andExpect(cookie().exists("serverMessage"));
-    }
-
-    @Test
     void resendVerificationToken() throws Exception {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resendVerificationToken")
                         .param("email", "someEmail"))
@@ -137,36 +107,6 @@ class RegistrationControllerIT {
                 .andExpect(status().isNoContent());
 
         verify(registrationService).resetPassword("someEmail");
-    }
-
-    @Test
-    void resetPasswordConfirm() throws Exception {
-        Token passwordResetToken = new Token(mock(User.class), TokenType.PASSWORD_RESET);
-
-        when(tokenService.validatePasswordResetToken(anyString()))
-                .thenReturn(passwordResetToken);
-
-        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                        .param("token", "someToken"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/resetPasswordSet"))
-                .andExpect(cookie().exists("passwordResetToken"));
-
-        verify(tokenService).validatePasswordResetToken("someToken");
-    }
-
-    @Test
-    void resetPasswordConfirm_InvalidToken_ErrorInAppMesCookie() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
-                .when(tokenService).validatePasswordResetToken(anyString());
-
-        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                        .param("token", "someToken"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"))
-                .andExpect(cookie().exists("serverMessage"));
-
-        verify(tokenService).validatePasswordResetToken("someToken");
     }
 
     @Test
@@ -188,5 +128,56 @@ class RegistrationControllerIT {
 
         verify(registrationService).updateForgottenPassword(resetPasswordDto, "someToken");
         verify(listener).onApplicationEvent(any(OnPasswordUpdatedEvent.class));
+    }
+
+    @Test
+    void resetPasswordSet_InvalidData_BadRequest() throws Exception {
+        ResetPasswordDto resetPasswordDto = new ResetPasswordDto("123", "123");
+
+        Cookie tokenCookie = CookieUtil.createPasswordResetCookie("someToken");
+
+        when(registrationService.updateForgottenPassword(
+                eq(resetPasswordDto), anyString()))
+                .thenThrow(BadFieldException.class);
+
+        when(messages.getMessage(any(), any(), any()))
+                .thenReturn("error");
+
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPasswordDto)
+                        .cookie(tokenCookie))
+                .andExpect(status().isBadRequest())
+
+                .andExpect(jsonPath("$[0].type")
+                        .value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
+                .andExpect(jsonPath("$[0].fieldName").value("newPassword"))
+                .andExpect(jsonPath("$[0].message").exists());
+
+        verify(registrationService, never()).updateForgottenPassword(resetPasswordDto, "someToken");
+        verify(listener, never()).onApplicationEvent(any(OnPasswordUpdatedEvent.class));
+    }
+
+    @Test
+    void resetPasswordSet_InvalidToken_BadRequest() throws Exception {
+        ResetPasswordDto resetPasswordDto = new ResetPasswordDto("12345678", "12345678");
+
+        Cookie tokenCookie = CookieUtil.createPasswordResetCookie("someToken");
+
+        when(registrationService.updateForgottenPassword(
+                eq(resetPasswordDto), anyString()))
+                .thenThrow(InvalidTokenException.class);
+
+        when(messages.getMessage(any(), any(), any()))
+                .thenReturn("error");
+
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPasswordDto)
+                        .cookie(tokenCookie))
+                .andExpect(status().isBadRequest())
+
+                .andExpect(jsonPath("$[0].type")
+                        .value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(jsonPath("$[0].message").exists());
+
+        verify(registrationService).updateForgottenPassword(resetPasswordDto, "someToken");
+        verify(listener, never()).onApplicationEvent(any(OnPasswordUpdatedEvent.class));
     }
 }
