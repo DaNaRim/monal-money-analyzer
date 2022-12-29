@@ -7,18 +7,14 @@ import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../feat
 import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
 import {setCredentials} from "../../../features/auth/authSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
+import {ErrorResponse, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./LoginPage.module.scss";
 
-interface LoginFormFields extends Credentials {
-    globalError?: string;
-    serverError?: string;
-}
 
-type GenericError = {
-    type: string,
-    errorCode: string,
-    fieldName: "username" | "password" | "globalError" | "serverError",
-    message: string
+type LoginFormFields = FormSystemFields & Credentials
+
+type LoginFormError = ErrorResponse & {
+    fieldName: keyof LoginFormFields,
 }
 
 const LoginPage = () => {
@@ -48,21 +44,12 @@ const LoginPage = () => {
             .catch(e => {
                 setValue("password", "");
 
-                if (e.status === 401) {
-                    const errorData: GenericError[] = e.data;
+                const errorData: LoginFormError[] = e.data;
 
-                    const accVerError = errorData.find(error => error.errorCode === "validation.auth.disabled");
-
-                    if (accVerError) {
-                        setIsAccountNotActivated(true);
-                    }
-                    errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
-                    setError("serverError", {
-                        type: "serverError",
-                        message: "Server unavailable. please try again later",
-                    });
+                if (errorData.some(error => error.errorCode === "validation.auth.disabled")) {
+                    setIsAccountNotActivated(true);
                 }
+                handleResponseError(e, setError);
             });
     };
 

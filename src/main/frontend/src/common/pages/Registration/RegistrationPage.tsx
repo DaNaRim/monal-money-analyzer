@@ -2,24 +2,11 @@ import React from "react";
 import {useForm} from "react-hook-form";
 import {RegistrationDto, useRegisterMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
+import {FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./RegistrationPage.module.scss";
 
-interface RegistrationFormFields extends RegistrationDto {
-    globalError?: string;
-    serverError?: string;
-}
 
-type GenericError = {
-    type: string,
-    fieldName: "firstName"
-        | "lastName"
-        | "email"
-        | "password"
-        | "matchingPassword"
-        | "globalError"
-        | "serverError",
-    message: string
-}
+type RegistrationFormFields = FormSystemFields & RegistrationDto;
 
 const RegistrationPage = () => {
     const {register, handleSubmit, setError, formState: {errors}} = useForm<RegistrationFormFields>();
@@ -31,17 +18,7 @@ const RegistrationPage = () => {
         delete data.serverError;
 
         registerReq(data).unwrap()
-            .catch(e => {
-                if (e.status === 400) {
-                    const errorData: GenericError[] = e.data;
-                    errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
-                    setError("serverError", {
-                        type: "serverError",
-                        message: "Server unavailable. please try again later",
-                    });
-                }
-            });
+            .catch(e => handleResponseError(e, setError));
     };
 
     return (

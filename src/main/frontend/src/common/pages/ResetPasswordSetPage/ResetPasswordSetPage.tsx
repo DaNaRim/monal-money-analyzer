@@ -5,17 +5,13 @@ import {useAppDispatch} from "../../../app/hooks";
 import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
+import {handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordSetPage.module.scss";
+
 
 interface ResetPasswordSetFields extends ResetPasswordDto {
     globalError?: string;
     serverError?: string;
-}
-
-type GenericError = {
-    type: string,
-    fieldName: "newPassword" | "matchingPassword" | "globalError" | "serverError",
-    message: string
 }
 
 const ResetPasswordSetPage = () => {
@@ -38,17 +34,7 @@ const ResetPasswordSetPage = () => {
                 messageCode: "message.password-reset.success",
             })))
             .then(() => navigate("/login"))
-            .catch(e => {
-                if (e.status === 400) {
-                    const errorData: GenericError[] = e.data;
-                    errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
-                    setError("serverError", {
-                        type: "serverError",
-                        message: "Server unavailable. please try again later",
-                    });
-                }
-            });
+            .catch(e => handleResponseError(e, setError));
     };
 
     return (
