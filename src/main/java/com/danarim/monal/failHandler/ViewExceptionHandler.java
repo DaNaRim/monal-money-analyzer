@@ -7,6 +7,7 @@ import com.danarim.monal.util.CookieUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import static com.danarim.monal.failHandler.RestExceptionHandler.LOG_TEMPLATE;
 
-@ControllerAdvice
+@ControllerAdvice(annotations = Controller.class)
 public class ViewExceptionHandler {
 
     private static final Log logger = LogFactory.getLog(ViewExceptionHandler.class);
