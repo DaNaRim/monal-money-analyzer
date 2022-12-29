@@ -1,5 +1,6 @@
 import React from "react";
 import {Route, Routes} from "react-router";
+import ErrorPage from "../common/pages/ErrorPage/ErrorPage";
 import HomePage from "../common/pages/Home/HomePage";
 import LoginPage from "../common/pages/Login/LoginPage";
 import NotFoundPage from "../common/pages/NotFoundPage/NotFoundPage";
@@ -26,6 +27,7 @@ const App = () => {
             <Route path="/resetPassword" element={<ResetPasswordPage/>}/>
             <Route path="/resetPasswordSet" element={<ResetPasswordSetPage/>}/>
 
+            <Route path="/error" element={<ErrorPage/>}/>
             <Route path="*" element={<NotFoundPage/>}/>
         </Routes>
     );

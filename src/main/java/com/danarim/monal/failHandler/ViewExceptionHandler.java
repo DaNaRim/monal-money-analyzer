@@ -67,6 +67,6 @@ public class ViewExceptionHandler {
     ) {
         logger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
 
-        return new RedirectView("/error"); //TODO: add error page
+        return new RedirectView("/error");
     }
 }
