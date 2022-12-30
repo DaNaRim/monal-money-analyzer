@@ -1,11 +1,11 @@
+import {useAppDispatch} from "@app/hooks";
+import {addAppMessage, AppMessageType} from "@features/appMessages/appMessagesSlice";
+import {ResetPasswordDto, useResetPasswordSetMutation} from "@features/registration/registrationApiSlice";
+import {clearFormSystemFields, FormSystemFields, handleResponseError} from "@utils/FormUtils";
 import React from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
-import {useAppDispatch} from "../../../app/hooks";
-import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
-import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import {clearFormSystemFields, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordSetPage.module.scss";
 
 

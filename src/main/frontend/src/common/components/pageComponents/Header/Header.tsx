@@ -1,12 +1,5 @@
-import React, {useEffect} from "react";
-import {useNavigate} from "react-router";
-import {NavLink} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../../app/hooks";
-import {
-    useAuthGetStateMutation,
-    useAuthRefreshMutation,
-    useLogoutMutation,
-} from "../../../../features/auth/authApiSlice";
+import {useAppDispatch, useAppSelector} from "@app/hooks";
+import {useAuthGetStateMutation, useAuthRefreshMutation, useLogoutMutation} from "@features/auth/authApiSlice";
 import {
     clearAuthState,
     selectAuthFirstname,
@@ -15,7 +8,10 @@ import {
     selectAuthUsername,
     setCredentials,
     setInitialized,
-} from "../../../../features/auth/authSlice";
+} from "@features/auth/authSlice";
+import React, {useEffect} from "react";
+import {useNavigate} from "react-router";
+import {NavLink} from "react-router-dom";
 
 import styles from "./Header.module.scss";
 

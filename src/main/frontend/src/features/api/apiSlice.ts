@@ -1,6 +1,6 @@
+import {RootState} from "@app/store";
 import {BaseQueryApi} from "@reduxjs/toolkit/dist/query/baseQueryTypes";
 import {createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import {RootState} from "../../app/store";
 import {AuthResponseEntity, clearAuthState, setCredentials, setForceLogin} from "../auth/authSlice";
 
 const serverUrl = "/api/v1";

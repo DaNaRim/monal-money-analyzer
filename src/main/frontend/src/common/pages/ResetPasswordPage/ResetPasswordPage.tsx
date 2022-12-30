@@ -1,8 +1,8 @@
+import PageWrapper from "@components/pageComponents/PageWrapper/PageWrapper";
+import {useResetPasswordMutation} from "@features/registration/registrationApiSlice";
+import {FormSystemFields, handleResponseError} from "@utils/FormUtils";
 import React from "react";
 import {useForm} from "react-hook-form";
-import {useResetPasswordMutation} from "../../../features/registration/registrationApiSlice";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import {FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordPage.module.scss";
 
 

@@ -1,13 +1,13 @@
+import {useAppDispatch, useAppSelector} from "@app/hooks";
+import PageWrapper from "@components/pageComponents/PageWrapper/PageWrapper";
+import {AppMessageType, deleteAppMessage, selectAppMessages} from "@features/appMessages/appMessagesSlice";
+import {Credentials, useLoginMutation} from "@features/auth/authApiSlice";
+import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "@features/auth/authSlice";
+import {clearFormSystemFields, ErrorResponse, FormSystemFields, handleResponseError} from "@utils/FormUtils";
 import React, {useState} from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
 import {Link} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../app/hooks";
-import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
-import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
-import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "../../../features/auth/authSlice";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import {clearFormSystemFields, ErrorResponse, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./LoginPage.module.scss";
 
 

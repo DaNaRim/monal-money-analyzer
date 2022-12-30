@@ -1,5 +1,5 @@
+import {RootState} from "@app/store";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../../app/store";
 
 export enum Role {
     ROLE_USER = "ROLE_USER",

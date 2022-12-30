@@ -1,16 +1,16 @@
+import {checkForServerMessages} from "@features/appMessages/appMessagesSlice";
+import {selectAuthIsForceLogin, setForceLogin} from "@features/auth/authSlice";
+import ErrorPage from "@pages/error/ErrorPage/ErrorPage";
+import ForbiddenPage from "@pages/error/ForbiddenPage/ForbiddenPage";
+import NotFoundPage from "@pages/error/NotFoundPage/NotFoundPage";
+import HomePage from "@pages/HomePage/HomePage";
+import LoginPage from "@pages/LoginPage/LoginPage";
+import RegistrationPage from "@pages/RegistrationPage/RegistrationPage";
+import ResendVerificationTokenPage from "@pages/ResendVerificationTokenPage/ResendVerificationTokenPage";
+import ResetPasswordPage from "@pages/ResetPasswordPage/ResetPasswordPage";
+import ResetPasswordSetPage from "@pages/ResetPasswordSetPage/ResetPasswordSetPage";
 import React from "react";
 import {Route, Routes, useLocation} from "react-router";
-import ErrorPage from "../common/pages/error/ErrorPage/ErrorPage";
-import ForbiddenPage from "../common/pages/error/ForbiddenPage/ForbiddenPage";
-import NotFoundPage from "../common/pages/error/NotFoundPage/NotFoundPage";
-import HomePage from "../common/pages/HomePage/HomePage";
-import LoginPage from "../common/pages/LoginPage/LoginPage";
-import RegistrationPage from "../common/pages/RegistrationPage/RegistrationPage";
-import ResendVerificationTokenPage from "../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage";
-import ResetPasswordPage from "../common/pages/ResetPasswordPage/ResetPasswordPage";
-import ResetPasswordSetPage from "../common/pages/ResetPasswordSetPage/ResetPasswordSetPage";
-import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
-import {selectAuthIsForceLogin, setForceLogin} from "../features/auth/authSlice";
 import "./App.scss";
 import {useAppDispatch, useAppSelector} from "./hooks";
 

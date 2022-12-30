@@ -1,4 +1,4 @@
-import {RootState} from "../../app/store";
+import {RootState} from "@app/store";
 import {apiSlice} from "../api/apiSlice";
 
 export type RegistrationDto = {
