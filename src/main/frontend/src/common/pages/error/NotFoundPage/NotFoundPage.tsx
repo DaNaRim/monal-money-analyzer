@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
+import PageWrapper from "../../../components/pageComponents/PageWrapper/PageWrapper";
 import styles from "./NotFoundPage.module.scss";
 
 const NotFoundPage = () => {

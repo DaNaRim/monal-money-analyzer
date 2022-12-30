@@ -5,9 +5,9 @@ import {Link} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
 import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
-import {setCredentials} from "../../../features/auth/authSlice";
+import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "../../../features/auth/authSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import {ErrorResponse, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
+import {clearFormSystemFields, ErrorResponse, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./LoginPage.module.scss";
 
 
@@ -23,15 +23,15 @@ const LoginPage = () => {
 
     const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<LoginFormFields>();
 
-    const [login, {isLoading}] = useLoginMutation();
+    const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
+    const isForceLogin = useAppSelector(selectAuthIsForceLogin);
 
     const [isAccountNotActivated, setIsAccountNotActivated] = useState<boolean>(false);
 
-    const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
+    const [login, {isLoading}] = useLoginMutation();
 
     const handleLogin = (data: LoginFormFields) => {
-        delete data.globalError;
-        delete data.serverError;
+        clearFormSystemFields(data);
 
         login(data).unwrap()
             .then(data => dispatch(setCredentials(data)))
@@ -40,13 +40,22 @@ const LoginPage = () => {
                     dispatch(deleteAppMessage(appMessage.messageCode));
                 }
             })
-            .then(() => navigate("/"))
+            .then(() => {
+                if (isForceLogin) {
+                    dispatch(setForceLogin(false));
+                    navigate(-1);
+                } else {
+                    navigate("/");
+                }
+            })
             .catch(e => {
                 setValue("password", "");
 
                 const errorData: LoginFormError[] = e.data;
 
-                if (errorData.some(error => error.errorCode === "validation.auth.disabled")) {
+                if (typeof errorData === "object"
+                    && errorData.some(error => error.errorCode === "validation.auth.disabled")) {
+
                     setIsAccountNotActivated(true);
                 }
                 handleResponseError(e, setError);

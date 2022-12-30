@@ -5,26 +5,22 @@ import {useAppDispatch} from "../../../app/hooks";
 import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import {handleResponseError} from "../../utils/FormUtils";
+import {clearFormSystemFields, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordSetPage.module.scss";
 
 
-interface ResetPasswordSetFields extends ResetPasswordDto {
-    globalError?: string;
-    serverError?: string;
-}
+type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
 
 const ResetPasswordSetPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const {register, handleSubmit, setError, formState: {errors}} = useForm<ResetPasswordSetFields>();
+    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<ResetPasswordSetFields>();
 
     const [resetPasswordSetReq, {isLoading}] = useResetPasswordSetMutation();
 
     const handleResetPasswordSet = (data: ResetPasswordSetFields) => {
-        delete data.globalError;
-        delete data.serverError;
+        clearFormSystemFields(data);
 
         resetPasswordSetReq(data).unwrap()
             .then(() => dispatch(addAppMessage({
@@ -34,7 +30,11 @@ const ResetPasswordSetPage = () => {
                 messageCode: "message.password-reset.success",
             })))
             .then(() => navigate("/login"))
-            .catch(e => handleResponseError(e, setError));
+            .catch(e => {
+                setValue("newPassword", "");
+                setValue("matchingPassword", "");
+                handleResponseError(e, setError);
+            });
     };
 
     return (

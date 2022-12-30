@@ -2,23 +2,26 @@ import React from "react";
 import {useForm} from "react-hook-form";
 import {RegistrationDto, useRegisterMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
-import {FormSystemFields, handleResponseError} from "../../utils/FormUtils";
+import {clearFormSystemFields, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./RegistrationPage.module.scss";
 
 
 type RegistrationFormFields = FormSystemFields & RegistrationDto;
 
 const RegistrationPage = () => {
-    const {register, handleSubmit, setError, formState: {errors}} = useForm<RegistrationFormFields>();
+    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<RegistrationFormFields>();
 
     const [registerReq, {isLoading, isSuccess}] = useRegisterMutation();
 
     const handleRegistration = (data: RegistrationFormFields) => {
-        delete data.globalError;
-        delete data.serverError;
+        clearFormSystemFields(data);
 
         registerReq(data).unwrap()
-            .catch(e => handleResponseError(e, setError));
+            .catch(e => {
+                setValue("password", "");
+                setValue("matchingPassword", "");
+                handleResponseError(e, setError);
+            });
     };
 
     return (

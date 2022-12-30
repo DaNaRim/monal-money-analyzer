@@ -40,3 +40,8 @@ export const handleResponseError = (e: any, setError: UseFormSetError<any>) => {
         });
     }
 };
+
+export const clearFormSystemFields = (data: FormSystemFields) => {
+    delete data.globalError;
+    delete data.serverError;
+};

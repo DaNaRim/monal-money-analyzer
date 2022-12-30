@@ -1,6 +1,6 @@
 import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
 import {apiSlice} from "../features/api/apiSlice";
-import {appMessagesSlice} from "../features/appMessages/appMessagesSlice";
+import appMessagesReducer from "../features/appMessages/appMessagesSlice";
 import authReducer from "../features/auth/authSlice";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -9,7 +9,7 @@ export const store = configureStore({
     reducer: {
         [apiSlice.reducerPath]: apiSlice.reducer,
         auth: authReducer,
-        appMessages: appMessagesSlice.reducer,
+        appMessages: appMessagesReducer,
     },
     middleware: getDefaultMiddleware => getDefaultMiddleware()
         .concat(apiSlice.middleware),

@@ -2,7 +2,7 @@ import {apiSlice} from "../api/apiSlice";
 import {AuthState} from "./authSlice";
 
 export type Credentials = {
-    username: string,
+    username: string, //email
     password: string,
 }
 
@@ -21,13 +21,13 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
             }),
         }),
-        getAuthState: builder.mutation<AuthState, void>({
+        authGetState: builder.mutation<AuthState, void>({
             query: () => ({
                 url: "/auth/getState",
                 method: "POST",
             }),
         }),
-        refresh: builder.mutation<AuthState, void>({
+        authRefresh: builder.mutation<AuthState, void>({
             query: () => ({
                 url: "/auth/refresh",
                 method: "POST",
@@ -39,6 +39,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
 export const {
     useLoginMutation,
     useLogoutMutation,
-    useGetAuthStateMutation,
-    useRefreshMutation,
+    useAuthGetStateMutation,
+    useAuthRefreshMutation,
 } = authApiSlice;

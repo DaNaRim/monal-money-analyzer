@@ -60,7 +60,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         String csrfToken = request.getHeader("X-CSRF-TOKEN");
 
-        if (accessToken == null || PERMIT_ALL_API_ENDPOINTS.stream().anyMatch(request.getRequestURI()::contains)) {
+        if (accessToken == null
+                || !request.getRequestURI().startsWith(WebConfig.API_V1_PREFIX)
+                || PERMIT_ALL_API_ENDPOINTS.stream().anyMatch(request.getRequestURI()::contains)) {
             filterChain.doFilter(request, response);
             return;
         }
