@@ -1,17 +1,17 @@
-import React, {useEffect} from "react";
-import {useNavigate} from "react-router";
-import {NavLink} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../../app/hooks";
-import {useGetAuthStateMutation, useLogoutMutation} from "../../../../features/auth/authApiSlice";
+import {useAppDispatch, useAppSelector} from "@app/hooks";
+import {useAuthGetStateMutation, useAuthRefreshMutation, useLogoutMutation} from "@features/auth/authApiSlice";
 import {
     clearAuthState,
     selectAuthFirstname,
-    selectAuthInitialized,
+    selectAuthIsInitialized,
     selectAuthLastname,
     selectAuthUsername,
     setCredentials,
     setInitialized,
-} from "../../../../features/auth/authSlice";
+} from "@features/auth/authSlice";
+import React, {useEffect} from "react";
+import {useNavigate} from "react-router";
+import {NavLink} from "react-router-dom";
 
 import styles from "./Header.module.scss";
 
@@ -23,9 +23,10 @@ const Header = () => {
     const firstName = useAppSelector(selectAuthFirstname);
     const lastName = useAppSelector(selectAuthLastname);
 
-    const isAuthInit = useAppSelector(selectAuthInitialized);
+    const isAuthInit = useAppSelector(selectAuthIsInitialized);
 
-    const [getAuthState, {isLoading: isAuthStateLoading}] = useGetAuthStateMutation();
+    const [getAuthState, {isLoading: isAuthStateLoading}] = useAuthGetStateMutation();
+    const [requestAuth, {isLoading: isRequestAuthLoading}] = useAuthRefreshMutation();
     const [logout, {isLoading: isLogoutLoading}] = useLogoutMutation();
 
     const handleLogout = () => {
@@ -34,20 +35,26 @@ const Header = () => {
         navigate("/login");
     };
 
+    const requestAuthState = () => {
+        requestAuth().unwrap()
+            .then(res => dispatch(setCredentials(res)))
+            .catch(() => {
+                logout();
+                dispatch(clearAuthState());
+                dispatch(setInitialized());
+            });
+    };
+
     useEffect(() => {
         if (!isAuthInit) {
             getAuthState().unwrap()
                 .then(res => dispatch(setCredentials(res)))
-                .catch(() => {
-                    logout();
-                    dispatch(clearAuthState());
-                    dispatch(setInitialized());
-                });
+                .catch(() => requestAuthState());
         }
     }, []);
 
     const getAuthBlock = () => {
-        if (isAuthStateLoading || isLogoutLoading) {
+        if (isAuthStateLoading || isRequestAuthLoading || isLogoutLoading) {
             return <div>Loading...</div>;
         } else if (username) {
             return <div>

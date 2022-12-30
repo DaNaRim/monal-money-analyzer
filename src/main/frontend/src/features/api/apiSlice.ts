@@ -1,7 +1,7 @@
-import {createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import {RootState} from "@app/store";
 import {BaseQueryApi} from "@reduxjs/toolkit/dist/query/baseQueryTypes";
-import {clearAuthState, setCredentials} from "../auth/authSlice";
-import {RootState} from "../../app/store";
+import {createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import {AuthResponseEntity, clearAuthState, setCredentials, setForceLogin} from "../auth/authSlice";
 
 const serverUrl = "/api/v1";
 
@@ -13,7 +13,7 @@ const baseQuery = fetchBaseQuery({
             headers.set("X-CSRF-TOKEN", csrfToken);
         }
         return headers;
-    }
+    },
 });
 
 const baseQueryWithReauth = async (args: string | FetchArgs,
@@ -25,17 +25,23 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
     if (result.error?.status === 403) {
         const refreshResult = await baseQuery("/auth/refresh", api, extraOptions);
 
-        if (refreshResult.error?.status === 401) {
-            await baseQuery("/logout", api, extraOptions);
-            api.dispatch(clearAuthState());
-            //TODO: redirect to login page
-        } else if (refreshResult.error?.status === 403) {
-            //TODO: redirect to forbidden page
-        } else if (refreshResult.error?.status.toString().startsWith("5")) {
-            //TODO: redirect to server error page
-        } else {
-            api.dispatch(setCredentials(refreshResult.data));
+        if (refreshResult.meta?.response?.status === 200) {
+            const authResult = refreshResult.data as AuthResponseEntity;
+
+            api.dispatch(setCredentials(authResult));
             result = await baseQuery(args, api, extraOptions);
+
+        } else if (refreshResult.error?.status === 401) {
+            await baseQuery("/logout", api, extraOptions);
+
+            api.dispatch(clearAuthState());
+            api.dispatch(setForceLogin(true));
+
+            window.location.replace("/login");
+        } else if (refreshResult.error?.status === 403) {
+            window.location.replace("/forbidden");
+        } else {
+            window.location.replace("/error");
         }
     }
     return result;

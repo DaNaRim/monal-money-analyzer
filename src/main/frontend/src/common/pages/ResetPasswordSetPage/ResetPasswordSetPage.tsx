@@ -1,34 +1,26 @@
+import {useAppDispatch} from "@app/hooks";
+import {addAppMessage, AppMessageType} from "@features/appMessages/appMessagesSlice";
+import {ResetPasswordDto, useResetPasswordSetMutation} from "@features/registration/registrationApiSlice";
+import {clearFormSystemFields, FormSystemFields, handleResponseError} from "@utils/FormUtils";
 import React from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
-import {useAppDispatch} from "../../../app/hooks";
-import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
-import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
 import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 import styles from "./ResetPasswordSetPage.module.scss";
 
-interface ResetPasswordSetFields extends ResetPasswordDto {
-    globalError?: string;
-    serverError?: string;
-}
 
-type GenericError = {
-    type: string,
-    fieldName: "newPassword" | "matchingPassword" | "globalError" | "serverError",
-    message: string
-}
+type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
 
 const ResetPasswordSetPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const {register, handleSubmit, setError, formState: {errors}} = useForm<ResetPasswordSetFields>();
+    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<ResetPasswordSetFields>();
 
     const [resetPasswordSetReq, {isLoading}] = useResetPasswordSetMutation();
 
     const handleResetPasswordSet = (data: ResetPasswordSetFields) => {
-        delete data.globalError;
-        delete data.serverError;
+        clearFormSystemFields(data);
 
         resetPasswordSetReq(data).unwrap()
             .then(() => dispatch(addAppMessage({
@@ -39,15 +31,9 @@ const ResetPasswordSetPage = () => {
             })))
             .then(() => navigate("/login"))
             .catch(e => {
-                if (e.status === 400) {
-                    const errorData: GenericError[] = e.data;
-                    errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
-                    setError("serverError", {
-                        type: "serverError",
-                        message: "Server unavailable. please try again later",
-                    });
-                }
+                setValue("newPassword", "");
+                setValue("matchingPassword", "");
+                handleResponseError(e, setError);
             });
     };
 

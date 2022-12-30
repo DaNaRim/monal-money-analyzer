@@ -54,7 +54,7 @@ class TokenControllerIT {
 
     @Test
     void registrationConfirm_InvalidToken_ErrorInAppMesCookie() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
+        doThrow(new InvalidTokenException("t", "validation.token.not-found", null))
                 .when(registrationService).confirmRegistration(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
@@ -83,7 +83,7 @@ class TokenControllerIT {
 
     @Test
     void resetPasswordConfirm_InvalidToken_ErrorInAppMesCookie() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.invalid", null))
+        doThrow(new InvalidTokenException("t", "validation.token.not-found", null))
                 .when(tokenService).validatePasswordResetToken(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")

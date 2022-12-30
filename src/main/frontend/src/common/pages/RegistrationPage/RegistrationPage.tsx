@@ -1,46 +1,26 @@
+import PageWrapper from "@components/pageComponents/PageWrapper/PageWrapper";
+import {RegistrationDto, useRegisterMutation} from "@features/registration/registrationApiSlice";
+import {clearFormSystemFields, FormSystemFields, handleResponseError} from "@utils/FormUtils";
 import React from "react";
 import {useForm} from "react-hook-form";
-import {RegistrationDto, useRegisterMutation} from "../../../features/registration/registrationApiSlice";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 import styles from "./RegistrationPage.module.scss";
 
-interface RegistrationFormFields extends RegistrationDto {
-    globalError?: string;
-    serverError?: string;
-}
 
-type GenericError = {
-    type: string,
-    fieldName: "firstName"
-        | "lastName"
-        | "email"
-        | "password"
-        | "matchingPassword"
-        | "globalError"
-        | "serverError",
-    message: string
-}
+type RegistrationFormFields = FormSystemFields & RegistrationDto;
 
 const RegistrationPage = () => {
-    const {register, handleSubmit, setError, formState: {errors}} = useForm<RegistrationFormFields>();
+    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<RegistrationFormFields>();
 
     const [registerReq, {isLoading, isSuccess}] = useRegisterMutation();
 
     const handleRegistration = (data: RegistrationFormFields) => {
-        delete data.globalError;
-        delete data.serverError;
+        clearFormSystemFields(data);
 
         registerReq(data).unwrap()
             .catch(e => {
-                if (e.status === 400) {
-                    const errorData: GenericError[] = e.data;
-                    errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
-                    setError("serverError", {
-                        type: "serverError",
-                        message: "Server unavailable. please try again later",
-                    });
-                }
+                setValue("password", "");
+                setValue("matchingPassword", "");
+                handleResponseError(e, setError);
             });
     };
 

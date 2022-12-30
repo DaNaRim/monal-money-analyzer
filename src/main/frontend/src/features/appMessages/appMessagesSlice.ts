@@ -1,5 +1,5 @@
+import {RootState} from "@app/store";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../../app/store";
 
 const COOKIE_KEY_APPLICATION_MESSAGE = "serverMessage";
 

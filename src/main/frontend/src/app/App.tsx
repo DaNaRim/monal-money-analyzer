@@ -1,20 +1,28 @@
+import {checkForServerMessages} from "@features/appMessages/appMessagesSlice";
+import {selectAuthIsForceLogin, setForceLogin} from "@features/auth/authSlice";
+import ErrorPage from "@pages/error/ErrorPage/ErrorPage";
+import ForbiddenPage from "@pages/error/ForbiddenPage/ForbiddenPage";
+import NotFoundPage from "@pages/error/NotFoundPage/NotFoundPage";
+import HomePage from "@pages/HomePage/HomePage";
+import LoginPage from "@pages/LoginPage/LoginPage";
+import RegistrationPage from "@pages/RegistrationPage/RegistrationPage";
+import ResendVerificationTokenPage from "@pages/ResendVerificationTokenPage/ResendVerificationTokenPage";
+import ResetPasswordPage from "@pages/ResetPasswordPage/ResetPasswordPage";
+import ResetPasswordSetPage from "@pages/ResetPasswordSetPage/ResetPasswordSetPage";
 import React from "react";
-import {Route, Routes} from "react-router";
-import HomePage from "../common/pages/Home/HomePage";
-import LoginPage from "../common/pages/Login/LoginPage";
-import NotFoundPage from "../common/pages/NotFoundPage/NotFoundPage";
-import RegistrationPage from "../common/pages/Registration/RegistrationPage";
-import ResendVerificationTokenPage from "../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage";
-import ResetPasswordPage from "../common/pages/ResetPasswordPage/ResetPasswordPage";
-import ResetPasswordSetPage from "../common/pages/ResetPasswordSetPage/ResetPasswordSetPage";
-
-import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
-
+import {Route, Routes, useLocation} from "react-router";
 import "./App.scss";
-import {useAppDispatch} from "./hooks";
+import {useAppDispatch, useAppSelector} from "./hooks";
 
 const App = () => {
     const dispatch = useAppDispatch();
+    const location = useLocation();
+
+    const isForceLoin = useAppSelector<boolean>(selectAuthIsForceLogin);
+
+    if (location.pathname !== "/login" && isForceLoin) {
+        dispatch(setForceLogin(false));
+    }
     dispatch(checkForServerMessages());
 
     return (
@@ -26,6 +34,8 @@ const App = () => {
             <Route path="/resetPassword" element={<ResetPasswordPage/>}/>
             <Route path="/resetPasswordSet" element={<ResetPasswordSetPage/>}/>
 
+            <Route path="/forbidden" element={<ForbiddenPage/>}/>
+            <Route path="/error" element={<ErrorPage/>}/>
             <Route path="*" element={<NotFoundPage/>}/>
         </Routes>
     );

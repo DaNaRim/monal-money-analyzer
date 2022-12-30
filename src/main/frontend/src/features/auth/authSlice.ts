@@ -1,10 +1,13 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {RootState} from "../../app/store";
+import {RootState} from "@app/store";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
-export type Role = "ROLE_USER" | "ROLE_ADMIN";
+export enum Role {
+    ROLE_USER = "ROLE_USER",
+    ROLE_ADMIN = "ROLE_ADMIN",
+}
 
 export type AuthResponseEntity = {
-    username: string;
+    username: string; //email
     firstName: string;
     lastName: string;
     roles: Role[];
@@ -12,29 +15,33 @@ export type AuthResponseEntity = {
 }
 
 export type AuthState = {
-    username: string | null;
+    username: string | null; //email
     firstName: string | null;
     lastName: string | null;
     roles: Role[];
     csrfToken: string | null;
-    initialized: boolean;
+
+    isInitialized: boolean;
+    isForceLogin: boolean,
 }
 
 const initialState: AuthState = {
-    username: null,
+    username: null, //email
     firstName: null,
     lastName: null,
     roles: [],
     csrfToken: null,
-    initialized: false,
+
+    isInitialized: false,
+    isForceLogin: false,
 };
 
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setCredentials(state, action) {
-            const response: AuthResponseEntity = action.payload;
+        setCredentials(state, action: PayloadAction<AuthResponseEntity | AuthState>) {
+            const response = action.payload;
 
             state.username = response.username;
             state.firstName = response.firstName;
@@ -42,10 +49,10 @@ const authSlice = createSlice({
             state.roles = response.roles;
             state.csrfToken = response.csrfToken;
 
-            state.initialized = true;
+            state.isInitialized = true;
         },
         setInitialized(state) {
-            state.initialized = true;
+            state.isInitialized = true;
         },
         clearAuthState(state) {
             state.username = null;
@@ -54,6 +61,9 @@ const authSlice = createSlice({
             state.roles = [];
             state.csrfToken = null;
         },
+        setForceLogin(state, action: PayloadAction<boolean>) {
+            state.isForceLogin = action.payload;
+        },
     },
 });
 
@@ -61,11 +71,13 @@ export const {
     setCredentials,
     setInitialized,
     clearAuthState,
+    setForceLogin,
 } = authSlice.actions;
 
 export const selectAuthUsername = (state: RootState) => state.auth.username;
 export const selectAuthFirstname = (state: RootState) => state.auth.firstName;
 export const selectAuthLastname = (state: RootState) => state.auth.lastName;
-export const selectAuthInitialized = (state: RootState) => state.auth.initialized;
+export const selectAuthIsInitialized = (state: RootState) => state.auth.isInitialized;
+export const selectAuthIsForceLogin = (state: RootState) => state.auth.isForceLogin;
 
 export default authSlice.reducer;

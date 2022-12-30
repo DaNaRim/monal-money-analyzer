@@ -1,23 +1,20 @@
-import React from "react";
+import {useAppDispatch, useAppSelector} from "@app/hooks";
+import PageWrapper from "@components/pageComponents/PageWrapper/PageWrapper";
+import {AppMessageType, deleteAppMessage, selectAppMessages} from "@features/appMessages/appMessagesSlice";
+import {Credentials, useLoginMutation} from "@features/auth/authApiSlice";
+import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "@features/auth/authSlice";
+import {clearFormSystemFields, ErrorResponse, FormSystemFields, handleResponseError} from "@utils/FormUtils";
+import React, {useState} from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
 import {Link} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../app/hooks";
-import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
-import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
-import {setCredentials} from "../../../features/auth/authSlice";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 import styles from "./LoginPage.module.scss";
 
-interface LoginFormFields extends Credentials {
-    globalError?: string;
-    serverError?: string;
-}
 
-type GenericError = {
-    type: string,
-    fieldName: "username" | "password" | "globalError" | "serverError",
-    message: string
+type LoginFormFields = FormSystemFields & Credentials
+
+type LoginFormError = ErrorResponse & {
+    fieldName: keyof LoginFormFields,
 }
 
 const LoginPage = () => {
@@ -26,13 +23,15 @@ const LoginPage = () => {
 
     const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<LoginFormFields>();
 
+    const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
+    const isForceLogin = useAppSelector(selectAuthIsForceLogin);
+
+    const [isAccountNotActivated, setIsAccountNotActivated] = useState<boolean>(false);
+
     const [login, {isLoading}] = useLoginMutation();
 
-    const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
-
     const handleLogin = (data: LoginFormFields) => {
-        delete data.globalError;
-        delete data.serverError;
+        clearFormSystemFields(data);
 
         login(data).unwrap()
             .then(data => dispatch(setCredentials(data)))
@@ -41,19 +40,25 @@ const LoginPage = () => {
                     dispatch(deleteAppMessage(appMessage.messageCode));
                 }
             })
-            .then(() => navigate("/"))
+            .then(() => {
+                if (isForceLogin) {
+                    dispatch(setForceLogin(false));
+                    navigate(-1);
+                } else {
+                    navigate("/");
+                }
+            })
             .catch(e => {
                 setValue("password", "");
 
-                if (e.status === 401) {
-                    const errorData: GenericError[] = e.data;
-                    errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
-                } else if (e.status === "FETCH_ERROR" || e.status === 500) {
-                    setError("serverError", {
-                        type: "serverError",
-                        message: "Server unavailable. please try again later",
-                    });
+                const errorData: LoginFormError[] = e.data;
+
+                if (typeof errorData === "object"
+                    && errorData.some(error => error.errorCode === "validation.auth.disabled")) {
+
+                    setIsAccountNotActivated(true);
                 }
+                handleResponseError(e, setError);
             });
     };
 
@@ -66,10 +71,9 @@ const LoginPage = () => {
         return classMap[type];
     };
 
-    const suggestResendVerificationToken = () => { //TODO: identify token type
-        if (appMessage?.messageCode === "validation.token.invalid"
-            || appMessage?.messageCode === "validation.token.expired"
-            || appMessage?.messageCode === "validation.token.wrong-type") {
+    const suggestResendVerificationToken = () => {
+        if (appMessage?.messageCode === "validation.token.verification.not-found"
+            || appMessage?.messageCode === "validation.token.verification.expired") {
 
             return <Link to="/resendVerificationToken">Resend verification token</Link>;
         }
@@ -96,6 +100,7 @@ const LoginPage = () => {
 
                     <input type="hidden" {...register("globalError")}/>
                     {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
+                    {isAccountNotActivated && <Link to={"/resendVerificationToken"}>Resend verification token</Link>}
 
                     <input type="hidden" {...register("serverError")}/>
                     {errors.serverError && <span className={styles.server_error}>{errors.serverError.message}</span>}
