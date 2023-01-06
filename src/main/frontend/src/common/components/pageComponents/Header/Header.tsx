@@ -55,7 +55,7 @@ const Header = () => {
                 .then(res => dispatch(setCredentials(res)))
                 .catch(() => requestAuthState());
         }
-    }, []);
+    }, [dispatch, getAuthState, isAuthInit, requestAuthState]);
 
     const getAuthBlock = () => {
         if (isAuthStateLoading || isRequestAuthLoading || isLogoutLoading) {
