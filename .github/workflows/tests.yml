@@ -13,8 +13,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-#          java-version: 17
-          distribution: openjdk:17-jdk-alpine
+          java-version: 17
+          distribution: openjdk
 
 #      - name: Compile frontend
 #        run: mvn com.github.eirslett:frontend-maven-plugin:1.6:yarn@build
