@@ -24,7 +24,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "set ESLINT=none && react-scripts build",
+    "disable-eslint": "set ESLINT=none",
+    "build": "react-scripts build",
+    "ckeckEslintDisable": "console.log(process.env.ESLINT)",
     "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject"
   },
