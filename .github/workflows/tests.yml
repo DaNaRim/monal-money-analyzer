@@ -15,6 +15,9 @@ jobs:
         with:
           java-version: 17
 
+      - name: Compile frontend
+        run: mvn yarn:build
+
       - name: Build
         run: mvn --batch-mode -DskipTests package
 
