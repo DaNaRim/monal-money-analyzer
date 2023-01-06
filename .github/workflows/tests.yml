@@ -16,11 +16,14 @@ jobs:
           java-version: 17
           distribution: adopt
 
+      - name: Build frontend
+        run: cd ./src/main/frontend/ && yarn build
+
 #      - name: Compile frontend
 #        run: mvn com.github.eirslett:frontend-maven-plugin:1.6:yarn@build
 
       - name: Build
-        run: mvn package -e --batch-mode -DskipTests
+        run: mvn package --batch-mode -DskipTests
 
       - name: Test
         run: mvn test --batch-mode -Dmaven.test.failure.ignore=true
