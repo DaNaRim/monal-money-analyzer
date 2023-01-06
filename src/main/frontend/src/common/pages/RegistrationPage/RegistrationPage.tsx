@@ -1,8 +1,8 @@
-import PageWrapper from "@components/pageComponents/PageWrapper/PageWrapper";
-import {RegistrationDto, useRegisterMutation} from "@features/registration/registrationApiSlice";
-import {clearFormSystemFields, FormSystemFields, handleResponseError} from "@utils/FormUtils";
 import React from "react";
 import {useForm} from "react-hook-form";
+import {RegistrationDto, useRegisterMutation} from "../../../features/registration/registrationApiSlice";
+import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
+import {clearFormSystemFields, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./RegistrationPage.module.scss";
 
 
