@@ -1,5 +1,5 @@
-import PageWrapper from "@components/pageComponents/PageWrapper/PageWrapper";
 import React from "react";
+import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 
 import styles from "./HomePage.module.scss";
 

@@ -1,7 +1,7 @@
-import {apiSlice} from "@features/api/apiSlice";
-import appMessagesReducer from "@features/appMessages/appMessagesSlice";
-import authReducer from "@features/auth/authSlice";
 import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
+import {apiSlice} from "../features/api/apiSlice";
+import appMessagesReducer from "../features/appMessages/appMessagesSlice";
+import authReducer from "../features/auth/authSlice";
 
 const isDev = process.env.NODE_ENV === "development";
 
