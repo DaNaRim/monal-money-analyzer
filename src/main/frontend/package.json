@@ -24,12 +24,11 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "set DISABLE_ESLINT_PLUGIN=true && react-scripts build",
+    "build": "set ESLINT=none && react-scripts build",
     "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "disableESLintPlugin": true,
     "extends": [
       "react-app",
       "react-app/jest"
