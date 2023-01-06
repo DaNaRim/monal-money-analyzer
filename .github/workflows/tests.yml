@@ -28,7 +28,7 @@ jobs:
           CI: ""
 
       - name: Test
-        run: mvn test --batch-mode -Dmaven.test.failure.ignore=true
+        run: mvn surefire:test --batch-mode -Dmaven.test.failure.ignore=true
 
       - name: Report
         uses: dorny/test-reporter@v1
