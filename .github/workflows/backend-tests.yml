@@ -51,7 +51,7 @@ jobs:
           CI: ""
 
       - name: Test
-        run: mvn failsafe:integration-test --batch-mode -Dmaven.test.failure.ignore=true -Dspring.profiles.active=test
+        run: mvn failsafe:integration-test --batch-mode -Dmaven.test.failure.ignore=true
 
       - name: Report
         uses: dorny/test-reporter@v1
