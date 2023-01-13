@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServerConfig {
 
-    @Value("${custom.server.http.redirect.port}")
+    @Value("${http-redirect-server.port}")
     private int redirectServerPort;
 
     @Value("${server.port}")

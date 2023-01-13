@@ -326,6 +326,7 @@
                             org.apache.logging.log4j:log4j-slf4j-impl
                         </classpathDependencyExclude>
                     </classpathDependencyExcludes>
+                    <argLine>-Dspring.profiles.active=test</argLine>
                 </configuration>
                 <executions>
                     <execution>
