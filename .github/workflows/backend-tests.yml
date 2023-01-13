@@ -15,6 +15,7 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
+          cache: 'maven'
 
       - name: Build
         run: mvn package --batch-mode -DskipTests
@@ -44,6 +45,7 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
+          cache: 'maven'
 
       - name: Build
         run: mvn package --batch-mode -DskipTests
