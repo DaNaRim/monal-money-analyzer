@@ -32,6 +32,10 @@ jobs:
           path: target/surefire-reports/*.xml
           reporter: java-junit
           fail-on-error: true
+        permissions:
+          id-token: write
+          contents: read
+          checks: write
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -61,3 +65,7 @@ jobs:
           path: target/failsafe-reports/TEST-*.xml
           reporter: java-junit
           fail-on-error: true
+        permissions:
+          id-token: write
+          contents: read
+          checks: write
