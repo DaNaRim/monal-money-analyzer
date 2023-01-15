@@ -3,6 +3,11 @@ run-name: Testing backend by @${{ github.actor }}
 
 on: [ push, pull_request ]
 
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
