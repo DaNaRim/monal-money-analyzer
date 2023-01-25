@@ -1,4 +1,4 @@
-package com.danarim.monal.failHandler;
+package com.danarim.monal.failhandler;
 
 import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.util.ApplicationMessage;
@@ -16,8 +16,11 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.danarim.monal.failHandler.RestExceptionHandler.LOG_TEMPLATE;
+import static com.danarim.monal.failhandler.RestExceptionHandler.LOG_TEMPLATE;
 
+/**
+ * Handler exceptions thrown by controllers (not rest controllers).
+ */
 @ControllerAdvice(annotations = Controller.class)
 public class ViewExceptionHandler {
 
@@ -30,11 +33,13 @@ public class ViewExceptionHandler {
 
 
     /**
-     * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and password reset.
+     * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and
+     * password reset.
      *
      * @param e        exception caused by invalid token.
      * @param request  request where exception occurred.
      * @param response http response.
+     *
      * @return redirect to login page with error message in cookie
      */
     @ExceptionHandler(InvalidTokenException.class)
@@ -42,14 +47,16 @@ public class ViewExceptionHandler {
                                                WebRequest request,
                                                HttpServletResponse response
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
-        ApplicationMessage applicationMessage = new ApplicationMessage(
-                messageSource.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale()),
-                ApplicationMessageType.ERROR,
-                "login",
-                e.getMessageCode()
-        );
+        ApplicationMessage applicationMessage =
+                new ApplicationMessage(messageSource.getMessage(e.getMessageCode(),
+                                                                e.getMessageArgs(),
+                                                                request.getLocale()),
+                                       ApplicationMessageType.ERROR,
+                                       "login",
+                                       e.getMessageCode());
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 
         return new RedirectView("/login");
@@ -60,13 +67,16 @@ public class ViewExceptionHandler {
      *
      * @param e       exception caused by server error.
      * @param request request where exception occurred.
+     *
      * @return redirect to error page
      */
     @ExceptionHandler(Exception.class)
     protected View handleException(Exception e, WebRequest request
     ) {
-        logger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
         return new RedirectView("/error");
     }
+
 }

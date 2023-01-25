@@ -1,6 +1,6 @@
 package com.danarim.monal.config.security.auth;
 
-import com.danarim.monal.failHandler.CustomAuthFailureHandler;
+import com.danarim.monal.failhandler.CustomAuthFailureHandler;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;

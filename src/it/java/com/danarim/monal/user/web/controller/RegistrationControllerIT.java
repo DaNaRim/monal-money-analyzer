@@ -3,8 +3,8 @@ package com.danarim.monal.user.web.controller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.InvalidTokenException;
-import com.danarim.monal.failHandler.ResponseErrorType;
-import com.danarim.monal.failHandler.RestExceptionHandler;
+import com.danarim.monal.failhandler.ResponseErrorType;
+import com.danarim.monal.failhandler.RestExceptionHandler;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.RegistrationService;
 import com.danarim.monal.user.service.event.OnPasswordUpdatedEvent;
@@ -29,8 +29,15 @@ import javax.servlet.http.Cookie;
 
 import static com.danarim.monal.TestUtils.postExt;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RegistrationController.class)
 @ContextConfiguration(classes = {RegistrationController.class, RestExceptionHandler.class})

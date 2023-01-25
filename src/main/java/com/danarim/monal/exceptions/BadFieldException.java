@@ -1,6 +1,6 @@
 package com.danarim.monal.exceptions;
 
-import com.danarim.monal.failHandler.ResponseErrorType;
+import com.danarim.monal.failhandler.ResponseErrorType;
 
 import java.io.Serial;
 

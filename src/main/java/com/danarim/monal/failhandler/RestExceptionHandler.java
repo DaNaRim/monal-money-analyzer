@@ -1,4 +1,4 @@
-package com.danarim.monal.failHandler;
+package com.danarim.monal.failhandler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -20,17 +20,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.validation.Valid;
 
 /**
  * Handles exceptions thrown by rest controllers.
  * <br>
- * All methods except auth handlers must return {@link ResponseEntity} with list of {@link ErrorResponse} as body.
+ * All methods except auth handlers must return {@link ResponseEntity} with list of
+ * {@link ErrorResponse} as body.
  * <br>
- * The reason for returning list instead of single object is because frontend always expects list of errors for validation.
+ * The reason for returning list instead of single object is because frontend always expects list of
+ * errors for validation.
  */
 @RestControllerAdvice(annotations = RestController.class)
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -48,19 +50,23 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param e       exception caused by global validation error.
      * @param request request where exception occurred.
+     *
      * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(BadRequestException.class)
     protected ResponseEntity<List<ErrorResponse>> handleBadRequestException(BadRequestException e,
                                                                             WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
-        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        String message =
+                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
 
         ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse),
+                                    HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -68,33 +74,41 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param e       exception caused by field validation.
      * @param request request where exception occurred.
+     *
      * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(BadFieldException.class)
     protected ResponseEntity<List<ErrorResponse>> handleBadFieldException(BadFieldException e,
                                                                           WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
-        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        String message =
+                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
 
-        ErrorResponse errorResponse = ErrorResponse.fieldError(e.getMessageCode(), e.getField(), message);
+        ErrorResponse errorResponse =
+                ErrorResponse.fieldError(e.getMessageCode(), e.getField(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse),
+                                    HttpStatus.BAD_REQUEST);
     }
 
 
     /**
-     * Handles {@link AccessDeniedException} thrown by Spring Security when user is not authorized to access resource.
+     * Handles {@link AccessDeniedException} thrown by Spring Security when user is not authorized
+     * to access resource.
      *
      * @param e       exception caused access denied.
      * @param request request where exception occurred.
      */
     @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<List<ErrorResponse>> handleAccessDeniedException(AccessDeniedException e,
-                                                                              WebRequest request
+    protected ResponseEntity<List<ErrorResponse>> handleAccessDeniedException(
+            AccessDeniedException e,
+            WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
         String message = messages.getMessage("error.access.denied", null, request.getLocale());
 
@@ -108,53 +122,70 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param e       exception caused by expired token.
      * @param request request where exception occurred.
-     * @return body with error message. Not {@link ErrorResponse} because it is not handled by frontend.
+     *
+     * @return body with error message. Not {@link ErrorResponse} because it is not handled by
+     *         frontend.
      */
     @ExceptionHandler(TokenExpiredException.class)
     protected ResponseEntity<String> handleTokenExpiredException(TokenExpiredException e,
                                                                  WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(messages.getMessage("validation.auth.token.expired", null, request.getLocale()));
+                .body(messages.getMessage("validation.auth.token.expired",
+                                          null,
+                                          request.getLocale()));
     }
 
     /**
-     * Handles {@link JWTVerificationException} thrown by auth refresh endpoint when token is invalid.
+     * Handles {@link JWTVerificationException} thrown by auth refresh endpoint when token is
+     * invalid.
      *
      * @param e       exception caused by invalid jwt token.
      * @param request request where exception occurred.
-     * @return body with error message. Not {@link ErrorResponse} because it is not handled by frontend.
+     *
+     * @return body with error message. Not {@link ErrorResponse} because it is not handled by
+     *         frontend.
      */
     @ExceptionHandler(JWTVerificationException.class)
-    protected ResponseEntity<String> handleJWTVerificationException(JWTVerificationException e,
+    protected ResponseEntity<String> handleJwtVerificationException(JWTVerificationException e,
                                                                     WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(messages.getMessage("validation.auth.token.invalid", null, request.getLocale()));
+                .body(messages.getMessage("validation.auth.token.invalid",
+                                          null,
+                                          request.getLocale()));
     }
 
     /**
-     * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and password reset.
+     * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and
+     * password reset.
      *
      * @param e       exception caused by invalid token.
      * @param request request where exception occurred.
+     *
      * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(InvalidTokenException.class)
-    protected ResponseEntity<List<ErrorResponse>> handleInvalidTokenException(InvalidTokenException e,
-                                                                              WebRequest request
+    protected ResponseEntity<List<ErrorResponse>> handleInvalidTokenException(
+            InvalidTokenException e,
+            WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
-        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        String message =
+                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
 
         ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
 
-        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse),
+                                    HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -162,19 +193,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param e       exception caused by mail service.
      * @param request request where exception occurred.
+     *
      * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(MailException.class)
     protected ResponseEntity<List<ErrorResponse>> handleMailException(MailException e,
                                                                       WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
         String message = messages.getMessage("error.mail.send", null, request.getLocale());
 
         ErrorResponse errorResponse = ErrorResponse.serverError("error.mail.send", message);
 
-        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse),
+                                    HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -182,18 +216,23 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param e       exception caused by server.
      * @param request request where exception occurred.
+     *
      * @return response with list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<List<ErrorResponse>> handleInternalException(Exception e, WebRequest request) {
-
+    protected ResponseEntity<List<ErrorResponse>> handleInternalException(Exception e,
+                                                                          WebRequest request
+    ) {
         logger.error("Internal server error during request: " + request.getContextPath(), e);
 
-        String message = messages.getMessage("error.server.internal-error", null, request.getLocale());
+        String message =
+                messages.getMessage("error.server.internal-error", null, request.getLocale());
 
-        ErrorResponse errorResponse = ErrorResponse.serverError("error.server.internal-error", message);
+        ErrorResponse errorResponse =
+                ErrorResponse.serverError("error.server.internal-error", message);
 
-        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse),
+                                    HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -210,7 +249,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status,
                                                                   WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()), e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
+                     e);
 
         ArrayList<ErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
         return new ResponseEntity<>(mappedErrors, headers, status);
@@ -222,19 +262,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static ArrayList<ErrorResponse> mapErrors(BindingResult errors) {
         ArrayList<ErrorResponse> result = new ArrayList<>();
 
-        errors.getFieldErrors().forEach(
-                error -> result.add(ErrorResponse.fieldError(
-                        error.getCode(),
-                        error.getField(),
-                        error.getDefaultMessage()
-                ))
-        );
-        errors.getGlobalErrors().forEach(
-                error -> result.add(ErrorResponse.globalError(
-                        error.getCode(),
-                        error.getDefaultMessage()
-                ))
-        );
+        errors.getFieldErrors()
+                .forEach(error -> result.add(ErrorResponse.fieldError(error.getCode(),
+                                                                      error.getField(),
+                                                                      error.getDefaultMessage())));
+        errors.getGlobalErrors()
+                .forEach(error -> result.add(ErrorResponse.globalError(error.getCode(),
+                                                                       error.getDefaultMessage())));
         return result;
     }
+
 }

@@ -2,7 +2,7 @@ package com.danarim.monal.user.web.controller;
 
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.exceptions.InvalidTokenException;
-import com.danarim.monal.failHandler.ViewExceptionHandler;
+import com.danarim.monal.failhandler.ViewExceptionHandler;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
@@ -20,8 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.danarim.monal.TestUtils.getExt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TokenController.class)
 @ContextConfiguration(classes = {TokenController.class, ViewExceptionHandler.class})

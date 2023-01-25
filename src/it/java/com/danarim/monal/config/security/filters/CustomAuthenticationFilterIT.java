@@ -3,7 +3,7 @@ package com.danarim.monal.config.security.filters;
 import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.TestUtils;
 import com.danarim.monal.config.WebConfig;
-import com.danarim.monal.failHandler.ResponseErrorType;
+import com.danarim.monal.failhandler.ResponseErrorType;
 import com.danarim.monal.util.CookieUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.danarim.monal.DbUserFiller.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static com.danarim.monal.DbUserFiller.AUTH_JSON_TEMPLATE;
+import static com.danarim.monal.DbUserFiller.AUTH_JSON_USER;
+import static com.danarim.monal.DbUserFiller.USER_PASSWORD;
+import static com.danarim.monal.DbUserFiller.USER_USERNAME;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
