@@ -23,6 +23,9 @@ import java.util.stream.Stream;
 import static com.danarim.monal.config.WebConfig.API_V1_PREFIX;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+/**
+ * Security configuration.
+ */
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
@@ -42,14 +45,25 @@ public class SecurityConfig {
             "/resetPasswordSet"
     ).map(endpoint -> API_V1_PREFIX + endpoint).toList();
 
+    private static final int BCRYPT_STRENGTH = 11;
+
     private final ApplicationContext context;
 
     public SecurityConfig(ApplicationContext context) {
         this.context = context;
     }
 
+    /**
+     * Configure security filter chain.
+     *
+     * @param http http security
+     *
+     * @return security filter chain
+     *
+     * @throws Exception if something goes wrong
+     */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(authz -> authz
                         .mvcMatchers(PERMIT_ALL_API_ENDPOINTS.toArray(String[]::new)).permitAll()
@@ -66,14 +80,25 @@ public class SecurityConfig {
                 )
                 .addFilter(customAuthenticationFilter(http))
                 .addFilterBefore(
-                        context.getBean(CustomAuthorizationFilter.class), UsernamePasswordAuthenticationFilter.class
+                        context.getBean(CustomAuthorizationFilter.class),
+                        UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
     }
 
+    /**
+     * Configure custom authentication filter.
+     *
+     * @param http http security
+     *
+     * @return custom authentication filter
+     *
+     * @throws Exception if something goes wrong
+     */
     @Bean
-    public CustomAuthenticationFilter customAuthenticationFilter(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
+    public CustomAuthenticationFilter customAuthenticationFilter(HttpSecurity http)
+            throws Exception {
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter(
                 authenticationManager(http),
                 context.getBean(JwtUtil.class)
@@ -83,8 +108,17 @@ public class SecurityConfig {
         return filter;
     }
 
+    /**
+     * Bean for authentication manager.
+     *
+     * @param http http security
+     *
+     * @return authentication manager
+     *
+     * @throws Exception if something goes wrong
+     */
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception { //skipcq: JAVA-W1042
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .build();
@@ -92,7 +126,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(11);
+        return new BCryptPasswordEncoder(BCRYPT_STRENGTH);
     }
 
 }

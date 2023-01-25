@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.transaction.Transactional;
 import java.util.Date;
+import javax.transaction.Transactional;
 
+/**
+ * Manages the {@link JwtTokenEntity} in the database.
+ */
 public interface JwtTokenDao extends JpaRepository<JwtTokenEntity, Long> {
 
     @Query("SELECT t.isBlocked FROM JwtTokenEntity t WHERE t.id = ?1")
@@ -30,4 +33,5 @@ public interface JwtTokenDao extends JpaRepository<JwtTokenEntity, Long> {
     @Modifying
     @Transactional
     void blockAllTokensForUser(User user);
+
 }

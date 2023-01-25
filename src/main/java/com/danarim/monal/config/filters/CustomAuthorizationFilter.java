@@ -17,23 +17,23 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.LocaleResolver;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static com.danarim.monal.config.security.SecurityConfig.PERMIT_ALL_API_ENDPOINTS;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 /**
- * Validate the JWT token and set the authentication in the security context if authentication is successful
- * Also check for csrf attacks
+ * Validate the JWT token and set the authentication in the security context if authentication is
+ * successful Also check for csrf attacks.
  */
 @Component
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
@@ -42,14 +42,25 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final MessageSource messages;
     private final LocaleResolver localeResolver;
 
-    public CustomAuthorizationFilter(JwtUtil jwtUtil, MessageSource messages, LocaleResolver localeResolver) {
+    /**
+     * Constructor to inject dependencies.
+     *
+     * @param jwtUtil        util to work with jwt tokens
+     * @param messages       message source to get localized messages
+     * @param localeResolver locale resolver to get locale from request
+     */
+    public CustomAuthorizationFilter(JwtUtil jwtUtil,
+                                     MessageSource messages,
+                                     LocaleResolver localeResolver
+    ) {
         this.jwtUtil = jwtUtil;
         this.messages = messages;
         this.localeResolver = localeResolver;
     }
 
     /**
-     * Get the JWT token from request body and pass to processAuthorization() method for further processing
+     * Get the JWT token from request body and pass to processAuthorization() method for further
+     * processing.
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -80,49 +91,55 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Process accessToken and set authentication in the security context
+     * Process accessToken and set authentication in the security context.
      *
      * @param accessToken the JWT accessToken
      * @param csrfToken   csrf token from request header
-     * @param requestURI  request URI
-     * @throws CsrfException            if request send to api and csrfToken doesn't match with same from jwt
-     * @throws JWTVerificationException if accessToken is invalid, have wrong type, expired or blocked
+     * @param requestUri  request URI
+     *
+     * @throws CsrfException            if request send to api and csrfToken doesn't match with same
+     *                                  from jwt
+     * @throws JWTVerificationException if accessToken is invalid, have wrong type, expired or
+     *                                  blocked
      */
-    private void processAuthorization(String accessToken, String csrfToken, String requestURI) {
-        DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
+    private void processAuthorization(String accessToken, String csrfToken, String requestUri) {
+        DecodedJWT decodedJwt = jwtUtil.decode(accessToken);
 
-        validateToken(decodedJWT, csrfToken, requestURI);
+        validateToken(decodedJwt, csrfToken, requestUri);
 
-        String username = decodedJWT.getSubject();
-        String[] roles = decodedJWT.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
+        String username = decodedJwt.getSubject();
+        String[] roles = decodedJwt.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
 
         Collection<GrantedAuthority> authorities = new HashSet<>();
         for (String role : roles) {
             authorities.add(new Role(RoleName.valueOf(role)));
         }
-        SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken(username, null, authorities));
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null, authorities));
     }
 
     /**
-     * Checks token type, csrf token and is token blocked
+     * Checks token type, csrf token and is token blocked.
      *
-     * @param decodedJWT decoded JWT token
+     * @param decodedJwt decoded JWT token
      * @param csrfToken  csrf token from request header
-     * @param requestURI request URI
-     * @throws CsrfException            if request send to api and csrfToken doesn't match with same from jwt
+     * @param requestUri request URI
+     *
+     * @throws CsrfException            if request send to api and csrfToken doesn't match with same
+     *                                  from jwt
      * @throws JWTVerificationException if accessToken have wrong type or blocked
      */
-    private void validateToken(DecodedJWT decodedJWT, String csrfToken, String requestURI) {
+    private void validateToken(DecodedJWT decodedJwt, String csrfToken, String requestUri) {
 
-        String csrfTokenFromJwt = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
-        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
-        String tokenId = decodedJWT.getId();
+        String csrfTokenFromJwt = decodedJwt.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+        String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+        String tokenId = decodedJwt.getId();
 
         if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
             throw new JWTVerificationException("Invalid token type");
         }
-        if (requestURI.startsWith(WebConfig.API_V1_PREFIX) && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
+        if (requestUri.startsWith(WebConfig.API_V1_PREFIX)
+                && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
             throw new CsrfException("Invalid csrf token");
         }
         if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {
@@ -131,12 +148,13 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Send error message to the client
+     * Send error message to the client.
      *
      * @param request        the request
      * @param response       the response
      * @param responseStatus status code to set in response
      * @param exMessageCode  message code to be sent to the client
+     *
      * @throws IOException if writing to the response fails
      */
     private void processException(HttpServletRequest request,
@@ -149,4 +167,5 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         response.getWriter().write(messages.getMessage(exMessageCode, null, locale));
     }
+
 }
