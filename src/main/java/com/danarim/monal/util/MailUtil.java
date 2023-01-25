@@ -11,6 +11,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Locale;
 
+/**
+ * Utility class for sending emails.
+ */
 @Component
 public class MailUtil {
 
@@ -30,16 +33,23 @@ public class MailUtil {
         this.mailSender = mailSender;
     }
 
+    /**
+     * Create and send email for account verification.
+     *
+     * @param tokenValue token value
+     * @param userEmail user email to send the email to
+     */
     public void sendVerificationEmail(String tokenValue, String userEmail) {
 
         Locale locale = LocaleContextHolder.getLocale();
-        String contextPath = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String contextPath =
+                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
 
         String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
-                contextPath,
-                WebConfig.API_V1_PREFIX,
-                ACCOUNT_CONFIRM_ENDPOINT,
-                tokenValue);
+                                          contextPath,
+                                          WebConfig.API_V1_PREFIX,
+                                          ACCOUNT_CONFIRM_ENDPOINT,
+                                          tokenValue);
 
         String subject = messages.getMessage("mail.verifyAccount.subject", null, locale);
         String message = messages.getMessage("mail.verifyAccount.link.enable", null, locale);
@@ -47,16 +57,23 @@ public class MailUtil {
         mailSender.send(constructEmail(subject, message + "\r\n" + confirmUrl, userEmail));
     }
 
+    /**
+     * Create and send email for password reset.
+     *
+     * @param tokenValue token value
+     * @param userEmail user email to send the email to
+     */
     public void sendPasswordResetEmail(String tokenValue, String userEmail) {
 
         Locale locale = LocaleContextHolder.getLocale();
-        String contextPath = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String contextPath =
+                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
 
         String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
-                contextPath,
-                WebConfig.API_V1_PREFIX,
-                PASSWORD_RESET_ENDPOINT,
-                tokenValue);
+                                          contextPath,
+                                          WebConfig.API_V1_PREFIX,
+                                          PASSWORD_RESET_ENDPOINT,
+                                          tokenValue);
 
         String subject = messages.getMessage("mail.resetPassword.subject", null, locale);
         String message = messages.getMessage("mail.resetPassword.link.reset", null, locale);
