@@ -11,8 +11,11 @@ public class InvalidTokenException extends BadRequestException {
     private static final long serialVersionUID = -8559653946977226439L;
 
     /**
+     * Exception for invalid token. Used with not auth tokens.
+     *
      * @param message     message for logging and debugging. Not used in response.
-     * @param messageCode used to get localized message from {@link org.springframework.context.MessageSource}.
+     * @param messageCode used to get localized message from
+     *                    {@link org.springframework.context.MessageSource}.
      * @param messageArgs arguments for messageCode. Can be null.
      */
     public InvalidTokenException(String message, String messageCode, Object[] messageArgs) {
@@ -20,12 +23,20 @@ public class InvalidTokenException extends BadRequestException {
     }
 
     /**
+     * Exception for invalid token. Used with not auth tokens.
+     *
      * @param message     message for logging and debugging. Not used in response.
      * @param cause       cause of the exception.
-     * @param messageCode used to get localized message from {@link org.springframework.context.MessageSource}.
+     * @param messageCode used to get localized message from
+     *                    {@link org.springframework.context.MessageSource}.
      * @param messageArgs arguments for messageCode. Can be null.
      */
-    public InvalidTokenException(String message, Throwable cause, String messageCode, Object[] messageArgs) {
+    public InvalidTokenException(String message,
+                                 Throwable cause,
+                                 String messageCode,
+                                 Object[] messageArgs
+    ) {
         super(message, cause, messageCode, messageArgs);
     }
+
 }

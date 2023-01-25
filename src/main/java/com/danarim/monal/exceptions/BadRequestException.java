@@ -7,7 +7,8 @@ import java.io.Serial;
 /**
  * Used when the request processing failed because of a validation error.
  * <br>
- * If validation error is caused by a specific field in the form, use {@link BadFieldException} instead.
+ * If validation error is caused by a specific field in the form, use {@link BadFieldException}
+ * instead.
  * <br>
  * This exception should use only for global errors.
  *
@@ -31,8 +32,11 @@ public class BadRequestException extends RuntimeException {
     private final transient Object[] messageArgs;
 
     /**
+     * Exception for global validation errors.
+     *
      * @param message     message for logging and debugging. Not used in response.
-     * @param messageCode used to get localized message from {@link org.springframework.context.MessageSource}.
+     * @param messageCode used to get localized message from
+     *                    {@link org.springframework.context.MessageSource}.
      * @param messageArgs arguments for messageCode. Can be null.
      */
     public BadRequestException(String message, String messageCode, Object[] messageArgs) {
@@ -42,12 +46,19 @@ public class BadRequestException extends RuntimeException {
     }
 
     /**
+     * Exception for global validation errors.
+     *
      * @param message     message for logging and debugging. Not used in response.
      * @param cause       cause of the exception.
-     * @param messageCode used to get localized message from {@link org.springframework.context.MessageSource}.
+     * @param messageCode used to get localized message from
+     *                    {@link org.springframework.context.MessageSource}.
      * @param messageArgs arguments for messageCode. Can be null.
      */
-    public BadRequestException(String message, Throwable cause, String messageCode, Object[] messageArgs) {
+    public BadRequestException(String message,
+                               Throwable cause,
+                               String messageCode,
+                               Object[] messageArgs
+    ) {
         super(message, cause);
         this.messageCode = messageCode;
         this.messageArgs = messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
@@ -60,4 +71,5 @@ public class BadRequestException extends RuntimeException {
     public Object[] getMessageArgs() {
         return messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
     }
+
 }
