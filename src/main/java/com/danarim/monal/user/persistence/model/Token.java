@@ -1,12 +1,24 @@
 package com.danarim.monal.user.persistence.model;
 
-import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
+/**
+ * Represents a token that can be used to perform a specific action for a user.
+ */
 @Entity
 public class Token implements Serializable {
 
@@ -39,6 +51,12 @@ public class Token implements Serializable {
     protected Token() {
     }
 
+    /**
+     * Creates a new token with a random value and an expiration date.
+     *
+     * @param user      the user to whom the token belongs
+     * @param tokenType the type of the token
+     */
     public Token(User user, TokenType tokenType) {
         this.tokenValue = UUID.randomUUID().toString();
         this.user = user;
@@ -98,4 +116,5 @@ public class Token implements Serializable {
         cal.add(Calendar.HOUR, DEFAULT_EXPIRY_TIME_IN_HOURS);
         return cal.getTime();
     }
+
 }
