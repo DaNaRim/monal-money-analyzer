@@ -4,6 +4,9 @@ import com.danarim.monal.config.security.jwt.JwtUtil;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener for password updated events.
+ */
 @Component
 public class PasswordUpdatedListener implements ApplicationListener<OnPasswordUpdatedEvent> {
 
@@ -19,11 +22,12 @@ public class PasswordUpdatedListener implements ApplicationListener<OnPasswordUp
     }
 
     /**
-     * Invalidate all JWT tokens for the user
+     * Invalidate all JWT tokens for the user.
      *
      * @param event the event to be processed
      */
     private void invalidateAllTokens(OnPasswordUpdatedEvent event) {
         jwtUtil.blockAllTokensForUser(event.getUser());
     }
+
 }

@@ -22,17 +22,18 @@ import java.util.concurrent.TimeUnit;
 public class TokenServiceImpl implements TokenService {
 
     /**
-     * Delay between creating verification tokens for user
+     * Delay between creating verification tokens for user.
      */
     private static final int CREATE_VERIFICATION_TOKEN_DELAY_IN_MINUTES = 1;
 
     /**
-     * Delay between creating password reset tokens for user
+     * Delay between creating password reset tokens for user.
      */
     private static final int CREATE_PASSWORD_RESET_TOKEN_DELAY_IN_MINUTES = 1;
 
     /**
-     * Rule for scheduled task. Delete all tokens that expired and stored in database for this count of days.
+     * Rule for scheduled task. Delete all tokens that expired and stored in database for this count
+     * of days.
      */
     private static final int DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS = 7;
 
@@ -58,8 +59,11 @@ public class TokenServiceImpl implements TokenService {
      * Create a new token verification token and save it in the database.
      *
      * @param user user to create token for
+     *
      * @return verification token
-     * @throws BadRequestException if user already has a verification token and delay between creation of tokens is not passed
+     *
+     * @throws BadRequestException if user already has a verification token and delay between
+     *                             creation of tokens is not passed
      */
     @Override
     public Token createVerificationToken(User user) {
@@ -72,31 +76,40 @@ public class TokenServiceImpl implements TokenService {
      * Validate verification token.
      *
      * @param tokenValue token value
+     *
      * @return Token object with the given value
-     * @throws InvalidTokenException if token is not found, wrong type, expired, already used or user is already activated
+     *
+     * @throws InvalidTokenException if token is not found, wrong type, expired, already used or
+     *                               user is already activated
      */
     @Override
     public Token validateVerificationToken(String tokenValue) {
         Token verificationToken = tokenDao.findByTokenValue(tokenValue);
 
         if (verificationToken == null) {
-            throw new InvalidTokenException("token not found", "validation.token.verification.not-found", null);
+            throw new InvalidTokenException("token not found",
+                                            "validation.token.verification.not-found",
+                                            null);
         }
         if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
             throw new InvalidTokenException(
-                    "wrong token type expected: " + TokenType.VERIFICATION + " actual: " + verificationToken.getTokenType(),
+                    "wrong token type expected: " + TokenType.VERIFICATION + " actual: "
+                            + verificationToken.getTokenType(),
                     "validation.token.wrong-type",
-                    new Object[]{TokenType.VERIFICATION, verificationToken.getTokenType()}
-            );
+                    new Object[] {TokenType.VERIFICATION, verificationToken.getTokenType()});
         }
         if (verificationToken.isUsed()) {
             throw new InvalidTokenException("token already used", "validation.token.used", null);
         }
         if (verificationToken.isExpired()) {
-            throw new InvalidTokenException("token expired", "validation.token.verification.expired", null);
+            throw new InvalidTokenException("token expired",
+                                            "validation.token.verification.expired",
+                                            null);
         }
         if (verificationToken.getUser().isEnabled()) {
-            throw new InvalidTokenException("user already enable", "validation.token.verification.user-enabled", null);
+            throw new InvalidTokenException("user already enable",
+                                            "validation.token.verification.user-enabled",
+                                            null);
         }
         return verificationToken;
     }
@@ -109,8 +122,11 @@ public class TokenServiceImpl implements TokenService {
      * Create a new password reset token and save it in the database.
      *
      * @param user user to create token for
+     *
      * @return password reset token
-     * @throws BadRequestException if user already has a password reset token and delay between creation of tokens is not passed
+     *
+     * @throws BadRequestException if user already has a password reset token and delay between
+     *                             creation of tokens is not passed
      */
     @Override
     public Token createPasswordResetToken(User user) {
@@ -120,8 +136,12 @@ public class TokenServiceImpl implements TokenService {
     }
 
     /**
+     * Validate password reset token.
+     *
      * @param tokenValue token value
+     *
      * @return Token object with the given value
+     *
      * @throws InvalidTokenException if token is not found, wrong type or expired
      */
     @Override
@@ -133,10 +153,10 @@ public class TokenServiceImpl implements TokenService {
         }
         if (passwordResetToken.getTokenType() != TokenType.PASSWORD_RESET) {
             throw new InvalidTokenException(
-                    "wrong token type expected: " + TokenType.PASSWORD_RESET + " actual: " + passwordResetToken.getTokenType(),
+                    "wrong token type expected: " + TokenType.PASSWORD_RESET + " actual: "
+                            + passwordResetToken.getTokenType(),
                     "validation.token.wrong-type",
-                    new Object[]{TokenType.PASSWORD_RESET, passwordResetToken.getTokenType()}
-            );
+                    new Object[] {TokenType.PASSWORD_RESET, passwordResetToken.getTokenType()});
         }
         if (passwordResetToken.isUsed()) {
             throw new InvalidTokenException("token already used", "validation.token.used", null);
@@ -154,7 +174,8 @@ public class TokenServiceImpl implements TokenService {
     /**
      * Delete all tokens that expired before given date.
      * <br>
-     * Token becomes deprecated when it is expired and time {@link #DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS} passed.
+     * Token becomes deprecated when it is expired and time
+     * {@link #DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS} passed.
      */
     @Scheduled(fixedRate = DELETE_TOKENS_DELAY_IN_DAYS, timeUnit = TimeUnit.DAYS)
     protected void deleteDeprecatedTokens() {
@@ -170,11 +191,13 @@ public class TokenServiceImpl implements TokenService {
             int tokensToDelete = tokenDao.countTokensByExpirationDateBefore(removeBeforeDate);
 
             if (tokensToDelete == 0) {
-                logger.info("Scheduled task: delete deprecated tokens finished. No tokens to delete");
+                logger.info("Scheduled task: delete deprecated tokens finished. No tokens to "
+                                    + "delete");
                 return;
             }
             tokenDao.deleteByExpirationDateBefore(removeBeforeDate);
-            logger.info("Scheduled task: delete deprecated tokens finished. " + tokensToDelete + " tokens deleted");
+            logger.info("Scheduled task: delete deprecated tokens finished. " + tokensToDelete
+                                + " tokens deleted");
         } catch (RuntimeException e) {
             logger.error("Scheduled task: delete deprecated tokens failed", e);
         }
@@ -185,7 +208,9 @@ public class TokenServiceImpl implements TokenService {
      *
      * @param user      user to check
      * @param tokenType token type to check
-     * @throws BadRequestException if user already has a token and delay between creation of tokens is not passed
+     *
+     * @throws BadRequestException if user already has a token and delay between creation of tokens
+     *                             is not passed
      */
     private void checkIfCreationDelayPassed(User user, TokenType tokenType) {
         Date lastTokenCreationDate = tokenDao.findLastTokenCreationDate(user, tokenType);
@@ -209,14 +234,16 @@ public class TokenServiceImpl implements TokenService {
             // Calculate time to wait
             long timeToWait = timeAfterDelay.getTime() - now.getTime();
             long minutesToWait = TimeUnit.MILLISECONDS.toMinutes(timeToWait);
-            long secondsToWait = TimeUnit.MILLISECONDS.toSeconds(timeToWait)
-                    - TimeUnit.MINUTES.toSeconds(minutesToWait);
+            long secondsToWait =
+                    TimeUnit.MILLISECONDS.toSeconds(timeToWait) - TimeUnit.MINUTES.toSeconds(
+                            minutesToWait);
 
-            throw new BadRequestException(
-                    "User already created " + tokenType + " token and delay between creation of tokens is not passed",
-                    "validation.token.create.delay",
-                    new Object[]{minutesToWait, secondsToWait}
-            );
+            throw new BadRequestException("User already created " + tokenType
+                                                  + " token and delay between creation of tokens "
+                                                  + "is not passed",
+                                          "validation.token.create.delay",
+                                          new Object[] {minutesToWait, secondsToWait});
         }
     }
+
 }

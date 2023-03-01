@@ -7,6 +7,9 @@ import com.danarim.monal.util.MailUtil;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener for registration events.
+ */
 @Component
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
 
@@ -24,7 +27,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     }
 
     /**
-     * Create a verification token and send it to the user email
+     * Create a verification token and send it to the user email.
      *
      * @param event the event to be processed
      */
@@ -33,4 +36,5 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         Token verificationToken = tokenService.createVerificationToken(user);
         mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
     }
+
 }

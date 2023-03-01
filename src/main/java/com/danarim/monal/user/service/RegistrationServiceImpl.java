@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.Date;
 
+/**
+ * Service for registration and basic user operations.
+ */
 @Service
 @Transactional
 public class RegistrationServiceImpl implements RegistrationService {
@@ -28,6 +31,15 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final PasswordEncoder passwordEncoder;
     private final MailUtil mailUtil;
 
+    /**
+     * Constructor to inject dependencies.
+     *
+     * @param userDao         user dao to manage users
+     * @param roleDao         role dao to get role by name
+     * @param tokenService    token service to manage tokens
+     * @param passwordEncoder password encoder to encode passwords
+     * @param mailUtil        mail util to send emails
+     */
     public RegistrationServiceImpl(UserDao userDao,
                                    RoleDao roleDao,
                                    TokenService tokenService,
@@ -42,27 +54,30 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     /**
-     * Register a new user with role {@link RoleName#ROLE_USER} and not activated account.
-     * For activation, user should follow the link in the email.
+     * Register a new user with role {@link RoleName#ROLE_USER} and not activated account. For
+     * activation, user should follow the link in the email.
      *
      * @param registrationDto user data
+     *
      * @throws BadFieldException if user with the same email already exists
      */
     @Override
     public User registerNewUserAccount(RegistrationDto registrationDto) {
         if (userDao.existsByEmailIgnoreCase(registrationDto.email())) {
-            throw new BadFieldException("User with email '" + registrationDto.email() + "' already exists",
-                    "validation.user.existing.email", null, "email");
+            throw new BadFieldException(
+                    "User with email '" + registrationDto.email() + "' already exists",
+                    "validation.user.existing.email",
+                    null,
+                    "email");
         }
 
-        User user = new User(
-                registrationDto.firstName(),
-                registrationDto.lastName(),
-                registrationDto.email(),
-                passwordEncoder.encode(registrationDto.password()),
-                new Date(),
-                Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER)) //To get role with correct id
-        );
+        User user = new User(registrationDto.firstName(),
+                             registrationDto.lastName(),
+                             registrationDto.email(),
+                             passwordEncoder.encode(registrationDto.password()),
+                             new Date(),
+                             //To get role with correct id
+                             Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER)));
         return userDao.save(user);
     }
 
@@ -83,6 +98,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      * Send email with verification link to user.
      *
      * @param userEmail user email to send verification link
+     *
      * @throws BadFieldException   if user not found
      * @throws BadRequestException if user already verified
      */
@@ -92,11 +108,14 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         if (user == null) {
             throw new BadFieldException("Can't find user with email '" + userEmail + "'",
-                    "validation.user.email.notFound", null, "email");
+                                        "validation.user.email.notFound",
+                                        null,
+                                        "email");
         }
         if (user.isEnabled()) {
             throw new BadRequestException("User with email '" + userEmail + "' already verified",
-                    "validation.user.email.alreadyVerified", null);
+                                          "validation.user.email.alreadyVerified",
+                                          null);
         }
         Token verificationToken = tokenService.createVerificationToken(user);
         mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), userEmail);
@@ -106,6 +125,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      * Check if user with this email exists and send email with reset password link.
      *
      * @param userEmail user email to send verification link
+     *
      * @throws BadFieldException if user not found
      */
     @Override
@@ -114,7 +134,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         if (user == null) {
             throw new BadFieldException("Can't find user with email '" + userEmail + "'",
-                    "validation.user.email.notFound", null, "email");
+                                        "validation.user.email.notFound",
+                                        null,
+                                        "email");
         }
         Token passwordResetToken = tokenService.createPasswordResetToken(user);
         mailUtil.sendPasswordResetEmail(passwordResetToken.getTokenValue(), userEmail);
@@ -125,11 +147,14 @@ public class RegistrationServiceImpl implements RegistrationService {
      *
      * @param resetPasswordDto   reset password data
      * @param resetPasswordToken password reset token value
+     *
      * @return User object if password reset was successful
+     *
      * @throws BadFieldException if new password same as old password
      */
     @Override
-    public User updateForgottenPassword(ResetPasswordDto resetPasswordDto, String resetPasswordToken) {
+    public User updateForgottenPassword(ResetPasswordDto resetPasswordDto, String resetPasswordToken
+    ) {
 
         Token token = tokenService.validatePasswordResetToken(resetPasswordToken);
         User user = token.getUser();
@@ -137,11 +162,14 @@ public class RegistrationServiceImpl implements RegistrationService {
         //check if password is not the same as old
         if (passwordEncoder.matches(resetPasswordDto.password(), user.getPassword())) {
             throw new BadFieldException("New password can't be the same as old",
-                    "validation.user.password.sameAsOld", null, "password");
+                                        "validation.user.password.sameAsOld",
+                                        null,
+                                        "password");
         }
         user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
         token.setUsed();
 
         return user;
     }
+
 }
