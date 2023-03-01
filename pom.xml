@@ -349,7 +349,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${checkstyle-maven-plugin.version}</version>
                 <configuration>
-                    <configLocation>checkstyle-rules</configLocation>
+                    <configLocation>${project.basedir}/checkstyle-rules.xml</configLocation>
                     <failsOnError>false</failsOnError>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
