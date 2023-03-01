@@ -48,7 +48,7 @@ class TokenControllerIT {
         when(messages.getMessage(anyString(), any(), any())).thenReturn("test");
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(cookie().exists("serverMessage"));
@@ -63,7 +63,7 @@ class TokenControllerIT {
                 .when(registrationService).confirmRegistration(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(cookie().exists("serverMessage"));
@@ -78,7 +78,7 @@ class TokenControllerIT {
                 .thenReturn(passwordResetToken);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/resetPasswordSet"))
                 .andExpect(cookie().exists("passwordResetToken"));
@@ -92,7 +92,7 @@ class TokenControllerIT {
                 .when(tokenService).validatePasswordResetToken(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(cookie().exists("serverMessage"));

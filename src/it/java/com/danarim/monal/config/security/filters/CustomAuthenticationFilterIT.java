@@ -49,7 +49,8 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
                 .andExpect(status().isUnauthorized())
 
-                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
+                .andExpect(jsonPath("$[0].type").value(
+                        ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("username"))
                 .andExpect(jsonPath("$[0].message").exists());
     }
@@ -61,7 +62,8 @@ class CustomAuthenticationFilterIT {
         mockMvc.perform(TestUtils.postExt(WebConfig.API_V1_PREFIX + "/login", loginJson))
                 .andExpect(status().isUnauthorized())
 
-                .andExpect(jsonPath("$[0].type").value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
+                .andExpect(jsonPath("$[0].type").value(
+                        ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("password"))
                 .andExpect(jsonPath("$[0].message").exists());
     }
@@ -74,7 +76,8 @@ class CustomAuthenticationFilterIT {
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$[0].type").value(ResponseErrorType.GLOBAL_ERROR.getName()))
-                .andExpect(jsonPath("$[0].fieldName").value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(
+                        jsonPath("$[0].fieldName").value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].message").exists());
     }
 
@@ -84,7 +87,9 @@ class CustomAuthenticationFilterIT {
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$[0].type").value(ResponseErrorType.GLOBAL_ERROR.getName()))
-                .andExpect(jsonPath("$[0].fieldName").value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(
+                        jsonPath("$[0].fieldName").value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].message").exists());
     }
+
 }

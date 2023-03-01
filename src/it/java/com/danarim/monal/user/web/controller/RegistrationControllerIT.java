@@ -91,7 +91,7 @@ class RegistrationControllerIT {
                 .andExpect(status().isBadRequest())
 
                 .andExpect(jsonPath("$[0].type")
-                        .value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
+                                   .value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("email"))
                 .andExpect(jsonPath("$[0].message").exists());
 
@@ -101,7 +101,7 @@ class RegistrationControllerIT {
     @Test
     void resendVerificationToken() throws Exception {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resendVerificationToken")
-                        .param("email", "someEmail"))
+                                .param("email", "someEmail"))
                 .andExpect(status().isNoContent());
 
         verify(registrationService).resendVerificationEmail("someEmail");
@@ -110,7 +110,7 @@ class RegistrationControllerIT {
     @Test
     void resetPassword() throws Exception {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPassword")
-                        .param("email", "someEmail"))
+                                .param("email", "someEmail"))
                 .andExpect(status().isNoContent());
 
         verify(registrationService).resetPassword("someEmail");
@@ -128,7 +128,7 @@ class RegistrationControllerIT {
                 .thenReturn(user);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPasswordDto)
-                        .cookie(tokenCookie))
+                                .cookie(tokenCookie))
                 .andExpect(status().isNoContent())
                 .andExpect(cookie().exists("passwordResetToken"))
                 .andExpect(cookie().maxAge("passwordResetToken", 0));
@@ -151,11 +151,11 @@ class RegistrationControllerIT {
                 .thenReturn("error");
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPasswordDto)
-                        .cookie(tokenCookie))
+                                .cookie(tokenCookie))
                 .andExpect(status().isBadRequest())
 
                 .andExpect(jsonPath("$[0].type")
-                        .value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
+                                   .value(ResponseErrorType.FIELD_VALIDATION_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName").value("newPassword"))
                 .andExpect(jsonPath("$[0].message").exists());
 
@@ -177,14 +177,15 @@ class RegistrationControllerIT {
                 .thenReturn("error");
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPasswordDto)
-                        .cookie(tokenCookie))
+                                .cookie(tokenCookie))
                 .andExpect(status().isBadRequest())
 
                 .andExpect(jsonPath("$[0].type")
-                        .value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                                   .value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].message").exists());
 
         verify(registrationService).updateForgottenPassword(resetPasswordDto, "someToken");
         verify(listener, never()).onApplicationEvent(any(OnPasswordUpdatedEvent.class));
     }
+
 }

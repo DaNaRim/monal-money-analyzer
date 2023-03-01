@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * Used to fill database with users and helping to test authentication
+ * Used to fill database with users and helping to test authentication.
  */
 @TestConfiguration
 public class DbUserFiller {
@@ -32,8 +32,10 @@ public class DbUserFiller {
     public static final String ADMIN_PASSWORD = "adminPassword";
 
     public static final String AUTH_JSON_TEMPLATE = "{\"username\": \"%s\",\"password\": \"%s\"}";
-    public static final String AUTH_JSON_USER = String.format(AUTH_JSON_TEMPLATE, USER_USERNAME, USER_PASSWORD);
-    public static final String AUTH_JSON_ADMIN = String.format(AUTH_JSON_TEMPLATE, ADMIN_USERNAME, ADMIN_PASSWORD);
+    public static final String AUTH_JSON_USER =
+            String.format(AUTH_JSON_TEMPLATE, USER_USERNAME, USER_PASSWORD);
+    public static final String AUTH_JSON_ADMIN =
+            String.format(AUTH_JSON_TEMPLATE, ADMIN_USERNAME, ADMIN_PASSWORD);
 
     private static final Log logger = LogFactory.getLog(DbUserFiller.class);
 
@@ -46,6 +48,9 @@ public class DbUserFiller {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Fills the database with test users.
+     */
     @EventListener(ApplicationStartedEvent.class)
     @Order(1)
     public void prepareDbWithUsersForTests() {
@@ -63,10 +68,10 @@ public class DbUserFiller {
         Role userRoles = roleDao.findByRoleName(RoleName.ROLE_USER);
 
         User user = new User("test", "test",
-                USER_USERNAME,
-                userPassword,
-                new Date(),
-                Set.of(userRoles)
+                             USER_USERNAME,
+                             userPassword,
+                             new Date(),
+                             Set.of(userRoles)
         );
         user.setEmailVerified(true);
 
@@ -78,10 +83,10 @@ public class DbUserFiller {
         Role userRole = roleDao.findByRoleName(RoleName.ROLE_USER);
 
         User user = new User("test", "test",
-                USER_NOT_ACTIVATED_USERNAME,
-                userPassword,
-                new Date(),
-                Set.of(userRole)
+                             USER_NOT_ACTIVATED_USERNAME,
+                             userPassword,
+                             new Date(),
+                             Set.of(userRole)
         );
         userDao.save(user);
     }
@@ -93,13 +98,14 @@ public class DbUserFiller {
         Role adminRole = roleDao.findByRoleName(RoleName.ROLE_ADMIN);
 
         User admin = new User("test", "test",
-                ADMIN_USERNAME,
-                adminPassword,
-                new Date(),
-                Set.of(userRole, adminRole)
+                              ADMIN_USERNAME,
+                              adminPassword,
+                              new Date(),
+                              Set.of(userRole, adminRole)
         );
         admin.setEmailVerified(true);
 
         userDao.save(admin);
     }
+
 }
