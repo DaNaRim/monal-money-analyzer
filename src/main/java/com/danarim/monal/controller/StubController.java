@@ -17,7 +17,7 @@ public class StubController {
 
     @GetMapping("/stub")
     @Secured("ROLE_USER")
-    public String a() {
+    public String stub() {
         return "stub";
     }
 
