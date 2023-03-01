@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Locale;
 
 /**
  * Controller for tokens that was sent to user's email.
@@ -31,6 +31,13 @@ public class TokenController {
     private final TokenService tokenService;
     private final MessageSource messageSource;
 
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param registrationService service for registration and basic user operations
+     * @param tokenService        service for token operations
+     * @param messageSource       message source for i18n
+     */
     public TokenController(RegistrationService registrationService,
                            TokenService tokenService,
                            MessageSource messageSource
@@ -41,12 +48,13 @@ public class TokenController {
     }
 
     /**
-     * Uses to activate user account. Activates user account and redirects to the login page.
-     * Adds a cookie with a message about successful activation.
+     * Uses to activate user account. Activates user account and redirects to the login page. Adds a
+     * cookie with a message about successful activation.
      *
      * @param tokenValue token from link in email
      * @param locale     locale from request
      * @param response   response to set cookie
+     *
      * @return redirect to login page
      */
     @GetMapping("/registrationConfirm")
@@ -56,12 +64,15 @@ public class TokenController {
     ) {
         registrationService.confirmRegistration(tokenValue);
 
-        ApplicationMessage applicationMessage = new ApplicationMessage(
-                messageSource.getMessage("message.registration.confirmation.success", null, locale),
-                ApplicationMessageType.INFO,
-                "login",
-                "message.registration.confirmation.success"
-        );
+        ApplicationMessage applicationMessage = new ApplicationMessage(messageSource.getMessage(
+                "message.registration.confirmation.success",
+                null,
+                locale),
+                                                                       ApplicationMessageType.INFO,
+                                                                       "login",
+                                                                       "message.registration"
+                                                                               + ".confirmation"
+                                                                               + ".success");
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 
         return new RedirectView("/login");
@@ -73,16 +84,22 @@ public class TokenController {
      *
      * @param tokenValue token from link
      * @param response   http response
+     *
      * @return redirect to reset password page
+     *
      * @see RegistrationController#resetPassword(String)
-     * @see RegistrationController#resetPasswordSet(ResetPasswordDto, HttpServletRequest, HttpServletResponse)
+     * @see RegistrationController#resetPasswordSet(ResetPasswordDto, HttpServletRequest,
+     * HttpServletResponse)
      */
     @GetMapping("/resetPasswordConfirm")
-    public View resetPasswordConfirm(@RequestParam("token") String tokenValue, HttpServletResponse response) {
+    public View resetPasswordConfirm(@RequestParam("token") String tokenValue,
+                                     HttpServletResponse response
+    ) {
 
         Token passwordResetToken = tokenService.validatePasswordResetToken(tokenValue);
 
-        response.addCookie(CookieUtil.createPasswordResetCookie(passwordResetToken.getTokenValue()));
+        response.addCookie(
+                CookieUtil.createPasswordResetCookie(passwordResetToken.getTokenValue()));
 
         return new RedirectView("/resetPasswordSet");
     }

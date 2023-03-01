@@ -35,8 +35,10 @@ public record RegistrationDto(
         String matchingPassword,
 
         @NotBlank(message = "{validation.user.required.email}")
-        @Pattern(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
-                message = "{validation.user.valid.email}")
+        @Pattern(
+                regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
+                message = "{validation.user.valid.email}"
+        )
         @Size(max = 255, message = "{validation.user.size.email}")
         String email
 
