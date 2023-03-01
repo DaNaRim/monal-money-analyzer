@@ -26,4 +26,5 @@ class PasswordUpdatedListenerTest {
 
         verify(jwtUtil).blockAllTokensForUser(user);
     }
+
 }

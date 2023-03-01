@@ -7,7 +7,11 @@ import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
 class CookieUtilTest {
@@ -33,7 +37,7 @@ class CookieUtilTest {
 
         try (MockedStatic<WebUtils> webUtilsMockedStatic = mockStatic(WebUtils.class)) {
             webUtilsMockedStatic.when(() ->
-                    WebUtils.getCookie(request, "cookieName")
+                                              WebUtils.getCookie(request, "cookieName")
             ).thenReturn(null);
 
             String result = CookieUtil.getCookieValueByRequest(request, "cookieName");
@@ -116,9 +120,11 @@ class CookieUtilTest {
     void deletePasswordResetCookie() {
         Cookie result = CookieUtil.deletePasswordResetCookie();
 
-        assertNull(result.getValue(), "passwordResetToken cookie value should be null after deletion");
+        assertNull(result.getValue(),
+                   "passwordResetToken cookie value should be null after deletion");
         assertTrue(result.isHttpOnly(), "passwordResetToken cookie should be httpOnly");
         assertEquals("/", result.getPath(), "passwordResetToken cookie should be set to root path");
         assertEquals(0, result.getMaxAge(), "Max age should be 0 after deletion");
     }
+
 }

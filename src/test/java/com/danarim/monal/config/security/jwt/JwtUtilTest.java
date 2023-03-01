@@ -12,7 +12,12 @@ import java.util.Date;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtUtilTest {
@@ -82,4 +87,5 @@ class JwtUtilTest {
         verify(jwtTokenDao, times(1))
                 .deleteByExpirationDateBefore(any(Date.class));
     }
+
 }

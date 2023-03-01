@@ -20,7 +20,12 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TokenServiceImplTest {
@@ -61,7 +66,7 @@ class TokenServiceImplTest {
                 .thenReturn(new Date());
 
         assertThrows(BadRequestException.class,
-                () -> tokenService.createVerificationToken(user));
+                     () -> tokenService.createVerificationToken(user));
     }
 
     @Test
@@ -73,7 +78,8 @@ class TokenServiceImplTest {
         when(tokenDao.findByTokenValue(verificationToken.getTokenValue()))
                 .thenReturn(verificationToken);
 
-        Token resultToken = tokenService.validateVerificationToken(verificationToken.getTokenValue());
+        Token resultToken =
+                tokenService.validateVerificationToken(verificationToken.getTokenValue());
 
         assertEquals(verificationToken, resultToken);
     }
@@ -83,7 +89,7 @@ class TokenServiceImplTest {
         when(tokenDao.findByTokenValue("invalid")).thenReturn(null);
 
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validateVerificationToken("invalid"));
+                     () -> tokenService.validateVerificationToken("invalid"));
     }
 
     @Test
@@ -96,18 +102,19 @@ class TokenServiceImplTest {
 
         String tokenValue = verificationToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validateVerificationToken(tokenValue));
+                     () -> tokenService.validateVerificationToken(tokenValue));
     }
 
     @Test
     void validateVerificationToken_WrongType_InvalidTokenException() {
         Token passwordResetToken = new Token(mock(User.class), TokenType.PASSWORD_RESET);
 
-        when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(passwordResetToken);
+        when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue())).thenReturn(
+                passwordResetToken);
 
         String tokenValue = passwordResetToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validateVerificationToken(tokenValue)
+                     () -> tokenService.validateVerificationToken(tokenValue)
         );
     }
 
@@ -116,11 +123,12 @@ class TokenServiceImplTest {
         Token verificationToken = new Token(mock(User.class), TokenType.VERIFICATION);
         verificationToken.setUsed();
 
-        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(verificationToken);
+        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(
+                verificationToken);
 
         String tokenValue = verificationToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validateVerificationToken(tokenValue)
+                     () -> tokenService.validateVerificationToken(tokenValue)
         );
     }
 
@@ -130,11 +138,12 @@ class TokenServiceImplTest {
         Token verificationToken = new Token(user, TokenType.VERIFICATION);
 
         when(user.isEnabled()).thenReturn(true);
-        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(verificationToken);
+        when(tokenDao.findByTokenValue(verificationToken.getTokenValue())).thenReturn(
+                verificationToken);
 
         String tokenValue = verificationToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validateVerificationToken(tokenValue)
+                     () -> tokenService.validateVerificationToken(tokenValue)
         );
     }
 
@@ -157,7 +166,7 @@ class TokenServiceImplTest {
                 .thenReturn(new Date());
 
         assertThrows(BadRequestException.class,
-                () -> tokenService.createPasswordResetToken(user));
+                     () -> tokenService.createPasswordResetToken(user));
     }
 
     @Test
@@ -168,7 +177,8 @@ class TokenServiceImplTest {
         when(tokenDao.findByTokenValue(passwordResetToken.getTokenValue()))
                 .thenReturn(passwordResetToken);
 
-        Token resultToken = tokenService.validatePasswordResetToken(passwordResetToken.getTokenValue());
+        Token resultToken =
+                tokenService.validatePasswordResetToken(passwordResetToken.getTokenValue());
 
         assertEquals(passwordResetToken, resultToken);
     }
@@ -178,7 +188,7 @@ class TokenServiceImplTest {
         when(tokenDao.findByTokenValue("invalid")).thenReturn(null);
 
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validatePasswordResetToken("invalid"));
+                     () -> tokenService.validatePasswordResetToken("invalid"));
     }
 
     @Test
@@ -192,7 +202,7 @@ class TokenServiceImplTest {
         String tokenValue = passwordResetToken.getTokenValue();
 
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validatePasswordResetToken(tokenValue));
+                     () -> tokenService.validatePasswordResetToken(tokenValue));
     }
 
     @Test
@@ -205,7 +215,7 @@ class TokenServiceImplTest {
 
         String tokenValue = passwordResetToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validatePasswordResetToken(tokenValue));
+                     () -> tokenService.validatePasswordResetToken(tokenValue));
     }
 
     @Test
@@ -217,7 +227,7 @@ class TokenServiceImplTest {
 
         String tokenValue = verificationToken.getTokenValue();
         assertThrows(InvalidTokenException.class,
-                () -> tokenService.validatePasswordResetToken(tokenValue)
+                     () -> tokenService.validatePasswordResetToken(tokenValue)
         );
     }
 
@@ -272,4 +282,5 @@ class TokenServiceImplTest {
         verify(tokenDao, times(1))
                 .deleteByExpirationDateBefore(any(Date.class));
     }
+
 }
