@@ -15,8 +15,15 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 
-import static com.danarim.monal.TestUtils.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static com.danarim.monal.TestUtils.csrfTokenHeader;
+import static com.danarim.monal.TestUtils.getAccessTokenCookie;
+import static com.danarim.monal.TestUtils.getExt;
+import static com.danarim.monal.TestUtils.getExtWithAuth;
+import static com.danarim.monal.TestUtils.getLoginResult;
+import static com.danarim.monal.TestUtils.getRefreshTokenCookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,19 +50,26 @@ class CustomAuthorizationFilterIT {
 
     @Test
     void authorization_LoggedUserAccess() throws Exception {
-        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/stub", RoleName.ROLE_USER, mockMvc))
+        mockMvc.perform(
+                        getExtWithAuth(WebConfig.API_V1_PREFIX + "/stub", RoleName.ROLE_USER,
+                                       mockMvc))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/adminStub", RoleName.ROLE_USER, mockMvc))
+        mockMvc.perform(
+                        getExtWithAuth(WebConfig.API_V1_PREFIX + "/adminStub", RoleName.ROLE_USER,
+                                       mockMvc))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void authorization_LoggedAdminAccess() throws Exception {
-        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/stub", RoleName.ROLE_ADMIN, mockMvc))
+        mockMvc.perform(
+                        getExtWithAuth(WebConfig.API_V1_PREFIX + "/stub", RoleName.ROLE_ADMIN,
+                                       mockMvc))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/adminStub", RoleName.ROLE_ADMIN, mockMvc))
+        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/adminStub", RoleName.ROLE_ADMIN,
+                                       mockMvc))
                 .andExpect(status().isOk());
     }
 
@@ -64,22 +78,23 @@ class CustomAuthorizationFilterIT {
         MvcResult result = getLoginResult(RoleName.ROLE_USER, mockMvc);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
-                        .cookie(getAccessTokenCookie(result)))
+                                .cookie(getAccessTokenCookie(result)))
                 .andExpect(status().isForbidden());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/adminStub")
-                        .cookie(getAccessTokenCookie(result)))
+                                .cookie(getAccessTokenCookie(result)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void authorization_ExpiredToken_Unauthorized() throws Exception {
-        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
+        String accessToken =
+                jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
 
         Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
-                        .cookie(accessTokenCookie))
+                                .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
     }
@@ -89,20 +104,22 @@ class CustomAuthorizationFilterIT {
         Cookie invalidAccessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
-                        .cookie(invalidAccessTokenCookie))
+                                .cookie(invalidAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
     }
 
     @Test
     void authorization_IncorrectToken_Unauthorized() throws Exception {
-        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, "doesn`t matter", -1L);
+        String accessToken =
+                jwtUtil.generateAccessToken(DbUserFiller.testUser, "doesn`t matter", -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
-        Cookie incorrectAccessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
+        Cookie incorrectAccessTokenCookie =
+                new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
-                        .cookie(incorrectAccessTokenCookie))
+                                .cookie(incorrectAccessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
     }
@@ -117,8 +134,8 @@ class CustomAuthorizationFilterIT {
         accessTokenCookie.setValue(refreshTokenCookie.getValue());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
-                        .headers(csrfTokenHeader(result))
-                        .cookie(accessTokenCookie))
+                                .headers(csrfTokenHeader(result))
+                                .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -129,9 +146,10 @@ class CustomAuthorizationFilterIT {
         jwtUtil.blockToken(getAccessTokenCookie(result).getValue());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub")
-                        .headers(csrfTokenHeader(result))
-                        .cookie(getAccessTokenCookie(result)))
+                                .headers(csrfTokenHeader(result))
+                                .cookie(getAccessTokenCookie(result)))
                 .andExpect(status().isUnauthorized());
     }
+
 }
 

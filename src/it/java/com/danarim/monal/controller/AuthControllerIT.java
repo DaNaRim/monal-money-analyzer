@@ -16,15 +16,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import javax.servlet.http.Cookie;
 import java.util.UUID;
+import javax.servlet.http.Cookie;
 
 import static com.danarim.monal.DbUserFiller.USER_USERNAME;
-import static com.danarim.monal.TestUtils.*;
+import static com.danarim.monal.TestUtils.getAccessTokenCookie;
+import static com.danarim.monal.TestUtils.getLoginResult;
+import static com.danarim.monal.TestUtils.getRefreshTokenCookie;
+import static com.danarim.monal.TestUtils.postExt;
 import static com.danarim.monal.controller.AuthControllerIT.AuthControllerITUtils.authCookiesDontChange;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,8 +51,8 @@ class AuthControllerIT {
         Cookie refreshTokenCookie = getRefreshTokenCookie(result);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/logout")
-                        .cookie(accessTokenCookie)
-                        .cookie(refreshTokenCookie))
+                                .cookie(accessTokenCookie)
+                                .cookie(refreshTokenCookie))
                 .andExpect(status().isNoContent())
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
@@ -64,9 +69,9 @@ class AuthControllerIT {
         long refreshTokenId = Long.parseLong(refreshToken.getId());
 
         assertTrue(jwtTokenDao.isTokenBlocked(accessTokenId),
-                "Access token should be blocked after logout");
+                   "Access token should be blocked after logout");
         assertTrue(jwtTokenDao.isTokenBlocked(refreshTokenId),
-                "Refresh token should be blocked after logout");
+                   "Refresh token should be blocked after logout");
     }
 
     @Test
@@ -91,8 +96,8 @@ class AuthControllerIT {
         Cookie refreshTokenCookie = getRefreshTokenCookie(result);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                        .cookie(accessTokenCookie)
-                        .cookie(refreshTokenCookie))
+                                .cookie(accessTokenCookie)
+                                .cookie(refreshTokenCookie))
                 .andExpect(status().isOk())
 
                 .andExpect(jsonPath("$.username").value(USER_USERNAME))
@@ -101,7 +106,8 @@ class AuthControllerIT {
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
                 .andExpect(cookie()
-                        .value(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, not(accessTokenCookie.getValue())))
+                                   .value(CookieUtil.COOKIE_ACCESS_TOKEN_KEY,
+                                          not(accessTokenCookie.getValue())))
                 .andExpect(cookie().httpOnly(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
                 .andExpect(cookie().secure(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
 
@@ -120,12 +126,13 @@ class AuthControllerIT {
 
     @Test
     void authRefresh_ExpiredToken_Unauthorized() throws Exception {
-        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
+        String accessToken =
+                jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
 
         Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                        .cookie(accessTokenCookie))
+                                .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -134,10 +141,11 @@ class AuthControllerIT {
 
     @Test
     void authRefresh_InvalidToken_Unauthorized() throws Exception {
-        Cookie invalidRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
+        Cookie invalidRefreshTokenCookie =
+                new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                        .cookie(invalidRefreshTokenCookie))
+                                .cookie(invalidRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -151,10 +159,11 @@ class AuthControllerIT {
         String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, csrfToken, -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
-        Cookie incorrectRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
+        Cookie incorrectRefreshTokenCookie =
+                new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                        .cookie(incorrectRefreshTokenCookie))
+                                .cookie(incorrectRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -171,7 +180,7 @@ class AuthControllerIT {
         refreshTokenCookie.setValue(accessTokenCookie.getValue());
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                        .cookie(refreshTokenCookie))
+                                .cookie(refreshTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -190,8 +199,8 @@ class AuthControllerIT {
         jwtUtil.blockToken(refreshToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/refresh")
-                        .cookie(accessTokenCookie)
-                        .cookie(refreshTokenCookie))
+                                .cookie(accessTokenCookie)
+                                .cookie(refreshTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
     }
@@ -201,7 +210,7 @@ class AuthControllerIT {
         MvcResult result = getLoginResult(RoleName.ROLE_USER, mockMvc);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                        .cookie(getAccessTokenCookie(result)))
+                                .cookie(getAccessTokenCookie(result)))
                 .andExpect(status().isOk())
 
                 .andExpect(jsonPath("$.username").value(USER_USERNAME))
@@ -222,12 +231,13 @@ class AuthControllerIT {
 
     @Test
     void authGetState_ExpiredToken_Unauthorized() throws Exception {
-        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
+        String accessToken =
+                jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
 
         Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                        .cookie(accessTokenCookie))
+                                .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -236,10 +246,11 @@ class AuthControllerIT {
 
     @Test
     void authGetState_InvalidToken_Unauthorized() throws Exception {
-        Cookie invalidRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
+        Cookie invalidRefreshTokenCookie =
+                new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, "invalid");
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                        .cookie(invalidRefreshTokenCookie))
+                                .cookie(invalidRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -248,13 +259,15 @@ class AuthControllerIT {
 
     @Test
     void authGetState_IncorrectToken_Unauthorized() throws Exception {
-        String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
+        String accessToken =
+                jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
-        Cookie incorrectRefreshTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
+        Cookie incorrectRefreshTokenCookie =
+                new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                        .cookie(incorrectRefreshTokenCookie))
+                                .cookie(incorrectRefreshTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -271,7 +284,7 @@ class AuthControllerIT {
         accessTokenCookie.setValue(refreshTokenCookie.getValue());
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                        .cookie(refreshTokenCookie))
+                                .cookie(refreshTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
@@ -289,7 +302,7 @@ class AuthControllerIT {
         jwtUtil.blockToken(accessToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                        .cookie(accessTokenCookie))
+                                .cookie(accessTokenCookie))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$").exists());
     }
@@ -302,5 +315,7 @@ class AuthControllerIT {
                 cookie().doesNotExist(CookieUtil.COOKIE_REFRESH_TOKEN_KEY).match(result);
             };
         }
+
     }
+
 }

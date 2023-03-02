@@ -1,20 +1,24 @@
-package com.danarim.monal.failHandler;
+package com.danarim.monal.failhandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -66,6 +70,7 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
      * @param authError authentication error enum for easier error handling
      * @param locale    locale
      * @param exception original exception
+     *
      * @return error response
      */
     private ErrorResponse getErrorResponse(AuthError authError,
@@ -75,29 +80,34 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         ErrorResponse errorResponse;
 
         switch (authError) {
-            case USERNAME_NOT_FOUND_EXCEPTION ->
-                    errorResponse = ErrorResponse.fieldError("validation.auth.notFound", "username",
-                            messages.getMessage("validation.auth.notFound", null, locale));
-            case BAD_CREDENTIALS_EXCEPTION ->
-                    errorResponse = ErrorResponse.fieldError("validation.auth.badCredentials", "password",
-                            messages.getMessage("validation.auth.badCredentials", null, locale));
-            case DISABLED_EXCEPTION ->
-                    errorResponse = ErrorResponse.globalError("validation.auth.disabled",
-                            messages.getMessage("validation.auth.disabled", null, locale));
-            case ACCOUNT_LOCKED_EXCEPTION ->
-                    errorResponse = ErrorResponse.globalError("validation.auth.blocked",
-                            messages.getMessage("validation.auth.blocked", null, locale));
-            case ACCOUNT_EXPIRED_EXCEPTION ->
-                    errorResponse = ErrorResponse.globalError("validation.auth.expired",
-                            messages.getMessage("validation.auth.expired", null, locale));
-            case CREDENTIALS_NOT_FOUND_EXCEPTION ->
-                    errorResponse = ErrorResponse.globalError("validation.auth.invalidBody",
-                            messages.getMessage("validation.auth.invalidBody", null, locale));
+            case USERNAME_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.fieldError(
+                    "validation.auth.notFound",
+                    "username",
+                    messages.getMessage("validation.auth.notFound", null, locale));
+            case BAD_CREDENTIALS_EXCEPTION -> errorResponse = ErrorResponse.fieldError(
+                    "validation.auth.badCredentials",
+                    "password",
+                    messages.getMessage("validation.auth.badCredentials", null, locale));
+            case DISABLED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
+                    "validation.auth.disabled",
+                    messages.getMessage("validation.auth.disabled", null, locale));
+            case ACCOUNT_LOCKED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
+                    "validation.auth.blocked",
+                    messages.getMessage("validation.auth.blocked", null, locale));
+            case ACCOUNT_EXPIRED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
+                    "validation.auth.expired",
+                    messages.getMessage("validation.auth.expired", null, locale));
+            case CREDENTIALS_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.globalError(
+                    "validation.auth.invalidBody",
+                    messages.getMessage("validation.auth.invalidBody", null, locale));
             default -> {
-                logger.error("Unexpected authentication error " + exception.getMessage(), exception);
-
+                logger.error("Unexpected authentication error " + exception.getMessage(),
+                             exception);
                 errorResponse = ErrorResponse.serverError("validation.auth.unexpected",
-                        messages.getMessage("validation.auth.unexpected", null, locale));
+                                                          messages.getMessage(
+                                                                  "validation.auth.unexpected",
+                                                                  null,
+                                                                  locale));
             }
         }
         return errorResponse;
@@ -114,7 +124,8 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         DISABLED_EXCEPTION(DisabledException.class.getSimpleName()),
         ACCOUNT_LOCKED_EXCEPTION(LockedException.class.getSimpleName()),
         ACCOUNT_EXPIRED_EXCEPTION(AccountExpiredException.class.getSimpleName()),
-        CREDENTIALS_NOT_FOUND_EXCEPTION(AuthenticationCredentialsNotFoundException.class.getSimpleName()),
+        CREDENTIALS_NOT_FOUND_EXCEPTION(
+                AuthenticationCredentialsNotFoundException.class.getSimpleName()),
         UNEXPECTED("UNEXPECTED");
 
         private final String errorClassName;
@@ -127,4 +138,5 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
             return errorClassName;
         }
     }
+
 }

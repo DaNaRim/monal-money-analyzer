@@ -17,10 +17,16 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceImplTest {
@@ -64,8 +70,10 @@ class RegistrationServiceImplTest {
 
         when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(true);
 
-        BadFieldException resultException = assertThrows(BadFieldException.class,
-                () -> registrationService.registerNewUserAccount(registrationDto));
+        BadFieldException resultException
+                = assertThrows(BadFieldException.class,
+                               () -> registrationService.registerNewUserAccount(
+                                       registrationDto));
 
         assertEquals("email", resultException.getField());
         assertNotNull(resultException.getMessageCode());
@@ -110,7 +118,7 @@ class RegistrationServiceImplTest {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
         assertThrows(BadFieldException.class,
-                () -> registrationService.resendVerificationEmail("email"));
+                     () -> registrationService.resendVerificationEmail("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
@@ -125,7 +133,7 @@ class RegistrationServiceImplTest {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(user);
 
         assertThrows(BadRequestException.class,
-                () -> registrationService.resendVerificationEmail("email"));
+                     () -> registrationService.resendVerificationEmail("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createVerificationToken(any(User.class));
@@ -152,7 +160,7 @@ class RegistrationServiceImplTest {
         when(userDao.findByEmailIgnoreCase("email")).thenReturn(null);
 
         assertThrows(BadFieldException.class,
-                () -> registrationService.resetPassword("email"));
+                     () -> registrationService.resetPassword("email"));
 
         verify(userDao).findByEmailIgnoreCase("email");
         verify(tokenService, never()).createPasswordResetToken(any(User.class));
@@ -191,10 +199,11 @@ class RegistrationServiceImplTest {
         when(passwordEncoder.matches("password", "password")).thenReturn(true);
 
         assertThrows(BadRequestException.class,
-                () -> registrationService.updateForgottenPassword(resetPasswordDto, "token"));
+                     () -> registrationService.updateForgottenPassword(resetPasswordDto, "token"));
 
         verify(tokenService).validatePasswordResetToken("token");
         verify(passwordEncoder).matches("password", "password");
         verify(user, never()).setPassword(anyString());
     }
+
 }

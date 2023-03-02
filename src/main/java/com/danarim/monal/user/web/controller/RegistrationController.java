@@ -10,12 +10,17 @@ import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.CookieUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Locale;
 
 /**
  * Responsible for user registration, activation and password reset (forgot password).
@@ -27,7 +32,9 @@ public class RegistrationController {
     private final RegistrationService registrationService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public RegistrationController(RegistrationService registrationService, ApplicationEventPublisher eventPublisher) {
+    public RegistrationController(RegistrationService registrationService,
+                                  ApplicationEventPublisher eventPublisher
+    ) {
         this.registrationService = registrationService;
         this.eventPublisher = eventPublisher;
     }
@@ -36,6 +43,7 @@ public class RegistrationController {
      * Uses to register a new user account. Sends an email with activation link.
      *
      * @param registrationDto user data
+     *
      * @see TokenController#confirmRegistration(String, Locale, HttpServletResponse)
      */
     @PostMapping("/registration")
@@ -47,8 +55,8 @@ public class RegistrationController {
     }
 
     /**
-     * Sends an email with activation link.
-     * Uses when previous activation link is expired or other problem with activation.
+     * Sends an email with activation link. Uses when previous activation link is expired or other
+     * problem with activation.
      *
      * @param userEmail email of user to resend activation link
      */
@@ -62,8 +70,10 @@ public class RegistrationController {
      * Used when user forgot password. Step 1 during password reset.
      *
      * @param userEmail email to send password reset email
+     *
      * @see TokenController#resetPasswordConfirm(String, HttpServletResponse)
-     * @see RegistrationController#resetPasswordSet(ResetPasswordDto, HttpServletRequest, HttpServletResponse)
+     * @see RegistrationController#resetPasswordSet(ResetPasswordDto, HttpServletRequest,
+     * HttpServletResponse)
      */
     @PostMapping("/resetPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -86,10 +96,12 @@ public class RegistrationController {
     ) {
         String resetPasswordToken = CookieUtil.getPasswordResetTokenValueByRequest(request);
 
-        User user = registrationService.updateForgottenPassword(resetPasswordDto, resetPasswordToken);
+        User user =
+                registrationService.updateForgottenPassword(resetPasswordDto, resetPasswordToken);
 
         response.addCookie(CookieUtil.deletePasswordResetCookie());
 
         eventPublisher.publishEvent(new OnPasswordUpdatedEvent(user));
     }
+
 }

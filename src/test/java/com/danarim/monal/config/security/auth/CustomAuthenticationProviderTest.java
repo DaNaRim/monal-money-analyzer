@@ -20,7 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -73,18 +75,18 @@ class CustomAuthenticationProviderTest {
     void authenticate_NoUsername_UsernameNotFoundException() {
         when(authentication.getName()).thenReturn(null);
         assertThrows(UsernameNotFoundException.class,
-                () -> authProvider.authenticate(authentication));
+                     () -> authProvider.authenticate(authentication));
     }
 
     @Test
     void authenticate_NoPassword_BadCredentialsException() {
         when(authentication.getCredentials()).thenReturn(null);
         assertThrows(BadCredentialsException.class,
-                () -> authProvider.authenticate(authentication));
+                     () -> authProvider.authenticate(authentication));
 
         when(authentication.getCredentials()).thenReturn(new Object());
         assertThrows(BadCredentialsException.class,
-                () -> authProvider.authenticate(authentication));
+                     () -> authProvider.authenticate(authentication));
     }
 
     @Test
@@ -94,7 +96,7 @@ class CustomAuthenticationProviderTest {
                 .thenThrow(UsernameNotFoundException.class);
 
         assertThrows(UsernameNotFoundException.class,
-                () -> authProvider.authenticate(authentication));
+                     () -> authProvider.authenticate(authentication));
     }
 
     @Test
@@ -102,7 +104,7 @@ class CustomAuthenticationProviderTest {
         when(passwordEncoder.matches(eq(PASSWORD), any()))
                 .thenReturn(false);
         assertThrows(BadCredentialsException.class,
-                () -> authProvider.authenticate(authentication));
+                     () -> authProvider.authenticate(authentication));
     }
 
     @Test
@@ -115,7 +117,7 @@ class CustomAuthenticationProviderTest {
     void authenticate_UserExpired_AccountExpiredException() {
         when(user.isAccountNonExpired()).thenReturn(false);
         assertThrows(AccountExpiredException.class,
-                () -> authProvider.authenticate(authentication));
+                     () -> authProvider.authenticate(authentication));
     }
 
     @Test
@@ -123,4 +125,5 @@ class CustomAuthenticationProviderTest {
         when(user.isAccountNonLocked()).thenReturn(false);
         assertThrows(LockedException.class, () -> authProvider.authenticate(authentication));
     }
+
 }

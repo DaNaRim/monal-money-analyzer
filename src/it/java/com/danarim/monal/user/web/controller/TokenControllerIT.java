@@ -2,7 +2,7 @@ package com.danarim.monal.user.web.controller;
 
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.exceptions.InvalidTokenException;
-import com.danarim.monal.failHandler.ViewExceptionHandler;
+import com.danarim.monal.failhandler.ViewExceptionHandler;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
@@ -20,8 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.danarim.monal.TestUtils.getExt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TokenController.class)
 @ContextConfiguration(classes = {TokenController.class, ViewExceptionHandler.class})
@@ -43,7 +48,7 @@ class TokenControllerIT {
         when(messages.getMessage(anyString(), any(), any())).thenReturn("test");
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(cookie().exists("serverMessage"));
@@ -58,7 +63,7 @@ class TokenControllerIT {
                 .when(registrationService).confirmRegistration(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(cookie().exists("serverMessage"));
@@ -73,7 +78,7 @@ class TokenControllerIT {
                 .thenReturn(passwordResetToken);
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/resetPasswordSet"))
                 .andExpect(cookie().exists("passwordResetToken"));
@@ -87,7 +92,7 @@ class TokenControllerIT {
                 .when(tokenService).validatePasswordResetToken(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                        .param("token", "someToken"))
+                                .param("token", "someToken"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(cookie().exists("serverMessage"));

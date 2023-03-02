@@ -2,10 +2,19 @@ package com.danarim.monal.user.persistence.model;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.persistence.*;
 import java.io.Serial;
 import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+/**
+ * Represents a role that a user can have.
+ */
 @Entity
 public class Role implements GrantedAuthority {
 
@@ -16,10 +25,12 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true,
+    @Column(
+            unique = true,
             nullable = false,
             updatable = false,
-            columnDefinition = "VARCHAR(20) CHECK (role_name IN ('ROLE_USER', 'ROLE_ADMIN'))")
+            columnDefinition = "VARCHAR(20) CHECK (role_name IN ('ROLE_USER', 'ROLE_ADMIN'))"
+    )
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
 
@@ -67,4 +78,5 @@ public class Role implements GrantedAuthority {
         Role role = (Role) o;
         return roleName == role.roleName;
     }
+
 }

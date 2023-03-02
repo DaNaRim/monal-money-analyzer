@@ -12,8 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import javax.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
+import javax.servlet.http.Cookie;
 
 import static com.danarim.monal.DbUserFiller.AUTH_JSON_ADMIN;
 import static com.danarim.monal.DbUserFiller.AUTH_JSON_USER;
@@ -26,8 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Utility class to help with testing and optimize code.
- * Contains methods to perform requests and get results.
+ * Utility class to help with testing and optimize code. Contains methods to perform requests and
+ * get results.
  */
 public final class TestUtils {
 
@@ -39,6 +39,7 @@ public final class TestUtils {
      * Add 'secured' flag to get request.
      *
      * @param uri request uri
+     *
      * @return request builder. Can be extended
      */
     public static MockHttpServletRequestBuilder getExt(String uri) {
@@ -46,12 +47,15 @@ public final class TestUtils {
     }
 
     /**
-     * Perform login request for user with matched role and return 'get' request builder with access, refresh tokens and csrf.
+     * Perform login request for user with matched role and return 'get' request builder with
+     * access, refresh tokens and csrf.
      *
      * @param uri      request uri
      * @param userRole user role for auth
      * @param mockMvc  mock mvc. Used for login request.
+     *
      * @return request builder. Can be extended
+     *
      * @throws Exception if login request or data parsing failed
      * @see #getExt(String)
      */
@@ -72,6 +76,7 @@ public final class TestUtils {
      * Add 'secured' flag to post request.
      *
      * @param uri request uri
+     *
      * @return request builder. Can be extended
      */
     public static MockHttpServletRequestBuilder postExt(String uri) {
@@ -83,6 +88,7 @@ public final class TestUtils {
      *
      * @param uri  request uri
      * @param body request body in json format
+     *
      * @return request builder. Can be extended
      */
     public static MockHttpServletRequestBuilder postExt(String uri, String body) {
@@ -99,7 +105,9 @@ public final class TestUtils {
      *
      * @param uri  request uri
      * @param body request body
+     *
      * @return request builder. Can be extended
+     *
      * @throws RuntimeException if body parsing failed
      * @see #postExt(String, String)
      */
@@ -122,7 +130,9 @@ public final class TestUtils {
      *
      * @param userRole user role for auth
      * @param mockMvc  mock mvc. Used for login request.
+     *
      * @return login result
+     *
      * @throws AssertionError if login request not working correctly
      * @throws Exception      if login request failed
      * @see #getExtWithAuth(String, RoleName, MockMvc)
@@ -145,11 +155,14 @@ public final class TestUtils {
      * Get access token cookie from mvc result.
      *
      * @param mvcResult result of request
+     *
      * @return access token cookie
+     *
      * @throws AssertionError if access token cookie not found
      */
     public static Cookie getAccessTokenCookie(MvcResult mvcResult) {
-        Cookie accessTokenCookie = mvcResult.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
+        Cookie accessTokenCookie =
+                mvcResult.getResponse().getCookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY);
         assertNotNull(accessTokenCookie);
         return accessTokenCookie;
     }
@@ -158,11 +171,14 @@ public final class TestUtils {
      * Get refresh token cookie from mvc result.
      *
      * @param mvcResult result of request
+     *
      * @return refresh token cookie
+     *
      * @throws AssertionError if refresh token cookie not found
      */
     public static Cookie getRefreshTokenCookie(MvcResult mvcResult) {
-        Cookie refreshTokenCookie = mvcResult.getResponse().getCookie(CookieUtil.COOKIE_REFRESH_TOKEN_KEY);
+        Cookie refreshTokenCookie =
+                mvcResult.getResponse().getCookie(CookieUtil.COOKIE_REFRESH_TOKEN_KEY);
         assertNotNull(refreshTokenCookie);
         return refreshTokenCookie;
     }
@@ -171,12 +187,16 @@ public final class TestUtils {
      * Get application message cookie from mvc result, parse it and return as ApplicationMessage.
      *
      * @param mvcResult result of request
+     *
      * @return application message object from result
+     *
      * @throws AssertionError          if application message cookie not found
      * @throws JsonProcessingException if cookie parsing failed
      */
-    public static ApplicationMessage getApplicationMessage(MvcResult mvcResult) throws JsonProcessingException {
-        Cookie appMessageCookie = mvcResult.getResponse().getCookie(CookieUtil.COOKIE_APP_MESSAGE_KEY);
+    public static ApplicationMessage getApplicationMessage(MvcResult mvcResult)
+            throws JsonProcessingException {
+        Cookie appMessageCookie =
+                mvcResult.getResponse().getCookie(CookieUtil.COOKIE_APP_MESSAGE_KEY);
 
         assertNotNull(appMessageCookie, "ApplicationMessage cookie is null");
 
@@ -187,17 +207,21 @@ public final class TestUtils {
      * Get password reset token cookie from mvc result.
      *
      * @param mvcResult result of request
+     *
      * @return password reset token cookie
+     *
      * @throws AssertionError if password reset token cookie not found
      */
     public static Cookie getPasswordResetTokenCookie(MvcResult mvcResult) {
-        Cookie passwordResetCookie = mvcResult.getResponse().getCookie(CookieUtil.COOKIE_PASSWORD_RESET_TOKEN_KEY);
+        Cookie passwordResetCookie =
+                mvcResult.getResponse().getCookie(CookieUtil.COOKIE_PASSWORD_RESET_TOKEN_KEY);
         assertNotNull(passwordResetCookie);
         return passwordResetCookie;
     }
 
     /**
-     * Get csrf token header from mvc result and return it as HttpHeaders. You can use it to add csrf token to further requests.
+     * Get csrf token header from mvc result and return it as HttpHeaders. You can use it to add
+     * csrf token to further requests.
      * <br>
      * Example:
      * <pre>
@@ -206,8 +230,11 @@ public final class TestUtils {
      *     mockMvc.perform(...)
      *          .headers(csrfTokenHeader(result))
      * </pre>
+     *
      * @param mvcResult result of request
+     *
      * @return csrf token header
+     *
      * @throws UnsupportedEncodingException if something went wrong during csrf token parsing
      * @throws JsonProcessingException      if something went wrong during csrf token parsing
      * @see ObjectMapper#readValue(String, Class)
@@ -216,7 +243,8 @@ public final class TestUtils {
             throws UnsupportedEncodingException, JsonProcessingException {
 
         String json = mvcResult.getResponse().getContentAsString();
-        AuthResponseEntity authResponse = new ObjectMapper().readValue(json, AuthResponseEntity.class);
+        AuthResponseEntity authResponse =
+                new ObjectMapper().readValue(json, AuthResponseEntity.class);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-CSRF-TOKEN", authResponse.csrfToken());

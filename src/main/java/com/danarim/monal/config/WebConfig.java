@@ -15,18 +15,22 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import javax.sql.DataSource;
 
+/**
+ * Application configuration.
+ */
 @Configuration
 @EnableScheduling
 public class WebConfig implements WebMvcConfigurer {
 
     public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-    //If you change list count of supported locales, you should also change SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
+    //If you change list count of supported locales, you should also change
+    // SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
     public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(
             DEFAULT_LOCALE
     );
@@ -38,6 +42,7 @@ public class WebConfig implements WebMvcConfigurer {
             "/{x:[\\w\\-]+}",
             "/{x:^(?!api$).*$}/*/{y:[\\w\\-]+}"
     );
+
     private static final List<String> MESSAGES = List.of(
             "validation",
             "errors",
@@ -63,6 +68,11 @@ public class WebConfig implements WebMvcConfigurer {
         return validatorBean;
     }
 
+    /**
+     * Bean for locale resolver.
+     *
+     * @return LocaleResolver
+     */
     @Bean
     public LocaleResolver localeResolver() {
         final CookieLocaleResolver localeResolver = new CookieLocaleResolver();
@@ -70,21 +80,35 @@ public class WebConfig implements WebMvcConfigurer {
         return localeResolver;
     }
 
+    /**
+     * Bean for message source.
+     *
+     * @return MessageSource
+     */
     @Bean
     public MessageSource messageSource() {
-        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        ReloadableResourceBundleMessageSource messageSource =
+                new ReloadableResourceBundleMessageSource();
 
-        String[] baseNames = MESSAGES.stream()
-                .map(name -> "classpath:/i18n/" + name)
-                .toArray(String[]::new);
+        String[] baseNames =
+                MESSAGES.stream().map(name -> "classpath:/i18n/" + name).toArray(String[]::new);
 
         messageSource.setBasenames(baseNames);
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }
 
+    /**
+     * Bean for data source. It is used for database initialization.
+     *
+     * @param dataSource DataSource
+     *
+     * @return DataSourceInitializer
+     */
     @Bean
-    public DataSourceInitializer dataSourceInitializer(@Qualifier("dataSource") DataSource dataSource) {
+    public DataSourceInitializer dataSourceInitializer(
+            @Qualifier("dataSource") DataSource dataSource
+    ) {
         ResourceDatabasePopulator resourceDbPopulator = new ResourceDatabasePopulator();
 
         for (String script : SQL_INIT_SCRIPTS) {

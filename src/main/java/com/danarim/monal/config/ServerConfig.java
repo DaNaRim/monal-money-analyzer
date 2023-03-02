@@ -48,10 +48,15 @@ public class ServerConfig {
         return tomcat;
     }
 
+    /**
+     * Bean for customizing the Tomcat server. This is needed to allow cookies with json.
+     *
+     * @return WebServerFactoryCustomizer
+     */
     @Bean
     public WebServerFactoryCustomizer<TomcatServletWebServerFactory> customizer() {
         return container -> container.addContextCustomizers(context -> {
-            context.setCookieProcessor(new LegacyCookieProcessor()); //to allow cookies with json
+            context.setCookieProcessor(new LegacyCookieProcessor());
         });
     }
 
@@ -63,4 +68,5 @@ public class ServerConfig {
         connector.setRedirectPort(serverPort);
         return connector;
     }
+
 }

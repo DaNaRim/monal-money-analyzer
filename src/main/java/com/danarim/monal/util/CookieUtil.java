@@ -6,13 +6,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * Utility class to work with cookies
+ * Utility class to work with cookies.
  */
 public final class CookieUtil {
 
@@ -28,10 +28,11 @@ public final class CookieUtil {
     }
 
     /**
-     * Get the cookie value from the request
+     * Get the cookie value from the request.
      *
      * @param request    http request
      * @param cookieName cookie name
+     *
      * @return cookie value or null if cookie not found
      */
     public static String getCookieValueByRequest(HttpServletRequest request, String cookieName) {
@@ -48,6 +49,7 @@ public final class CookieUtil {
      * Creates a new access token cookie. Expiration same as the token
      *
      * @param accessToken access token value
+     *
      * @return cookie with access token
      */
     public static Cookie createAccessTokenCookie(String accessToken) {
@@ -55,14 +57,16 @@ public final class CookieUtil {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+        cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(
+                JwtUtil.ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
         return cookie;
     }
 
     /**
-     * Gets the access token from the request
+     * Gets the access token from the request.
      *
      * @param request http request
+     *
      * @return access token or null cookie not found
      */
     public static String getAccessTokenValueByRequest(HttpServletRequest request) {
@@ -70,8 +74,8 @@ public final class CookieUtil {
     }
 
     /**
-     * Creates a new access token cookie with null value and expiration 0.
-     * To delete the cookie you need to add it to the response.
+     * Creates a new access token cookie with null value and expiration 0. To delete the cookie you
+     * need to add it to the response.
      *
      * @return cookie with null value and expiration 0
      */
@@ -91,6 +95,7 @@ public final class CookieUtil {
      * Creates a new refresh token cookie. Expiration same as the token
      *
      * @param refreshToken refresh token value
+     *
      * @return cookie with refresh token
      */
     public static Cookie createRefreshTokenCookie(String refreshToken) {
@@ -98,14 +103,16 @@ public final class CookieUtil {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(JwtUtil.REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
+        cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(
+                JwtUtil.REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
         return cookie;
     }
 
     /**
-     * Gets the refresh token from the request
+     * Gets the refresh token from the request.
      *
      * @param request http request
+     *
      * @return refresh token or null cookie not found
      */
     public static String getRefreshTokenValueByRequest(HttpServletRequest request) {
@@ -113,8 +120,8 @@ public final class CookieUtil {
     }
 
     /**
-     * Creates a new refresh token cookie with null value and expiration 0.
-     * To delete the cookie you need to add it to the response.
+     * Creates a new refresh token cookie with null value and expiration 0. To delete the cookie you
+     * need to add it to the response.
      *
      * @return cookie with null value and expiration 0
      */
@@ -131,10 +138,13 @@ public final class CookieUtil {
      */
 
     /**
-     * Creates a new app message cookie. Expiration is {@link CookieUtil#COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS}
+     * Creates a new app message cookie. Expiration is
+     * {@link CookieUtil#COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS}
      *
      * @param message message to be stored in the cookie as json
+     *
      * @return cookie with app message
+     *
      * @throws InternalServerException if the message cannot be converted to json
      */
     public static Cookie createAppMessageCookie(ApplicationMessage message) {
@@ -143,7 +153,8 @@ public final class CookieUtil {
 
             Cookie cookie = new Cookie(COOKIE_APP_MESSAGE_KEY, messageJson);
             cookie.setPath("/");
-            cookie.setMaxAge((int) TimeUnit.HOURS.toSeconds(COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS));
+            cookie.setMaxAge((int) TimeUnit.HOURS.toSeconds(
+                    COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS));
             return cookie;
         } catch (JsonProcessingException e) {
             throw new InternalServerException("Failed to create application message cookie", e);
@@ -155,11 +166,13 @@ public final class CookieUtil {
      */
 
     /**
-     * Creates a new password reset token cookie. Expiration is {@link CookieUtil#COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS}
+     * Creates a new password reset token cookie. Expiration is
+     * {@link CookieUtil#COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS}
      * <br>
      * Used for updating the password that was forgotten
      *
      * @param token password reset token
+     *
      * @return cookie with password reset token
      */
     public static Cookie createPasswordResetCookie(String token) {
@@ -172,9 +185,10 @@ public final class CookieUtil {
     }
 
     /**
-     * Gets the password reset token from the request
+     * Gets the password reset token from the request.
      *
      * @param request http request
+     *
      * @return password reset token or null if cookie not found
      */
     public static String getPasswordResetTokenValueByRequest(HttpServletRequest request) {
@@ -182,8 +196,8 @@ public final class CookieUtil {
     }
 
     /**
-     * Creates a new password reset token cookie with null value and expiration 0.
-     * To delete the cookie you need to add it to the response.
+     * Creates a new password reset token cookie with null value and expiration 0. To delete the
+     * cookie you need to add it to the response.
      *
      * @return cookie with null value and expiration 0
      */

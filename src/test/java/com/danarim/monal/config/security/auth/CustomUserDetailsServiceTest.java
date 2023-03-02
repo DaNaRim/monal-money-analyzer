@@ -38,6 +38,7 @@ class CustomUserDetailsServiceTest {
         when(userDao.findByEmailIgnoreCase(anyString())).thenReturn(null);
 
         assertThrows(UsernameNotFoundException.class,
-                () -> customUserDetailsService.loadUserByUsername(EMAIL));
+                     () -> customUserDetailsService.loadUserByUsername(EMAIL));
     }
+
 }

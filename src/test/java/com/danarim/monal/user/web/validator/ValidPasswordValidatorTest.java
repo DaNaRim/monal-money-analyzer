@@ -10,7 +10,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 
-import javax.validation.ConstraintValidatorContext;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
@@ -18,12 +17,20 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.stream.Stream;
+import javax.validation.ConstraintValidatorContext;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ValidPasswordValidatorTest {
 
@@ -31,7 +38,8 @@ class ValidPasswordValidatorTest {
 
     private static final LogCaptor logCaptor = LogCaptor.forClass(ValidPasswordValidator.class);
 
-    private static final Iterator<Locale> locales = Iterables.cycle(WebConfig.SUPPORTED_LOCALES).iterator();
+    private static final Iterator<Locale> locales =
+            Iterables.cycle(WebConfig.SUPPORTED_LOCALES).iterator();
 
     private final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
     private final ConstraintValidatorContext.ConstraintViolationBuilder builder
@@ -51,7 +59,8 @@ class ValidPasswordValidatorTest {
 
     /*
         Do few checks for each supported locale
-        Do few test cases because of iteration over supported locales. In separate tests we can't do it correctly.
+        Do few test cases because of iteration over supported locales. In separate tests we can't
+         do it correctly.
      */
     @RepeatedTest(SUPPORTED_LOCALE_COUNT)
     void isValid() {
@@ -95,28 +104,30 @@ class ValidPasswordValidatorTest {
     @Test
     void isValid_UnsupportedLocale_InternalServerException() {
         Locale.setDefault(Stream.of(DateFormat.getAvailableLocales())
-                .filter(locale -> !WebConfig.SUPPORTED_LOCALES.contains(locale))
-                .findFirst()
-                .orElseThrow());
+                                  .filter(locale -> !WebConfig.SUPPORTED_LOCALES.contains(locale))
+                                  .findFirst()
+                                  .orElseThrow());
 
         assertThrows(InternalServerException.class,
-                () -> validator.isValid("12345678", context));
+                     () -> validator.isValid("12345678", context));
 
         assertThat(logCaptor.getErrorLogs()).hasSize(1);
     }
 
     @Test
-    void isValid_IOException_InternalServerException() {
+    void isValid_IoException_InternalServerException() {
         Locale.setDefault(WebConfig.SUPPORTED_LOCALES.get(0));
 
-        try (MockedConstruction<Properties> ignored = mockConstruction(Properties.class,
-                (mock, context) -> doThrow(IOException.class)
-                        .when(mock).load(any(InputStreamReader.class)))
+        try (MockedConstruction<Properties> ignored
+                     = mockConstruction(Properties.class,
+                                        (mock, context) -> doThrow(IOException.class)
+                                                .when(mock).load(any(InputStreamReader.class)))
         ) {
             assertThrows(InternalServerException.class,
-                    () -> validator.isValid("12345678", context));
+                         () -> validator.isValid("12345678", context));
 
             assertThat(logCaptor.getErrorLogs()).hasSize(1);
         }
     }
+
 }

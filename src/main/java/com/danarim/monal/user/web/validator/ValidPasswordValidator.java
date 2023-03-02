@@ -3,12 +3,17 @@ package com.danarim.monal.user.web.validator;
 import com.danarim.monal.exceptions.InternalServerException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.passay.*;
+import org.passay.LengthRule;
+import org.passay.MessageResolver;
+import org.passay.PasswordData;
+import org.passay.PasswordValidator;
+import org.passay.PropertiesMessageResolver;
+import org.passay.Rule;
+import org.passay.RuleResult;
+import org.passay.WhitespaceRule;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 import static com.danarim.monal.config.WebConfig.DEFAULT_LOCALE;
 
@@ -40,6 +47,7 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
      *
      * @param password password to validate
      * @param context  context in which the constraint is evaluated
+     *
      * @return true if the password is valid, false otherwise
      */
     @Override
@@ -47,7 +55,8 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
         if (password == null) {
             return false;
         }
-        PasswordValidator validator = new PasswordValidator(generateMessageResolver(), passwordRules);
+        PasswordValidator validator =
+                new PasswordValidator(generateMessageResolver(), passwordRules);
         RuleResult result = validator.validate(new PasswordData(password));
 
         if (result.isValid()) {

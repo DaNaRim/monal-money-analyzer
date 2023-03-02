@@ -16,11 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
 
+/**
+ * Controller for managing authentication state.
+ */
 @RestController
 @RequestMapping(WebConfig.API_V1_PREFIX)
 public class AuthController {
@@ -33,6 +36,12 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Remove the authentication cookies from client and block the tokens.
+     *
+     * @param request  http request
+     * @param response http response
+     */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(HttpServletRequest request, HttpServletResponse response) {
@@ -51,23 +60,24 @@ public class AuthController {
     }
 
     /**
-     * Uses when user refreshes the page or opens the app
+     * Uses when user refreshes the page or opens the app.
      * <br>
-     * Process the authentication access token cookie and return auth user state to client
+     * Process the authentication access token cookie and return auth user state to client.
      *
      * @return auth user state
-     * @throws JWTVerificationException if the access token is invalid, wrong type, expired or user not found
+     *
+     * @throws JWTVerificationException if the access token is invalid, wrong type, expired or user
+     *                                  not found
      */
     @PostMapping("auth/getState")
     public ResponseEntity<AuthResponseEntity> getAuthState(HttpServletRequest request) {
 
         String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
-        DecodedJWT decodedJWT = jwtUtil.decode(accessToken);
+        DecodedJWT decodedJwt = jwtUtil.decode(accessToken);
 
-        String email = decodedJWT.getSubject();
-        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
-        String csrfToken = decodedJWT.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
-        String tokenId = decodedJWT.getId();
+        String email = decodedJwt.getSubject();
+        String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+        String tokenId = decodedJwt.getId();
 
         if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
             throw new JWTVerificationException("Invalid token type");
@@ -81,28 +91,32 @@ public class AuthController {
         } catch (UsernameNotFoundException e) {
             throw new JWTVerificationException("User not found", e);
         }
+        String csrfToken = decodedJwt.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
+
         return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
     }
 
     /**
      * Uses when access token is expired.
      * <br>
-     * Process the authentication refresh token cookie,
-     * update the JWT access token
-     * and return auth user state to client
+     * Process the authentication refresh token cookie, update the JWT access token and return auth
+     * user state to client
      *
      * @return auth user state
+     *
      * @throws JWTVerificationException if token is invalid, wrong type, expired or user not found
      */
     @PostMapping("auth/refresh")
-    public ResponseEntity<AuthResponseEntity> refresh(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthResponseEntity> refresh(HttpServletRequest request,
+                                                      HttpServletResponse response
+    ) {
 
         String refreshToken = CookieUtil.getRefreshTokenValueByRequest(request);
-        DecodedJWT decodedJWT = jwtUtil.decode(refreshToken);
+        DecodedJWT decodedJwt = jwtUtil.decode(refreshToken);
 
-        String email = decodedJWT.getSubject();
-        String tokenType = decodedJWT.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
-        String tokenId = decodedJWT.getId();
+        String email = decodedJwt.getSubject();
+        String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
+        String tokenId = decodedJwt.getId();
 
         if (!tokenType.equals(JwtUtil.TOKEN_TYPE_REFRESH)) {
             throw new JWTVerificationException("Invalid token type");
@@ -125,4 +139,5 @@ public class AuthController {
 
         return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
     }
+
 }

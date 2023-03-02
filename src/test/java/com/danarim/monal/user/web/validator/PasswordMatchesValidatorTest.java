@@ -7,7 +7,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +53,8 @@ class PasswordMatchesValidatorTest {
     void isValid_InvalidClass_InternalServerException() {
         Object invalidClass = new Object();
         assertThrows(RuntimeException.class,
-                () -> validator.isValid(invalidClass, null));
+                     () -> validator.isValid(invalidClass, null));
         assertThat(logCaptor.getErrorLogs()).hasSize(1);
     }
+
 }

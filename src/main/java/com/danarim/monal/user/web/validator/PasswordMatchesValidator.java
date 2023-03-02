@@ -11,7 +11,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Check if the password and the password confirmation are the same
+ * Check if the password and the password confirmation are the same.
  */
 @Component
 public class PasswordMatchesValidator implements ConstraintValidator<PasswordMatches, Object> {
@@ -28,4 +28,5 @@ public class PasswordMatchesValidator implements ConstraintValidator<PasswordMat
             throw new InternalServerException("obj is not a valid PasswordEntity type", e);
         }
     }
+
 }

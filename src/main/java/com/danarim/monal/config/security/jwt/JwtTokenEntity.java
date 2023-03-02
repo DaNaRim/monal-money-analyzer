@@ -2,11 +2,21 @@ package com.danarim.monal.config.security.jwt;
 
 import com.danarim.monal.user.persistence.model.User;
 
-import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
+/**
+ * Entity class for storing JWT tokens in the database.
+ */
 @Entity
 @Table(name = "jwt_token")
 public class JwtTokenEntity implements Serializable {
@@ -33,6 +43,13 @@ public class JwtTokenEntity implements Serializable {
     protected JwtTokenEntity() {
     }
 
+    /**
+     * Creates a new JwtTokenEntity that is not blocked.
+     *
+     * @param tokenType      JwtUtil.CLAIM_TOKEN_TYPE
+     * @param expirationDate expiration date of the token
+     * @param user           user that the token belongs to
+     */
     public JwtTokenEntity(String tokenType, Date expirationDate, User user) {
         this.tokenType = tokenType;
         this.expirationDate = new Date(expirationDate.getTime());
@@ -78,4 +95,5 @@ public class JwtTokenEntity implements Serializable {
     public void setBlocked(Boolean blocked) {
         isBlocked = blocked;
     }
+
 }

@@ -23,4 +23,5 @@ public class OnPasswordUpdatedEvent extends ApplicationEvent {
     public User getUser() {
         return user;
     }
+
 }

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Uses for managing auth on client side
+ * Uses for managing auth on client side.
  */
 public record AuthResponseEntity(
         String username,
@@ -16,6 +16,14 @@ public record AuthResponseEntity(
         String csrfToken
 ) {
 
+    /**
+     * Generates auth response entity for user. Use this method to generate response for user.
+     *
+     * @param user     user to generate response for
+     * @param csrfToken csrf token to send to client
+     *
+     * @return auth response entity
+     */
     public static AuthResponseEntity generateAuthResponse(User user, String csrfToken) {
         return new AuthResponseEntity(
                 user.getUsername(),
@@ -53,12 +61,12 @@ public record AuthResponseEntity(
 
     @Override
     public String toString() {
-        return "AuthResponseEntity{" +
-                "username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", roles=" + Arrays.toString(roles) +
-                ", csrfToken='" + csrfToken + '\'' +
-                '}';
+        return "AuthResponseEntity{"
+                + "username='" + username + '\''
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", roles=" + Arrays.toString(roles)
+                + ", csrfToken='" + csrfToken + '\''
+                + '}';
     }
 }

@@ -4,6 +4,9 @@ import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
 
+/**
+ * Service for registration and basic user management.
+ */
 public interface RegistrationService {
 
     User registerNewUserAccount(RegistrationDto registrationDto);
@@ -15,4 +18,5 @@ public interface RegistrationService {
     void resetPassword(String userEmail);
 
     User updateForgottenPassword(ResetPasswordDto resetPasswordDto, String resetPasswordToken);
+
 }

@@ -21,12 +21,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
 import javax.mail.MessagingException;
 import javax.servlet.http.Cookie;
-import java.io.IOException;
 
-import static com.danarim.monal.TestUtils.*;
-import static com.danarim.monal.user.web.controller.TokensIT.TokensITUtils.*;
+import static com.danarim.monal.TestUtils.getApplicationMessage;
+import static com.danarim.monal.TestUtils.getExt;
+import static com.danarim.monal.TestUtils.getPasswordResetTokenCookie;
+import static com.danarim.monal.TestUtils.postExt;
+import static com.danarim.monal.user.web.controller.TokensIT.TokensITUtils.getTokenValueFromEmail;
+import static com.danarim.monal.user.web.controller.TokensIT.TokensITUtils.registerNewUser;
+import static com.danarim.monal.user.web.controller.TokensIT.TokensITUtils.resetPassword;
+import static com.danarim.monal.user.web.controller.TokensIT.TokensITUtils.resetPasswordConfirm;
+import static com.danarim.monal.user.web.controller.TokensIT.TokensITUtils.resetPasswordSet;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +44,8 @@ class TokensIT {
 
     @RegisterExtension
     static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(GreenMailConfiguration.aConfig().withUser("testUsername", "testPassword"))
+            .withConfiguration(
+                    GreenMailConfiguration.aConfig().withUser("testUsername", "testPassword"))
             .withPerMethodLifecycle(true);
 
     @Autowired
@@ -57,10 +65,11 @@ class TokensIT {
 
         String tokenValue = getTokenValueFromEmail(0);
 
-        MvcResult regConfirmResult = mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", tokenValue))
-                .andExpect(status().is3xxRedirection())
-                .andReturn();
+        MvcResult regConfirmResult =
+                mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
+                                        .param("token", tokenValue))
+                        .andExpect(status().is3xxRedirection())
+                        .andReturn();
 
         ApplicationMessage appMessage = getApplicationMessage(regConfirmResult);
 
@@ -68,7 +77,8 @@ class TokensIT {
         User user = userDao.findByEmailIgnoreCase(userEmail);
 
         assertSame(ApplicationMessageType.INFO, appMessage.type(),
-                "ApplicationMessage type is not INFO, maybe exception was thrown during activation");
+                   "ApplicationMessage type is not INFO, maybe exception was thrown during "
+                           + "activation");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
         assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
@@ -81,10 +91,11 @@ class TokensIT {
 
         String tokenValue = getTokenValueFromEmail(0);
 
-        MvcResult regConfirmResult = mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
-                        .param("token", tokenValue))
-                .andExpect(status().is3xxRedirection())
-                .andReturn();
+        MvcResult regConfirmResult =
+                mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
+                                        .param("token", tokenValue))
+                        .andExpect(status().is3xxRedirection())
+                        .andReturn();
 
         ApplicationMessage appMessage = getApplicationMessage(regConfirmResult);
 
@@ -92,7 +103,8 @@ class TokensIT {
         User user = userDao.findByEmailIgnoreCase(userEmail);
 
         assertSame(ApplicationMessageType.INFO, appMessage.type(),
-                "ApplicationMessage type is not INFO, maybe exception was thrown during activation");
+                   "ApplicationMessage type is not INFO, maybe exception was thrown during "
+                           + "activation");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
         assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
@@ -116,16 +128,18 @@ class TokensIT {
         Token token = tokenDao.findByTokenValue(tokenValue);
 
         assertTrue(passwordEncoder.matches(resetPasswordDto.password(), user.getPassword()),
-                "Password was not changed");
+                   "Password was not changed");
         assertTrue(token.isUsed(), "Token should be marked as used after verification");
     }
 
     protected static class TokensITUtils {
 
-        protected static String getTokenValueFromEmail(int emailPosition) throws MessagingException, IOException {
+        protected static String getTokenValueFromEmail(int emailPosition)
+                throws MessagingException, IOException {
             assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
 
-            String emailBody = greenMail.getReceivedMessages()[emailPosition].getContent().toString();
+            String emailBody =
+                    greenMail.getReceivedMessages()[emailPosition].getContent().toString();
 
             int tokenStartIndex = emailBody.indexOf("token=") + 6;
             return emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length
@@ -143,14 +157,15 @@ class TokensIT {
 
         protected static void resetPassword(String email, MockMvc mockMvc) throws Exception {
             mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPassword")
-                            .param("email", email))
+                                    .param("email", email))
                     .andExpect(status().isNoContent())
                     .andReturn();
         }
 
-        protected static MvcResult resetPasswordConfirm(String tokenValue, MockMvc mockMvc) throws Exception {
+        protected static MvcResult resetPasswordConfirm(String tokenValue, MockMvc mockMvc)
+                throws Exception {
             return mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")
-                            .param("token", tokenValue))
+                                           .param("token", tokenValue))
                     .andExpect(status().is3xxRedirection())
                     .andReturn();
         }
@@ -160,9 +175,11 @@ class TokensIT {
                                                MockMvc mockMvc
         ) throws Exception {
             mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resetPasswordSet", resetPassDto)
-                            .cookie(resetPassCookie))
+                                    .cookie(resetPassCookie))
                     .andExpect(status().isNoContent())
                     .andReturn();
         }
+
     }
+
 }

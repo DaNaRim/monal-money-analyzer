@@ -27,4 +27,5 @@ public record ResetPasswordDto(
     public String password() {
         return newPassword;
     }
+
 }
