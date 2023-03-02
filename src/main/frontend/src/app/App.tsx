@@ -1,6 +1,6 @@
 import React from "react";
 import {Route, Routes, useLocation} from "react-router";
-import PageWrapper from "../common/components/pageComponents/PageWrapper/PageWrapper";
+import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
 import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
 import {selectAuthIsForceLogin, setForceLogin} from "../features/auth/authSlice";
 import "./App.scss";
