@@ -1,18 +1,21 @@
 import React from "react";
 import {Route, Routes, useLocation} from "react-router";
-import ErrorPage from "../common/pages/error/ErrorPage/ErrorPage";
-import ForbiddenPage from "../common/pages/error/ForbiddenPage/ForbiddenPage";
-import NotFoundPage from "../common/pages/error/NotFoundPage/NotFoundPage";
-import HomePage from "../common/pages/HomePage/HomePage";
-import LoginPage from "../common/pages/LoginPage/LoginPage";
-import RegistrationPage from "../common/pages/RegistrationPage/RegistrationPage";
-import ResendVerificationTokenPage from "../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage";
-import ResetPasswordPage from "../common/pages/ResetPasswordPage/ResetPasswordPage";
-import ResetPasswordSetPage from "../common/pages/ResetPasswordSetPage/ResetPasswordSetPage";
+import PageWrapper from "../common/components/pageComponents/PageWrapper/PageWrapper";
 import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
 import {selectAuthIsForceLogin, setForceLogin} from "../features/auth/authSlice";
 import "./App.scss";
 import {useAppDispatch, useAppSelector} from "./hooks";
+
+const HomePage = React.lazy(() => import("../common/pages/HomePage/HomePage"));
+const RegistrationPage = React.lazy(() => import("../common/pages/RegistrationPage/RegistrationPage"));
+const LoginPage = React.lazy(() => import("../common/pages/LoginPage/LoginPage"));
+const ResendVerificationTokenPage = React.lazy(() => import("../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage"));
+const ResetPasswordPage = React.lazy(() => import("../common/pages/ResetPasswordPage/ResetPasswordPage"));
+const ResetPasswordSetPage = React.lazy(() => import("../common/pages/ResetPasswordSetPage/ResetPasswordSetPage"));
+
+const ForbiddenPage = React.lazy(() => import("../common/pages/error/ForbiddenPage/ForbiddenPage"));
+const ErrorPage = React.lazy(() => import("../common/pages/error/ErrorPage/ErrorPage"));
+const NotFoundPage = React.lazy(() => import("../common/pages/error/NotFoundPage/NotFoundPage"));
 
 const App = () => {
     const dispatch = useAppDispatch();
@@ -27,16 +30,18 @@ const App = () => {
 
     return (
         <Routes>
-            <Route path="/" element={<HomePage/>}/>
-            <Route path="/registration" element={<RegistrationPage/>}/>
-            <Route path="/login" element={<LoginPage/>}/>
-            <Route path="/resendVerificationToken" element={<ResendVerificationTokenPage/>}/>
-            <Route path="/resetPassword" element={<ResetPasswordPage/>}/>
-            <Route path="/resetPasswordSet" element={<ResetPasswordSetPage/>}/>
+            <Route path="/" element={<PageWrapper/>}>
+                <Route path="/" index element={<HomePage/>}/>
+                <Route path="/registration" element={<RegistrationPage/>}/>
+                <Route path="/login" element={<LoginPage/>}/>
+                <Route path="/resendVerificationToken" element={<ResendVerificationTokenPage/>}/>
+                <Route path="/resetPassword" element={<ResetPasswordPage/>}/>
+                <Route path="/resetPasswordSet" element={<ResetPasswordSetPage/>}/>
 
-            <Route path="/forbidden" element={<ForbiddenPage/>}/>
-            <Route path="/error" element={<ErrorPage/>}/>
-            <Route path="*" element={<NotFoundPage/>}/>
+                <Route path="/forbidden" element={<ForbiddenPage/>}/>
+                <Route path="/error" element={<ErrorPage/>}/>
+                <Route path="*" element={<NotFoundPage/>}/>
+            </Route>
         </Routes>
     );
 };

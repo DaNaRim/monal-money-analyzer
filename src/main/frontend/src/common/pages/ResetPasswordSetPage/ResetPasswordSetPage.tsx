@@ -4,7 +4,6 @@ import {useNavigate} from "react-router";
 import {useAppDispatch} from "../../../app/hooks";
 import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
-import PageWrapper from "../../components/pageComponents/PageWrapper/PageWrapper";
 import {clearFormSystemFields, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordSetPage.module.scss";
 
@@ -38,36 +37,34 @@ const ResetPasswordSetPage = () => {
     };
 
     return (
-        <PageWrapper>
-            <main className={styles.reset_password_set_page}>
-                <h1>Set new password</h1>
+        <main className={styles.reset_password_set_page}>
+            <h1>Set new password</h1>
 
-                <form onSubmit={handleSubmit(handleResetPasswordSet)}>
-                    <label htmlFor="newPassword">New password: </label>
-                    <input type="password" id="newPassword" {...register("newPassword", {required: true})}/><br/>
-                    {errors.newPassword?.type === "required" && <span>New password is required</span>}
-                    {errors.newPassword && <span>{errors.newPassword.message}</span>}<br/>
+            <form onSubmit={handleSubmit(handleResetPasswordSet)}>
+                <label htmlFor="newPassword">New password: </label>
+                <input type="password" id="newPassword" {...register("newPassword", {required: true})}/><br/>
+                {errors.newPassword?.type === "required" && <span>New password is required</span>}
+                {errors.newPassword && <span>{errors.newPassword.message}</span>}<br/>
 
-                    <label htmlFor="matchingPassword">Confirm password: </label>
-                    <input type="password"
-                           id="matchingPassword"
-                           {...register("matchingPassword", {required: true})}/><br/>
-                    {errors.matchingPassword?.type === "required" && <span>Confirm password is required</span>}
-                    {errors.matchingPassword && <span>{errors.matchingPassword.message}</span>}<br/>
+                <label htmlFor="matchingPassword">Confirm password: </label>
+                <input type="password"
+                       id="matchingPassword"
+                       {...register("matchingPassword", {required: true})}/><br/>
+                {errors.matchingPassword?.type === "required" && <span>Confirm password is required</span>}
+                {errors.matchingPassword && <span>{errors.matchingPassword.message}</span>}<br/>
 
-                    <input type="hidden" {...register("globalError")}/>
-                    {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
+                <input type="hidden" {...register("globalError")}/>
+                {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
 
-                    <input type="hidden" {...register("serverError")}/>
-                    {errors.serverError && <span>{errors.serverError.message}</span>}<br/>
+                <input type="hidden" {...register("serverError")}/>
+                {errors.serverError && <span>{errors.serverError.message}</span>}<br/>
 
-                    {isLoading
-                        ? <span>loading...</span>
-                        : <button type="submit">Set new password</button>
-                    }
-                </form>
-            </main>
-        </PageWrapper>
+                {isLoading
+                    ? <span>loading...</span>
+                    : <button type="submit">Set new password</button>
+                }
+            </form>
+        </main>
     );
 };
 
