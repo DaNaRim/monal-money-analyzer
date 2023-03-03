@@ -1,4 +1,4 @@
-package com.danarim.monal.util;
+package com.danarim.monal.user.service.mail;
 
 import com.danarim.monal.config.WebConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +11,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Locale;
 
+
 /**
- * Utility class for sending emails.
+ * Uses simple mail messages to send emails.
  */
 @Component
-public class MailUtil {
+public class RegistrationMailServiceImpl implements RegistrationMailService {
 
     private static final String ACCOUNT_CONFIRM_ENDPOINT = "/registrationConfirm";
     private static final String PASSWORD_RESET_ENDPOINT = "/resetPasswordConfirm";
@@ -28,17 +29,12 @@ public class MailUtil {
     @Value("${spring.mail.username}")
     private String from;
 
-    public MailUtil(MessageSource messages, JavaMailSender mailSender) {
+    public RegistrationMailServiceImpl(MessageSource messages, JavaMailSender mailSender) {
         this.messages = messages;
         this.mailSender = mailSender;
     }
 
-    /**
-     * Create and send email for account verification.
-     *
-     * @param tokenValue token value
-     * @param userEmail user email to send the email to
-     */
+    @Override
     public void sendVerificationEmail(String tokenValue, String userEmail) {
 
         Locale locale = LocaleContextHolder.getLocale();
@@ -57,12 +53,7 @@ public class MailUtil {
         mailSender.send(constructEmail(subject, message + "\r\n" + confirmUrl, userEmail));
     }
 
-    /**
-     * Create and send email for password reset.
-     *
-     * @param tokenValue token value
-     * @param userEmail user email to send the email to
-     */
+    @Override
     public void sendPasswordResetEmail(String tokenValue, String userEmail) {
 
         Locale locale = LocaleContextHolder.getLocale();
