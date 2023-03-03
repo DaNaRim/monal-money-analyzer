@@ -1,6 +1,7 @@
 package com.danarim.monal.user.service.mail;
 
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.user.web.controller.TokenController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -17,9 +18,6 @@ import java.util.Locale;
  */
 @Component
 public class RegistrationMailServiceImpl implements RegistrationMailService {
-
-    private static final String ACCOUNT_CONFIRM_ENDPOINT = "/registrationConfirm";
-    private static final String PASSWORD_RESET_ENDPOINT = "/resetPasswordConfirm";
 
     private static final String TOKEN_LINK_TEMPLATE = "%s%s%s?token=%s";
 
@@ -44,7 +42,7 @@ public class RegistrationMailServiceImpl implements RegistrationMailService {
         String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
                                           contextPath,
                                           WebConfig.API_V1_PREFIX,
-                                          ACCOUNT_CONFIRM_ENDPOINT,
+                                          TokenController.ACCOUNT_CONFIRM_ENDPOINT,
                                           tokenValue);
 
         String subject = messages.getMessage("mail.verifyAccount.subject", null, locale);
@@ -63,7 +61,7 @@ public class RegistrationMailServiceImpl implements RegistrationMailService {
         String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
                                           contextPath,
                                           WebConfig.API_V1_PREFIX,
-                                          PASSWORD_RESET_ENDPOINT,
+                                          TokenController.PASSWORD_RESET_ENDPOINT,
                                           tokenValue);
 
         String subject = messages.getMessage("mail.resetPassword.subject", null, locale);
