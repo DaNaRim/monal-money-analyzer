@@ -14,6 +14,8 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -119,6 +121,24 @@ public class WebConfig implements WebMvcConfigurer {
         sourceInitializer.setDataSource(dataSource);
         sourceInitializer.setDatabasePopulator(resourceDbPopulator);
         return sourceInitializer;
+    }
+
+    /**
+     * Bean for email template resolver. It has the highest priority.
+     *
+     * @return ClassLoaderTemplateResolver for email templates
+     */
+    @Bean
+    public ClassLoaderTemplateResolver emailTemplateResolver() {
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("mail/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding("UTF-8");
+        templateResolver.setOrder(0);
+        templateResolver.setCheckExistence(true);
+
+        return templateResolver;
     }
 
 }

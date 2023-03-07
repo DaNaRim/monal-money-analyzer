@@ -4,6 +4,7 @@ import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.service.RegistrationService;
 import com.danarim.monal.user.service.TokenService;
+import com.danarim.monal.user.service.mail.RegistrationMailService;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.ApplicationMessage;
 import com.danarim.monal.util.ApplicationMessageType;
@@ -22,10 +23,16 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller for tokens that was sent to user's email.
+ *
+ * <p>Account confirmation and password reset email sends by
+ * {@link RegistrationMailService}.
  */
 @Controller
 @RequestMapping(WebConfig.API_V1_PREFIX)
 public class TokenController {
+
+    public static final String ACCOUNT_CONFIRM_ENDPOINT = "/registrationConfirm";
+    public static final String PASSWORD_RESET_ENDPOINT = "/resetPasswordConfirm";
 
     private final RegistrationService registrationService;
     private final TokenService tokenService;
@@ -57,7 +64,7 @@ public class TokenController {
      *
      * @return redirect to login page
      */
-    @GetMapping("/registrationConfirm")
+    @GetMapping(ACCOUNT_CONFIRM_ENDPOINT)
     public View confirmRegistration(@RequestParam("token") String tokenValue,
                                     Locale locale,
                                     HttpServletResponse response
@@ -91,7 +98,7 @@ public class TokenController {
      * @see RegistrationController#resetPasswordSet(ResetPasswordDto, HttpServletRequest,
      * HttpServletResponse)
      */
-    @GetMapping("/resetPasswordConfirm")
+    @GetMapping(PASSWORD_RESET_ENDPOINT)
     public View resetPasswordConfirm(@RequestParam("token") String tokenValue,
                                      HttpServletResponse response
     ) {

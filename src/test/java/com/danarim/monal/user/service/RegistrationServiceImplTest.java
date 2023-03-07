@@ -8,9 +8,9 @@ import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.user.service.mail.RegistrationMailService;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
-import com.danarim.monal.util.MailUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,7 +35,7 @@ class RegistrationServiceImplTest {
     private final RoleDao roleDao = mock(RoleDao.class);
     private final TokenService tokenService = mock(TokenService.class);
     private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
-    private final MailUtil mailUtil = mock(MailUtil.class);
+    private final RegistrationMailService mailUtil = mock(RegistrationMailService.class);
 
     @InjectMocks
     private RegistrationServiceImpl registrationService;

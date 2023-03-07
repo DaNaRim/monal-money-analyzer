@@ -4,7 +4,7 @@ import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.TokenService;
-import com.danarim.monal.util.MailUtil;
+import com.danarim.monal.user.service.mail.RegistrationMailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 class RegistrationListenerTest {
 
     private final TokenService tokenService = mock(TokenService.class);
-    private final MailUtil mailUtil = mock(MailUtil.class);
+    private final RegistrationMailService mailUtil = mock(RegistrationMailService.class);
 
     @InjectMocks
     private RegistrationListener registrationListener;

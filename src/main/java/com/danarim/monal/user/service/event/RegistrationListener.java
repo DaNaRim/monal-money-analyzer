@@ -3,7 +3,7 @@ package com.danarim.monal.user.service.event;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.TokenService;
-import com.danarim.monal.util.MailUtil;
+import com.danarim.monal.user.service.mail.RegistrationMailService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
 
     private final TokenService tokenService;
-    private final MailUtil mailUtil;
+    private final RegistrationMailService regMailService;
 
-    public RegistrationListener(TokenService tokenService, MailUtil mailUtil) {
+    public RegistrationListener(TokenService tokenService, RegistrationMailService regMailService) {
         this.tokenService = tokenService;
-        this.mailUtil = mailUtil;
+        this.regMailService = regMailService;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     private void sendVerificationTokenToUser(OnRegistrationCompleteEvent event) {
         User user = event.getUser();
         Token verificationToken = tokenService.createVerificationToken(user);
-        mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
+        regMailService.sendVerificationEmail(verificationToken.getTokenValue(), user.getEmail());
     }
 
 }

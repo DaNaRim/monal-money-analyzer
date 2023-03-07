@@ -11,6 +11,7 @@ import com.danarim.monal.util.ApplicationMessage;
 import com.danarim.monal.util.ApplicationMessageType;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -21,8 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.IOException;
-import javax.mail.MessagingException;
 import javax.servlet.http.Cookie;
 
 import static com.danarim.monal.TestUtils.getApplicationMessage;
@@ -134,12 +133,11 @@ class TokensIT {
 
     protected static class TokensITUtils {
 
-        protected static String getTokenValueFromEmail(int emailPosition)
-                throws MessagingException, IOException {
+        protected static String getTokenValueFromEmail(int emailPosition) {
             assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
 
             String emailBody =
-                    greenMail.getReceivedMessages()[emailPosition].getContent().toString();
+                    GreenMailUtil.getBody(greenMail.getReceivedMessages()[emailPosition]);
 
             int tokenStartIndex = emailBody.indexOf("token=") + 6;
             return emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${subject}">Account Confirmation</title>
+</head>
+<body style="box-sizing: border-box">
+
+<table style="
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0 2em;
+">
+    <tr>
+        <td><h1 th:text="${header}">Account Confirmation</h1></td>
+    </tr>
+
+    <tr>
+        <td><p th:text="${body}">
+            Thank you for registering with us. Please click on the link below to confirm your account.
+        </p></td>
+    </tr>
+
+    <tr>
+        <td><a th:href="@{${confirmationUrl}}" th:text="${confirmationUrlText}" title="Link to confirm your account">
+            Confirmation URL
+        </a></td>
+    </tr>
+</table>
+
+</body>
+</html>

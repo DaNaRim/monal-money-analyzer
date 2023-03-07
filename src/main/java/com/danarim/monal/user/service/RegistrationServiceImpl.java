@@ -7,9 +7,9 @@ import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.user.service.mail.RegistrationMailService;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
-import com.danarim.monal.util.MailUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final TokenService tokenService;
 
     private final PasswordEncoder passwordEncoder;
-    private final MailUtil mailUtil;
+    private final RegistrationMailService regMailService;
 
     /**
      * Constructor to inject dependencies.
@@ -38,19 +38,19 @@ public class RegistrationServiceImpl implements RegistrationService {
      * @param roleDao         role dao to get role by name
      * @param tokenService    token service to manage tokens
      * @param passwordEncoder password encoder to encode passwords
-     * @param mailUtil        mail util to send emails
+     * @param regMailService        mail util to send emails
      */
     public RegistrationServiceImpl(UserDao userDao,
                                    RoleDao roleDao,
                                    TokenService tokenService,
                                    PasswordEncoder passwordEncoder,
-                                   MailUtil mailUtil
+                                   RegistrationMailService regMailService
     ) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
-        this.mailUtil = mailUtil;
+        this.regMailService = regMailService;
     }
 
     /**
@@ -118,7 +118,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                                           null);
         }
         Token verificationToken = tokenService.createVerificationToken(user);
-        mailUtil.sendVerificationEmail(verificationToken.getTokenValue(), userEmail);
+        regMailService.sendVerificationEmail(verificationToken.getTokenValue(), userEmail);
     }
 
     /**
@@ -139,7 +139,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                                         "email");
         }
         Token passwordResetToken = tokenService.createPasswordResetToken(user);
-        mailUtil.sendPasswordResetEmail(passwordResetToken.getTokenValue(), userEmail);
+        regMailService.sendPasswordResetEmail(passwordResetToken.getTokenValue(), userEmail);
     }
 
     /**
