@@ -95,10 +95,14 @@ public class JwtUtil {
         JwtTokenEntity jwtTokenEntity =
                 jwtTokenDao.save(new JwtTokenEntity(TOKEN_TYPE_ACCESS, expirationDate, user));
 
-        return JWT.create().withSubject(user.getUsername()).withExpiresAt(expirationDate)
-                .withIssuer(issuer).withJWTId(jwtTokenEntity.getId().toString())
+        return JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(expirationDate)
+                .withIssuer(issuer)
+                .withJWTId(jwtTokenEntity.getId().toString())
                 .withClaim(CLAIM_TOKEN_TYPE, TOKEN_TYPE_ACCESS)
-                .withClaim(CLAIM_AUTHORITIES, userRolesList).withClaim(CLAIM_CSRF_TOKEN, csrfToken)
+                .withClaim(CLAIM_AUTHORITIES, userRolesList)
+                .withClaim(CLAIM_CSRF_TOKEN, csrfToken)
                 .sign(algorithm);
     }
 
@@ -134,9 +138,13 @@ public class JwtUtil {
         JwtTokenEntity jwtTokenEntity =
                 jwtTokenDao.save(new JwtTokenEntity(TOKEN_TYPE_REFRESH, expirationDate, user));
 
-        return JWT.create().withSubject(user.getUsername()).withExpiresAt(expirationDate)
-                .withJWTId(jwtTokenEntity.getId().toString()).withIssuer(issuer)
-                .withClaim(CLAIM_TOKEN_TYPE, TOKEN_TYPE_REFRESH).sign(algorithm);
+        return JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(expirationDate)
+                .withJWTId(jwtTokenEntity.getId().toString())
+                .withIssuer(issuer)
+                .withClaim(CLAIM_TOKEN_TYPE, TOKEN_TYPE_REFRESH)
+                .sign(algorithm);
     }
 
     /**
@@ -179,8 +187,8 @@ public class JwtUtil {
      *
      * @return true if the token is blocked, false otherwise
      */
-    public boolean isTokenBlocked(long jti) { //use long for not to be confused with an encoded
-        // token
+    public boolean isTokenBlocked(long jti) {
+        //use long for not to be confused with an encoded token
         return jwtTokenDao.isTokenBlocked(jti);
     }
 

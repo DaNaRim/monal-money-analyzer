@@ -3,6 +3,7 @@ package com.danarim.monal.controller;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.config.security.CsrfTokenGenerator;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.config.security.jwt.JwtUtil;
 import com.danarim.monal.user.persistence.model.User;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,10 +29,22 @@ import javax.servlet.http.HttpServletResponse;
 public class AuthController {
 
     private final JwtUtil jwtUtil;
+    private final CsrfTokenGenerator csrfTokenGenerator;
     private final UserDetailsService userDetailsService;
 
-    public AuthController(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    /**
+     * Dependency injection constructor.
+     *
+     * @param jwtUtil            utility for generating and decoding JWT tokens
+     * @param csrfTokenGenerator utility for generating CSRF tokens
+     * @param userDetailsService service for getting user details
+     */
+    public AuthController(JwtUtil jwtUtil,
+                          CsrfTokenGenerator csrfTokenGenerator,
+                          UserDetailsService userDetailsService
+    ) {
         this.jwtUtil = jwtUtil;
+        this.csrfTokenGenerator = csrfTokenGenerator;
         this.userDetailsService = userDetailsService;
     }
 
@@ -51,12 +63,12 @@ public class AuthController {
 
         if (accessToken != null) {
             jwtUtil.blockToken(accessToken);
+            response.addCookie(CookieUtil.deleteAccessTokenCookie());
         }
         if (refreshToken != null) {
             jwtUtil.blockToken(refreshToken);
+            response.addCookie(CookieUtil.deleteRefreshTokenCookie());
         }
-        response.addCookie(CookieUtil.deleteAccessTokenCookie());
-        response.addCookie(CookieUtil.deleteRefreshTokenCookie());
     }
 
     /**
@@ -130,7 +142,7 @@ public class AuthController {
         } catch (UsernameNotFoundException e) {
             throw new JWTVerificationException("User not found", e);
         }
-        String csrfToken = UUID.randomUUID().toString();
+        String csrfToken = csrfTokenGenerator.generateCsrfToken();
 
         String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
 
