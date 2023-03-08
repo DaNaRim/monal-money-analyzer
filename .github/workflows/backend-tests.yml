@@ -23,12 +23,12 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn package --batch-mode -DskipTests -Dcheckstyle.skip
+        run: mvn package -B -DskipTests -Dskip.yarn -Dcheckstyle.skip
         env:
           CI: ""
 
       - name: Test
-        run: mvn surefire:test --batch-mode -Dmaven.test.failure.ignore=true
+        run: mvn surefire:test -B -Dmaven.test.failure.ignore=true
 
       - name: Report
         uses: dorny/test-reporter@v1
@@ -53,12 +53,12 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn package --batch-mode -DskipTests -Dcheckstyle.skip
+        run: mvn package -B -DskipTests -Dskip.yarn -Dcheckstyle.skip
         env:
           CI: ""
 
       - name: Test
-        run: mvn failsafe:integration-test --batch-mode -Dmaven.test.failure.ignore=true
+        run: mvn failsafe:integration-test -B -Dmaven.test.failure.ignore=true
 
       - name: Report
         uses: dorny/test-reporter@v1
