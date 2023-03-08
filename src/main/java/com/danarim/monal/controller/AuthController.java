@@ -63,12 +63,12 @@ public class AuthController {
 
         if (accessToken != null) {
             jwtUtil.blockToken(accessToken);
+            response.addCookie(CookieUtil.deleteAccessTokenCookie());
         }
         if (refreshToken != null) {
             jwtUtil.blockToken(refreshToken);
+            response.addCookie(CookieUtil.deleteRefreshTokenCookie());
         }
-        response.addCookie(CookieUtil.deleteAccessTokenCookie());
-        response.addCookie(CookieUtil.deleteRefreshTokenCookie());
     }
 
     /**
