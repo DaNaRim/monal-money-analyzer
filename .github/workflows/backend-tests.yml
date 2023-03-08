@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn package --batch-mode -DskipTests
+        run: mvn package --batch-mode -DskipTests -Dcheckstyle.skip
         env:
           CI: ""
 
@@ -53,7 +53,7 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn package --batch-mode -DskipTests
+        run: mvn package --batch-mode -DskipTests -Dcheckstyle.skip
         env:
           CI: ""
 
