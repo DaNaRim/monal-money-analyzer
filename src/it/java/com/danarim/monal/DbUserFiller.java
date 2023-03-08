@@ -14,7 +14,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -70,7 +69,6 @@ public class DbUserFiller {
         User user = new User("test", "test",
                              USER_USERNAME,
                              userPassword,
-                             new Date(),
                              Set.of(userRoles)
         );
         user.setEmailVerified(true);
@@ -85,7 +83,6 @@ public class DbUserFiller {
         User user = new User("test", "test",
                              USER_NOT_ACTIVATED_USERNAME,
                              userPassword,
-                             new Date(),
                              Set.of(userRole)
         );
         userDao.save(user);
@@ -100,7 +97,6 @@ public class DbUserFiller {
         User admin = new User("test", "test",
                               ADMIN_USERNAME,
                               adminPassword,
-                              new Date(),
                               Set.of(userRole, adminRole)
         );
         admin.setEmailVerified(true);

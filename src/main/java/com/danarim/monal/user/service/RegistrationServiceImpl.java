@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.Date;
 
 /**
  * Service for registration and basic user operations.
@@ -75,7 +74,6 @@ public class RegistrationServiceImpl implements RegistrationService {
                              registrationDto.lastName(),
                              registrationDto.email(),
                              passwordEncoder.encode(registrationDto.password()),
-                             new Date(),
                              //To get role with correct id
                              Collections.singleton(roleDao.findByRoleName(RoleName.ROLE_USER)));
         return userDao.save(user);

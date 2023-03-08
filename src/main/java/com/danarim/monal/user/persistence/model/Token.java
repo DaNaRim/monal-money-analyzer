@@ -1,5 +1,7 @@
 package com.danarim.monal.user.persistence.model;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Calendar;
@@ -15,6 +17,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * Represents a token that can be used to perform a specific action for a user.
@@ -44,6 +48,8 @@ public class Token implements Serializable {
     private Date expirationDate;
 
     @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
     private boolean isUsed;
@@ -62,7 +68,6 @@ public class Token implements Serializable {
         this.user = user;
         this.tokenType = tokenType;
         this.expirationDate = calculateExpiryDate();
-        this.createdDate = new Date();
         this.isUsed = false;
     }
 
