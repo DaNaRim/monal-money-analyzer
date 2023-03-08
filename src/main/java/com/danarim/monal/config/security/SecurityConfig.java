@@ -101,7 +101,8 @@ public class SecurityConfig {
             throws Exception {
         CustomAuthenticationFilter filter = new CustomAuthenticationFilter(
                 authenticationManager(http),
-                context.getBean(JwtUtil.class)
+                context.getBean(JwtUtil.class),
+                context.getBean(CsrfTokenGenerator.class)
         );
         filter.setFilterProcessesUrl(API_V1_PREFIX + "/login");
         filter.setAuthenticationFailureHandler(context.getBean(AuthenticationFailureHandler.class));

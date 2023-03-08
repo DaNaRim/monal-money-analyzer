@@ -1,5 +1,6 @@
 package com.danarim.monal.config.filters;
 
+import com.danarim.monal.config.security.CsrfTokenGenerator;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.config.security.auth.CustomAuthenticationProvider;
 import com.danarim.monal.config.security.jwt.JwtUtil;
@@ -16,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.UUID;
 import javax.servlet.FilterChain;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -36,19 +36,23 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final CsrfTokenGenerator csrfTokenGenerator;
 
     /**
      * Constructor to inject dependencies.
      *
      * @param authenticationManager manager to authenticate user
      * @param jwtUtil               util to work with jwt tokens
+     * @param csrfTokenGenerator    util to generate csrf token
      */
     public CustomAuthenticationFilter(AuthenticationManager authenticationManager,
-                                      JwtUtil jwtUtil
+                                      JwtUtil jwtUtil,
+                                      CsrfTokenGenerator csrfTokenGenerator
     ) {
         super.setAuthenticationManager(authenticationManager);
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.csrfTokenGenerator = csrfTokenGenerator;
     }
 
     /**
@@ -90,7 +94,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     ) throws IOException {
         User user = (User) authResult.getPrincipal();
 
-        String csrfToken = UUID.randomUUID().toString();
+        String csrfToken = csrfTokenGenerator.generateCsrfToken();
 
         String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
         String refreshToken = jwtUtil.generateRefreshToken(user);

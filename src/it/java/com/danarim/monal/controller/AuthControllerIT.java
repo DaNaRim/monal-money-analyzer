@@ -3,6 +3,7 @@ package com.danarim.monal.controller;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.config.security.CsrfTokenGenerator;
 import com.danarim.monal.config.security.jwt.JwtTokenDao;
 import com.danarim.monal.config.security.jwt.JwtUtil;
 import com.danarim.monal.user.persistence.model.RoleName;
@@ -16,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import java.util.UUID;
 import javax.servlet.http.Cookie;
 
 import static com.danarim.monal.DbUserFiller.USER_USERNAME;
@@ -40,6 +40,8 @@ class AuthControllerIT {
     private MockMvc mockMvc;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private CsrfTokenGenerator csrfTokenGenerator;
     @Autowired
     private JwtTokenDao jwtTokenDao;
 
@@ -154,7 +156,7 @@ class AuthControllerIT {
 
     @Test
     void authRefresh_IncorrectToken_Unauthorized() throws Exception {
-        String csrfToken = UUID.randomUUID().toString();
+        String csrfToken = csrfTokenGenerator.generateCsrfToken();
 
         String accessToken = jwtUtil.generateAccessToken(DbUserFiller.testUser, csrfToken, -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
