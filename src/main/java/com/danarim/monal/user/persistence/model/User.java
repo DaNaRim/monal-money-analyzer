@@ -1,5 +1,6 @@
 package com.danarim.monal.user.persistence.model;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -18,6 +19,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * Represents a user in the database.
@@ -45,6 +48,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private Date registrationDate;
 
     private Boolean isEmailVerified;
@@ -63,25 +68,22 @@ public class User implements UserDetails {
     /**
      * Creates a new user entity.
      *
-     * @param firstName        first name of the user
-     * @param lastName         last name of the user
-     * @param email            email of the user
-     * @param password         password of the user
-     * @param registrationDate registration date of the user
-     * @param roles            roles of the user
+     * @param firstName first name of the user
+     * @param lastName  last name of the user
+     * @param email     email of the user
+     * @param password  password of the user
+     * @param roles     roles of the user
      */
     public User(String firstName,
                 String lastName,
                 String email,
                 String password,
-                Date registrationDate,
                 Set<Role> roles
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.registrationDate = new Date(registrationDate.getTime());
         this.isEmailVerified = false;
         this.roles = Collections.unmodifiableSet(roles);
     }
