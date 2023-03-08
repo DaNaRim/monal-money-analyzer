@@ -30,7 +30,7 @@ const Header = () => {
     const isAuthInit = useAppSelector(selectAuthIsInitialized);
 
     const [getAuthState, {isLoading: isAuthStateLoading}] = useAuthGetStateMutation();
-    const [requestAuth, {isLoading: isRequestAuthLoading}] = useAuthRefreshMutation();
+    const [, {isLoading: isRequestAuthLoading}] = useAuthRefreshMutation();
     const [logout, {isLoading: isLogoutLoading}] = useLogoutMutation();
 
     const handleLogout = () => {
@@ -39,23 +39,17 @@ const Header = () => {
         navigate("/login");
     };
 
-    const requestAuthState = () => {
-        requestAuth().unwrap()
-            .then(res => dispatch(setCredentials(res)))
-            .catch(() => {
-                logout();
-                dispatch(clearAuthState());
-                dispatch(setInitialized());
-            });
-    };
-
     useEffect(() => {
         if (!isAuthInit) {
             getAuthState().unwrap()
                 .then(res => dispatch(setCredentials(res)))
-                .catch(() => requestAuthState());
+                .catch(() => {
+                    dispatch(clearAuthState());
+                    dispatch(setInitialized());
+                    logout();
+                });
         }
-    }, [dispatch, getAuthState, isAuthInit, requestAuthState]);
+    }, [dispatch, getAuthState, isAuthInit]);
 
     const getAuthBlock = () => {
         if (isAuthStateLoading || isRequestAuthLoading || isLogoutLoading) {
