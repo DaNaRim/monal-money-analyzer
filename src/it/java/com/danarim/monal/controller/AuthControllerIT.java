@@ -81,13 +81,9 @@ class AuthControllerIT {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/logout"))
                 .andExpect(status().isNoContent())
 
-                .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
-                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, true))
-                .andExpect(cookie().maxAge(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, 0))
-
-                .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
-                .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
-                .andExpect(cookie().maxAge(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, 0));
+                //Not cookies in request, so no cookies in response
+                .andExpect(cookie().doesNotExist(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
+                .andExpect(cookie().doesNotExist(CookieUtil.COOKIE_REFRESH_TOKEN_KEY));
     }
 
     @Test
