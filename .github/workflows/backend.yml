@@ -1,5 +1,5 @@
-name: backend-tests
-run-name: Testing backend by @${{ github.actor }}
+name: backend tests and checkstyle
+run-name: Checking backend by @${{ github.actor }}
 
 on: [ push, pull_request ]
 
@@ -39,6 +39,7 @@ jobs:
           reporter: java-junit
           fail-on-error: true
 
+
   integration-tests:
     runs-on: ubuntu-latest
     steps:
@@ -68,3 +69,25 @@ jobs:
           path: target/failsafe-reports/TEST-*.xml
           reporter: java-junit
           fail-on-error: true
+
+
+  checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: 'maven'
+
+      - name: Build and checkstyle
+        run: mvn verify -B -DskipTests -Dskip.installyarn -Dskip.yarn checkstyle:checkstyle
+
+      - name: Report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: '**/checkstyle-result.xml'
