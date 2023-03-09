@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn package -B -DskipTests -Dskip.yarn -Dcheckstyle.skip
+        run: mvn package -B -DskipTests -Dskip.installnodenpm -Dskip.yarn -Dcheckstyle.skip
         env:
           CI: ""
 
@@ -53,7 +53,7 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn package -B -DskipTests -Dskip.yarn -Dcheckstyle.skip
+        run: mvn package -B -DskipTests -Dskip.installnodenpm -Dskip.yarn -Dcheckstyle.skip
         env:
           CI: ""
 
