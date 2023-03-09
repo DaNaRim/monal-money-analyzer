@@ -16,17 +16,10 @@ jobs:
           distribution: adopt
           cache: 'maven'
 
-#      - uses: actions/cache@v1
-#        with:
-#          path: ~/.m2/repository
-#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: |
-#            ${{ runner.os }}-maven-
-
-
       - name: Build and checkstyle
         run: mvn verify -B -DskipTests -Dskip.installyarn -Dskip.yarn checkstyle:checkstyle
 
-      - uses: jwgmeligmeyling/checkstyle-github-action@master
+      - name: Report
+        uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
