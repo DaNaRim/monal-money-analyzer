@@ -90,4 +90,5 @@ jobs:
       - name: Report
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
+          name: Checkstyle report
           path: '**/checkstyle-result.xml'
