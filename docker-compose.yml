@@ -28,7 +28,10 @@ services:
     ports:
       - "443:443"
       - "80:80"
+    volumes:
+      - api:/opt/app/logs
 
 volumes:
   db:
     driver: local
+  api:

@@ -4,11 +4,11 @@ WORKDIR /usr/src/app
 
 COPY pom.xml .
 
-RUN mvn dependency:go-offline
+RUN mvn verify --fail-never
 
 COPY . /usr/src/app
 
-RUN mvn package -DskipTests
+RUN mvn package -DskipTests -Dcheckstyle.skip
 
 
 FROM openjdk:17-jdk-alpine
