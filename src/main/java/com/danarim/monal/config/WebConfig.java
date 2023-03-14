@@ -38,7 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
     // SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
     public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(
             DEFAULT_LOCALE,
-            Locale.UK
+            new Locale("uk")
     );
 
     public static final String API_V1_PREFIX = "/api/v1";
