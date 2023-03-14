@@ -1,7 +1,8 @@
 import React from "react";
 import {useForm} from "react-hook-form";
+import useFetchUtils, {FormSystemFields} from "../../../app/hooks/formUtils";
+import useTranslation from "../../../app/hooks/translation";
 import {useResetPasswordMutation} from "../../../features/registration/registrationApiSlice";
-import {FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordPage.module.scss";
 
 
@@ -10,6 +11,10 @@ type ResetPasswordFields = FormSystemFields & {
 }
 
 const ResetPasswordPage = () => {
+    const t = useTranslation();
+
+    const {handleResponseError} = useFetchUtils();
+
     const {register, handleSubmit, setError, formState: {errors}} = useForm<ResetPasswordFields>();
 
     const [resetPassword, {isLoading, isSuccess}] = useResetPasswordMutation();
@@ -21,17 +26,13 @@ const ResetPasswordPage = () => {
 
     return (
         <main className={styles.reset_password_page}>
-            <h1>Reset Password Page</h1>
-            {isSuccess &&
-              <span className={`${styles.app_message} ${styles.info}`}>
-                    Check your email for a link to reset your password. If it doesn't appear within a few minutes,
-                    check your spam folder.
-                  </span>
-            }
+            <h1>{t.resetPasswordPage.title}</h1>
+            {isSuccess && <span className={`${styles.app_message} ${styles.info}`}>{t.resetPasswordPage.success}</span>}
+
             <form onSubmit={handleSubmit(handleResetPassword)}>
-                <label htmlFor="email">Email: </label>
+                <label htmlFor="email">{t.resetPasswordPage.form.fields.email}</label>
                 <input type="text" id="email" {...register("email", {required: true})}/><br/>
-                {errors.email?.type === "required" && <span>Email is required</span>}
+                {errors.email?.type === "required" && <span>{t.resetPasswordPage.form.errors.email.required}</span>}
                 {errors.email && <span>{errors.email.message}</span>}<br/>
 
                 <input type="hidden" {...register("globalError")}/>
@@ -42,8 +43,8 @@ const ResetPasswordPage = () => {
                 <br/>
 
                 {isLoading
-                    ? <span>Loading...</span>
-                    : <button type="submit">Reset password</button>
+                    ? <span>{t.resetPasswordPage.form.loading}</span>
+                    : <button type="submit">{t.resetPasswordPage.form.submit}</button>
                 }
             </form>
         </main>

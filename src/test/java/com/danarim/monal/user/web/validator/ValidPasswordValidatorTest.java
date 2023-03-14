@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 class ValidPasswordValidatorTest {
 
-    private static final int SUPPORTED_LOCALE_COUNT = 1; //WebConfig.SUPPORTED_LOCALES.size()
+    private static final int SUPPORTED_LOCALE_COUNT = 2; //WebConfig.SUPPORTED_LOCALES.size()
 
     private static final LogCaptor logCaptor = LogCaptor.forClass(ValidPasswordValidator.class);
 

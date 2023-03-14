@@ -4,7 +4,7 @@ import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
 import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
 import {selectAuthIsForceLogin, setForceLogin} from "../features/auth/authSlice";
 import "./App.scss";
-import {useAppDispatch, useAppSelector} from "./hooks";
+import {useAppDispatch, useAppSelector} from "./hooks/reduxHooks";
 
 const HomePage = React.lazy(() => import("../common/pages/HomePage/HomePage"));
 const RegistrationPage = React.lazy(() => import("../common/pages/RegistrationPage/RegistrationPage"));

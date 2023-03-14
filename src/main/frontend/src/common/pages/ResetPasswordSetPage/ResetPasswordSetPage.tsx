@@ -1,10 +1,11 @@
 import React from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router";
-import {useAppDispatch} from "../../../app/hooks";
+import useFetchUtils, {FormSystemFields} from "../../../app/hooks/formUtils";
+import {useAppDispatch} from "../../../app/hooks/reduxHooks";
+import useTranslation from "../../../app/hooks/translation";
 import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
-import {clearFormSystemFields, FormSystemFields, handleResponseError} from "../../utils/FormUtils";
 import styles from "./ResetPasswordSetPage.module.scss";
 
 
@@ -13,6 +14,9 @@ type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
 const ResetPasswordSetPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const t = useTranslation();
+
+    const {handleResponseError, clearFormSystemFields} = useFetchUtils();
 
     const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<ResetPasswordSetFields>();
 
@@ -24,7 +28,7 @@ const ResetPasswordSetPage = () => {
         resetPasswordSetReq(data).unwrap()
             .then(() => dispatch(addAppMessage({
                 type: AppMessageType.INFO,
-                message: "Password reset successful. You can now login with your new password.",
+                message: t.resetPasswordSetPage.success,
                 page: "login",
                 messageCode: "message.password-reset.success",
             })))
@@ -38,19 +42,21 @@ const ResetPasswordSetPage = () => {
 
     return (
         <main className={styles.reset_password_set_page}>
-            <h1>Set new password</h1>
+            <h1>{t.resetPasswordSetPage.title}</h1>
 
             <form onSubmit={handleSubmit(handleResetPasswordSet)}>
-                <label htmlFor="newPassword">New password: </label>
+                <label htmlFor="newPassword">{t.resetPasswordSetPage.form.fields.newPassword}</label>
                 <input type="password" id="newPassword" {...register("newPassword", {required: true})}/><br/>
-                {errors.newPassword?.type === "required" && <span>New password is required</span>}
+                {errors.newPassword?.type === "required"
+                    && <span>{t.resetPasswordSetPage.form.errors.newPassword.required}</span>}
                 {errors.newPassword && <span>{errors.newPassword.message}</span>}<br/>
 
-                <label htmlFor="matchingPassword">Confirm password: </label>
+                <label htmlFor="matchingPassword">{t.resetPasswordSetPage.form.fields.confirmPassword}</label>
                 <input type="password"
                        id="matchingPassword"
                        {...register("matchingPassword", {required: true})}/><br/>
-                {errors.matchingPassword?.type === "required" && <span>Confirm password is required</span>}
+                {errors.matchingPassword?.type === "required"
+                    && <span>{t.resetPasswordSetPage.form.errors.confirmPassword.required}</span>}
                 {errors.matchingPassword && <span>{errors.matchingPassword.message}</span>}<br/>
 
                 <input type="hidden" {...register("globalError")}/>
@@ -60,8 +66,8 @@ const ResetPasswordSetPage = () => {
                 {errors.serverError && <span>{errors.serverError.message}</span>}<br/>
 
                 {isLoading
-                    ? <span>loading...</span>
-                    : <button type="submit">Set new password</button>
+                    ? <span>{t.resetPasswordSetPage.form.loading}</span>
+                    : <button type="submit">{t.resetPasswordSetPage.form.submit}</button>
                 }
             </form>
         </main>

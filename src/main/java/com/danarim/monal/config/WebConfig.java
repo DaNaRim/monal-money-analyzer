@@ -1,5 +1,6 @@
 package com.danarim.monal.config;
 
+import com.danarim.monal.util.CookieUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,11 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -34,7 +37,8 @@ public class WebConfig implements WebMvcConfigurer {
     //If you change list count of supported locales, you should also change
     // SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
     public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(
-            DEFAULT_LOCALE
+            DEFAULT_LOCALE,
+            new Locale("uk")
     );
 
     public static final String API_V1_PREFIX = "/api/v1";
@@ -70,6 +74,13 @@ public class WebConfig implements WebMvcConfigurer {
         return validatorBean;
     }
 
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        LocaleChangeInterceptor localeInterceptor = new LocaleChangeInterceptor();
+
+        registry.addInterceptor(localeInterceptor);
+    }
+
     /**
      * Bean for locale resolver.
      *
@@ -79,6 +90,9 @@ public class WebConfig implements WebMvcConfigurer {
     public LocaleResolver localeResolver() {
         final CookieLocaleResolver localeResolver = new CookieLocaleResolver();
         localeResolver.setDefaultLocale(DEFAULT_LOCALE);
+        localeResolver.setCookieName(CookieUtil.COOKIE_LOCALE_KEY);
+        localeResolver.setCookieHttpOnly(false); //for frontend access
+        localeResolver.setCookieSecure(true);
         return localeResolver;
     }
 
