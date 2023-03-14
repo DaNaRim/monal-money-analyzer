@@ -1,13 +1,18 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import useTranslation from "../../../../app/hooks/translation";
 import styles from "./ForbiddenPage.module.scss";
 
-const ForbiddenPage = () => (
-    <main className={styles.forbidden_page}>
-        <h1>Forbidden Page</h1>
-        <p>You don't have permission to access this page.</p>
-        <Link to={"/"}>Go to home page</Link>
-    </main>
-);
+const ForbiddenPage = () => {
+    const t = useTranslation();
+
+    return (
+        <main className={styles.forbidden_page}>
+            <h1>{t.errorPages.forbidden.header}</h1>
+            <p>{t.errorPages.forbidden.desc}</p>
+            <Link to="/">{t.errorPages.forbidden.link}</Link>
+        </main>
+    );
+};
 
 export default ForbiddenPage;
