@@ -21,6 +21,8 @@ public final class CookieUtil {
     public static final String COOKIE_APP_MESSAGE_KEY = "serverMessage";
     public static final String COOKIE_PASSWORD_RESET_TOKEN_KEY = "passwordResetToken";
 
+    public static final String COOKIE_LOCALE_KEY = "locale";
+
     private static final long COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS = 4L;
     private static final long COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS = 1L;
 
