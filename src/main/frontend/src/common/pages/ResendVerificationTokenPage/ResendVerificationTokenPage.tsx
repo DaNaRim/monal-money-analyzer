@@ -3,12 +3,17 @@ import {useForm} from "react-hook-form";
 import useFetchUtils, {FormSystemFields} from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
 import {useResendVerificationTokenMutation} from "../../../features/registration/registrationApiSlice";
+import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
+import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import InputEmail from "../../components/form/InputEmail/InputEmail";
 import styles from "./ResendVerificationTokenPage.module.scss";
 
 
 type ResendVerificationTokenFields = FormSystemFields & {
     email: string;
 }
+
+const COMPONENT_NAME = "resendVerificationEmailPage";
 
 const ResendVerificationTokenPage = () => {
     const t = useTranslation();
@@ -19,10 +24,9 @@ const ResendVerificationTokenPage = () => {
 
     const [resendToken, {isLoading, isSuccess}] = useResendVerificationTokenMutation();
 
-    const handleResendToken = (data: ResendVerificationTokenFields) => {
+    const handleResendToken = (data: ResendVerificationTokenFields) =>
         resendToken(data.email).unwrap()
             .catch(e => handleResponseError(e, setError));
-    };
 
     return (
         <main className={styles.login_page}>
@@ -31,18 +35,14 @@ const ResendVerificationTokenPage = () => {
               <span className={`${styles.app_message} ${styles.info}`}>{t.resendVerificationEmailPage.success}</span>
             }
             <form onSubmit={handleSubmit(handleResendToken)}>
-                <label htmlFor="email">{t.resendVerificationEmailPage.form.fields.email}</label>
-                <input type="email" id="email" {...register("email", {required: true})}/>
-                {errors.email?.type === "required"
-                    && <span>{t.resendVerificationEmailPage.form.errors.email.required}</span>}
-                {errors.email && <span>{errors.email.message}</span>}<br/>
 
-                <input type="hidden" {...register("globalError")}/>
-                {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
-
-                <input type="hidden" {...register("serverError")}/>
-                {errors.serverError && <span className={styles.server_error}>{errors.serverError.message}</span>}
-                <br/>
+                <InputEmail name="email"
+                            options={{required: true}}
+                            componentName={COMPONENT_NAME}
+                            {...{register, errors}}
+                />
+                <ErrorGlobal {...{register, errors}}/>
+                <ErrorServer {...{register, errors}}/>
 
                 {isLoading
                     ? <span>{t.resendVerificationEmailPage.form.loading}</span>

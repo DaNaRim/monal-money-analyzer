@@ -15,6 +15,11 @@ export default {
 
     mainLoader: "Завантаження...",
 
+    form: {
+        required: "Обов'язкове",
+        password_show: "Показати пароль",
+    },
+
     fetchErrors: {
         fetchError: "Сервер недоступний. Будь ласка, спробуйте пізніше",
         serverError: "Серверна помилка. Будь ласка, спробуйте пізніше. Якщо проблема не зникне, зверніться до адміністратора",
@@ -48,11 +53,11 @@ export default {
         resendVerificationEmail: "Повторно надіслати листа з підтвердженням",
         form: {
             fields: {
-                email: "Електронна пошта",
+                username: "Електронна пошта",
                 password: "Пароль",
             },
             errors: {
-                email: {
+                username: {
                     required: "Електронна пошта обов'язкова",
                 },
                 password: {
@@ -76,7 +81,7 @@ export default {
                 lastName: "Прізвище",
                 email: "Електронна пошта",
                 password: "Пароль",
-                confirmPassword: "Підтвердження пароля",
+                matchingPassword: "Підтвердження пароля",
             },
             errors: {
                 firstName: {
@@ -91,7 +96,7 @@ export default {
                 password: {
                     required: "Пароль обов'язковий",
                 },
-                confirmPassword: {
+                matchingPassword: {
                     required: "Підтвердження пароля обов'язкове",
                 },
             },
@@ -143,13 +148,13 @@ export default {
         form: {
             fields: {
                 newPassword: "Новий пароль",
-                confirmPassword: "Підтвердження пароля",
+                matchingPassword: "Підтвердження пароля",
             },
             errors: {
                 newPassword: {
                     required: "Пароль обов'язковий",
                 },
-                confirmPassword: {
+                matchingPassword: {
                     required: "Підтвердження пароля обов'язкове",
                 },
             },

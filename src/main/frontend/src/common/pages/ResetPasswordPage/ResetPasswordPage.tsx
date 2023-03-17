@@ -3,12 +3,17 @@ import {useForm} from "react-hook-form";
 import useFetchUtils, {FormSystemFields} from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
 import {useResetPasswordMutation} from "../../../features/registration/registrationApiSlice";
+import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
+import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import InputEmail from "../../components/form/InputEmail/InputEmail";
 import styles from "./ResetPasswordPage.module.scss";
 
 
 type ResetPasswordFields = FormSystemFields & {
     email: string;
 }
+
+const COMPONENT_NAME = "resetPasswordPage";
 
 const ResetPasswordPage = () => {
     const t = useTranslation();
@@ -19,10 +24,9 @@ const ResetPasswordPage = () => {
 
     const [resetPassword, {isLoading, isSuccess}] = useResetPasswordMutation();
 
-    const handleResetPassword = (data: ResetPasswordFields) => {
+    const handleResetPassword = (data: ResetPasswordFields) =>
         resetPassword(data.email).unwrap()
             .catch(e => handleResponseError(e, setError));
-    };
 
     return (
         <main className={styles.reset_password_page}>
@@ -30,17 +34,14 @@ const ResetPasswordPage = () => {
             {isSuccess && <span className={`${styles.app_message} ${styles.info}`}>{t.resetPasswordPage.success}</span>}
 
             <form onSubmit={handleSubmit(handleResetPassword)}>
-                <label htmlFor="email">{t.resetPasswordPage.form.fields.email}</label>
-                <input type="text" id="email" {...register("email", {required: true})}/><br/>
-                {errors.email?.type === "required" && <span>{t.resetPasswordPage.form.errors.email.required}</span>}
-                {errors.email && <span>{errors.email.message}</span>}<br/>
 
-                <input type="hidden" {...register("globalError")}/>
-                {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
-
-                <input type="hidden" {...register("serverError")}/>
-                {errors.serverError && <span className={styles.server_error}>{errors.serverError.message}</span>}
-                <br/>
+                <InputEmail name="email"
+                            options={{required: true}}
+                            componentName={COMPONENT_NAME}
+                            {...{register, errors}}
+                />
+                <ErrorGlobal {...{register, errors}}/>
+                <ErrorServer {...{register, errors}}/>
 
                 {isLoading
                     ? <span>{t.resetPasswordPage.form.loading}</span>

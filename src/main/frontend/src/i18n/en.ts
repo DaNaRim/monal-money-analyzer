@@ -15,6 +15,11 @@ export default {
 
     mainLoader: "Loading...",
 
+    form: {
+        required: "Required",
+        password_show: "Show password",
+    },
+
     fetchErrors: {
         fetchError: "Server unavailable. please try again later",
         serverError: "Server error. Please try again later. If the problem persists, please contact the administrator",
@@ -48,11 +53,11 @@ export default {
         resendVerificationEmail: "Resend verification email",
         form: {
             fields: {
-                email: "Email",
+                username: "Email",
                 password: "Password",
             },
             errors: {
-                email: {
+                username: {
                     required: "Email is required",
                 },
                 password: {
@@ -76,7 +81,7 @@ export default {
                 lastName: "Last name",
                 email: "Email",
                 password: "Password",
-                confirmPassword: "Confirm password",
+                matchingPassword: "Confirm password",
             },
             errors: {
                 firstName: {
@@ -91,7 +96,7 @@ export default {
                 password: {
                     required: "Password is required",
                 },
-                confirmPassword: {
+                matchingPassword: {
                     required: "Confirm password is required",
                 },
             },
@@ -143,17 +148,17 @@ export default {
         form: {
             fields: {
                 newPassword: "New password",
-                confirmPassword: "Confirm password",
+                matchingPassword: "Confirm password",
             },
             errors: {
                 newPassword: {
                     required: "Password is required",
                 },
-                confirmPassword: {
+                matchingPassword: {
                     required: "Confirm password is required",
                 },
             },
-            submit: "Set",
+            submit: "Set new password",
             loading: "Processing...",
         },
     },

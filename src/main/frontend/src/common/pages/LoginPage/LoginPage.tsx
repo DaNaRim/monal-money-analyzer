@@ -8,6 +8,10 @@ import useTranslation from "../../../app/hooks/translation";
 import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
 import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
 import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "../../../features/auth/authSlice";
+import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
+import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import InputEmail from "../../components/form/InputEmail/InputEmail";
+import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./LoginPage.module.scss";
 
 
@@ -16,6 +20,8 @@ type LoginFormFields = FormSystemFields & Credentials
 type LoginFormError = ErrorResponse & {
     fieldName: keyof LoginFormFields,
 }
+
+const COMPONENT_NAME = "loginPage";
 
 const LoginPage = () => {
     const dispatch = useAppDispatch();
@@ -90,24 +96,21 @@ const LoginPage = () => {
             {suggestResendVerificationToken()}
 
             <form onSubmit={handleSubmit(handleLogin)}>
-                <label htmlFor="username">{t.loginPage.form.fields.email}</label>
-                <input type="email" id="username" {...register("username", {required: true})}/>
-                {errors.username?.type === "required" && <span>{t.loginPage.form.errors.email.required}</span>}
-                {errors.username && <span>{errors.username.message}</span>}<br/>
 
-                <label htmlFor="password">{t.loginPage.form.fields.password}</label>
-                <input type="password" id="password" {...register("password", {required: true})}/>
-                {errors.password?.type === "required" && <span>{t.loginPage.form.errors.password.required}</span>}
-                {errors.password && <span>{errors.password.message}</span>}<br/>
-
-                <input type="hidden" {...register("globalError")}/>
-                {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
+                <InputEmail name="username"
+                            options={{required: true}}
+                            componentName={COMPONENT_NAME}
+                            {...{register, errors}}
+                />
+                <InputPassword name="password"
+                               options={{required: true}}
+                               componentName={COMPONENT_NAME}
+                               {...{register, errors}}
+                />
+                <ErrorGlobal {...{register, errors}}/>
                 {isAccountNotActivated
                     && <Link to={"/resendVerificationToken"}>{t.loginPage.resendVerificationEmail}</Link>}
-
-                <input type="hidden" {...register("serverError")}/>
-                {errors.serverError && <span className={styles.server_error}>{errors.serverError.message}</span>}
-                <br/>
+                <ErrorServer {...{register, errors}}/>
 
                 {isLoading
                     ? <span>{t.loginPage.form.loading}</span>
