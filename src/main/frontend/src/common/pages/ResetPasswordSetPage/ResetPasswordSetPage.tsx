@@ -6,10 +6,15 @@ import {useAppDispatch} from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
+import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
+import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./ResetPasswordSetPage.module.scss";
 
 
 type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
+
+const COMPONENT_NAME = "resetPasswordSetPage";
 
 const ResetPasswordSetPage = () => {
     const dispatch = useAppDispatch();
@@ -45,25 +50,19 @@ const ResetPasswordSetPage = () => {
             <h1>{t.resetPasswordSetPage.title}</h1>
 
             <form onSubmit={handleSubmit(handleResetPasswordSet)}>
-                <label htmlFor="newPassword">{t.resetPasswordSetPage.form.fields.newPassword}</label>
-                <input type="password" id="newPassword" {...register("newPassword", {required: true})}/><br/>
-                {errors.newPassword?.type === "required"
-                    && <span>{t.resetPasswordSetPage.form.errors.newPassword.required}</span>}
-                {errors.newPassword && <span>{errors.newPassword.message}</span>}<br/>
 
-                <label htmlFor="matchingPassword">{t.resetPasswordSetPage.form.fields.confirmPassword}</label>
-                <input type="password"
-                       id="matchingPassword"
-                       {...register("matchingPassword", {required: true})}/><br/>
-                {errors.matchingPassword?.type === "required"
-                    && <span>{t.resetPasswordSetPage.form.errors.confirmPassword.required}</span>}
-                {errors.matchingPassword && <span>{errors.matchingPassword.message}</span>}<br/>
-
-                <input type="hidden" {...register("globalError")}/>
-                {errors.globalError && <span>{errors.globalError.message}</span>}<br/>
-
-                <input type="hidden" {...register("serverError")}/>
-                {errors.serverError && <span>{errors.serverError.message}</span>}<br/>
+                <InputPassword name="newPassword"
+                               options={{required: true}}
+                               componentName={COMPONENT_NAME}
+                               {...{register, errors}}
+                />
+                <InputPassword name="matchingPassword"
+                               options={{required: true}}
+                               componentName={COMPONENT_NAME}
+                               {...{register, errors}}
+                />
+                <ErrorGlobal {...{register, errors}}/>
+                <ErrorServer {...{register, errors}}/>
 
                 {isLoading
                     ? <span>{t.resetPasswordSetPage.form.loading}</span>
