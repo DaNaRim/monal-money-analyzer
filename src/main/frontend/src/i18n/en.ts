@@ -17,6 +17,7 @@ export default {
 
     form: {
         required: "Required",
+        password_show: "Show password",
     },
 
     fetchErrors: {

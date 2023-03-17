@@ -17,6 +17,7 @@ export default {
 
     form: {
         required: "Обов'язкове",
+        password_show: "Показати пароль",
     },
 
     fetchErrors: {
