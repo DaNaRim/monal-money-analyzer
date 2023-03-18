@@ -7,6 +7,7 @@ import com.danarim.monal.util.CookieUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,7 +54,7 @@ public class ViewExceptionHandler {
         ApplicationMessage applicationMessage =
                 new ApplicationMessage(messageSource.getMessage(e.getMessageCode(),
                                                                 e.getMessageArgs(),
-                                                                request.getLocale()),
+                                                                LocaleContextHolder.getLocale()),
                                        ApplicationMessageType.ERROR,
                                        "login",
                                        e.getMessageCode());
@@ -71,8 +72,8 @@ public class ViewExceptionHandler {
      * @return redirect to error page
      */
     @ExceptionHandler(Exception.class)
-    protected View handleException(Exception e, WebRequest request
-    ) {
+    protected View handleException(Exception e, WebRequest request) {
+
         logger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
