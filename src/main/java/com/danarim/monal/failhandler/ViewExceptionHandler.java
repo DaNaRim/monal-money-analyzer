@@ -1,12 +1,12 @@
 package com.danarim.monal.failhandler;
 
 import com.danarim.monal.exceptions.InvalidTokenException;
-import com.danarim.monal.util.ApplicationMessage;
-import com.danarim.monal.util.ApplicationMessageType;
 import com.danarim.monal.util.CookieUtil;
+import com.danarim.monal.util.appmessage.AppMessage;
+import com.danarim.monal.util.appmessage.AppMessageType;
+import com.danarim.monal.util.appmessage.AppMessageUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,12 +25,6 @@ import static com.danarim.monal.failhandler.RestExceptionHandler.LOG_TEMPLATE;
 public class ViewExceptionHandler {
 
     private static final Log logger = LogFactory.getLog(ViewExceptionHandler.class);
-    private final MessageSource messageSource;
-
-    public ViewExceptionHandler(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
-
 
     /**
      * Handles {@link InvalidTokenException} thrown by endpoints that process account activation and
@@ -50,13 +44,10 @@ public class ViewExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
-        ApplicationMessage applicationMessage =
-                new ApplicationMessage(messageSource.getMessage(e.getMessageCode(),
-                                                                e.getMessageArgs(),
-                                                                request.getLocale()),
-                                       ApplicationMessageType.ERROR,
-                                       "login",
-                                       e.getMessageCode());
+        AppMessage applicationMessage =
+                new AppMessage(AppMessageType.ERROR,
+                               "login",
+                               AppMessageUtil.resolveAppMessageCode(e.getMessageCode()));
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 
         return new RedirectView("/login");
@@ -71,8 +62,8 @@ public class ViewExceptionHandler {
      * @return redirect to error page
      */
     @ExceptionHandler(Exception.class)
-    protected View handleException(Exception e, WebRequest request
-    ) {
+    protected View handleException(Exception e, WebRequest request) {
+
         logger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 

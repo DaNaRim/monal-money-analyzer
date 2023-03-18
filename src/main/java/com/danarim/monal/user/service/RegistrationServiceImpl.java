@@ -162,7 +162,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new BadFieldException("New password can't be the same as old",
                                         "validation.user.password.sameAsOld",
                                         null,
-                                        "password");
+                                        "newPassword");
         }
         user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
         token.setUsed();

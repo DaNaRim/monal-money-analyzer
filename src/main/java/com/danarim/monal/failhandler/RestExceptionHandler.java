@@ -6,6 +6,7 @@ import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import javax.validation.Valid;
 
 /**
@@ -60,8 +62,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
-        String message =
-                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
 
         ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
 
@@ -84,8 +86,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
-        String message =
-                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
 
         ErrorResponse errorResponse =
                 ErrorResponse.fieldError(e.getMessageCode(), e.getField(), message);
@@ -110,7 +112,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
-        String message = messages.getMessage("error.access.denied", null, request.getLocale());
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage("error.access.denied", null, locale);
 
         ErrorResponse errorResponse = ErrorResponse.globalError("error.access.denied", message);
 
@@ -133,10 +136,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
+        Locale locale = LocaleContextHolder.getLocale();
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(messages.getMessage("validation.auth.token.expired",
-                                          null,
-                                          request.getLocale()));
+                .body(messages.getMessage("validation.auth.token.expired", null, locale));
     }
 
     /**
@@ -156,10 +159,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
+        Locale locale = LocaleContextHolder.getLocale();
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(messages.getMessage("validation.auth.token.invalid",
-                                          null,
-                                          request.getLocale()));
+                .body(messages.getMessage("validation.auth.token.invalid", null, locale));
     }
 
     /**
@@ -179,8 +182,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
-        String message =
-                messages.getMessage(e.getMessageCode(), e.getMessageArgs(), request.getLocale());
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
 
         ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
 
@@ -203,7 +206,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
 
-        String message = messages.getMessage("error.mail.send", null, request.getLocale());
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage("error.mail.send", null, locale);
 
         ErrorResponse errorResponse = ErrorResponse.serverError("error.mail.send", message);
 
@@ -225,8 +229,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         logger.error("Internal server error during request: " + request.getContextPath(), e);
 
-        String message =
-                messages.getMessage("error.server.internal-error", null, request.getLocale());
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage("error.server.internal-error", null, locale);
 
         ErrorResponse errorResponse =
                 ErrorResponse.serverError("error.server.internal-error", message);

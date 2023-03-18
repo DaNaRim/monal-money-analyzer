@@ -7,8 +7,8 @@ import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
-import com.danarim.monal.util.ApplicationMessage;
-import com.danarim.monal.util.ApplicationMessageType;
+import com.danarim.monal.util.appmessage.AppMessage;
+import com.danarim.monal.util.appmessage.AppMessageType;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 
-import static com.danarim.monal.TestUtils.getApplicationMessage;
+import static com.danarim.monal.TestUtils.getAppMessage;
 import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.getPasswordResetTokenCookie;
 import static com.danarim.monal.TestUtils.postExt;
@@ -70,12 +70,12 @@ class TokensIT {
                         .andExpect(status().is3xxRedirection())
                         .andReturn();
 
-        ApplicationMessage appMessage = getApplicationMessage(regConfirmResult);
+        AppMessage appMessage = getAppMessage(regConfirmResult);
 
         Token token = tokenDao.findByTokenValue(tokenValue);
         User user = userDao.findByEmailIgnoreCase(userEmail);
 
-        assertSame(ApplicationMessageType.INFO, appMessage.type(),
+        assertSame(AppMessageType.INFO, appMessage.type(),
                    "ApplicationMessage type is not INFO, maybe exception was thrown during "
                            + "activation");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
@@ -96,12 +96,12 @@ class TokensIT {
                         .andExpect(status().is3xxRedirection())
                         .andReturn();
 
-        ApplicationMessage appMessage = getApplicationMessage(regConfirmResult);
+        AppMessage appMessage = getAppMessage(regConfirmResult);
 
         Token token = tokenDao.findByTokenValue(tokenValue);
         User user = userDao.findByEmailIgnoreCase(userEmail);
 
-        assertSame(ApplicationMessageType.INFO, appMessage.type(),
+        assertSame(AppMessageType.INFO, appMessage.type(),
                    "ApplicationMessage type is not INFO, maybe exception was thrown during "
                            + "activation");
         assertTrue(user.isEnabled(), "User should be enabled after verification");
@@ -137,7 +137,9 @@ class TokensIT {
             assertTrue(greenMail.waitForIncomingEmail(5000, 1), "No email was received");
 
             String emailBody =
-                    GreenMailUtil.getBody(greenMail.getReceivedMessages()[emailPosition]);
+                    GreenMailUtil.getBody(greenMail.getReceivedMessages()[emailPosition])
+                            .replaceAll("=3D", "") //=3D - encoded '='. Goes after 'token='
+                            .replaceAll("\\r?\\n", "");
 
             int tokenStartIndex = emailBody.indexOf("token=") + 6;
             return emailBody.substring(tokenStartIndex, tokenStartIndex + 36); //36 - UUID length

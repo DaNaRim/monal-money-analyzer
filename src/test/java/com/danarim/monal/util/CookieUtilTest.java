@@ -1,5 +1,8 @@
 package com.danarim.monal.util;
 
+import com.danarim.monal.util.appmessage.AppMessage;
+import com.danarim.monal.util.appmessage.AppMessageCode;
+import com.danarim.monal.util.appmessage.AppMessageType;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -91,11 +94,10 @@ class CookieUtilTest {
     @Test
     void createAppMessageCookie() {
         //Can`t test for JsonProcessingException because it is a checked exception
-        ApplicationMessage applicationMessage = new ApplicationMessage(
-                "message",
-                ApplicationMessageType.INFO,
+        AppMessage applicationMessage = new AppMessage(
+                AppMessageType.INFO,
                 "page",
-                "actionCode"
+                AppMessageCode.TOKEN_NOT_FOUND
         );
         Cookie result = CookieUtil.createAppMessageCookie(applicationMessage);
 

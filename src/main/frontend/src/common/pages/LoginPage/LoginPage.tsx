@@ -5,7 +5,8 @@ import {Link} from "react-router-dom";
 import useFetchUtils, {ErrorResponse, FormSystemFields} from "../../../app/hooks/formUtils";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
-import {AppMessageType, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
+import AppMessageEl from "../../../features/appMessages/AppMessageEl";
+import {AppMessageCode, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
 import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
 import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "../../../features/auth/authSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
@@ -71,18 +72,9 @@ const LoginPage = () => {
             });
     };
 
-    const getAppMessageClassName = (type: AppMessageType) => {
-        const classMap = {
-            "INFO": `${styles.app_message} ${styles.info}`,
-            "WARNING": `${styles.app_message} ${styles.warn}`,
-            "ERROR": `${styles.app_message} ${styles.error}`,
-        };
-        return classMap[type];
-    };
-
     const suggestResendVerificationToken = () => {
-        if (appMessage?.messageCode === "validation.token.verification.not-found"
-            || appMessage?.messageCode === "validation.token.verification.expired") {
+        if (appMessage?.messageCode === AppMessageCode.TOKEN_VERIFICATION_NOT_FOUND
+            || appMessage?.messageCode === AppMessageCode.TOKEN_VERIFICATION_EXPIRED) {
 
             return <Link to="/resendVerificationToken">{t.loginPage.resendVerificationEmail}</Link>;
         }
@@ -92,8 +84,7 @@ const LoginPage = () => {
     return (
         <main className={styles.login_page}>
             <h1>{t.loginPage.title}</h1>
-            {appMessage && <p className={getAppMessageClassName(appMessage.type)}>{appMessage.message}</p>}
-            {suggestResendVerificationToken()}
+            {appMessage && <AppMessageEl {...appMessage}>{suggestResendVerificationToken()}</AppMessageEl>}
 
             <form onSubmit={handleSubmit(handleLogin)}>
 

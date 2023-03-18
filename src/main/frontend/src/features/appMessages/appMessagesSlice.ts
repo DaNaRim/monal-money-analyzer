@@ -9,15 +9,36 @@ export enum AppMessageType {
     ERROR = "ERROR"
 }
 
-export interface ApplicationMessage {
-    message: string;
+export enum AppMessageCode {
+
+    //server messages
+
+    UNRESOLVED_CODE = "unresolved",
+
+    REGISTRATION_CONFIRMATION_SUCCESS = "registration.confirmation.success",
+
+    TOKEN_WRONG_TYPE = "validation.token.wrong-type",
+    TOKEN_NOT_FOUND = "validation.token.not-found",
+    TOKEN_USED = "validation.token.used",
+    TOKEN_EXPIRED = "validation.token.expired",
+
+    TOKEN_VERIFICATION_NOT_FOUND = "validation.token.verification.not-found",
+    TOKEN_VERIFICATION_EXPIRED = "validation.token.verification.expired",
+    TOKEN_VERIFICATION_USER_ENABLED = "validation.token.verification.user-enabled",
+
+    //frontend messages
+
+    PASSWORD_RESET_SUCCESS = "password-reset.success",
+}
+
+export interface AppMessage {
     type: AppMessageType;
     page: string | null;
-    messageCode: string;
+    messageCode: AppMessageCode;
 }
 
 type AppMessagesState = {
-    messages: ApplicationMessage[]
+    messages: AppMessage[]
 }
 
 const initialState: AppMessagesState = {
@@ -33,10 +54,9 @@ export const appMessagesSlice = createSlice({
                 .find(row => row.startsWith(COOKIE_KEY_APPLICATION_MESSAGE))?.split("=")[1];
 
             if (serverMessage) {
-                const cookie: ApplicationMessage = JSON.parse(JSON.parse(serverMessage));
+                const cookie: AppMessage = JSON.parse(JSON.parse(serverMessage));
 
                 state.messages.push({
-                    message: cookie.message,
                     type: cookie.type,
                     page: cookie.page,
                     messageCode: cookie.messageCode,
@@ -44,20 +64,19 @@ export const appMessagesSlice = createSlice({
                 document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
             }
         },
-        addAppMessage: (state, action: PayloadAction<ApplicationMessage>) => {
+        addAppMessage: (state, action: PayloadAction<AppMessage>) => {
             const message = action.payload;
 
             state.messages.push({
-                message: message.message,
                 type: message.type,
                 page: message.page,
                 messageCode: message.messageCode,
             });
         },
         deleteAppMessage: (state, action: PayloadAction<string>) => {
-            const msg = action.payload;
+            const msgCode = action.payload;
 
-            state.messages = state.messages.filter(message => message.message !== msg);
+            state.messages = state.messages.filter(message => message.messageCode !== msgCode);
         },
     },
 });

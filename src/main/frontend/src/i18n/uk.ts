@@ -20,6 +20,28 @@ export default {
         password_show: "Показати пароль",
     },
 
+    appMessages: {
+
+        //server
+
+        unresolved: "Невизначена помилка. Будь ласка, зверніться до адміністратора.",
+
+        registration_confirmation_success: "Аккаунт успішно активовано. Тепер ви можете увійти.",
+
+        validation_token_wrong_type: "Невірний тип токена.",
+        validation_token_not_found: "Токен не знайдено. Будь ласка, спробуйте ще раз.",
+        validation_token_used: "Токен вже був використаний.",
+        validation_token_expired: "Токен застарів.",
+
+        validation_token_verification_not_found: "Токен підтвердження не знайдено. Будь ласка, спробуйте ще раз.",
+        validation_token_verification_expired: "Токен підтвердження застарів.",
+        validation_token_verification_user_enabled: "Аккаунт вже активовано. Тепер ви можете увійти.",
+
+        //frontend
+
+        password_reset_success: "Пароль успішно оновлено. Тепер ви можете увійти.",
+    },
+
     fetchErrors: {
         fetchError: "Сервер недоступний. Будь ласка, спробуйте пізніше",
         serverError: "Серверна помилка. Будь ласка, спробуйте пізніше. Якщо проблема не зникне, зверніться до адміністратора",
@@ -144,7 +166,6 @@ export default {
 
     resetPasswordSetPage: {
         title: "Встановлення нового пароля",
-        success: "Ваш пароль успішно змінено",
         form: {
             fields: {
                 newPassword: "Новий пароль",

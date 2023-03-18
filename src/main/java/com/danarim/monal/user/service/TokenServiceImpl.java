@@ -87,28 +87,34 @@ public class TokenServiceImpl implements TokenService {
         Token verificationToken = tokenDao.findByTokenValue(tokenValue);
 
         if (verificationToken == null) {
-            throw new InvalidTokenException("token not found",
+            throw new InvalidTokenException("Token '" + tokenValue + "' not found",
                                             "validation.token.verification.not-found",
                                             null);
         }
         if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
-            throw new InvalidTokenException(
-                    "wrong token type expected: " + TokenType.VERIFICATION + " actual: "
-                            + verificationToken.getTokenType(),
-                    "validation.token.wrong-type",
-                    new Object[] {TokenType.VERIFICATION, verificationToken.getTokenType()});
-        }
-        if (verificationToken.isUsed()) {
-            throw new InvalidTokenException("token already used", "validation.token.used", null);
-        }
-        if (verificationToken.isExpired()) {
-            throw new InvalidTokenException("token expired",
-                                            "validation.token.verification.expired",
-                                            null);
+            throw new InvalidTokenException("Wrong token type '%s'. Expected: %s, actual: %s"
+                                                    .formatted(tokenValue,
+                                                               TokenType.VERIFICATION,
+                                                               verificationToken.getTokenType()),
+                                            "validation.token.wrong-type",
+                                            new Object[] {
+                                                    TokenType.VERIFICATION,
+                                                    verificationToken.getTokenType()
+                                            });
         }
         if (verificationToken.getUser().isEnabled()) {
-            throw new InvalidTokenException("user already enable",
+            throw new InvalidTokenException("User already verified for token '" + tokenValue + "'",
                                             "validation.token.verification.user-enabled",
+                                            null);
+        }
+        if (verificationToken.isUsed()) {
+            throw new InvalidTokenException("Token '" + tokenValue + "' already used",
+                                            "validation.token.used",
+                                            null);
+        }
+        if (verificationToken.isExpired()) {
+            throw new InvalidTokenException("Token '" + tokenValue + "' expired",
+                                            "validation.token.verification.expired",
                                             null);
         }
         return verificationToken;
@@ -149,20 +155,30 @@ public class TokenServiceImpl implements TokenService {
         Token passwordResetToken = tokenDao.findByTokenValue(tokenValue);
 
         if (passwordResetToken == null) {
-            throw new InvalidTokenException("token not found", "validation.token.not-found", null);
+            throw new InvalidTokenException("Token '" + tokenValue + "' not found",
+                                            "validation.token.not-found",
+                                            null);
         }
         if (passwordResetToken.getTokenType() != TokenType.PASSWORD_RESET) {
-            throw new InvalidTokenException(
-                    "wrong token type expected: " + TokenType.PASSWORD_RESET + " actual: "
-                            + passwordResetToken.getTokenType(),
-                    "validation.token.wrong-type",
-                    new Object[] {TokenType.PASSWORD_RESET, passwordResetToken.getTokenType()});
+            throw new InvalidTokenException("Wrong token type '%s'. Expected: %s, actual: %s"
+                                                    .formatted(tokenValue,
+                                                               TokenType.PASSWORD_RESET,
+                                                               passwordResetToken.getTokenType()),
+                                            "validation.token.wrong-type",
+                                            new Object[] {
+                                                    TokenType.PASSWORD_RESET,
+                                                    passwordResetToken.getTokenType()
+                                            });
         }
         if (passwordResetToken.isUsed()) {
-            throw new InvalidTokenException("token already used", "validation.token.used", null);
+            throw new InvalidTokenException("Token '" + tokenValue + "' already used",
+                                            "validation.token.used",
+                                            null);
         }
         if (passwordResetToken.isExpired()) {
-            throw new InvalidTokenException("token expired", "validation.token.expired", null);
+            throw new InvalidTokenException("Token '" + tokenValue + "' expired",
+                                            "validation.token.expired",
+                                            null);
         }
         return passwordResetToken;
     }
