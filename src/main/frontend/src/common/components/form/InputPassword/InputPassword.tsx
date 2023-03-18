@@ -10,17 +10,15 @@ const InputPassword = (props: InputExtProps) => {
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-    const handlePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
-
     return (
         <div className={styles.passwordInputWrapper}>
             <Input type={isPasswordVisible ? "text" : "password"} {...props}/>
             <button type="button"
                     title={t.form.password_show}
                     className={styles.eyeIcon}
-                    onMouseDown={handlePasswordVisibility}
-                    onMouseUp={handlePasswordVisibility}
-                    onMouseLeave={handlePasswordVisibility}>
+                    onMouseDown={() => setIsPasswordVisible(true)}
+                    onMouseUp={() => setIsPasswordVisible(false)}
+                    onMouseLeave={() => setIsPasswordVisible(false)}>
                 <FontAwesomeIcon icon={faEye}/>
             </button>
         </div>
