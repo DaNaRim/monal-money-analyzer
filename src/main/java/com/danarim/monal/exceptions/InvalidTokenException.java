@@ -27,8 +27,7 @@ public class InvalidTokenException extends BadRequestException {
      *
      * @param message     message for logging and debugging. Not used in response.
      * @param cause       cause of the exception.
-     * @param messageCode used to get localized message from
-     *                    {@link org.springframework.context.MessageSource}.
+     * @param messageCode used to identify message in frontend.
      * @param messageArgs arguments for messageCode. Can be null.
      */
     public InvalidTokenException(String message,

@@ -2,6 +2,7 @@ package com.danarim.monal.util;
 
 import com.danarim.monal.config.security.jwt.JwtUtil;
 import com.danarim.monal.exceptions.InternalServerException;
+import com.danarim.monal.util.appmessage.AppMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.util.WebUtils;
@@ -27,6 +28,7 @@ public final class CookieUtil {
     private static final long COOKIE_PASSWORD_RESET_EXPIRATION_IN_HOURS = 1L;
 
     private CookieUtil() {
+        throw new AssertionError("No CookieUtil instances for you!");
     }
 
     /**
@@ -149,7 +151,7 @@ public final class CookieUtil {
      *
      * @throws InternalServerException if the message cannot be converted to json
      */
-    public static Cookie createAppMessageCookie(ApplicationMessage message) {
+    public static Cookie createAppMessageCookie(AppMessage message) {
         try {
             String messageJson = new ObjectMapper().writeValueAsString(message);
 

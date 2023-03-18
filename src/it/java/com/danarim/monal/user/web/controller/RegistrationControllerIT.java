@@ -30,6 +30,7 @@ import javax.servlet.http.Cookie;
 import static com.danarim.monal.TestUtils.postExt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -169,9 +170,9 @@ class RegistrationControllerIT {
 
         Cookie tokenCookie = CookieUtil.createPasswordResetCookie("someToken");
 
-        when(registrationService.updateForgottenPassword(
-                eq(resetPasswordDto), anyString()))
-                .thenThrow(InvalidTokenException.class);
+        doThrow(new InvalidTokenException("t", "m", null))
+                .when(registrationService).updateForgottenPassword(
+                        eq(resetPasswordDto), anyString());
 
         when(messages.getMessage(any(), any(), any()))
                 .thenReturn("error");

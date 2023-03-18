@@ -4,7 +4,7 @@ import {useNavigate} from "react-router";
 import useFetchUtils, {FormSystemFields} from "../../../app/hooks/formUtils";
 import {useAppDispatch} from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
-import {addAppMessage, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
+import {addAppMessage, AppMessageCode, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
 import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
@@ -33,9 +33,8 @@ const ResetPasswordSetPage = () => {
         resetPasswordSetReq(data).unwrap()
             .then(() => dispatch(addAppMessage({
                 type: AppMessageType.INFO,
-                message: t.resetPasswordSetPage.success,
                 page: "login",
-                messageCode: "message.password-reset.success",
+                messageCode: AppMessageCode.PASSWORD_RESET_SUCCESS,
             })))
             .then(() => navigate("/login"))
             .catch(e => {

@@ -69,7 +69,7 @@ public class BadRequestException extends RuntimeException {
     }
 
     public Object[] getMessageArgs() {
-        return messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
+        return messageArgs.clone();
     }
 
 }

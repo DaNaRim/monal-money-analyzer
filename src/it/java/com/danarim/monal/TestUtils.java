@@ -3,8 +3,8 @@ package com.danarim.monal;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.user.persistence.model.RoleName;
-import com.danarim.monal.util.ApplicationMessage;
 import com.danarim.monal.util.CookieUtil;
+import com.danarim.monal.util.appmessage.AppMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
@@ -193,14 +193,14 @@ public final class TestUtils {
      * @throws AssertionError          if application message cookie not found
      * @throws JsonProcessingException if cookie parsing failed
      */
-    public static ApplicationMessage getApplicationMessage(MvcResult mvcResult)
+    public static AppMessage getAppMessage(MvcResult mvcResult)
             throws JsonProcessingException {
         Cookie appMessageCookie =
                 mvcResult.getResponse().getCookie(CookieUtil.COOKIE_APP_MESSAGE_KEY);
 
         assertNotNull(appMessageCookie, "ApplicationMessage cookie is null");
 
-        return new ObjectMapper().readValue(appMessageCookie.getValue(), ApplicationMessage.class);
+        return new ObjectMapper().readValue(appMessageCookie.getValue(), AppMessage.class);
     }
 
     /**
