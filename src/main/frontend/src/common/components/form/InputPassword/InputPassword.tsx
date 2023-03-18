@@ -19,8 +19,7 @@ const InputPassword = (props: InputExtProps) => {
                     title={t.form.password_show}
                     className={styles.eyeIcon}
                     onMouseDown={handlePasswordVisibility}
-                    onMouseUp={handlePasswordVisibility}
-                    onMouseLeave={handlePasswordVisibility}>
+                    onMouseUp={handlePasswordVisibility}>
                 <FontAwesomeIcon icon={faEye}/>
             </button>
         </div>
