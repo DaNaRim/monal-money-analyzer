@@ -33,9 +33,6 @@ const Input = ({type, name, componentName, options, register, errors, className}
 
     const requiredError = t.getString(`${componentName}.form.errors.${name}.required`);
 
-    console.log(errors);
-    console.log();
-
     return (
         <>
             <div className={`${styles.inputWrapper} ${extraClass}`}>
