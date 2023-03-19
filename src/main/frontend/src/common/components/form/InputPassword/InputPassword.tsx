@@ -1,6 +1,6 @@
 import {faEye} from "@fortawesome/free-regular-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {useState} from "react";
+import React, {useState} from "react";
 import useTranslation from "../../../../app/hooks/translation";
 import Input, {InputExtProps} from "../Input/Input";
 import styles from "./InputPassword.module.scss";
@@ -10,6 +10,12 @@ const InputPassword = (props: InputExtProps) => {
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, state: boolean) => {
+        if (event.key === " ") {
+            setIsPasswordVisible(state);
+        }
+    };
+
     return (
         <div className={styles.passwordInputWrapper}>
             <Input type={isPasswordVisible ? "text" : "password"} {...props}/>
@@ -18,7 +24,10 @@ const InputPassword = (props: InputExtProps) => {
                     className={styles.eyeIcon}
                     onMouseDown={() => setIsPasswordVisible(true)}
                     onMouseUp={() => setIsPasswordVisible(false)}
-                    onMouseLeave={() => setIsPasswordVisible(false)}>
+                    onMouseLeave={() => setIsPasswordVisible(false)}
+                    onKeyDown={e => handleKeyDown(e, true)}
+                    onKeyUp={e => handleKeyDown(e, false)}
+            >
                 <FontAwesomeIcon icon={faEye}/>
             </button>
         </div>
