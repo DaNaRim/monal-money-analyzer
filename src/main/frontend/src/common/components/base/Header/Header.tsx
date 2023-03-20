@@ -43,17 +43,14 @@ const Header = () => {
     };
 
     useEffect(() => {
-        if (isAuthInit) {
-            return;
-        }
-        const authInitCookie = document.cookie.split("; ").find(row => row.startsWith("authInit="));
-
-        if (authInitCookie) {
+        if (!isAuthInit) {
             getAuthState().unwrap()
                 .then(res => dispatch(setCredentials(res)))
-                .catch(() => dispatch(setInitialized()));
-        } else {
-            dispatch(setInitialized());
+                .catch(() => {
+                    dispatch(clearAuthState());
+                    dispatch(setInitialized());
+                    logout();
+                });
         }
     }, [dispatch, getAuthState, isAuthInit]);
 

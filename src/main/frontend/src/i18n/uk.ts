@@ -40,7 +40,6 @@ export default {
         //frontend
 
         password_reset_success: "Пароль успішно оновлено. Тепер ви можете увійти.",
-        auth_expired: "Термін дії сесії закінчився. Будь ласка, увійдіть знову.",
     },
 
     fetchErrors: {
