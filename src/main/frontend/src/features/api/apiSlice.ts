@@ -1,6 +1,7 @@
 import {BaseQueryApi} from "@reduxjs/toolkit/dist/query/baseQueryTypes";
 import {createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {RootState} from "../../app/store";
+import {AppMessageCode, AppMessageType, saveAppMessage} from "../appMessages/appMessagesSlice";
 import {AuthResponseEntity, clearAuthState, setCredentials, setForceLogin} from "../auth/authSlice";
 
 const serverUrl = "/api/v1";
@@ -22,7 +23,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
 ) => {
     let result = await baseQuery(args, api, extraOptions);
 
-    if (result.error?.status === 403) {
+    if (result.meta?.response?.status === 401) {
         const refreshResult = await baseQuery({url: "/auth/refresh", method: "POST"}, api, extraOptions);
 
         if (refreshResult.meta?.response?.status === 200) {
@@ -32,13 +33,17 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
             result = await baseQuery(args, api, extraOptions);
 
         } else if (refreshResult.meta?.response?.status === 401) {
-            await baseQuery("/logout", api, extraOptions);
+            await baseQuery({url: "/logout", method: "POST"}, api, extraOptions);
             api.dispatch(clearAuthState());
             api.dispatch(setForceLogin(true));
 
+            api.dispatch(saveAppMessage({
+                type: AppMessageType.WARNING,
+                messageCode: AppMessageCode.AUTH_EXPIRED,
+                page: "login",
+            }));
+
             window.location.replace("/login");
-        } else if (refreshResult.meta?.response?.status === 403) {
-            window.location.replace("/forbidden");
         } else {
             window.location.replace("/error");
         }
