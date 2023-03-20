@@ -51,10 +51,12 @@ class AuthControllerIT {
 
         Cookie accessTokenCookie = getAccessTokenCookie(result);
         Cookie refreshTokenCookie = getRefreshTokenCookie(result);
+        Cookie authInitCookie = result.getResponse().getCookie(CookieUtil.COOKIE_AUTH_INIT_KEY);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/logout")
                                 .cookie(accessTokenCookie)
-                                .cookie(refreshTokenCookie))
+                                .cookie(refreshTokenCookie)
+                                .cookie(authInitCookie))
                 .andExpect(status().isNoContent())
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
