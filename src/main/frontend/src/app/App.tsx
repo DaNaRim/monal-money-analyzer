@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Route, Routes, useLocation} from "react-router";
 import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
 import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
@@ -26,7 +26,10 @@ const App = () => {
     if (location.pathname !== "/login" && isForceLoin) {
         dispatch(setForceLogin(false));
     }
-    dispatch(checkForServerMessages());
+
+    useEffect(() => {
+        dispatch(checkForServerMessages());
+    }, [dispatch]);
 
     return (
         <Routes>

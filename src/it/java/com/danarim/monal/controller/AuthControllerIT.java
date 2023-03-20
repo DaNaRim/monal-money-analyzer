@@ -51,10 +51,12 @@ class AuthControllerIT {
 
         Cookie accessTokenCookie = getAccessTokenCookie(result);
         Cookie refreshTokenCookie = getRefreshTokenCookie(result);
+        Cookie authInitCookie = result.getResponse().getCookie(CookieUtil.COOKIE_AUTH_INIT_KEY);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/logout")
                                 .cookie(accessTokenCookie)
-                                .cookie(refreshTokenCookie))
+                                .cookie(refreshTokenCookie)
+                                .cookie(authInitCookie))
                 .andExpect(status().isNoContent())
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_ACCESS_TOKEN_KEY))
@@ -63,7 +65,10 @@ class AuthControllerIT {
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
                 .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
-                .andExpect(cookie().maxAge(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, 0));
+                .andExpect(cookie().maxAge(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, 0))
+
+                .andExpect(cookie().exists(CookieUtil.COOKIE_AUTH_INIT_KEY))
+                .andExpect(cookie().maxAge(CookieUtil.COOKIE_AUTH_INIT_KEY, 0));
 
         DecodedJWT accessToken = jwtUtil.decode(accessTokenCookie.getValue());
         DecodedJWT refreshToken = jwtUtil.decode(refreshTokenCookie.getValue());
