@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -60,6 +59,7 @@ public class AuthController {
 
         String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         String refreshToken = CookieUtil.getRefreshTokenValueByRequest(request);
+        boolean isInitCookieExists = CookieUtil.isAuthInitCookieExists(request);
 
         if (accessToken != null) {
             jwtUtil.blockToken(accessToken);
@@ -68,6 +68,9 @@ public class AuthController {
         if (refreshToken != null) {
             jwtUtil.blockToken(refreshToken);
             response.addCookie(CookieUtil.deleteRefreshTokenCookie());
+        }
+        if (isInitCookieExists) {
+            response.addCookie(CookieUtil.deleteAuthInitCookie());
         }
     }
 
@@ -146,8 +149,7 @@ public class AuthController {
 
         String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
 
-        Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
-        response.addCookie(accessTokenCookie);
+        response.addCookie(CookieUtil.createAccessTokenCookie(accessToken));
 
         return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
     }

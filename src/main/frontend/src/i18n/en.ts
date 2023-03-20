@@ -40,6 +40,7 @@ export default {
         //frontend
 
         password_reset_success: "Password updated successfully. You can now log in.",
+        auth_expired: "Session expired. Please log in again.",
     },
 
     fetchErrors: {
