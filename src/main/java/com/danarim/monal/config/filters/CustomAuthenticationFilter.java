@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -98,9 +99,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        response.addCookie(CookieUtil.createAccessTokenCookie(accessToken));
-        response.addCookie(CookieUtil.createRefreshTokenCookie(refreshToken));
-        response.addCookie(CookieUtil.createAuthInitCookie());
+        Cookie accessTokenCookie = CookieUtil.createAccessTokenCookie(accessToken);
+        Cookie refreshTokenCookie = CookieUtil.createRefreshTokenCookie(refreshToken);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
 
         AuthResponseEntity authResponse = AuthResponseEntity.generateAuthResponse(user, csrfToken);
 
