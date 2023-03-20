@@ -39,7 +39,9 @@ class CustomAuthenticationFilterIT {
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
                 .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
-                .andExpect(cookie().secure(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true));
+                .andExpect(cookie().secure(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
+
+                .andExpect(cookie().exists(CookieUtil.COOKIE_AUTH_INIT_KEY));
     }
 
     @Test

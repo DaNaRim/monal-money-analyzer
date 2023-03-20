@@ -29,6 +29,7 @@ export enum AppMessageCode {
     //frontend messages
 
     PASSWORD_RESET_SUCCESS = "password-reset.success",
+    AUTH_EXPIRED = "auth.expired",
 }
 
 export interface AppMessage {
@@ -51,10 +52,13 @@ export const appMessagesSlice = createSlice({
     reducers: {
         checkForServerMessages: (state) => {
             const serverMessage = document.cookie.split("; ")
-                .find(row => row.startsWith(COOKIE_KEY_APPLICATION_MESSAGE))?.split("=")[1];
+                .find(row => row.startsWith(COOKIE_KEY_APPLICATION_MESSAGE))?.split("=")[1]
+                .replaceAll("\\", "") //Server sends messages with escaped quotes
+                .replace(/^"/, "")
+                .replace(/"$/, "")
 
             if (serverMessage) {
-                const cookie: AppMessage = JSON.parse(JSON.parse(serverMessage));
+                const cookie: AppMessage = JSON.parse(serverMessage);
 
                 state.messages.push({
                     type: cookie.type,
@@ -73,6 +77,18 @@ export const appMessagesSlice = createSlice({
                 messageCode: message.messageCode,
             });
         },
+        saveAppMessage: (state, action: PayloadAction<AppMessage>) => {
+            const message = action.payload;
+
+            state.messages.push({
+                type: message.type,
+                page: message.page,
+                messageCode: message.messageCode,
+            });
+
+            document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=${JSON.stringify(message)};`
+                + ` path=/; expires=${new Date(Date.now() + 5 * 60 * 1000).toUTCString()}`; //5 minutes is enough
+        },
         deleteAppMessage: (state, action: PayloadAction<string>) => {
             const msgCode = action.payload;
 
@@ -84,6 +100,7 @@ export const appMessagesSlice = createSlice({
 export const {
     checkForServerMessages,
     addAppMessage,
+    saveAppMessage,
     deleteAppMessage,
 } = appMessagesSlice.actions;
 
