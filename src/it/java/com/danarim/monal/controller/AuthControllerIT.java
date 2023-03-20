@@ -63,7 +63,10 @@ class AuthControllerIT {
 
                 .andExpect(cookie().exists(CookieUtil.COOKIE_REFRESH_TOKEN_KEY))
                 .andExpect(cookie().httpOnly(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, true))
-                .andExpect(cookie().maxAge(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, 0));
+                .andExpect(cookie().maxAge(CookieUtil.COOKIE_REFRESH_TOKEN_KEY, 0))
+
+                .andExpect(cookie().exists(CookieUtil.COOKIE_AUTH_INIT_KEY))
+                .andExpect(cookie().maxAge(CookieUtil.COOKIE_AUTH_INIT_KEY, 0));
 
         DecodedJWT accessToken = jwtUtil.decode(accessTokenCookie.getValue());
         DecodedJWT refreshToken = jwtUtil.decode(refreshTokenCookie.getValue());
