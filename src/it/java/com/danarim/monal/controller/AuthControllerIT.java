@@ -279,15 +279,13 @@ class AuthControllerIT {
 
     @Test
     void authGetState_RefreshTokenAsAccess_Unauthorized() throws Exception {
-        MvcResult result = getLoginResult(RoleName.ROLE_USER, mockMvc);
+        String refreshToken =
+                jwtUtil.generateRefreshToken(DbUserFiller.testUser, 3L);
 
-        Cookie accessTokenCookie = getAccessTokenCookie(result);
-        Cookie refreshTokenCookie = getRefreshTokenCookie(result);
-
-        accessTokenCookie.setValue(refreshTokenCookie.getValue());
+        Cookie wrongTypeTokenCookie = CookieUtil.createAccessTokenCookie(refreshToken);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/auth/getState")
-                                .cookie(refreshTokenCookie))
+                                .cookie(wrongTypeTokenCookie))
                 .andExpect(status().isUnauthorized())
 
                 .andExpect(jsonPath("$").exists())
