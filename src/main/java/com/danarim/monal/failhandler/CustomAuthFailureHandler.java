@@ -5,6 +5,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
@@ -100,6 +101,9 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
             case CREDENTIALS_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.globalError(
                     "validation.auth.invalidBody",
                     messages.getMessage("validation.auth.invalidBody", null, locale));
+            case CREDENTIALS_EXPIRED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
+                    "validation.auth.credentialsExpired",
+                    messages.getMessage("validation.auth.credentialsExpired", null, locale));
             default -> {
                 logger.error("Unexpected authentication error " + exception.getMessage(),
                              exception);
@@ -126,6 +130,7 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         ACCOUNT_EXPIRED_EXCEPTION(AccountExpiredException.class.getSimpleName()),
         CREDENTIALS_NOT_FOUND_EXCEPTION(
                 AuthenticationCredentialsNotFoundException.class.getSimpleName()),
+        CREDENTIALS_EXPIRED_EXCEPTION(CredentialsExpiredException.class.getSimpleName()),
         UNEXPECTED("UNEXPECTED");
 
         private final String errorClassName;

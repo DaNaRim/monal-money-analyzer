@@ -46,20 +46,8 @@ public class Role implements GrantedAuthority {
         return roleName.toString();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public RoleName getName() {
+    public RoleName getRoleName() {
         return roleName;
-    }
-
-    public void setName(RoleName name) {
-        this.roleName = name;
     }
 
     @Override

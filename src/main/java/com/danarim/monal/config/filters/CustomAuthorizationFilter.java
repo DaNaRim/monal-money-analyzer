@@ -78,7 +78,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            processAuthorization(accessToken, csrfToken, request.getRequestURI());
+            processAuthorization(accessToken, csrfToken);
 
             filterChain.doFilter(request, response);
         } catch (CsrfException e) {
@@ -95,17 +95,16 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
      *
      * @param accessToken the JWT accessToken
      * @param csrfToken   csrf token from request header
-     * @param requestUri  request URI
      *
      * @throws CsrfException            if request send to api and csrfToken doesn't match with same
      *                                  from jwt
      * @throws JWTVerificationException if accessToken is invalid, have wrong type, expired or
      *                                  blocked
      */
-    private void processAuthorization(String accessToken, String csrfToken, String requestUri) {
+    private void processAuthorization(String accessToken, String csrfToken) {
         DecodedJWT decodedJwt = jwtUtil.decode(accessToken);
 
-        validateToken(decodedJwt, csrfToken, requestUri);
+        validateToken(decodedJwt, csrfToken);
 
         String username = decodedJwt.getSubject();
         String[] roles = decodedJwt.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
@@ -123,13 +122,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
      *
      * @param decodedJwt decoded JWT token
      * @param csrfToken  csrf token from request header
-     * @param requestUri request URI
      *
      * @throws CsrfException            if request send to api and csrfToken doesn't match with same
      *                                  from jwt
      * @throws JWTVerificationException if accessToken have wrong type or blocked
      */
-    private void validateToken(DecodedJWT decodedJwt, String csrfToken, String requestUri) {
+    private void validateToken(DecodedJWT decodedJwt, String csrfToken) {
 
         String csrfTokenFromJwt = decodedJwt.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
         String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
@@ -138,8 +136,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         if (!tokenType.equals(JwtUtil.TOKEN_TYPE_ACCESS)) {
             throw new JWTVerificationException("Invalid token type");
         }
-        if (requestUri.startsWith(WebConfig.API_V1_PREFIX)
-                && !Objects.equals(csrfToken, csrfTokenFromJwt)) {
+        if (!Objects.equals(csrfToken, csrfTokenFromJwt)) {
             throw new CsrfException("Invalid csrf token");
         }
         if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {

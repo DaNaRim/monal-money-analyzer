@@ -132,6 +132,12 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${org.testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <version>${org.testcontainers.version}</version>
             <scope>test</scope>
@@ -452,6 +458,8 @@
                                     <excludes>
                                         <exclude>*Test</exclude>
                                         <exclude>*IT</exclude>
+                                        <exclude>*Application</exclude>
+                                        <exclude>*Config*</exclude>
                                     </excludes>
                                     <limits>
                                         <limit>

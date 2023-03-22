@@ -45,25 +45,6 @@ public class BadRequestException extends RuntimeException {
         this.messageArgs = messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
     }
 
-    /**
-     * Exception for global validation errors.
-     *
-     * @param message     message for logging and debugging. Not used in response.
-     * @param cause       cause of the exception.
-     * @param messageCode used to get localized message from
-     *                    {@link org.springframework.context.MessageSource}.
-     * @param messageArgs arguments for messageCode. Can be null.
-     */
-    public BadRequestException(String message,
-                               Throwable cause,
-                               String messageCode,
-                               Object[] messageArgs
-    ) {
-        super(message, cause);
-        this.messageCode = messageCode;
-        this.messageArgs = messageArgs == null ? DEFAULT_MESSAGE_ARGS : messageArgs.clone();
-    }
-
     public String getMessageCode() {
         return messageCode;
     }

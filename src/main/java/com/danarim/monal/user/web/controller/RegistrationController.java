@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -44,7 +43,7 @@ public class RegistrationController {
      *
      * @param registrationDto user data
      *
-     * @see TokenController#confirmRegistration(String, Locale, HttpServletResponse)
+     * @see TokenController#confirmRegistration(String, HttpServletResponse)
      */
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.CREATED)

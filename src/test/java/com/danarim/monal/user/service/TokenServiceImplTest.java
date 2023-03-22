@@ -59,6 +59,17 @@ class TokenServiceImplTest {
     }
 
     @Test
+    void createVerificationToken_DelayPassed() {
+        User user = mock(User.class);
+
+        when(tokenDao.findLastTokenCreationDate(user, TokenType.PASSWORD_RESET))
+                .thenReturn(new Date(new Date().getTime() - 1000L * 60L * 60L * 24L));
+
+        tokenService.createVerificationToken(user);
+        verify(tokenDao).save(any(Token.class));
+    }
+
+    @Test
     void createVerificationToken_DelayNotPassed_BadRequestException() {
         User user = mock(User.class);
 
@@ -154,6 +165,17 @@ class TokenServiceImplTest {
     @Test
     void createPasswordResetToken() {
         User user = mock(User.class);
+        tokenService.createPasswordResetToken(user);
+        verify(tokenDao).save(any(Token.class));
+    }
+
+    @Test
+    void createPasswordResetToken_DelayPassed() {
+        User user = mock(User.class);
+
+        when(tokenDao.findLastTokenCreationDate(user, TokenType.PASSWORD_RESET))
+                .thenReturn(new Date(new Date().getTime() - 1000L * 60L * 60L * 24L));
+
         tokenService.createPasswordResetToken(user);
         verify(tokenDao).save(any(Token.class));
     }

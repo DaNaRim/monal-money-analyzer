@@ -72,8 +72,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         } catch (IOException e) {
             throw new AuthenticationCredentialsNotFoundException("invalid AuthenticationBody", e);
         }
-        final String username = authBody.username;
-        final String password = authBody.password;
+        final String username = authBody.username();
+        final String password = authBody.password();
 
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));

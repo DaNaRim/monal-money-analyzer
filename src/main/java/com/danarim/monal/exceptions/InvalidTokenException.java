@@ -22,20 +22,4 @@ public class InvalidTokenException extends BadRequestException {
         super(message, messageCode, messageArgs);
     }
 
-    /**
-     * Exception for invalid token. Used with not auth tokens.
-     *
-     * @param message     message for logging and debugging. Not used in response.
-     * @param cause       cause of the exception.
-     * @param messageCode used to identify message in frontend.
-     * @param messageArgs arguments for messageCode. Can be null.
-     */
-    public InvalidTokenException(String message,
-                                 Throwable cause,
-                                 String messageCode,
-                                 Object[] messageArgs
-    ) {
-        super(message, cause, messageCode, messageArgs);
-    }
-
 }
