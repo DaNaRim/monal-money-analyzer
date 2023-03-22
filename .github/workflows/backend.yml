@@ -59,13 +59,20 @@ jobs:
           distribution: adopt
           cache: 'maven'
 
-      - name: Build
-        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
-        env:
-          CI: ""
+#      - name: Build
+#        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
+#        env:
+#          CI: ""
 
       - name: Test
-        run: mvn failsafe:integration-test -B -Dmaven.test.failure.ignore=true -Djacoco.destFile=exportJacoco/jacoco-it.exec
+        run: mvn verify 
+            -B
+            -Dskip.installyarn
+            -Dskip.yarn
+            -Dcheckstyle.skip
+            -Dspring.profiles.active=test
+            -Dmaven.test.failure.ignore=true
+            -Djacoco.destFile=exportJacoco/jacoco-it.exec
 
       - name: Report
         uses: dorny/test-reporter@v1
