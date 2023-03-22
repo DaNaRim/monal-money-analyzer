@@ -9,7 +9,7 @@ permissions:
   checks: write
 
 jobs:
-  unit-tests:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,15 +22,16 @@ jobs:
           distribution: adopt
           cache: 'maven'
 
-      - name: Build
-        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
-        env:
-          CI: ""
-
       - name: Test
-        run: mvn surefire:test -B -Dmaven.test.failure.ignore=true -Djacoco.destFile=exportJacoco/jacoco-unit.exec
+        run: mvn verify
+          -B
+          -Dskip.installyarn
+          -Dskip.yarn
+          -Dcheckstyle.skip
+          -Dspring.profiles.active=test
+          -Dmaven.test.failure.ignore=true
 
-      - name: Test Report
+      - name: Unit test Report
         uses: dorny/test-reporter@v1
         if: always()
         with:
@@ -39,42 +40,7 @@ jobs:
           reporter: java-junit
           fail-on-error: true
 
-      - name: Coverage Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: unit-tests-jacoco
-          path: exportJacoco/jacoco-unit.exec
-
-
-  integration-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-          distribution: adopt
-          cache: 'maven'
-
-#      - name: Build
-#        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
-#        env:
-#          CI: ""
-
-      - name: Test
-        run: mvn verify 
-            -B
-            -Dskip.installyarn
-            -Dskip.yarn
-            -Dcheckstyle.skip
-            -Dspring.profiles.active=test
-            -Dmaven.test.failure.ignore=true
-            -Djacoco.destFile=exportJacoco/jacoco-it.exec
-
-      - name: Report
+      - name: Integration Test Report
         uses: dorny/test-reporter@v1
         if: always()
         with:
@@ -83,11 +49,103 @@ jobs:
           reporter: java-junit
           fail-on-error: true
 
-      - name: Coverage Report
+      - name: Unit test coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit-tests-jacoco
+          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-unit-tests.exec
+
+      - name: Integration test coverage Report
         uses: actions/upload-artifact@v2
         with:
           name: integration-tests-jacoco
-          path: exportJacoco/jacoco-it.exec
+          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-integration-tests.exec
+
+      - name: Merged test coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: merged-tests-jacoco
+          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-merged.exec
+
+#  unit-tests:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Setup Java
+#        uses: actions/setup-java@v2
+#        with:
+#          java-version: 17
+#          distribution: adopt
+#          cache: 'maven'
+#
+#      - name: Build
+#        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
+#        env:
+#          CI: ""
+#
+#      - name: Test
+#        run: mvn surefire:test -B -Dmaven.test.failure.ignore=true -Djacoco.destFile=exportJacoco/jacoco-unit.exec
+#
+#      - name: Test Report
+#        uses: dorny/test-reporter@v1
+#        if: always()
+#        with:
+#          name: Unit tests report
+#          path: target/surefire-reports/*.xml
+#          reporter: java-junit
+#          fail-on-error: true
+#
+#      - name: Coverage Report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: unit-tests-jacoco
+#          path: exportJacoco/jacoco-unit.exec
+#
+#
+#  integration-tests:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Setup Java
+#        uses: actions/setup-java@v2
+#        with:
+#          java-version: 17
+#          distribution: adopt
+#          cache: 'maven'
+#
+##      - name: Build
+##        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
+##        env:
+##          CI: ""
+#
+#      - name: Test
+#        run: mvn verify
+#            -B
+#            -Dskip.installyarn
+#            -Dskip.yarn
+#            -Dcheckstyle.skip
+#            -Dspring.profiles.active=test
+#            -Dmaven.test.failure.ignore=true
+#            -Djacoco.destFile=exportJacoco/jacoco-it.exec
+#
+#      - name: Test Report
+#        uses: dorny/test-reporter@v1
+#        if: always()
+#        with:
+#          name: Integration tests report
+#          path: target/failsafe-reports/TEST-*.xml
+#          reporter: java-junit
+#          fail-on-error: true
+#
+#      - name: Coverage Report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: integration-tests-jacoco
+#          path: exportJacoco/jacoco-it.exec
 
 
   checkstyle:
