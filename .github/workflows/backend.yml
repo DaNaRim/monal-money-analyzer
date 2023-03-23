@@ -151,7 +151,7 @@ jobs:
           path: target/
 
       - name: Merge JaCoCo reports
-        uses: actions/jacoco-merge@v1
+        uses: cprudhom/jacoco-merge@v1
         with:
           exec-file: >
             target/jacoco-integration-tests.exec
@@ -163,7 +163,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: coverage-results-report
-          path: target/site/jacoco/
+          path: target/jacoco-merged.exec
           if-no-files-found: error
 
       - name: Generate JaCoCo report
