@@ -150,11 +150,11 @@ jobs:
           name: unit-tests-jacoco
           path: ${{ github.workspace }}/target/jacoco-output/
 
-      - name: Print jacoco-output directory
-        run: ls -la ${{ github.workspace }}/target/jacoco-output/
-
       - name: merge results
         run: mvn jacoco:merge@merge-unit-and-integration -B
+
+      - name: Print jacoco-output directory
+        run: ls -la ${{ github.workspace }}/target/jacoco-output/
 
       - name: Upload Merge JaCoCo report
         uses: actions/upload-artifact@v2
