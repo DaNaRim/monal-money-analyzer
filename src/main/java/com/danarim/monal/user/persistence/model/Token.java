@@ -84,24 +84,12 @@ public class Token implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getTokenValue() {
         return tokenValue;
     }
 
     public User getUser() {
         return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Date getExpirationDate() {
-        return new Date(expirationDate.getTime());
     }
 
     public void setExpirationDate(Date expirationDate) {

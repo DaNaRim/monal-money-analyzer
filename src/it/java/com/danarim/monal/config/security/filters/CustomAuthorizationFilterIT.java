@@ -46,6 +46,9 @@ class CustomAuthorizationFilterIT {
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/adminStub"))
                 .andExpect(status().isForbidden());
+
+        mockMvc.perform(getExt("/"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -59,6 +62,9 @@ class CustomAuthorizationFilterIT {
                         getExtWithAuth(WebConfig.API_V1_PREFIX + "/adminStub", RoleName.ROLE_USER,
                                        mockMvc))
                 .andExpect(status().isForbidden());
+
+        mockMvc.perform(getExtWithAuth("/", RoleName.ROLE_USER, mockMvc))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -70,6 +76,9 @@ class CustomAuthorizationFilterIT {
 
         mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/adminStub", RoleName.ROLE_ADMIN,
                                        mockMvc))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(getExtWithAuth("/", RoleName.ROLE_ADMIN, mockMvc))
                 .andExpect(status().isOk());
     }
 

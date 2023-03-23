@@ -1,5 +1,6 @@
 package com.danarim.monal.user.persistence.model;
 
+import com.danarim.monal.config.jacoco.CoverageGenerated;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serial;
@@ -46,20 +47,8 @@ public class Role implements GrantedAuthority {
         return roleName.toString();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public RoleName getName() {
+    public RoleName getRoleName() {
         return roleName;
-    }
-
-    public void setName(RoleName name) {
-        this.roleName = name;
     }
 
     @Override
@@ -68,6 +57,7 @@ public class Role implements GrantedAuthority {
     }
 
     @Override
+    @CoverageGenerated
     public boolean equals(Object o) {
         if (this == o) {
             return true;

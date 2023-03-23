@@ -204,6 +204,7 @@ public final class CookieUtil {
                     COOKIE_APP_MESSAGE_EXPIRATION_IN_HOURS));
             return cookie;
         } catch (JsonProcessingException e) {
+            // should never happen
             throw new InternalServerException("Failed to create application message cookie", e);
         }
     }

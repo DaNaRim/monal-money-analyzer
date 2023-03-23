@@ -1,5 +1,6 @@
 package com.danarim.monal.config.security.auth;
 
+import com.danarim.monal.config.jacoco.CoverageGenerated;
 import com.danarim.monal.user.persistence.model.User;
 
 import java.util.Arrays;
@@ -30,13 +31,14 @@ public record AuthResponseEntity(
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRoles().stream()
-                        .map(role -> role.getName().toString())
+                        .map(role -> role.getRoleName().toString())
                         .toArray(String[]::new),
                 csrfToken
         );
     }
 
     @Override
+    @CoverageGenerated
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -53,6 +55,7 @@ public record AuthResponseEntity(
     }
 
     @Override
+    @CoverageGenerated
     public int hashCode() {
         int result = Objects.hash(username, firstName, lastName, csrfToken);
         result = 31 * result + Arrays.hashCode(roles);
@@ -60,6 +63,7 @@ public record AuthResponseEntity(
     }
 
     @Override
+    @CoverageGenerated
     public String toString() {
         return "AuthResponseEntity{"
                 + "username='" + username + '\''

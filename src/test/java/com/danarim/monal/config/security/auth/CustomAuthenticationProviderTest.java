@@ -55,6 +55,7 @@ class CustomAuthenticationProviderTest {
         when(user.isEnabled()).thenReturn(true);
         when(user.isAccountNonExpired()).thenReturn(true);
         when(user.isAccountNonLocked()).thenReturn(true);
+        when(user.isCredentialsNonExpired()).thenReturn(true);
 
         when(passwordEncoder.matches(eq(PASSWORD), any()))
                 .thenReturn(true);
@@ -79,12 +80,49 @@ class CustomAuthenticationProviderTest {
     }
 
     @Test
+    void authenticate_NullUsername_UsernameNotFoundException() {
+        when(authentication.getName()).thenReturn(null);
+
+        assertThrows(UsernameNotFoundException.class,
+                     () -> authProvider.authenticate(authentication));
+    }
+
+    @Test
+    void authenticate_BlankUsername_UsernameNotFoundException() {
+        when(authentication.getName()).thenReturn("    ");
+
+        assertThrows(UsernameNotFoundException.class,
+                     () -> authProvider.authenticate(authentication));
+    }
+
+    @Test
     void authenticate_NoPassword_BadCredentialsException() {
         when(authentication.getCredentials()).thenReturn(null);
         assertThrows(BadCredentialsException.class,
                      () -> authProvider.authenticate(authentication));
 
         when(authentication.getCredentials()).thenReturn(new Object());
+        assertThrows(BadCredentialsException.class,
+                     () -> authProvider.authenticate(authentication));
+    }
+
+    @Test
+    void authenticate_NullCredentials_BadCredentialsException() {
+        when(authentication.getCredentials()).thenReturn(null);
+        assertThrows(BadCredentialsException.class,
+                     () -> authProvider.authenticate(authentication));
+    }
+
+    @Test
+    void authenticate_IncorrectCredentials_BadCredentialsException() {
+        Object credentials = mock(Object.class);
+        when(credentials.toString()).thenReturn(null);
+
+        when(authentication.getCredentials()).thenReturn(credentials);
+        assertThrows(BadCredentialsException.class,
+                     () -> authProvider.authenticate(authentication));
+
+        when(credentials.toString()).thenReturn("    ");
         assertThrows(BadCredentialsException.class,
                      () -> authProvider.authenticate(authentication));
     }

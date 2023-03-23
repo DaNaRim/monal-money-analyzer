@@ -240,7 +240,7 @@ public class TokenServiceImpl implements TokenService {
 
         if (tokenType == TokenType.VERIFICATION) {
             calendar.add(Calendar.MINUTE, CREATE_VERIFICATION_TOKEN_DELAY_IN_MINUTES);
-        } else if (tokenType == TokenType.PASSWORD_RESET) {
+        } else { //tokenType == TokenType.PASSWORD_RESET
             calendar.add(Calendar.MINUTE, CREATE_PASSWORD_RESET_TOKEN_DELAY_IN_MINUTES);
         }
         Date timeAfterDelay = calendar.getTime();

@@ -5,6 +5,8 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +43,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     protected static final String LOG_TEMPLATE = "%s during request: %s : %s";
 
+    //Use own logger because Spring's logger defaults to INFO level and configures by own property.
+    private static final Log rexLogger = LogFactory.getLog(RestExceptionHandler.class);
+
     private final MessageSource messages;
 
     public RestExceptionHandler(MessageSource messages) {
@@ -59,8 +64,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<List<ErrorResponse>> handleBadRequestException(BadRequestException e,
                                                                             WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
@@ -83,8 +88,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<List<ErrorResponse>> handleBadFieldException(BadFieldException e,
                                                                           WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
@@ -109,8 +114,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             AccessDeniedException e,
             WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage("error.access.denied", null, locale);
@@ -121,7 +126,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles {@link TokenExpiredException} thrown by auth refresh endpoint when token is expired.
+     * Handles {@link TokenExpiredException} thrown by auth refresh endpoint when token is
+     * expired.
+     * Needed to return 401 instead of 403.
      *
      * @param e       exception caused by expired token.
      * @param request request where exception occurred.
@@ -133,8 +140,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<String> handleTokenExpiredException(TokenExpiredException e,
                                                                  WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e
+                             .getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
 
@@ -156,8 +163,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<String> handleJwtVerificationException(JWTVerificationException e,
                                                                     WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
 
@@ -179,8 +186,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             InvalidTokenException e,
             WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
@@ -203,8 +210,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<List<ErrorResponse>> handleMailException(MailException e,
                                                                       WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage("error.mail.send", null, locale);
@@ -227,7 +234,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<List<ErrorResponse>> handleInternalException(Exception e,
                                                                           WebRequest request
     ) {
-        logger.error("Internal server error during request: " + request.getContextPath(), e);
+        rexLogger.error("Internal server error during request: " + request.getContextPath(), e);
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage("error.server.internal-error", null, locale);
@@ -253,8 +260,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status,
                                                                   WebRequest request
     ) {
-        logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
-                     e);
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
 
         ArrayList<ErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
         return new ResponseEntity<>(mappedErrors, headers, status);

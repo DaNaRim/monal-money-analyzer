@@ -60,40 +60,4 @@ public class JwtTokenEntity implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTokenType() {
-        return tokenType;
-    }
-
-    public void setTokenType(String tokenType) {
-        this.tokenType = tokenType;
-    }
-
-    public Date getExpirationDate() {
-        return new Date(expirationDate.getTime());
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = new Date(expirationDate.getTime());
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Boolean isBlocked() {
-        return isBlocked;
-    }
-
-    public void setBlocked(Boolean blocked) {
-        isBlocked = blocked;
-    }
-
 }

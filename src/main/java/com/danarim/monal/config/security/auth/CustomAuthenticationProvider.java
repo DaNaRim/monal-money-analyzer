@@ -5,6 +5,7 @@ import com.danarim.monal.user.persistence.model.User;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,8 +49,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (name == null || name.isBlank()) {
             throw new UsernameNotFoundException("Username is null"); //displayed as user not found
         }
-        if (credentials == null || credentials.toString() == null || credentials.toString()
-                .isBlank()) {
+        if (credentials == null
+                || credentials.toString() == null
+                || credentials.toString().isBlank()) {
             throw new BadCredentialsException("Password is null"); //displayed as invalid password
         }
         User user = (User) userDetailsService.loadUserByUsername(name);
@@ -76,6 +78,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         }
         if (!user.isAccountNonLocked()) {
             throw new LockedException("User account is locked");
+        }
+        if (!user.isCredentialsNonExpired()) {
+            throw new CredentialsExpiredException("User credentials are expired");
         }
     }
 

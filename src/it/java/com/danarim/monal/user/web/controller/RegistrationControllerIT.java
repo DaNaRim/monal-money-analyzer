@@ -100,6 +100,23 @@ class RegistrationControllerIT {
     }
 
     @Test
+    void registration_emailTaken_BadRequest() throws Exception {
+        RegistrationDto registrationDto = new RegistrationDto(
+                "John", "Doe",
+                "test1234", "test1234",
+                "test@test.test"
+        );
+        doThrow(new BadFieldException("Test", "validation.user.existing.email", null, "email"))
+                .when(registrationService).registerNewUserAccount(registrationDto);
+
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
+                .andExpect(status().isBadRequest());
+
+        verify(registrationService).registerNewUserAccount(registrationDto);
+        verify(listener, never()).onApplicationEvent(any(OnRegistrationCompleteEvent.class));
+    }
+
+    @Test
     void resendVerificationToken() throws Exception {
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/resendVerificationToken")
                                 .param("email", "someEmail"))
