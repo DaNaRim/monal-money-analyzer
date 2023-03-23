@@ -62,7 +62,7 @@ jobs:
         with:
           coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
           coverage_report_name: Integration test coverage
-#          coverage_report_title: JaCoCo
+          coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: false
 #          minimum_coverage: 80
