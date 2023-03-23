@@ -157,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: coverage-results-report
-          path: ${{ github.workspace }}/target/site/jacoco-merged-test-coverage-report/jacoco.xml
+          path: ${{ github.workspace }}/target/jacoco-output/jacoco-merged.exec
           if-no-files-found: error
 
       - name: Generate JaCoCo report
