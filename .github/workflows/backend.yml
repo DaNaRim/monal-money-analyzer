@@ -142,38 +142,32 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: integration-tests-jacoco
-          path: target/
+          path: ${{ github.workspace }}/target/jacoco-output/
 
       - name: Download JaCoCo unit test report
         uses: actions/download-artifact@v2
         with:
           name: unit-tests-jacoco
-          path: target/
+          path: ${{ github.workspace }}/target/jacoco-output/
 
-      - name: Merge JaCoCo reports
-        uses: cprudhom/jacoco-merge@v1
-        with:
-          exec-file: >
-            target/jacoco-integration-tests.exec
-            target/jacoco-unit-tests.exec
-          dest-file:
-            target/jacoco-merged.exec
+      - name: merge results
+        run: mvn jacoco:merge@merge-unit-and-integration -B
 
       - name: Upload Merge JaCoCo report
         uses: actions/upload-artifact@v2
         with:
           name: coverage-results-report
-          path: target/jacoco-merged.exec
+          path: ${{ github.workspace }}/target/site/jacoco-merged-test-coverage-report/jacoco.xml
           if-no-files-found: error
 
       - name: Generate JaCoCo report
-        run: mvn jacoco:report@after-integration-test-execution -B
+        run: mvn jacoco:report@create-merged-report -B
 
       - name: Merged test Code Coverage Report
         id: jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v4.8
         with:
-          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
+          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-merged-test-coverage-report/jacoco.xml
           coverage_report_name: 'Merged test coverage report'
           coverage_report_title: 'Merged test coverage report'
           github_token: ${{ secrets.GITHUB_TOKEN }}
