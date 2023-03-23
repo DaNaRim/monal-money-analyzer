@@ -50,6 +50,7 @@ jobs:
           fail-on-error: true
 
       - name: Add coverage to PR
+        permissions: write-all
         id: jacoco
         uses: madrapps/jacoco-report@v1.3
         with:
