@@ -138,6 +138,11 @@ jobs:
           distribution: adopt
           cache: 'maven'
 
+      - name: Build
+        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
+        env:
+          CI: ""
+
       - name: Download JaCoCo integration test report
         uses: actions/download-artifact@v2
         with:
@@ -152,9 +157,6 @@ jobs:
 
       - name: merge results
         run: mvn jacoco:merge@merge-unit-and-integration -B
-
-      - name: Print jacoco-output directory
-        run: ls -la ${{ github.workspace }}/target/jacoco-output/
 
       - name: Upload Merge JaCoCo report
         uses: actions/upload-artifact@v2
