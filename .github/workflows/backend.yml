@@ -17,7 +17,6 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-latest
-#    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -56,13 +55,25 @@ jobs:
           reporter: java-junit
           fail-on-error: true
 
+      - name: Unit test Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-unit-test-coverage-report/jacoco.xml
+          coverage_report_name: Unit test coverage report
+          coverage_report_title: Unit test coverage report
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          fail_below_threshold: false
+          publish_only_summary: false
+
       - name: Integration test Code Coverage Report
         id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v2.4
+        uses: PavanMudigonda/jacoco-reporter@v4.8
         with:
           coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
-          coverage_report_name: Integration test coverage
-          coverage_report_title: JaCoCo
+          coverage_report_name: Integration test coverage report
+          coverage_report_title: Integration test coverage report
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: false
 #          minimum_coverage: 80
