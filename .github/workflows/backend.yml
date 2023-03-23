@@ -56,7 +56,7 @@ jobs:
           fail-on-error: true
 
       - name: Unit test Code Coverage Report
-        id: jacoco_reporter
+        id: unit_jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v4.8
         with:
           coverage_results_path: ${{ github.workspace }}/target/site/jacoco-unit-test-coverage-report/jacoco.xml
@@ -68,7 +68,7 @@ jobs:
           publish_only_summary: false
 
       - name: Integration test Code Coverage Report
-        id: jacoco_reporter
+        id: integration_jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v4.8
         with:
           coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
