@@ -15,99 +15,99 @@ permissions:
   checks: write
 
 jobs:
-#  tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#
-#      - name: Setup Java
-#        uses: actions/setup-java@v2
-#        with:
-#          java-version: 17
-#          distribution: adopt
-#          cache: 'maven'
-#
-#      - name: Test
-#        run: mvn verify
-#          -B
-#          -Dskip.installyarn
-#          -Dskip.yarn
-#          -Dcheckstyle.skip
-#          -Dspring.profiles.active=test
-#          -Dmaven.test.failure.ignore=true
-#
-#      - name: Unit test Report
-#        uses: dorny/test-reporter@v1
-#        if: always()
-#        with:
-#          name: Unit tests report
-#          path: target/surefire-reports/*.xml
-#          reporter: java-junit
-#          fail-on-error: true
-#
-#      - name: Integration Test Report
-#        uses: dorny/test-reporter@v1
-#        if: always()
-#        with:
-#          name: Integration tests report
-#          path: target/failsafe-reports/TEST-*.xml
-#          reporter: java-junit
-#          fail-on-error: true
-#
-#      - name: Unit test Code Coverage Report
-#        id: unit_jacoco_reporter
-#        uses: PavanMudigonda/jacoco-reporter@v4.8
-#        with:
-#          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-unit-test-coverage-report/jacoco.xml
-#          coverage_report_name: 'Unit test coverage report'
-#          coverage_report_title: 'Unit test coverage report'
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          skip_check_run: false
-#          fail_below_threshold: false
-#          publish_only_summary: false
-#
-#      - name: Integration test Code Coverage Report
-#        id: integration_jacoco_reporter
-#        uses: PavanMudigonda/jacoco-reporter@v4.8
-#        with:
-#          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
-#          coverage_report_name: 'Integration test coverage report'
-#          coverage_report_title: 'Integration test coverage report'
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          skip_check_run: false
-##          minimum_coverage: 80
-#          fail_below_threshold: false
-#          publish_only_summary: false
+  #  tests:
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - name: Checkout code
+  #        uses: actions/checkout@v2
+  #
+  #      - name: Setup Java
+  #        uses: actions/setup-java@v2
+  #        with:
+  #          java-version: 17
+  #          distribution: adopt
+  #          cache: 'maven'
+  #
+  #      - name: Test
+  #        run: mvn verify
+  #          -B
+  #          -Dskip.installyarn
+  #          -Dskip.yarn
+  #          -Dcheckstyle.skip
+  #          -Dspring.profiles.active=test
+  #          -Dmaven.test.failure.ignore=true
+  #
+  #      - name: Unit test Report
+  #        uses: dorny/test-reporter@v1
+  #        if: always()
+  #        with:
+  #          name: Unit tests report
+  #          path: target/surefire-reports/*.xml
+  #          reporter: java-junit
+  #          fail-on-error: true
+  #
+  #      - name: Integration Test Report
+  #        uses: dorny/test-reporter@v1
+  #        if: always()
+  #        with:
+  #          name: Integration tests report
+  #          path: target/failsafe-reports/TEST-*.xml
+  #          reporter: java-junit
+  #          fail-on-error: true
+  #
+  #      - name: Unit test Code Coverage Report
+  #        id: unit_jacoco_reporter
+  #        uses: PavanMudigonda/jacoco-reporter@v4.8
+  #        with:
+  #          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-unit-test-coverage-report/jacoco.xml
+  #          coverage_report_name: 'Unit test coverage report'
+  #          coverage_report_title: 'Unit test coverage report'
+  #          github_token: ${{ secrets.GITHUB_TOKEN }}
+  #          skip_check_run: false
+  #          fail_below_threshold: false
+  #          publish_only_summary: false
+  #
+  #      - name: Integration test Code Coverage Report
+  #        id: integration_jacoco_reporter
+  #        uses: PavanMudigonda/jacoco-reporter@v4.8
+  #        with:
+  #          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
+  #          coverage_report_name: 'Integration test coverage report'
+  #          coverage_report_title: 'Integration test coverage report'
+  #          github_token: ${{ secrets.GITHUB_TOKEN }}
+  #          skip_check_run: false
+  ##          minimum_coverage: 80
+  #          fail_below_threshold: false
+  #          publish_only_summary: false
 
-#      - name: Add coverage to PR
-#        id: jacoco
-#        uses: madrapps/jacoco-report@v1.3
-#        with:
-#          paths: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          #          min-coverage-overall: 80
-#          #          min-coverage-changed-files: 80
-#          update-comment: true
-#          title: "Coverage Report"
+  #      - name: Add coverage to PR
+  #        id: jacoco
+  #        uses: madrapps/jacoco-report@v1.3
+  #        with:
+  #          paths: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
+  #          token: ${{ secrets.GITHUB_TOKEN }}
+  #          #          min-coverage-overall: 80
+  #          #          min-coverage-changed-files: 80
+  #          update-comment: true
+  #          title: "Coverage Report"
 
-#      - name: Unit test coverage Report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: unit-tests-jacoco
-#          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-unit-tests.exec
-#
-#      - name: Integration test coverage Report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: integration-tests-jacoco
-#          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-integration-tests.exec
-#
-#      - name: Merged test coverage Report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: merged-tests-jacoco
-#          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-merged.exec
+  #      - name: Unit test coverage Report
+  #        uses: actions/upload-artifact@v2
+  #        with:
+  #          name: unit-tests-jacoco
+  #          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-unit-tests.exec
+  #
+  #      - name: Integration test coverage Report
+  #        uses: actions/upload-artifact@v2
+  #        with:
+  #          name: integration-tests-jacoco
+  #          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-integration-tests.exec
+  #
+  #      - name: Merged test coverage Report
+  #        uses: actions/upload-artifact@v2
+  #        with:
+  #          name: merged-tests-jacoco
+  #          path: /home/runner/work/monal-money-analyzer/monal-money-analyzer/target/jacoco-output/jacoco-merged.exec
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -158,54 +158,60 @@ jobs:
           coverage_report_title: 'Unit test coverage report'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_check_run: false
-#          minimum_coverage: 80
+          #minimum_coverage: 80
           fail_below_threshold: false
           publish_only_summary: false
 
-#
-#
-#  integration-tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#
-#      - name: Setup Java
-#        uses: actions/setup-java@v2
-#        with:
-#          java-version: 17
-#          distribution: adopt
-#          cache: 'maven'
-#
-##      - name: Build
-##        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
-##        env:
-##          CI: ""
-#
-#      - name: Test
-#        run: mvn verify
-#            -B
-#            -Dskip.installyarn
-#            -Dskip.yarn
-#            -Dcheckstyle.skip
-#            -Dspring.profiles.active=test
-#            -Dmaven.test.failure.ignore=true
-#            -Djacoco.destFile=exportJacoco/jacoco-it.exec
-#
-#      - name: Test Report
-#        uses: dorny/test-reporter@v1
-#        if: always()
-#        with:
-#          name: Integration tests report
-#          path: target/failsafe-reports/TEST-*.xml
-#          reporter: java-junit
-#          fail-on-error: true
-#
-#      - name: Coverage Report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: integration-tests-jacoco
-#          path: exportJacoco/jacoco-it.exec
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: 'maven'
+
+      - name: Build
+        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
+        env:
+          CI: ""
+
+      - name: Test
+        run: mvn jacoco:prepare-agent@before-integration-test-execution -B
+                 failsafe:integration-test -B -Dmaven.test.failure.ignore=true
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Integration tests report
+          path: target/failsafe-reports/TEST-*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: integration-tests-jacoco
+          path: ${{ github.workspace }}/target/jacoco-output/jacoco-integration-tests.exec
+
+      - name: Unit test Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-integration-test-coverage-report/jacoco.xml
+          coverage_report_name: 'Integration test coverage report'
+          coverage_report_title: 'Integration test coverage report'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          #minimum_coverage: 80
+          fail_below_threshold: false
+          publish_only_summary: false
 
 
   checkstyle:
