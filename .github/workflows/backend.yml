@@ -185,6 +185,9 @@ jobs:
         run: mvn jacoco:prepare-agent@before-integration-test-execution -B
                  failsafe:integration-test -B -Dmaven.test.failure.ignore=true
 
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report@after-integration-test-execution -B
+
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always()
