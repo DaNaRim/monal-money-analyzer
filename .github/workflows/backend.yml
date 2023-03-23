@@ -127,6 +127,9 @@ jobs:
         env:
           CI: ""
 
+      - name: Prepare JaCoCo report
+        run: mvn -B jacoco:prepare-agent
+
       - name: Test
         run: mvn surefire:test -B -Dmaven.test.failure.ignore=true
 
