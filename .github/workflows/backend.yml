@@ -16,57 +16,57 @@ permissions:
 
 jobs:
   unit-tests:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup Java
-      uses: actions/setup-java@v2
-      with:
-        java-version: 17
-        distribution: adopt
-        cache: 'maven'
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: 'maven'
 
-    - name: Build
-      run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
-      env:
-        CI: ""
+      - name: Build
+        run: mvn package -B -DskipTests -Dskip.installyarn -Dskip.yarn -Dcheckstyle.skip
+        env:
+          CI: ""
 
-    - name: Test
-      run: mvn jacoco:prepare-agent@before-unit-test-execution -B
-               surefire:test -B -Dmaven.test.failure.ignore=true
+      - name: Test
+        run: mvn jacoco:prepare-agent@before-unit-test-execution -B
+                 surefire:test -B -Dmaven.test.failure.ignore=true
 
-    - name: Generate JaCoCo report
-      run: mvn jacoco:report@after-unit-test-execution -B
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report@after-unit-test-execution -B
 
-    - name: Test Report
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: Unit tests report
-        path: target/surefire-reports/*.xml
-        reporter: java-junit
-        fail-on-error: true
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit tests report
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
 
-    - name: Upload Coverage Report
-      uses: actions/upload-artifact@v2
-      with:
-        name: unit-tests-jacoco
-        path: ${{ github.workspace }}/target/jacoco-output/jacoco-unit-tests.exec
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit-tests-jacoco
+          path: ${{ github.workspace }}/target/jacoco-output/jacoco-unit-tests.exec
 
-    - name: Unit test Code Coverage Report
-      id: jacoco_reporter
-      uses: PavanMudigonda/jacoco-reporter@v4.8
-      with:
-        coverage_results_path: ${{ github.workspace }}/target/site/jacoco-unit-test-coverage-report/jacoco.xml
-        coverage_report_name: 'Unit test coverage report'
-        coverage_report_title: 'Unit test coverage report'
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        skip_check_run: false
-        #minimum_coverage: 80
-        fail_below_threshold: false
-        publish_only_summary: false
+      - name: Unit test Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: ${{ github.workspace }}/target/site/jacoco-unit-test-coverage-report/jacoco.xml
+          coverage_report_name: 'Unit test coverage report'
+          coverage_report_title: 'Unit test coverage report'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          #minimum_coverage: 80
+          fail_below_threshold: false
+          publish_only_summary: false
 
 
   integration-tests:
