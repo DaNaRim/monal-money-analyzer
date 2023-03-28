@@ -1,0 +1,31 @@
+name: frontend lint
+run-name: Checking frontend by @${{ github.actor }}
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Move to frontend directory
+        run: cd src/main/frontend
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Run ESLint
+        run: yarn lint
