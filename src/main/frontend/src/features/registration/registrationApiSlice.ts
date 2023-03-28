@@ -1,17 +1,17 @@
-import {RootState} from "../../app/store";
-import {apiSlice} from "../api/apiSlice";
+import { type RootState } from "../../app/store";
+import { apiSlice } from "../api/apiSlice";
 
-export type RegistrationDto = {
-    firstName: string,
-    lastName: string,
-    email: string,
-    password: string,
-    matchingPassword: string
+export interface RegistrationDto {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    matchingPassword: string;
 }
 
-export type ResetPasswordDto = {
-    newPassword: string,
-    matchingPassword: string
+export interface ResetPasswordDto {
+    newPassword: string;
+    matchingPassword: string;
 }
 
 export const registrationApiSlice = apiSlice.injectEndpoints({
@@ -27,14 +27,14 @@ export const registrationApiSlice = apiSlice.injectEndpoints({
             query: (email) => ({
                 url: "/resendVerificationToken",
                 method: "POST",
-                params: {email},
+                params: { email },
             }),
         }),
         resetPassword: builder.mutation<RootState, string>({
             query: (email) => ({
                 url: "/resetPassword",
                 method: "POST",
-                params: {email},
+                params: { email },
             }),
         }),
         resetPasswordSet: builder.mutation<RootState, ResetPasswordDto>({

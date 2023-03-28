@@ -1,5 +1,5 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../../app/store";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { type RootState } from "../../app/store";
 
 const COOKIE_KEY_APPLICATION_MESSAGE = "serverMessage";
 
@@ -11,7 +11,7 @@ export enum AppMessageType {
 
 export enum AppMessageCode {
 
-    //server messages
+    // server messages
 
     UNRESOLVED_CODE = "unresolved",
 
@@ -26,10 +26,10 @@ export enum AppMessageCode {
     TOKEN_VERIFICATION_EXPIRED = "validation.token.verification.expired",
     TOKEN_VERIFICATION_USER_ENABLED = "validation.token.verification.user-enabled",
 
-    //frontend messages
+    // frontend messages
 
     PASSWORD_RESET_SUCCESS = "password-reset.success",
-    AUTH_EXPIRED = "auth.expired",
+    AUTH_EXPIRED = "auth.expired"
 }
 
 export interface AppMessage {
@@ -38,8 +38,8 @@ export interface AppMessage {
     messageCode: AppMessageCode;
 }
 
-type AppMessagesState = {
-    messages: AppMessage[]
+interface AppMessagesState {
+    messages: AppMessage[];
 }
 
 const initialState: AppMessagesState = {
@@ -53,20 +53,22 @@ export const appMessagesSlice = createSlice({
         checkForServerMessages: (state) => {
             const serverMessage = document.cookie.split("; ")
                 .find(row => row.startsWith(COOKIE_KEY_APPLICATION_MESSAGE))?.split("=")[1]
-                .replaceAll("\\", "") //Server sends messages with escaped quotes
+                .replaceAll("\\", "") // Server sends messages with escaped quotes
                 .replace(/^"/, "")
-                .replace(/"$/, "")
+                .replace(/"$/, "");
 
-            if (serverMessage) {
-                const cookie: AppMessage = JSON.parse(serverMessage);
-
-                state.messages.push({
-                    type: cookie.type,
-                    page: cookie.page,
-                    messageCode: cookie.messageCode,
-                });
-                document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            if (serverMessage === undefined) {
+                return;
             }
+
+            const cookie: AppMessage = JSON.parse(serverMessage);
+            state.messages.push({
+                type: cookie.type,
+                page: cookie.page,
+                messageCode: cookie.messageCode,
+            });
+            document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=;`
+                + " expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         },
         addAppMessage: (state, action: PayloadAction<AppMessage>) => {
             const message = action.payload;
@@ -86,8 +88,10 @@ export const appMessagesSlice = createSlice({
                 messageCode: message.messageCode,
             });
 
+            const expires = new Date(Date.now() + 5 * 60 * 1000).toUTCString();
+
             document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=${JSON.stringify(message)};`
-                + ` path=/; expires=${new Date(Date.now() + 5 * 60 * 1000).toUTCString()}`; //5 minutes is enough
+                + ` path=/; expires=${expires}`; // 5 minutes is enough
         },
         deleteAppMessage: (state, action: PayloadAction<string>) => {
             const msgCode = action.payload;

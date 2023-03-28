@@ -1,10 +1,13 @@
-import {ErrorProps} from "../ErrorGlobal/ErrorGlobal";
+import React from "react";
+import { type ErrorProps } from "../ErrorGlobal/ErrorGlobal";
 import styles from "./ErrorServer.module.scss";
 
-const ErrorServer = ({register, errors}: ErrorProps) => (
+const ErrorServer = ({ register, errors }: ErrorProps) => (
     <>
         <input type="hidden" {...register("serverError")}/>
-        {errors.serverError && <span className={styles.message}>{errors.serverError.message as string}</span>}
+        {(errors.serverError != null) &&
+          <span className={styles.message}>{errors.serverError.message as string}</span>
+        }
     </>
 );
 

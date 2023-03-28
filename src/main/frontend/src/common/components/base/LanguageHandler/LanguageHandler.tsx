@@ -1,8 +1,8 @@
 import React from "react";
-import {useLanguageContext} from "../../../../app/contexts/LanguageContext";
+import { useLanguageContext } from "../../../../app/contexts/LanguageContext";
 
 const LanguageHandler = () => {
-    const {language, changeLanguage} = useLanguageContext();
+    const { language, changeLanguage } = useLanguageContext();
 
     return (
         <select value={language} onChange={e => changeLanguage(e.target.value)}>

@@ -1,17 +1,19 @@
 import React from "react";
-import {FieldErrors} from "react-hook-form/dist/types/errors";
-import {UseFormRegister} from "react-hook-form/dist/types/form";
+import { type FieldErrors } from "react-hook-form/dist/types/errors";
+import { type UseFormRegister } from "react-hook-form/dist/types/form";
 import styles from "./ErrorGlobal.module.scss";
 
-export type ErrorProps = {
+export interface ErrorProps {
     register: UseFormRegister<any>;
     errors: FieldErrors;
 }
 
-const ErrorGlobal = ({register, errors}: ErrorProps) => (
+const ErrorGlobal = ({ register, errors }: ErrorProps) => (
     <>
         <input type="hidden" {...register("globalError")}/>
-        {errors.globalError && <span className={styles.message}>{errors.globalError.message as string}</span>}
+        {(errors.globalError != null) &&
+          <span className={styles.message}>{errors.globalError.message as string}</span>
+        }
     </>
 );
 

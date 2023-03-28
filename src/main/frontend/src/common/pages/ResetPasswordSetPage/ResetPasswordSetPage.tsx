@@ -1,16 +1,22 @@
 import React from "react";
-import {useForm} from "react-hook-form";
-import {useNavigate} from "react-router";
-import useFetchUtils, {FormSystemFields} from "../../../app/hooks/formUtils";
-import {useAppDispatch} from "../../../app/hooks/reduxHooks";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
+import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
-import {addAppMessage, AppMessageCode, AppMessageType} from "../../../features/appMessages/appMessagesSlice";
-import {ResetPasswordDto, useResetPasswordSetMutation} from "../../../features/registration/registrationApiSlice";
+import {
+    addAppMessage,
+    AppMessageCode,
+    AppMessageType,
+} from "../../../features/appMessages/appMessagesSlice";
+import {
+    type ResetPasswordDto,
+    useResetPasswordSetMutation,
+} from "../../../features/registration/registrationApiSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./ResetPasswordSetPage.module.scss";
-
 
 type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
 
@@ -21,11 +27,17 @@ const ResetPasswordSetPage = () => {
     const navigate = useNavigate();
     const t = useTranslation();
 
-    const {handleResponseError, clearFormSystemFields} = useFetchUtils();
+    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
-    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<ResetPasswordSetFields>();
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        setError,
+        formState: { errors },
+    } = useForm<ResetPasswordSetFields>();
 
-    const [resetPasswordSetReq, {isLoading}] = useResetPasswordSetMutation();
+    const [resetPasswordSetReq, { isLoading }] = useResetPasswordSetMutation();
 
     const handleResetPasswordSet = (data: ResetPasswordSetFields) => {
         clearFormSystemFields(data);
@@ -51,17 +63,17 @@ const ResetPasswordSetPage = () => {
             <form onSubmit={handleSubmit(handleResetPasswordSet)}>
 
                 <InputPassword name="newPassword"
-                               options={{required: true}}
+                               options={{ required: true }}
                                componentName={COMPONENT_NAME}
-                               {...{register, errors}}
+                               {...{ register, errors }}
                 />
                 <InputPassword name="matchingPassword"
-                               options={{required: true}}
+                               options={{ required: true }}
                                componentName={COMPONENT_NAME}
-                               {...{register, errors}}
+                               {...{ register, errors }}
                 />
-                <ErrorGlobal {...{register, errors}}/>
-                <ErrorServer {...{register, errors}}/>
+                <ErrorGlobal {...{ register, errors }}/>
+                <ErrorServer {...{ register, errors }}/>
 
                 {isLoading
                     ? <span>{t.resetPasswordSetPage.form.loading}</span>

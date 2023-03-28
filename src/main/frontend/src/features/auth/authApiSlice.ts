@@ -1,9 +1,9 @@
-import {apiSlice} from "../api/apiSlice";
-import {AuthState} from "./authSlice";
+import { apiSlice } from "../api/apiSlice";
+import { type AuthState } from "./authSlice";
 
-export type Credentials = {
-    username: string, //email
-    password: string,
+export interface Credentials {
+    username: string; // email
+    password: string;
 }
 
 export const authApiSlice = apiSlice.injectEndpoints({

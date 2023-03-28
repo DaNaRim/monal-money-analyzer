@@ -1,5 +1,5 @@
-import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
-import {apiSlice} from "../features/api/apiSlice";
+import { type Action, configureStore, type ThunkAction } from "@reduxjs/toolkit";
+import { apiSlice } from "../features/api/apiSlice";
 import appMessagesReducer from "../features/appMessages/appMessagesSlice";
 import authReducer from "../features/auth/authSlice";
 
@@ -18,7 +18,9 @@ export const store = configureStore({
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType,
+export type AppThunk<ReturnType = void> = ThunkAction<
+    ReturnType,
     RootState,
     unknown,
-    Action<string>>;
+    Action<string>
+>;

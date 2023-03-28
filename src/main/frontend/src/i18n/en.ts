@@ -22,7 +22,7 @@ export default {
 
     appMessages: {
 
-        //server
+        // server
 
         unresolved: "Unresolved message. Please contact the administrator.",
 
@@ -35,9 +35,10 @@ export default {
 
         validation_token_verification_not_found: "Verification token not found. Please try again.",
         validation_token_verification_expired: "Verification token expired.",
-        validation_token_verification_user_enabled: "Account already activated. You can now log in.",
+        validation_token_verification_user_enabled: "Account already activated."
+            + " You can now log in.",
 
-        //frontend
+        // frontend
 
         password_reset_success: "Password updated successfully. You can now log in.",
         auth_expired: "Session expired. Please log in again.",
@@ -45,14 +46,17 @@ export default {
 
     fetchErrors: {
         fetchError: "Server unavailable. please try again later",
-        serverError: "Server error. Please try again later. If the problem persists, please contact the administrator",
-        unknownError: "Unknown error. Please try again later. If the problem persists, please contact the administrator",
+        serverError: "Server error. Please try again later. If the problem persists,"
+            + " please contact the administrator",
+        unknownError: "Unknown error. Please try again later. If the problem persists,"
+            + " please contact the administrator",
     },
 
     errorPages: {
         main: {
             header: "Error",
-            desc: "Something went wrong. Please try again later. If the problem persists, please contact the administrator.",
+            desc: "Something went wrong. Please try again later. If the problem persists,"
+                + " please contact the administrator.",
             link: "Go to home page",
         },
         forbidden: {

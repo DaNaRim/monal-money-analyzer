@@ -1,23 +1,39 @@
-import React, {useEffect} from "react";
-import {Route, Routes, useLocation} from "react-router";
+import React, { useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router";
 import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
-import {checkForServerMessages} from "../features/appMessages/appMessagesSlice";
-import {selectAuthIsForceLogin, setForceLogin} from "../features/auth/authSlice";
+import { checkForServerMessages } from "../features/appMessages/appMessagesSlice";
+import { selectAuthIsForceLogin, setForceLogin } from "../features/auth/authSlice";
 import "./App.scss";
-import {useAppDispatch, useAppSelector} from "./hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
 
-const HomePage = React.lazy(() => import("../common/pages/HomePage/HomePage"));
-const RegistrationPage = React.lazy(() => import("../common/pages/RegistrationPage/RegistrationPage"));
-const LoginPage = React.lazy(() => import("../common/pages/LoginPage/LoginPage"));
-const ResendVerificationTokenPage = React.lazy(() => import("../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage"));
-const ResetPasswordPage = React.lazy(() => import("../common/pages/ResetPasswordPage/ResetPasswordPage"));
-const ResetPasswordSetPage = React.lazy(() => import("../common/pages/ResetPasswordSetPage/ResetPasswordSetPage"));
+const HomePage = React.lazy(async () => await import("../common/pages/HomePage/HomePage"));
+const RegistrationPage = React.lazy(async () =>
+    await import("../common/pages/RegistrationPage/RegistrationPage"),
+);
+const LoginPage = React.lazy(async () =>
+    await import("../common/pages/LoginPage/LoginPage"),
+);
+const ResendVerificationTokenPage = React.lazy(async () =>
+    await import("../common/pages/ResendVerificationTokenPage/ResendVerificationTokenPage"),
+);
+const ResetPasswordPage = React.lazy(async () =>
+    await import("../common/pages/ResetPasswordPage/ResetPasswordPage"),
+);
+const ResetPasswordSetPage = React.lazy(async () =>
+    await import("../common/pages/ResetPasswordSetPage/ResetPasswordSetPage"),
+);
 
-const ForbiddenPage = React.lazy(() => import("../common/pages/error/ForbiddenPage/ForbiddenPage"));
-const ErrorPage = React.lazy(() => import("../common/pages/error/ErrorPage/ErrorPage"));
-const NotFoundPage = React.lazy(() => import("../common/pages/error/NotFoundPage/NotFoundPage"));
+const ForbiddenPage = React.lazy(async () =>
+    await import("../common/pages/error/ForbiddenPage/ForbiddenPage"),
+);
+const ErrorPage = React.lazy(async () =>
+    await import("../common/pages/error/ErrorPage/ErrorPage"),
+);
+const NotFoundPage = React.lazy(async () =>
+    await import("../common/pages/error/NotFoundPage/NotFoundPage"),
+);
 
-const App = () => {
+const App = (): JSX.Element => {
     const dispatch = useAppDispatch();
     const location = useLocation();
 

@@ -1,5 +1,5 @@
-import React, {Suspense} from "react";
-import {Outlet} from "react-router";
+import React, { Suspense } from "react";
+import { Outlet } from "react-router";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import Loading from "../Loading/Loading";
