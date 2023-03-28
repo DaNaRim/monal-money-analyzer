@@ -14,13 +14,12 @@ permissions:
   contents: read
   checks: write
 
-defaults:
-  run:
-    working-directory: src/main/frontend
-
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/main/frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
