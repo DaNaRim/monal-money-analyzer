@@ -20,7 +20,7 @@ const ResetPasswordPage = React.lazy(async () =>
     await import("../common/pages/ResetPasswordPage/ResetPasswordPage"),
 );
 const ResetPasswordSetPage = React.lazy(async () =>
-    await import("../common/pages/ResetPasswordSetPage/ResetPasswordSetPage")
+    await import("../common/pages/ResetPasswordSetPage/ResetPasswordSetPage"),
 );
 
 const ForbiddenPage = React.lazy(async () =>
