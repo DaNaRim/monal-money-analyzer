@@ -1,0 +1,71 @@
+env:
+  browser: true
+  es2021: true
+extends:
+  - plugin:react/recommended
+  - standard-with-typescript
+overrides: [ ]
+parserOptions:
+  ecmaVersion: latest
+  sourceType: module
+  project: ./tsconfig.json
+plugins:
+  - react
+settings: {
+  react: {
+    version: "detect"
+  }
+}
+rules: {
+  "max-len": [ "error", {
+    code: 100
+  } ],
+  #@typescript-eslint/indent will handle this
+  "semi": "off",
+  "operator-linebreak": [ "error", "before", {
+    "overrides": {
+      "&&": "ignore",
+    }
+  } ],
+  "@typescript-eslint/semi": [ "error", "always" ],
+  #Rule is buggy and hard to configure. But use 4 spaces for indentation
+  "@typescript-eslint/indent": "off",
+  "@typescript-eslint/quotes": [ "error", "double" ],
+  "@typescript-eslint/explicit-function-return-type": [ "error", {
+    allowExpressions: true,
+    allowTypedFunctionExpressions: true,
+    allowFunctionsWithoutTypeParameters: true,
+  } ],
+  "@typescript-eslint/member-delimiter-style": [ "error", {
+    multiline: {
+      delimiter: "semi",
+      requireLast: true,
+    },
+    singleline: {
+      delimiter: "comma",
+      requireLast: false,
+    },
+  } ],
+  "@typescript-eslint/comma-dangle": [ "error", {
+    arrays: "always-multiline",
+    objects: "always-multiline",
+    imports: "always-multiline",
+    exports: "always-multiline",
+    functions: "always-multiline",
+  } ],
+  "@typescript-eslint/space-before-function-paren": [ "error", {
+    anonymous: "always",
+    named: "never",
+    asyncArrow: "always",
+  } ],
+  "@typescript-eslint/no-misused-promises": [ "error", {
+    "checksVoidReturn": {
+      "attributes": false
+    }
+  } ],
+  "@typescript-eslint/no-invalid-void-type": [ "warn" ],
+  "@typescript-eslint/no-confusing-void-expression": [ "error", {
+    "ignoreArrowShorthand": true,
+    "ignoreVoidOperator": true
+  } ],
+}

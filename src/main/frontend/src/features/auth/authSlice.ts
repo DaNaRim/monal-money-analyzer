@@ -1,32 +1,32 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../../app/store";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { type RootState } from "../../app/store";
 
 export enum Role {
     ROLE_USER = "ROLE_USER",
-    ROLE_ADMIN = "ROLE_ADMIN",
+    ROLE_ADMIN = "ROLE_ADMIN"
 }
 
-export type AuthResponseEntity = {
-    username: string; //email
+export interface AuthResponseEntity {
+    username: string; // email
     firstName: string;
     lastName: string;
     roles: Role[];
     csrfToken: string;
 }
 
-export type AuthState = {
-    username: string | null; //email
+export interface AuthState {
+    username: string | null; // email
     firstName: string | null;
     lastName: string | null;
     roles: Role[];
     csrfToken: string | null;
 
     isInitialized: boolean;
-    isForceLogin: boolean,
+    isForceLogin: boolean;
 }
 
 const initialState: AuthState = {
-    username: null, //email
+    username: null, // email
     firstName: null,
     lastName: null,
     roles: [],

@@ -1,7 +1,7 @@
-import {UseFormSetError} from "react-hook-form/dist/types/form";
+import { type UseFormSetError } from "react-hook-form/dist/types/form";
 import useTranslation from "../../app/hooks/translation";
 
-export type FormSystemFields = {
+export interface FormSystemFields {
     globalError?: string;
     serverError?: string;
 }
@@ -9,25 +9,31 @@ export type FormSystemFields = {
 export enum ResponseErrorType {
     FIELD_VALIDATION_ERROR = "fieldValidationError",
     GLOBAL_ERROR = "globalError",
-    SERVER_ERROR = "serverError",
+    SERVER_ERROR = "serverError"
 }
 
-export type ErrorResponse = {
-    type: ResponseErrorType,
-    errorCode: string,
-    fieldName: string,
-    message: string
+export interface ErrorResponse {
+    type: ResponseErrorType;
+    errorCode: string;
+    fieldName: string;
+    message: string;
 }
 
-const useFetchUtils = () => {
+interface FetchUtilsReturnType {
+    handleResponseError: (e: any, setError: UseFormSetError<any>) => void;
+    clearFormSystemFields: (data: FormSystemFields) => void;
+}
+
+const useFetchUtils = (): FetchUtilsReturnType => {
     const t = useTranslation();
 
-    const handleResponseError = (e: any, setError: UseFormSetError<any>) => {
-
+    const handleResponseError = (e: any, setError: UseFormSetError<any>): void => {
         if (e.status === 400 || e.status === 401) {
             const errorData: ErrorResponse[] = e.data;
 
-            errorData.forEach(error => setError(error.fieldName, {type: error.type, message: error.message}));
+            errorData.forEach(error => {
+                setError(error.fieldName, { type: error.type, message: error.message });
+            });
         } else if (e.status === "FETCH_ERROR") {
             setError("serverError", {
                 type: "serverError",
@@ -51,7 +57,7 @@ const useFetchUtils = () => {
         delete data.serverError;
     };
 
-    return {handleResponseError, clearFormSystemFields};
+    return { handleResponseError, clearFormSystemFields };
 };
 
 export default useFetchUtils;

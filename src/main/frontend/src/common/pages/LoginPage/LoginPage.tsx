@@ -1,26 +1,36 @@
-import React, {useState} from "react";
-import {useForm} from "react-hook-form";
-import {useNavigate} from "react-router";
-import {Link} from "react-router-dom";
-import useFetchUtils, {ErrorResponse, FormSystemFields} from "../../../app/hooks/formUtils";
-import {useAppDispatch, useAppSelector} from "../../../app/hooks/reduxHooks";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+import useFetchUtils, {
+    type ErrorResponse,
+    type FormSystemFields,
+} from "../../../app/hooks/formUtils";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import AppMessageEl from "../../../features/appMessages/AppMessageEl";
-import {AppMessageCode, deleteAppMessage, selectAppMessages} from "../../../features/appMessages/appMessagesSlice";
-import {Credentials, useLoginMutation} from "../../../features/auth/authApiSlice";
-import {selectAuthIsForceLogin, setCredentials, setForceLogin} from "../../../features/auth/authSlice";
+import {
+    AppMessageCode,
+    deleteAppMessage,
+    selectAppMessages,
+} from "../../../features/appMessages/appMessagesSlice";
+import { type Credentials, useLoginMutation } from "../../../features/auth/authApiSlice";
+import {
+    selectAuthIsForceLogin,
+    setCredentials,
+    setForceLogin,
+} from "../../../features/auth/authSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./LoginPage.module.scss";
 
-
-type LoginFormFields = FormSystemFields & Credentials
+type LoginFormFields = FormSystemFields & Credentials;
 
 type LoginFormError = ErrorResponse & {
-    fieldName: keyof LoginFormFields,
-}
+    fieldName: keyof LoginFormFields;
+};
 
 const COMPONENT_NAME = "loginPage";
 
@@ -29,16 +39,22 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const t = useTranslation();
 
-    const {handleResponseError, clearFormSystemFields} = useFetchUtils();
+    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
-    const {register, handleSubmit, setValue, setError, formState: {errors}} = useForm<LoginFormFields>();
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        setError,
+        formState: { errors },
+    } = useForm<LoginFormFields>();
 
     const appMessage = useAppSelector(selectAppMessages).find(msg => msg.page === "login");
     const isForceLogin = useAppSelector(selectAuthIsForceLogin);
 
     const [isAccountNotActivated, setIsAccountNotActivated] = useState<boolean>(false);
 
-    const [login, {isLoading}] = useLoginMutation();
+    const [login, { isLoading }] = useLoginMutation();
 
     const handleLogin = (data: LoginFormFields) => {
         clearFormSystemFields(data);
@@ -46,7 +62,7 @@ const LoginPage = () => {
         login(data).unwrap()
             .then(data => dispatch(setCredentials(data)))
             .then(() => {
-                if (appMessage) {
+                if (appMessage != null) {
                     dispatch(deleteAppMessage(appMessage.messageCode));
                 }
             })
@@ -65,7 +81,6 @@ const LoginPage = () => {
 
                 if (typeof errorData === "object"
                     && errorData.some(error => error.errorCode === "validation.auth.disabled")) {
-
                     setIsAccountNotActivated(true);
                 }
                 handleResponseError(e, setError);
@@ -75,7 +90,6 @@ const LoginPage = () => {
     const suggestResendVerificationToken = () => {
         if (appMessage?.messageCode === AppMessageCode.TOKEN_VERIFICATION_NOT_FOUND
             || appMessage?.messageCode === AppMessageCode.TOKEN_VERIFICATION_EXPIRED) {
-
             return <Link to="/resendVerificationToken">{t.loginPage.resendVerificationEmail}</Link>;
         }
         return null;
@@ -84,24 +98,28 @@ const LoginPage = () => {
     return (
         <main className={styles.login_page}>
             <h1>{t.loginPage.title}</h1>
-            {appMessage && <AppMessageEl {...appMessage}>{suggestResendVerificationToken()}</AppMessageEl>}
-
+            {(appMessage != null) &&
+              <AppMessageEl {...appMessage}>{suggestResendVerificationToken()}</AppMessageEl>
+            }
             <form onSubmit={handleSubmit(handleLogin)}>
 
                 <InputEmail name="username"
-                            options={{required: true}}
+                            options={{ required: true }}
                             componentName={COMPONENT_NAME}
-                            {...{register, errors}}
+                            {...{ register, errors }}
                 />
                 <InputPassword name="password"
-                               options={{required: true}}
+                               options={{ required: true }}
                                componentName={COMPONENT_NAME}
-                               {...{register, errors}}
+                               {...{ register, errors }}
                 />
-                <ErrorGlobal {...{register, errors}}/>
-                {isAccountNotActivated
-                    && <Link to={"/resendVerificationToken"}>{t.loginPage.resendVerificationEmail}</Link>}
-                <ErrorServer {...{register, errors}}/>
+                <ErrorGlobal {...{ register, errors }}/>
+                {isAccountNotActivated &&
+                  <Link to={"/resendVerificationToken"}>
+                      {t.loginPage.resendVerificationEmail}
+                  </Link>
+                }
+                <ErrorServer {...{ register, errors }}/>
 
                 {isLoading
                     ? <span>{t.loginPage.form.loading}</span>

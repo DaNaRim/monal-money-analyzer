@@ -1,3 +1,4 @@
+import React from "react";
 import useTranslation from "../../../../app/hooks/translation";
 import styles from "./Footer.module.scss";
 

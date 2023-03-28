@@ -1,16 +1,21 @@
-import {BaseQueryApi} from "@reduxjs/toolkit/dist/query/baseQueryTypes";
-import {createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import {RootState} from "../../app/store";
-import {AppMessageCode, AppMessageType, saveAppMessage} from "../appMessages/appMessagesSlice";
-import {AuthResponseEntity, clearAuthState, setCredentials, setForceLogin} from "../auth/authSlice";
+import { type BaseQueryApi } from "@reduxjs/toolkit/dist/query/baseQueryTypes";
+import { createApi, type FetchArgs, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { type RootState } from "../../app/store";
+import { AppMessageCode, AppMessageType, saveAppMessage } from "../appMessages/appMessagesSlice";
+import {
+    type AuthResponseEntity,
+    clearAuthState,
+    setCredentials,
+    setForceLogin,
+} from "../auth/authSlice";
 
 const serverUrl = "/api/v1";
 
 const baseQuery = fetchBaseQuery({
     baseUrl: serverUrl,
-    prepareHeaders: (headers, {getState}) => {
+    prepareHeaders: (headers, { getState }) => {
         const csrfToken = (getState() as RootState).auth.csrfToken;
-        if (csrfToken) {
+        if (csrfToken != null) {
             headers.set("X-CSRF-TOKEN", csrfToken);
         }
         return headers;
@@ -19,21 +24,23 @@ const baseQuery = fetchBaseQuery({
 
 const baseQueryWithReauth = async (args: string | FetchArgs,
                                    api: BaseQueryApi,
-                                   extraOptions: {},
+                                   extraOptions: Record<string, unknown>,
 ) => {
     let result = await baseQuery(args, api, extraOptions);
 
     if (result.meta?.response?.status === 401) {
-        const refreshResult = await baseQuery({url: "/auth/refresh", method: "POST"}, api, extraOptions);
+        const refreshResult = await baseQuery({
+            url: "/auth/refresh",
+            method: "POST",
+        }, api, extraOptions);
 
         if (refreshResult.meta?.response?.status === 200) {
             const authResult = refreshResult.data as AuthResponseEntity;
 
             api.dispatch(setCredentials(authResult));
             result = await baseQuery(args, api, extraOptions);
-
         } else if (refreshResult.meta?.response?.status === 401) {
-            await baseQuery({url: "/logout", method: "POST"}, api, extraOptions);
+            await baseQuery({ url: "/logout", method: "POST" }, api, extraOptions);
             api.dispatch(clearAuthState());
             api.dispatch(setForceLogin(true));
 

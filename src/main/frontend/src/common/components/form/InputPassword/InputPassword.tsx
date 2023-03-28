@@ -1,8 +1,8 @@
-import {faEye} from "@fortawesome/free-regular-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import React, {useState} from "react";
+import { faEye } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState } from "react";
 import useTranslation from "../../../../app/hooks/translation";
-import Input, {InputExtProps} from "../Input/Input";
+import Input, { type InputExtProps } from "../Input/Input";
 import styles from "./InputPassword.module.scss";
 
 const InputPassword = (props: InputExtProps) => {

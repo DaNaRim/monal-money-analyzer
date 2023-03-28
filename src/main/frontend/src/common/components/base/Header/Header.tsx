@@ -1,7 +1,7 @@
-import React, {useEffect} from "react";
-import {useNavigate} from "react-router";
-import {NavLink} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../../app/hooks/reduxHooks";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { NavLink } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
 import {
     useAuthGetStateMutation,
@@ -32,12 +32,12 @@ const Header = () => {
 
     const isAuthInit = useAppSelector(selectAuthIsInitialized);
 
-    const [getAuthState, {isLoading: isAuthStateLoading}] = useAuthGetStateMutation();
-    const [, {isLoading: isRequestAuthLoading}] = useAuthRefreshMutation();
-    const [logout, {isLoading: isLogoutLoading}] = useLogoutMutation();
+    const [getAuthState, { isLoading: isAuthStateLoading }] = useAuthGetStateMutation();
+    const [, { isLoading: isRequestAuthLoading }] = useAuthRefreshMutation();
+    const [logout, { isLoading: isLogoutLoading }] = useLogoutMutation();
 
     const handleLogout = () => {
-        logout();
+        void logout();
         dispatch(clearAuthState());
         navigate("/login");
     };
@@ -48,19 +48,19 @@ const Header = () => {
         }
         const authInitCookie = document.cookie.split("; ").find(row => row.startsWith("authInit="));
 
-        if (authInitCookie) {
+        if (authInitCookie === undefined) {
+            dispatch(setInitialized());
+        } else {
             getAuthState().unwrap()
                 .then(res => dispatch(setCredentials(res)))
                 .catch(() => dispatch(setInitialized()));
-        } else {
-            dispatch(setInitialized());
         }
     }, [dispatch, getAuthState, isAuthInit]);
 
     const getAuthBlock = () => {
         if (isAuthStateLoading || isRequestAuthLoading || isLogoutLoading) {
             return <div>{t.mainHeader.loading}</div>;
-        } else if (username) {
+        } else if (username != null) {
             return <div>
                 <p>{firstName} {lastName}</p>
                 <button id="logoutButton" onClick={handleLogout}>{t.mainHeader.logout}</button>

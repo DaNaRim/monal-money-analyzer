@@ -1,5 +1,5 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import useTranslation from "../../../../app/hooks/translation";
 import styles from "./NotFoundPage.module.scss";
 
