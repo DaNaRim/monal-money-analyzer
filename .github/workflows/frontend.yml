@@ -36,3 +36,6 @@ jobs:
 
       - name: Run ESLint
         run: yarn eslint
+
+      - name: Run Stylelint
+        run: yarn stylelint
