@@ -35,9 +35,10 @@ const ResendVerificationTokenPage = () => {
             .catch(e => handleResponseError(e, setError));
 
     return (
-        <main className={styles.login_page}>
+        <main className={styles.resendVerificationTokenPage}>
             <h1>{t.resendVerificationEmailPage.title}</h1>
             {isSuccess &&
+              // Todo: use AppMessageEl
               <span className={`${styles.app_message} ${styles.info}`}>
                   {t.resendVerificationEmailPage.success}
               </span>

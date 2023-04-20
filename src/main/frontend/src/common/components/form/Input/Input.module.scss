@@ -1,35 +1,12 @@
-$inputPaddingX: 1em;
-$textColor: #000;
-$inputBackground: #fff;
-$inputBorderSize: 1px;
+$input-padding-x: 1em;
+$text-color: #000;
+$input-background: #fff;
+$input-border-size: 1px;
 
-div.inputWrapper {
+div.input-wrapper {
   position: relative;
   height: 100%;
   margin-top: 1em;
-
-  input {
-    box-sizing: border-box;
-    width: 100%;
-    height: 3em;
-    padding: 0.75em $inputPaddingX;
-    color: $textColor;
-    border: $inputBorderSize solid #d0d5dd;
-    border-radius: 0.5em;
-    background-color: $inputBackground;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-
-    &:focus {
-      outline: none;
-    }
-
-    &:is(:focus, :not(:placeholder-shown)) + label {
-      font-size: 0.8rem;
-      top: calc($inputBorderSize / 2);
-      padding: 0 0.4em;
-      opacity: 1;
-    }
-  }
 
   label {
     font-size: 16px;
@@ -38,13 +15,36 @@ div.inputWrapper {
     position: absolute;
     z-index: 0;
     top: 50%;
-    left: $inputPaddingX;
+    left: $input-padding-x;
     display: block;
     transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
     transform: translateY(-50%);
-    color: $textColor;
+    color: $text-color;
     border-radius: 0.5em;
-    background-color: $inputBackground;
+    background-color: $input-background;
+  }
+
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 3em;
+    padding: 0.75em $input-padding-x;
+    color: $text-color;
+    border: $input-border-size solid #d0d5dd;
+    border-radius: 0.5em;
+    background-color: $input-background;
+    box-shadow: 0 1px 2px rgba(16 24 40 5%);
+
+    &:focus {
+      outline: none;
+    }
+
+    &:is(:focus, :not(:placeholder-shown)) + label {
+      font-size: 0.8rem;
+      top: calc($input-border-size / 2);
+      padding: 0 0.4em;
+      opacity: 1;
+    }
   }
 
   span.required {

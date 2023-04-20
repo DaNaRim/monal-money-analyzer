@@ -18,6 +18,9 @@
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
     "sass": "^1.55.0",
+    "stylelint": "^15.5.0",
+    "stylelint-config-standard-scss": "^8.0.0",
+    "stylelint-order": "^6.0.3",
     "web-vitals": "^2.1.4"
   },
   "resolutions": {
@@ -30,7 +33,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src/"
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx src/",
+    "stylelint": "stylelint \"src/**/*.{css,scss}\"",
+    "stylelint:fix": "stylelint \"src/**/*.{css,scss}\" --fix"
   },
   "browserslist": {
     "production": [

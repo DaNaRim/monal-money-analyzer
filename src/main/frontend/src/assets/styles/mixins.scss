@@ -1,11 +1,11 @@
-@mixin clearButtonStyles {
-  padding: 0;
+@mixin clear-button-styles {
+  font-family: inherit;
+  font-size: 1rem;
   margin: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+  color: inherit;
   border: none;
   background: none;
-  font-size: 1rem;
-  font-family: inherit;
-  color: inherit;
-  text-align: inherit;
-  cursor: pointer;
 }

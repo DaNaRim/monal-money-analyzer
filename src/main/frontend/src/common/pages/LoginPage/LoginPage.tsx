@@ -96,7 +96,7 @@ const LoginPage = () => {
     };
 
     return (
-        <main className={styles.login_page}>
+        <main className={styles.loginPage}>
             <h1>{t.loginPage.title}</h1>
             {(appMessage != null) &&
               <AppMessageEl {...appMessage}>{suggestResendVerificationToken()}</AppMessageEl>

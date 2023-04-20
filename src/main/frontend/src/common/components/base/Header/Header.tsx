@@ -74,7 +74,7 @@ const Header = () => {
     };
 
     return (
-        <header className={styles.main_header}>
+        <header className={styles.mainHeader}>
             <nav>
                 <ul>
                     <li><NavLink to="/">{t.mainHeader.nav.home}</NavLink></li>
