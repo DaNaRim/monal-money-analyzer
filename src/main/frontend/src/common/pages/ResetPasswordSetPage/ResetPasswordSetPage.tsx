@@ -57,7 +57,7 @@ const ResetPasswordSetPage = () => {
     };
 
     return (
-        <main className={styles.resetPasswordSetPage}>
+        <main className={styles.reset_password_set_page}>
             <h1>{t.resetPasswordSetPage.title}</h1>
 
             <form onSubmit={handleSubmit(handleResetPasswordSet)}>

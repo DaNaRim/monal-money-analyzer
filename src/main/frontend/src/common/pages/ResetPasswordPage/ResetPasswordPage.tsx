@@ -33,7 +33,7 @@ const ResetPasswordPage = () => {
             .catch(e => handleResponseError(e, setError));
 
     return (
-        <main className={styles.resetPasswordPage}>
+        <main className={styles.reset_password_page}>
             <h1>{t.resetPasswordPage.title}</h1>
             {isSuccess &&
               <span className={`${styles.app_message} ${styles.info}`}>

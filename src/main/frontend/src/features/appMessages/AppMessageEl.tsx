@@ -31,9 +31,9 @@ export default AppMessageEl;
 
 const getAppMessageClassName = (type: AppMessageType) => {
     const classMap = {
-        INFO: `${styles.appMessage} ${styles.info}`,
-        WARNING: `${styles.appMessage} ${styles.warn}`,
-        ERROR: `${styles.appMessage} ${styles.error}`,
+        INFO: `${styles.app_message} ${styles.info}`,
+        WARNING: `${styles.app_message} ${styles.warn}`,
+        ERROR: `${styles.app_message} ${styles.error}`,
     };
     return classMap[type];
 };

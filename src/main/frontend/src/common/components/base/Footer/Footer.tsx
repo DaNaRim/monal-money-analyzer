@@ -6,7 +6,7 @@ const Footer = () => {
     const t = useTranslation();
 
     return (
-        <footer className={styles.mainFooter}>
+        <footer className={styles.main_footer}>
             <h2>{t.mainFooter.desc}</h2>
         </footer>
     );

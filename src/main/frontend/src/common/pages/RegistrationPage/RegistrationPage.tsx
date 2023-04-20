@@ -44,7 +44,7 @@ const RegistrationPage = () => {
     };
 
     return (
-        <main className={styles.registrationPage}>
+        <main className={styles.registration_page}>
             <h1>{t.registerPage.title}</h1>
             {isSuccess &&
               <span className={`${styles.app_message} ${styles.info}`}>

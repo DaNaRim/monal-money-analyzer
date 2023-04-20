@@ -4,6 +4,12 @@
     "stylelint-order"
   ],
   "rules": {
+    "selector-class-pattern": [
+      "^[a-zA-Z]+(_[a-zA-Z]+)*$",
+      {
+        "message": "Selector \"%s\" should be written in snake_case (selector-class-pattern)"
+      }
+    ],
     "order/order": [
       "custom-properties",
       "declarations"
@@ -87,7 +93,6 @@
       "translate",
       "rotate",
       "scale",
-
       "perspective",
       "perspective-origin",
       "appearance",
@@ -136,7 +141,6 @@
       "counter-reset",
       "counter-set",
       "cursor",
-
       "box-sizing",
       "contain",
       "contain-intrinsic-height",
@@ -256,7 +260,6 @@
       "padding-block-end",
       "image-orientation",
       "image-rendering",
-
       "aspect-ratio",
       "width",
       "min-width",
@@ -324,7 +327,6 @@
       "scrollbar-width",
       "touch-action",
       "pointer-events",
-
       "content",
       "quotes",
       "hanging-punctuation",

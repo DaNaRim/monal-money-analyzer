@@ -3,47 +3,47 @@ $text-color: #000;
 $input-background: #fff;
 $input-border-size: 1px;
 
-div.input-wrapper {
+div.inputWrapper {
   position: relative;
-  height: 100%;
   margin-top: 1em;
+  height: 100%;
 
   label {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
+    display: block;
     position: absolute;
-    z-index: 0;
     top: 50%;
     left: $input-padding-x;
-    display: block;
-    transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
     transform: translateY(-50%);
-    color: $text-color;
+    z-index: 0;
+    transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
     border-radius: 0.5em;
     background-color: $input-background;
+    color: $text-color;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
   }
 
   input {
     box-sizing: border-box;
-    width: 100%;
-    height: 3em;
-    padding: 0.75em $input-padding-x;
-    color: $text-color;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 5%);
     border: $input-border-size solid #d0d5dd;
     border-radius: 0.5em;
     background-color: $input-background;
-    box-shadow: 0 1px 2px rgba(16 24 40 5%);
+    padding: 0.75em $input-padding-x;
+    width: 100%;
+    height: 3em;
+    color: $text-color;
 
     &:focus {
       outline: none;
     }
 
     &:is(:focus, :not(:placeholder-shown)) + label {
-      font-size: 0.8rem;
       top: calc($input-border-size / 2);
-      padding: 0 0.4em;
       opacity: 1;
+      padding: 0 0.4em;
+      font-size: 0.8rem;
     }
   }
 
@@ -53,7 +53,7 @@ div.input-wrapper {
 }
 
 .error {
-  font-size: 0.875em;
   margin-top: 0.5em;
   color: red;
+  font-size: 0.875em;
 }
