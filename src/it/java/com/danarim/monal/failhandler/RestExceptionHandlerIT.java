@@ -5,6 +5,7 @@ import com.danarim.monal.controller.StubController;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,13 +28,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class RestExceptionHandlerIT {
 
-    private static final LogCaptor logCaptor = LogCaptor.forClass(RestExceptionHandler.class);
+    private static LogCaptor logCaptor;
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean(name = "messageSource")
     private MessageSource messages;
+
+    @BeforeEach
+    void setUp() {
+        //Lazy init because of logcaptor is created before the test application context is created
+        if (logCaptor == null) {
+            logCaptor = LogCaptor.forClass(RestExceptionHandler.class);
+        }
+    }
 
     @AfterAll
     public static void tearDown() {
@@ -59,7 +68,10 @@ class RestExceptionHandlerIT {
                 .andExpect(jsonPath("$[0].message").value("test"))
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
-        assertThat(logCaptor.getDebugLogs()).hasSize(1);
+        assertThat(logCaptor.getDebugLogs())
+                .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
     }
 
     @Test
@@ -75,7 +87,10 @@ class RestExceptionHandlerIT {
                 .andExpect(jsonPath("$[0].message").value("test"))
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
-        assertThat(logCaptor.getDebugLogs()).hasSize(1);
+        assertThat(logCaptor.getDebugLogs())
+                .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
     }
 
     @Test
@@ -92,7 +107,10 @@ class RestExceptionHandlerIT {
                 .andExpect(jsonPath("$[0].message").value("test"))
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
-        assertThat(logCaptor.getDebugLogs()).hasSize(1);
+        assertThat(logCaptor.getDebugLogs())
+                .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
     }
 
     @Test
@@ -109,7 +127,10 @@ class RestExceptionHandlerIT {
                 .andExpect(jsonPath("$[0].message").value("test"))
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
-        assertThat(logCaptor.getErrorLogs()).hasSize(1);
+        assertThat(logCaptor.getErrorLogs())
+                .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
     }
 
     @Test
@@ -126,7 +147,10 @@ class RestExceptionHandlerIT {
                 .andExpect(jsonPath("$[0].message").value("test"))
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
-        assertThat(logCaptor.getErrorLogs()).hasSize(1);
+        assertThat(logCaptor.getErrorLogs())
+                .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
     }
 
 }
