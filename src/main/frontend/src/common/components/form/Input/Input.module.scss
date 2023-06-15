@@ -1,50 +1,50 @@
-$inputPaddingX: 1em;
-$textColor: #000;
-$inputBackground: #fff;
-$inputBorderSize: 1px;
+$input-padding-x: 1em;
+$text-color: #000;
+$input-background: #fff;
+$input-border-size: 1px;
 
 div.inputWrapper {
   position: relative;
-  height: 100%;
   margin-top: 1em;
+  height: 100%;
+
+  label {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: $input-padding-x;
+    transform: translateY(-50%);
+    z-index: 0;
+    transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
+    border-radius: 0.5em;
+    background-color: $input-background;
+    color: $text-color;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+  }
 
   input {
     box-sizing: border-box;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 5%);
+    border: $input-border-size solid #d0d5dd;
+    border-radius: 0.5em;
+    background-color: $input-background;
+    padding: 0.75em $input-padding-x;
     width: 100%;
     height: 3em;
-    padding: 0.75em $inputPaddingX;
-    color: $textColor;
-    border: $inputBorderSize solid #d0d5dd;
-    border-radius: 0.5em;
-    background-color: $inputBackground;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    color: $text-color;
 
     &:focus {
       outline: none;
     }
 
     &:is(:focus, :not(:placeholder-shown)) + label {
-      font-size: 0.8rem;
-      top: calc($inputBorderSize / 2);
-      padding: 0 0.4em;
+      top: calc($input-border-size / 2);
       opacity: 1;
+      padding: 0 0.4em;
+      font-size: 0.8rem;
     }
-  }
-
-  label {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
-    position: absolute;
-    z-index: 0;
-    top: 50%;
-    left: $inputPaddingX;
-    display: block;
-    transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
-    transform: translateY(-50%);
-    color: $textColor;
-    border-radius: 0.5em;
-    background-color: $inputBackground;
   }
 
   span.required {
@@ -53,7 +53,7 @@ div.inputWrapper {
 }
 
 .error {
-  font-size: 0.875em;
   margin-top: 0.5em;
   color: red;
+  font-size: 0.875em;
 }

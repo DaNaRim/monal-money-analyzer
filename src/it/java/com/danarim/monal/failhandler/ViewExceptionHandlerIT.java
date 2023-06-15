@@ -4,6 +4,7 @@ import com.danarim.monal.controller.ViewStubController;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,10 +22,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class ViewExceptionHandlerIT {
 
-    private static final LogCaptor logCaptor = LogCaptor.forClass(ViewExceptionHandler.class);
+    private static LogCaptor logCaptor;
 
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        //Lazy init because of logcaptor is created before the test application context is created
+        if (logCaptor == null) {
+            logCaptor = LogCaptor.forClass(ViewExceptionHandler.class);
+        }
+    }
 
     @AfterAll
     public static void tearDown() {
@@ -42,7 +51,10 @@ class ViewExceptionHandlerIT {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/error"));
 
-        assertThat(logCaptor.getErrorLogs()).hasSize(1);
+        assertThat(logCaptor.getErrorLogs())
+                .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
     }
 
 }

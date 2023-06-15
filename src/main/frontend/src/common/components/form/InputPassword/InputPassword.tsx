@@ -17,11 +17,11 @@ const InputPassword = (props: InputExtProps) => {
     };
 
     return (
-        <div className={styles.passwordInputWrapper}>
+        <div className={styles.password_input_wrapper}>
             <Input type={isPasswordVisible ? "text" : "password"} {...props}/>
             <button type="button"
                     title={t.form.password_show}
-                    className={styles.eyeIcon}
+                    className={styles.eye_icon}
                     onMouseDown={() => setIsPasswordVisible(true)}
                     onMouseUp={() => setIsPasswordVisible(false)}
                     onMouseLeave={() => setIsPasswordVisible(false)}

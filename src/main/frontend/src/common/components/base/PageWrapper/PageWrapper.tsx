@@ -6,7 +6,7 @@ import Loading from "../Loading/Loading";
 import styles from "./PageWrapper.module.scss";
 
 const PageWrapper = () => (
-    <div className={styles.pageWrapper}>
+    <div className={styles.page_wrapper}>
         <Header/>
         <Suspense fallback={<Loading/>}>
             <Outlet/>

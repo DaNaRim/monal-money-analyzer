@@ -36,9 +36,10 @@ const ResendVerificationTokenPage = () => {
     };
 
     return (
-        <main className={styles.login_page} data-testid="resend-verification-token-page">
+        <main className={styles.resend_verification_token_page} data-testid="resend-verification-token-page">
             <h1>{t.resendVerificationEmailPage.title}</h1>
             {isSuccess &&
+              // Todo: use AppMessageEl
               <span className={`${styles.app_message} ${styles.info}`}>
                   {t.resendVerificationEmailPage.success}
               </span>
