@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router";
+import { Route, Routes } from "react-router";
 import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
 import { checkForServerMessages } from "../features/appMessages/appMessagesSlice";
 import { selectAuthIsForceLogin, setForceLogin } from "../features/auth/authSlice";
@@ -35,11 +35,11 @@ const NotFoundPage = React.lazy(async () =>
 
 const App = (): JSX.Element => {
     const dispatch = useAppDispatch();
-    const location = useLocation();
+    // const location = useLocation();
 
     const isForceLoin = useAppSelector<boolean>(selectAuthIsForceLogin);
 
-    if (location.pathname !== "/login" && isForceLoin) {
+    if (!window.location.href.endsWith("/login") && isForceLoin) {
         dispatch(setForceLogin(false));
     }
 

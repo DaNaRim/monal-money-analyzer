@@ -151,6 +151,7 @@ public class AuthController {
 
         response.addCookie(CookieUtil.createAccessTokenCookie(accessToken));
 
+        // update csrf token and auth state
         return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
     }
 

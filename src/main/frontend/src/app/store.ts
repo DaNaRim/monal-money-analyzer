@@ -1,23 +1,34 @@
-import { type Action, configureStore, type ThunkAction } from "@reduxjs/toolkit";
+import {
+    type Action,
+    combineReducers,
+    configureStore,
+    type PreloadedState,
+    type ThunkAction,
+} from "@reduxjs/toolkit";
 import { apiSlice } from "../features/api/apiSlice";
 import appMessagesReducer from "../features/appMessages/appMessagesSlice";
 import authReducer from "../features/auth/authSlice";
 
 const isDev = process.env.NODE_ENV === "development";
 
-export const store = configureStore({
-    reducer: {
-        [apiSlice.reducerPath]: apiSlice.reducer,
-        auth: authReducer,
-        appMessages: appMessagesReducer,
-    },
-    middleware: getDefaultMiddleware => getDefaultMiddleware()
-        .concat(apiSlice.middleware),
-    devTools: isDev,
+const rootReducer = combineReducers({
+    [apiSlice.reducerPath]: apiSlice.reducer,
+    auth: authReducer,
+    appMessages: appMessagesReducer,
 });
 
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
+export const setupStore = (preloadedState?: PreloadedState<RootState>) =>
+    configureStore({
+        reducer: rootReducer,
+        middleware: getDefaultMiddleware => getDefaultMiddleware()
+            .concat(apiSlice.middleware),
+        devTools: isDev,
+        preloadedState,
+    });
+
+export type AppStore = ReturnType<typeof setupStore>;
+export type AppDispatch = AppStore["dispatch"];
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppThunk<ReturnType = void> = ThunkAction<
     ReturnType,
     RootState,

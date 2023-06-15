@@ -8,7 +8,7 @@ import useFetchUtils, {
 } from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
-import AppMessageEl from "../../../features/appMessages/AppMessageEl";
+import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import {
     AppMessageCode,
     deleteAppMessage,
@@ -79,7 +79,7 @@ const LoginPage = () => {
 
                 const errorData: LoginFormError[] = e.data;
 
-                if (typeof errorData === "object"
+                if (typeof errorData === "object" && errorData !== null
                     && errorData.some(error => error.errorCode === "validation.auth.disabled")) {
                     setIsAccountNotActivated(true);
                 }
@@ -96,10 +96,10 @@ const LoginPage = () => {
     };
 
     return (
-        <main className={styles.login_page}>
+        <main className={styles.login_page} data-testid="login-page">
             <h1>{t.loginPage.title}</h1>
             {(appMessage != null) &&
-              <AppMessageEl {...appMessage}>{suggestResendVerificationToken()}</AppMessageEl>
+              <AppMessageComp {...appMessage}>{suggestResendVerificationToken()}</AppMessageComp>
             }
             <form onSubmit={handleSubmit(handleLogin)}>
 

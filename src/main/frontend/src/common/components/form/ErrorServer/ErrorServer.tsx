@@ -6,7 +6,9 @@ const ErrorServer = ({ register, errors }: ErrorProps) => (
     <>
         <input type="hidden" {...register("serverError")}/>
         {(errors.serverError != null) &&
-          <span className={styles.message}>{errors.serverError.message as string}</span>
+          <span className={styles.message} data-testid="server-error">
+              {errors.serverError.message as string}
+          </span>
         }
     </>
 );

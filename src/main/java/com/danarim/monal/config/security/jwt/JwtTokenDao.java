@@ -14,7 +14,7 @@ import javax.transaction.Transactional;
 public interface JwtTokenDao extends JpaRepository<JwtTokenEntity, Long> {
 
     @Query("SELECT t.isBlocked FROM JwtTokenEntity t WHERE t.id = ?1")
-    boolean isTokenBlocked(long id);
+    Boolean isTokenBlocked(long id); //Boolean used to be able to receive null values
 
     @Query("UPDATE JwtTokenEntity t SET t.isBlocked = true WHERE t.id = ?1")
     @Modifying

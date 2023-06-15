@@ -46,6 +46,7 @@ const Header = () => {
         if (isAuthInit) {
             return;
         }
+        // Check if user is already logged in. Cookie is set by server.
         const authInitCookie = document.cookie.split("; ").find(row => row.startsWith("authInit="));
 
         if (authInitCookie === undefined) {
@@ -74,7 +75,7 @@ const Header = () => {
     };
 
     return (
-        <header className={styles.main_header}>
+        <header className={styles.main_header} data-testid="main-header">
             <nav>
                 <ul>
                     <li><NavLink to="/">{t.mainHeader.nav.home}</NavLink></li>

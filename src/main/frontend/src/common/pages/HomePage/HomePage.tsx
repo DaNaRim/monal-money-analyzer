@@ -7,7 +7,7 @@ const HomePage = () => {
     const t = useTranslation();
 
     return (
-        <main className={styles.home_page}>
+        <main className={styles.home_page} data-testid="home-page">
             <h1>{t.homePage.title}</h1>
         </main>
     );

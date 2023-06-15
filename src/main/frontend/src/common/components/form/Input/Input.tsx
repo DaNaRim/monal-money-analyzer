@@ -20,12 +20,18 @@ type InputProps = InputExtProps & {
     type: InputTypes;
 };
 
-const Input = ({ type, name, componentName, options, register, errors, className }: InputProps) => {
+const Input = ({
+                   type,
+                   name,
+                   componentName,
+                   options,
+                   register,
+                   errors,
+                   className = "",
+               }: InputProps) => {
     const t = useTranslation();
 
     const id = useMemo(() => `inp-${name}-${Math.random()}`, [name]);
-
-    const extraClass = className === undefined ? "" : `${className}`;
 
     const label = t.getString(`${componentName}.form.fields.${name}`);
 
@@ -37,15 +43,21 @@ const Input = ({ type, name, componentName, options, register, errors, className
 
     return (
         <>
-            <div className={`${styles.inputWrapper} ${extraClass}`}>
-                <input type={type} id={id} placeholder=" " {...register(name, options)}/>
+            <div className={`${styles.inputWrapper} ${className}`}>
+                <input type={type}
+                       id={id}
+                       placeholder=" "
+                       {...register(name, options)}
+                       data-testid={`input-${name}`}/>
                 <label htmlFor={id}>{label} {requiredSign}</label>
             </div>
             {errors?.[name]?.type === "required" &&
               <span className={styles.error}>{requiredError}</span>
             }
             {((errors?.[name]) != null) &&
-              <span className={styles.error}>{errors?.[name]?.message as string}</span>
+              <span className={styles.error} data-testid={`error-${name}`}>
+                  {errors?.[name]?.message as string}
+              </span>
             }
         </>
     );

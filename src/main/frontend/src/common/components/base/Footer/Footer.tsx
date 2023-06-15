@@ -6,7 +6,7 @@ const Footer = () => {
     const t = useTranslation();
 
     return (
-        <div className={styles.mainFooter}>
+        <div className={styles.mainFooter} data-testid="main-footer">
             <h2>{t.mainFooter.desc}</h2>
         </div>
     );

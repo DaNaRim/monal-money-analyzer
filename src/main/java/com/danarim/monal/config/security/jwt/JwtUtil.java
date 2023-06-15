@@ -189,7 +189,8 @@ public class JwtUtil {
      */
     public boolean isTokenBlocked(long jti) {
         //use long for not to be confused with an encoded token
-        return jwtTokenDao.isTokenBlocked(jti);
+        Boolean result = jwtTokenDao.isTokenBlocked(jti);
+        return result == null || result; //if token not exists in the database, it is blocked
     }
 
     /**
