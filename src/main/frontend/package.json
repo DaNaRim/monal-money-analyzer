@@ -33,6 +33,7 @@
     "test:watch": "react-scripts test --watchAll",
     "eject": "react-scripts eject",
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx src/",
+    "eslint:fix": "eslint --ext .js,.jsx,.ts,.tsx src/ --fix",
     "stylelint": "stylelint \"src/**/*.{css,scss}\"",
     "stylelint:fix": "stylelint \"src/**/*.{css,scss}\" --fix"
   },

@@ -2,6 +2,7 @@ import { it } from "@jest/globals";
 import { screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { setupStore } from "../../../../../app/store";
 import Header from "../../../../../common/components/base/Header/Header";
@@ -13,11 +14,11 @@ const REGISTER_BUTTON_TEXT = "Register";
 const LOGOUT_BUTTON_TEXT = "Logout";
 
 const authTestHandlers = [
-    rest.post("api/v1/auth/getState", (req, res, ctx) => {
-        const accessToken = req.cookies["access_token"];
+    rest.post("api/v1/auth/getState", async (req, res, ctx) => {
+        const accessToken = req.cookies.access_token;
 
         if (accessToken === undefined) {
-            return res(ctx.status(401));
+            return await res(ctx.status(401));
         }
         const authState = {
             username: "a@b.c",
@@ -26,18 +27,13 @@ const authTestHandlers = [
             roles: ["ROLE_USER"],
             csrfToken: "1234567890",
         };
-        return res(ctx.json(authState), ctx.delay(150), ctx.status(200));
+        return await res(ctx.json(authState), ctx.delay(150), ctx.status(200));
     }),
-    rest.post("api/v1/auth/refresh", (req, res, ctx) => {
-        return res(ctx.status(401));
-    }),
-    rest.post("api/v1/logout", (req, res, ctx) => {
-        return res(ctx.status(200));
-    }),
+    rest.post("api/v1/auth/refresh", async (req, res, ctx) => await res(ctx.status(401))),
+    rest.post("api/v1/logout", async (req, res, ctx) => await res(ctx.status(200))),
 ];
 
 describe("Header auth block", () => {
-
     const server = setupServer(...authTestHandlers);
 
     beforeAll(() => server.listen());
@@ -47,7 +43,6 @@ describe("Header auth block", () => {
         document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     });
     afterAll(() => server.close());
-
 
     it("rendered. authInit cookie NOT exists -> display auth buttons", async () => {
         const store = setupStore();
@@ -111,7 +106,7 @@ describe("Header auth block", () => {
 
     it("click logout button -> logout", async () => {
         document.cookie = "authInit=true";
-        document.cookie = `access_token=1234567890`;
+        document.cookie = "access_token=1234567890";
 
         const store = setupStore();
         renderWithProviders(<Header/>, { wrapper: BrowserRouter, store });

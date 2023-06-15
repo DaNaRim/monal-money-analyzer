@@ -2,14 +2,15 @@ import { describe, it } from "@jest/globals";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 
 describe("ResendVerificationTokenPage", () => {
     const handlers = [
-        rest.post("api/v1/resendVerificationToken", (req, res, ctx) => {
+        rest.post("api/v1/resendVerificationToken", async (req, res, ctx) => {
             const email = req.url.searchParams.get("email");
 
             if (email === "Email error") {
@@ -19,7 +20,7 @@ describe("ResendVerificationTokenPage", () => {
                     errorCode: "code",
                     fieldName: "email",
                 };
-                return res(ctx.status(400), ctx.json([error]));
+                return await res(ctx.status(400), ctx.json([error]));
             }
             if (email === "Global error") {
                 const error: ErrorResponse = {
@@ -28,7 +29,7 @@ describe("ResendVerificationTokenPage", () => {
                     errorCode: "code",
                     fieldName: ResponseErrorType.GLOBAL_ERROR,
                 };
-                return res(ctx.status(400), ctx.json([error]));
+                return await res(ctx.status(400), ctx.json([error]));
             }
             if (email === "Server error") {
                 const error: ErrorResponse = {
@@ -37,9 +38,9 @@ describe("ResendVerificationTokenPage", () => {
                     errorCode: "code",
                     fieldName: ResponseErrorType.SERVER_ERROR,
                 };
-                return res(ctx.status(500), ctx.json([error]));
+                return await res(ctx.status(500), ctx.json([error]));
             }
-            return res(ctx.status(200));
+            return await res(ctx.status(200));
         }),
     ];
 
@@ -65,8 +66,8 @@ describe("ResendVerificationTokenPage", () => {
         });
     });
 
-    //I don't know why but this test passes or fails randomly
-    //It looks like button is not clicked sometimes
+    // I don't know why but this test passes or fails randomly
+    // It looks like button is not clicked sometimes
     it("fields not filled -> display required error messages", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
@@ -84,16 +85,14 @@ describe("ResendVerificationTokenPage", () => {
         await waitFor(() => fillResendInput("a@b"));
         clickSendButton();
 
-        await waitFor(() => {
-            expect(screen.getByText("Processing...")).toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.getByText("Processing...")).toBeInTheDocument());
 
         await waitFor(async () => {
             expect(screen.getByText("Verification email sent."
                 + " Please check your email to activate your account."
                 + " If it doesn't appear within a few minutes, check your spam folder."))
                 .toBeInTheDocument();
-            expect(screen.getByText("Send")).toBeInTheDocument(); //button is disabled again
+            expect(screen.getByText("Send")).toBeInTheDocument(); // button is disabled again
         });
     });
 
@@ -104,9 +103,7 @@ describe("ResendVerificationTokenPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => {
-            expect(screen.getByTestId("error-email")).toHaveTextContent("Email error");
-        });
+        await waitFor(() => expect(screen.getByTestId("error-email")).toHaveTextContent("Email error"));
     });
 
     it("resend global error -> display error message", async () => {
@@ -116,10 +113,9 @@ describe("ResendVerificationTokenPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => {
+        await waitFor(() =>
             expect(screen.getByTestId("global-error"))
-                .toHaveTextContent("Global error");
-        });
+                .toHaveTextContent("Global error"));
     });
 
     it("resend server error -> display error message", async () => {
@@ -129,18 +125,16 @@ describe("ResendVerificationTokenPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => {
+        await waitFor(() =>
             expect(screen.getByTestId("server-error"))
                 .toHaveTextContent("Server error. Please try again later. If the problem"
-                    + " persists, please contact the administrator");
-        });
+                    + " persists, please contact the administrator"));
     });
 });
 
 export function fillResendInput(email: string) {
-    const emailInput = screen.getByTestId("input-email") as HTMLInputElement;
-
-    if (!emailInput) {
+    const emailInput = screen.getByTestId("input-email");
+    if (emailInput == null) {
         throw new Error("ResendVerificationToken input not found");
     }
     fireEvent.change(emailInput, { target: { value: email } });
@@ -148,7 +142,7 @@ export function fillResendInput(email: string) {
 
 export function clickSendButton() {
     const sendButton = screen.getByText("Send");
-    if (!sendButton) {
+    if (sendButton == null) {
         throw new Error("ResendVerificationToken send button not found");
     }
     sendButton.click();

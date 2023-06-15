@@ -8,13 +8,11 @@ import LanguageHandler from "../../../../../common/components/base/LanguageHandl
 import { renderWithProviders } from "../../../../../common/utils/test-utils";
 
 describe("LanguageHandler", () => {
-
-    beforeEach(() => {
+    beforeEach(() =>
         Object.defineProperty(document, "cookie", {
             writable: true,
             value: "", // empty cookie on start
-        });
-    });
+        }));
 
     afterEach(() => {
         document.cookie = "locale=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -26,7 +24,7 @@ describe("LanguageHandler", () => {
         expect(screen.getByText("English")).toBeInTheDocument();
         expect(screen.getByText("Українська")).toBeInTheDocument();
 
-        expect(getLocaleFromCookie()).toEqual("en"); //default value
+        expect(getLocaleFromCookie()).toEqual("en"); // default value
     });
 
     test("rendered. locale cookie exists", () => {
@@ -49,18 +47,14 @@ describe("LanguageHandler", () => {
         expect(getLocaleFromCookie()).toEqual("uk");
     });
 
-    it("change language -> page language updates", () => {
+    it("change language -> page language updates", async () => {
         renderWithProviders(<App/>, { wrapper: RouterAndLanguageWrapper });
 
-        waitFor(() => {
-            expect(screen.getByText("Home Page")).toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.getByText("Home page")).toBeInTheDocument());
         fireEvent.change(screen.getByTestId("language-handler"), {
             target: { value: "uk" },
         });
-        waitFor(() => {
-            expect(screen.getByText("Домашня сторінка")).toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.getByText("Домашня сторінка")).toBeInTheDocument());
     });
 });
 

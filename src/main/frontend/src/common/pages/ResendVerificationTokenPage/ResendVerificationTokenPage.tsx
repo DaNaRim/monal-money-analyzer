@@ -30,16 +30,16 @@ const ResendVerificationTokenPage = () => {
 
     const [resendToken, { isLoading, isSuccess }] = useResendVerificationTokenMutation();
 
-    const handleResendToken = (data: ResendVerificationTokenFields) => {
-       resendToken(data.email).unwrap()
+    const handleResendToken = (data: ResendVerificationTokenFields) =>
+        resendToken(data.email).unwrap()
             .catch(e => handleResponseError(e, setError));
-    };
 
     return (
-        <main className={styles.resend_verification_token_page} data-testid="resend-verification-token-page">
+        <main className={styles.resend_verification_token_page}
+              data-testid="resend-verification-token-page">
             <h1>{t.resendVerificationEmailPage.title}</h1>
             {isSuccess &&
-              // Todo: use AppMessageEl
+                // Todo: use AppMessageEl
               <span className={`${styles.app_message} ${styles.info}`}>
                   {t.resendVerificationEmailPage.success}
               </span>

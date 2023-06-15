@@ -2,14 +2,15 @@ import { describe, it } from "@jest/globals";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 
 describe("RegistrationPage", () => {
     const handlers = [
-        rest.post("api/v1/resetPassword", (req, res, ctx) => {
+        rest.post("api/v1/resetPassword", async (req, res, ctx) => {
             const email = req.url.searchParams.get("email");
 
             if (email === "Email error") {
@@ -19,7 +20,7 @@ describe("RegistrationPage", () => {
                     errorCode: "code",
                     fieldName: "email",
                 };
-                return res(ctx.status(400), ctx.json([error]));
+                return await res(ctx.status(400), ctx.json([error]));
             }
             if (email === "Global error") {
                 const error: ErrorResponse = {
@@ -28,7 +29,7 @@ describe("RegistrationPage", () => {
                     errorCode: "code",
                     fieldName: ResponseErrorType.GLOBAL_ERROR,
                 };
-                return res(ctx.status(400), ctx.json([error]));
+                return await res(ctx.status(400), ctx.json([error]));
             }
             if (email === "Server error") {
                 const error: ErrorResponse = {
@@ -37,9 +38,9 @@ describe("RegistrationPage", () => {
                     errorCode: "code",
                     fieldName: ResponseErrorType.SERVER_ERROR,
                 };
-                return res(ctx.status(500), ctx.json([error]));
+                return await res(ctx.status(500), ctx.json([error]));
             }
-            return res(ctx.status(200));
+            return await res(ctx.status(200));
         }),
     ];
 
@@ -65,16 +66,14 @@ describe("RegistrationPage", () => {
         });
     });
 
-    //I don't know why but this test passes or fails randomly
-    //It looks like button is not clicked sometimes
+    // I don't know why but this test passes or fails randomly
+    // It looks like button is not clicked sometimes
     it("fields not filled -> display required error messages", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
         await waitFor(() => clickSendButton());
 
-        await waitFor(() => {
-            expect(screen.getByText("Email is required")).toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.getByText("Email is required")).toBeInTheDocument());
     });
 
     it("reset success -> display success message", async () => {
@@ -84,18 +83,16 @@ describe("RegistrationPage", () => {
 
         clickSendButton();
 
-        await waitFor(() => {
-            expect(screen.getByText("Processing...")).toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.getByText("Processing...")).toBeInTheDocument());
 
-        //To disable act warning. I don't know how to fix it
-        await waitFor(async () => await new Promise(r => setTimeout(r, 100)));
+        // To disable act warning. I don't know how to fix it
+        await waitFor(async () => await new Promise(resolve => setTimeout(resolve, 100)));
 
         await waitFor(() => {
             expect(screen.getByText("Check your email for a link to reset your password."
                 + " If it doesn't appear within a few minutes, check your spam folder."))
                 .toBeInTheDocument();
-            expect(screen.getByText("Send")).toBeInTheDocument(); //button is disabled again
+            expect(screen.getByText("Send")).toBeInTheDocument(); // button is disabled again
         });
     });
 
@@ -107,9 +104,7 @@ describe("RegistrationPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => {
-            expect(screen.getByTestId("error-email")).toHaveTextContent("Email error");
-        });
+        await waitFor(() => expect(screen.getByTestId("error-email")).toHaveTextContent("Email error"));
     });
 
     it("reset global error -> display error message", async () => {
@@ -119,10 +114,9 @@ describe("RegistrationPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => {
+        await waitFor(() =>
             expect(screen.getByTestId("global-error"))
-                .toHaveTextContent("Global error");
-        });
+                .toHaveTextContent("Global error"));
     });
 
     it("reset server error -> display error message", async () => {
@@ -132,19 +126,17 @@ describe("RegistrationPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => {
+        await waitFor(() =>
             expect(screen.getByTestId("server-error"))
                 .toHaveTextContent("Server error. Please try again later. If the problem"
-                    + " persists, please contact the administrator");
-        });
+                    + " persists, please contact the administrator"));
     });
-
 });
 
 function fillPasswordResetInput(email: string) {
-    const emailInput = screen.getByTestId("input-email") as HTMLInputElement;
+    const emailInput = screen.getByTestId("input-email");
 
-    if (!emailInput) {
+    if (emailInput == null) {
         throw new Error("ResetPassword input not found");
     }
     fireEvent.change(emailInput, { target: { value: email } });
@@ -152,7 +144,7 @@ function fillPasswordResetInput(email: string) {
 
 function clickSendButton() {
     const sendButton = screen.getByText("Send");
-    if (!sendButton) {
+    if (sendButton == null) {
         throw new Error("ResetPassword send button not found");
     }
     sendButton.click();
