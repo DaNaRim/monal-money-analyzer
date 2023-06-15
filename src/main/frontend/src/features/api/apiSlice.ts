@@ -28,7 +28,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
 ) => {
     let result = await baseQuery(args, api, extraOptions);
 
-    if (result.meta?.response?.status === 401) {
+    if (result.meta?.response?.status === 401 && (args as FetchArgs).url !== "/login") {
         const refreshResult = await baseQuery({
             url: "/auth/refresh",
             method: "POST",
@@ -37,7 +37,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
         if (refreshResult.meta?.response?.status === 200) {
             const authResult = refreshResult.data as AuthResponseEntity;
 
-            api.dispatch(setCredentials(authResult));
+            api.dispatch(setCredentials(authResult)); // update csrf token
             result = await baseQuery(args, api, extraOptions);
         } else if (refreshResult.meta?.response?.status === 401) {
             await baseQuery({ url: "/logout", method: "POST" }, api, extraOptions);
@@ -50,9 +50,10 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
                 page: "login",
             }));
 
-            window.location.replace("/login");
+            window.history.replaceState(null, "", "/login");
         } else {
-            window.location.replace("/error");
+            api.dispatch(clearAuthState());
+            window.history.replaceState(null, "", "/error");
         }
     }
     return result;

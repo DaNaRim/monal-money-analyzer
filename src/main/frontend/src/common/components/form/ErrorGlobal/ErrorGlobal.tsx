@@ -12,7 +12,9 @@ const ErrorGlobal = ({ register, errors }: ErrorProps) => (
     <>
         <input type="hidden" {...register("globalError")}/>
         {(errors.globalError != null) &&
-          <span className={styles.message}>{errors.globalError.message as string}</span>
+          <span className={styles.message} data-testid="global-error">
+              {errors.globalError.message as string}
+          </span>
         }
     </>
 );

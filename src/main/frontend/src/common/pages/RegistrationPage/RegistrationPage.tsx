@@ -44,7 +44,7 @@ const RegistrationPage = () => {
     };
 
     return (
-        <main className={styles.registration_page}>
+        <main className={styles.registration_page} data-testid="registration-page">
             <h1>{t.registerPage.title}</h1>
             {isSuccess &&
               <span className={`${styles.app_message} ${styles.info}`}>
@@ -83,7 +83,9 @@ const RegistrationPage = () => {
 
                 {isLoading
                     ? <span>{t.registerPage.form.loading}</span>
-                    : <button type="submit">{t.registerPage.form.submit}</button>
+                    : <button type="submit" data-testid="register-button">
+                        {t.registerPage.form.submit}
+                    </button>
                 }
             </form>
         </main>

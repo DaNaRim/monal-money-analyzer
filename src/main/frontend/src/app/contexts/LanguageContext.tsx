@@ -12,9 +12,11 @@ const supportedLanguages = [
     "uk",
 ];
 
+const defaultLocale = "en";
+
 const localeFromCookie = document.cookie.split("; ")
         .find(row => row.startsWith(`${COOKIE_LOCALE_KEY}=`))?.split("=")[1]
-    ?? "en";
+    ?? defaultLocale;
 
 const LanguageContext = React.createContext<ContextType>({
     language: localeFromCookie,
@@ -26,10 +28,19 @@ const updateLocaleCookie = (locale: string): void => {
     document.cookie = `${COOKIE_LOCALE_KEY}=${locale}; path=/; secure;`;
 };
 
+const initLocaleCookie = (): void => {
+    if (document.cookie.split("; ")
+        .find(row => row.startsWith(`${COOKIE_LOCALE_KEY}=`)) === undefined) {
+        updateLocaleCookie(defaultLocale);
+    }
+};
+
 export const useLanguageContext: () => ContextType = () => useContext(LanguageContext);
 
 const LanguageContextProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
     const [language, setLanguage] = useState(localeFromCookie);
+
+    initLocaleCookie();
 
     const changeLanguage = (language: string): void => {
         if (supportedLanguages.includes(language)) {

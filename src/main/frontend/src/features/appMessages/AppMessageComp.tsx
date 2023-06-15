@@ -5,12 +5,12 @@ import { type AppMessage, type AppMessageType } from "./appMessagesSlice";
 
 type Formatted = number | string | JSX.Element; // duplicate from react-localization
 
-type AppMessageElProps = AppMessage & {
+type AppMessageCompProps = AppMessage & {
     messageArgs?: Formatted;
     children?: JSX.Element | null;
 };
 
-const AppMessageEl = (props: AppMessageElProps) => {
+const AppMessageComp = (props: AppMessageCompProps) => {
     const t = useTranslation();
 
     const preparedMessageCode = props.messageCode.replace(/[.-]/g, "_");
@@ -27,7 +27,7 @@ const AppMessageEl = (props: AppMessageElProps) => {
     );
 };
 
-export default AppMessageEl;
+export default AppMessageComp;
 
 const getAppMessageClassName = (type: AppMessageType) => {
     const classMap = {

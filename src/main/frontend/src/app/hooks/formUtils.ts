@@ -29,7 +29,7 @@ const useFetchUtils = (): FetchUtilsReturnType => {
 
     const handleResponseError = (e: any, setError: UseFormSetError<any>): void => {
         if (e.status === 400 || e.status === 401) {
-            const errorData: ErrorResponse[] = e.data;
+            const errorData: ErrorResponse[] = e.data ?? [];
 
             errorData.forEach(error => {
                 setError(error.fieldName, { type: error.type, message: error.message });

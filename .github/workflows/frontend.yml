@@ -1,4 +1,4 @@
-name: frontend lint
+name: frontend test and lint
 run-name: Checking frontend by @${{ github.actor }}
 
 on:
@@ -15,6 +15,28 @@ permissions:
   checks: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/main/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+          cache-dependency-path: src/main/frontend
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Run tests
+        run: yarn test
+
   lint:
     runs-on: ubuntu-latest
     defaults:
