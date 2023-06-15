@@ -104,7 +104,9 @@ describe("RegistrationPage", () => {
         clickSendButton();
 
         // should display error message
-        await waitFor(() => expect(screen.getByTestId("error-email")).toHaveTextContent("Email error"));
+        await waitFor(() => {
+            expect(screen.getByTestId("error-email")).toHaveTextContent("Email error");
+        });
     });
 
     it("reset global error -> display error message", async () => {

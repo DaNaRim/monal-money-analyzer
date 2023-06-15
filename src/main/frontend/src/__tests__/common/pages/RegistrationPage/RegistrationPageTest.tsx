@@ -123,7 +123,9 @@ describe("RegistrationPage", () => {
         clickRegisterButton();
 
         // should display error message
-        await waitFor(() => expect(screen.getByTestId("error-firstName")).toHaveTextContent("First name error"));
+        await waitFor(() => {
+            expect(screen.getByTestId("error-firstName")).toHaveTextContent("First name error");
+        });
     });
 
     it("register global error -> display error message", async () => {

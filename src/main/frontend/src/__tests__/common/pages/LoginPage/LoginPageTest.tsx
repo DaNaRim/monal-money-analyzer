@@ -147,7 +147,9 @@ describe("LoginPage", () => {
         act(() => clickLoginButton());
 
         // should display error message
-        await waitFor(() => expect(screen.getByTestId("error-username")).toHaveTextContent("Email error"));
+        await waitFor(() => {
+            expect(screen.getByTestId("error-username")).toHaveTextContent("Email error");
+        });
     });
 
     it("login global error -> display error message", async () => {
@@ -182,7 +184,9 @@ describe("LoginPage", () => {
         act(() => clickLoginButton());
 
         // should display link to resend verification token
-        await waitFor(() => expect(screen.getByText("Resend verification email")).toBeInTheDocument());
+        await waitFor(() => {
+            expect(screen.getByText("Resend verification email")).toBeInTheDocument();
+        });
     });
 
     it("app message exists -> display message", async () => {
@@ -206,7 +210,9 @@ describe("LoginPage", () => {
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
 
-        await waitFor(() => expect(screen.getByText("Resend verification email")).toBeInTheDocument());
+        await waitFor(() => {
+            expect(screen.getByText("Resend verification email")).toBeInTheDocument();
+        });
     });
 
     it("app message acc. not verified (token expired) -> suggest resent ver. email", async () => {
@@ -217,7 +223,9 @@ describe("LoginPage", () => {
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
 
-        await waitFor(() => expect(screen.getByText("Resend verification email")).toBeInTheDocument());
+        await waitFor(() => {
+            expect(screen.getByText("Resend verification email")).toBeInTheDocument();
+        });
     });
 
     it("app message & login success -> delete message", async () => {
