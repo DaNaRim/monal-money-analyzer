@@ -38,9 +38,9 @@ jobs:
         run: yarn test --coverage
 
       - name: test current location
-        run: cd coverage && ls -la
+        run: cd coverage && ls
 
-      - name: Jest Coverage Comment
+      - name: Jest Coverage Comment --coverageReporters json-summary
         uses: MishaKav/jest-coverage-comment@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
