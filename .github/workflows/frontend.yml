@@ -37,6 +37,12 @@ jobs:
       - name: Run tests
         run: yarn test
 
+      - name: Upload coverage report
+        uses: artiomtr/jest-coverage-report-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          threshold: 80
+
   lint:
     runs-on: ubuntu-latest
     defaults:
