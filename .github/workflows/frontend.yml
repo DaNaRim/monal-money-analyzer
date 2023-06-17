@@ -37,14 +37,14 @@ jobs:
       - name: Run tests
         run: yarn test --coverage
 
-      - name: test current location
-        run: cd coverage && ls
+      - name: Print GitHub workspace
+        run: echo $GITHUB_WORKSPACE
 
-      - name: Jest Coverage Comment --coverageReporters json-summary
+      - name: Jest Coverage Comment
         uses: MishaKav/jest-coverage-comment@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          coverage-summary-path: ./coverage/coverage-final.json
+          coverage-summary-path: ./src/main/frontend/coverage/coverage-final.json
 
   lint:
     runs-on: ubuntu-latest
