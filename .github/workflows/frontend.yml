@@ -38,7 +38,7 @@ jobs:
         run: yarn test --coverage
 
       - name: test current location
-        run: echo $PWD
+        run: echo ls -as
 
       - name: Jest Coverage Comment
         uses: MishaKav/jest-coverage-comment@main
