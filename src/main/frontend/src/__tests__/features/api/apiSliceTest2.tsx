@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import React from "react";
@@ -14,7 +14,6 @@ import { type AuthResponseEntity, Role } from "../../../features/auth/authSlice"
     work with this isolated cookie. So I split tests into few files. Unfortunately, there is code
     duplication.
  */
-
 describe("apiSlice", () => {
     const handlers = [
         rest.post("api/v1/resendVerificationToken", async (req, res, ctx) => {
@@ -89,12 +88,13 @@ describe("apiSlice", () => {
     beforeEach(() => {
         // Use thigh path because one input only
         window.history.pushState({}, "Resend ver. token", "/resendVerificationToken");
-        document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     });
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
 
-    it("fetch with auth -> add csrf token to request header", async () => {
+    it("fetch with auth - authorize failed -> reauth", async () => {
+        document.cookie = "refresh_token=refresh;";
+
         const store = setupStore({
             auth: {
                 username: "test",
@@ -108,27 +108,27 @@ describe("apiSlice", () => {
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
 
-        await waitFor(() => fillResendInput("test@email"));
-        clickSendButton();
+        await waitFor(async () => fillResendInput("reauth@email"));
+        act((): void => clickSendButton());
 
-        await waitFor(async () =>
+        await waitFor(async () => {
             expect(screen.getByText("Verification email sent."
                 + " Please check your email to activate your account."
                 + " If it doesn't appear within a few minutes, check your spam folder."))
-                .toBeInTheDocument());
-    });
-
-    it("fetch with auth - authorize failed, login req -> no refresh", async () => {
-        window.history.pushState({}, "Resend ver. token", "/login");
-
-        renderWithProviders(<App/>, { wrapper: BrowserRouter });
-
-        await waitFor(() => fillLoginInputs("Fail", "123"));
-        await waitFor(() => clickLoginButton());
-
-        // await waitForElementToBeRemoved(() => screen.getByText("Logging in..."));
-
-        expect(document.cookie).toEqual(""); // no refresh processed
+                .toBeInTheDocument();
+            expect(document.cookie.split(";") // refresh processed
+                .find((cookie) => cookie.includes("refresh_token"))?.split("=")[1])
+                .toEqual("refreshSuccess");
+            expect(store.getState().auth).toEqual({ // auth state not changed
+                username: "test",
+                firstName: "test",
+                lastName: "test",
+                roles: [Role.ROLE_USER],
+                csrfToken: "1234567890",
+                isInitialized: true,
+                isForceLogin: false,
+            });
+        });
     });
 });
 
@@ -147,25 +147,4 @@ export function clickSendButton() {
         throw new Error("ApiSlice ResendVerificationToken send button not found");
     }
     sendButton.click();
-}
-
-function fillLoginInputs(username: string, password: string) {
-    const emailInput = screen.getByTestId("input-username");
-    const passwordInput = screen.getByTestId("input-password");
-
-    if (emailInput == null || passwordInput == null) {
-        throw new Error("ApiSlice Login inputs not found");
-    }
-    fireEvent.change(emailInput, { target: { value: username } });
-    fireEvent.change(passwordInput, { target: { value: password } });
-}
-
-function clickLoginButton() {
-    const loginButton = screen.getAllByText("Login")
-        .find(el => el.tagName === "BUTTON") as HTMLButtonElement;
-
-    if (loginButton == null) {
-        throw new Error("ApiSlice Login button not found");
-    }
-    loginButton.click();
 }
