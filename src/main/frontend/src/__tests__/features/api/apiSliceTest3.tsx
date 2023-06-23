@@ -89,12 +89,13 @@ describe("apiSlice", () => {
     beforeEach(() => {
         // Use thigh path because one input only
         window.history.pushState({}, "Resend ver. token", "/resendVerificationToken");
-        document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     });
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
 
-    it("fetch with auth -> add csrf token to request header", async () => {
+    it("fetch with auth - authorize failed, refresh failed -> logout", async () => {
+        document.cookie = "refresh_token=shouldFail;";
+
         const store = setupStore({
             auth: {
                 username: "test",
@@ -108,27 +109,41 @@ describe("apiSlice", () => {
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
 
-        await waitFor(() => fillResendInput("test@email"));
-        clickSendButton();
+        await waitFor(async () => fillResendInput("reauth@email"));
+        await waitFor(() => clickSendButton());
 
-        await waitFor(async () =>
-            expect(screen.getByText("Verification email sent."
-                + " Please check your email to activate your account."
-                + " If it doesn't appear within a few minutes, check your spam folder."))
-                .toBeInTheDocument());
-    });
+        // await waitForElementToBeRemoved(() => screen.getByText("Processing..."));
 
-    it("fetch with auth - authorize failed, login req -> no refresh", async () => {
-        window.history.pushState({}, "Resend ver. token", "/login");
+        await waitFor(async () => {
+            expect(document.cookie.split(";") // refresh processed
+                .find((cookie) => cookie.includes("refresh_token"))?.split("=")[1])
+                .toEqual("refreshFail");
 
-        renderWithProviders(<App/>, { wrapper: BrowserRouter });
+            expect(store.getState().auth).toEqual({
+                username: null,
+                firstName: null,
+                lastName: null,
+                roles: [],
+                csrfToken: null,
+                isInitialized: true,
+                isForceLogin: true,
+            });
+            // Can`t handle redirect because of not react redirect (window.location.href)
+            // redirected to login page
+            // expect(screen.getByTestId("login-page")).toBeInTheDocument();
+        });
 
-        await waitFor(() => fillLoginInputs("Fail", "123"));
-        await waitFor(() => clickLoginButton());
-
-        // await waitForElementToBeRemoved(() => screen.getByText("Logging in..."));
-
-        expect(document.cookie).toEqual(""); // no refresh processed
+        // await waitFor(async () => {
+        //     expect(store.getState().appMessages).toEqual({
+        //         messages: [{
+        //             type: AppMessageType.WARNING,
+        //             messageCode: AppMessageCode.AUTH_EXPIRED,
+        //             page: "login",
+        //         }]
+        //     });
+        //     // Display message
+        //    expect(screen.getByText("Session expired. Please log in again.")).toBeInTheDocument();
+        // });
     });
 });
 
@@ -147,25 +162,4 @@ export function clickSendButton() {
         throw new Error("ApiSlice ResendVerificationToken send button not found");
     }
     sendButton.click();
-}
-
-function fillLoginInputs(username: string, password: string) {
-    const emailInput = screen.getByTestId("input-username");
-    const passwordInput = screen.getByTestId("input-password");
-
-    if (emailInput == null || passwordInput == null) {
-        throw new Error("ApiSlice Login inputs not found");
-    }
-    fireEvent.change(emailInput, { target: { value: username } });
-    fireEvent.change(passwordInput, { target: { value: password } });
-}
-
-function clickLoginButton() {
-    const loginButton = screen.getAllByText("Login")
-        .find(el => el.tagName === "BUTTON") as HTMLButtonElement;
-
-    if (loginButton == null) {
-        throw new Error("ApiSlice Login button not found");
-    }
-    loginButton.click();
 }
