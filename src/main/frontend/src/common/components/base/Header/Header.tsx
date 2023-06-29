@@ -3,11 +3,7 @@ import { useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
-import {
-    useAuthGetStateMutation,
-    useAuthRefreshMutation,
-    useLogoutMutation,
-} from "../../../../features/auth/authApiSlice";
+import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features/auth/authApiSlice";
 import {
     clearAuthState,
     selectAuthFirstname,
@@ -33,7 +29,6 @@ const Header = () => {
     const isAuthInit = useAppSelector(selectAuthIsInitialized);
 
     const [getAuthState, { isLoading: isAuthStateLoading }] = useAuthGetStateMutation();
-    const [, { isLoading: isRequestAuthLoading }] = useAuthRefreshMutation();
     const [logout, { isLoading: isLogoutLoading }] = useLogoutMutation();
 
     const handleLogout = () => {
@@ -59,7 +54,7 @@ const Header = () => {
     }, [dispatch, getAuthState, isAuthInit]);
 
     const getAuthBlock = () => {
-        if (isAuthStateLoading || isRequestAuthLoading || isLogoutLoading) {
+        if (isAuthStateLoading || isLogoutLoading) {
             return <div>{t.mainHeader.loading}</div>;
         } else if (username != null) {
             return <div>

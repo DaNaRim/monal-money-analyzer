@@ -5,7 +5,7 @@ import {
     type PreloadedState,
     type ThunkAction,
 } from "@reduxjs/toolkit";
-import { apiSlice } from "../features/api/apiSlice";
+import { apiSlice, redirectSlice } from "../features/api/apiSlice";
 import appMessagesReducer from "../features/appMessages/appMessagesSlice";
 import authReducer from "../features/auth/authSlice";
 
@@ -13,6 +13,7 @@ const isDev = process.env.NODE_ENV === "development";
 
 const rootReducer = combineReducers({
     [apiSlice.reducerPath]: apiSlice.reducer,
+    redirect: redirectSlice.reducer,
     auth: authReducer,
     appMessages: appMessagesReducer,
 });

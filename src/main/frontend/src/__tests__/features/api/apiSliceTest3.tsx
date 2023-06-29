@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import React from "react";
@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "../../../app/App";
 import { setupStore } from "../../../app/store";
 import { renderWithProviders } from "../../../common/utils/test-utils";
+import { AppMessageCode, AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import { type AuthResponseEntity, Role } from "../../../features/auth/authSlice";
 
 /*
@@ -21,12 +22,12 @@ describe("apiSlice", () => {
             const email = req.url.searchParams.get("email");
 
             if (req.headers.get("X-CSRF-TOKEN") !== "1234567890") {
-                return await res(ctx.status(403));
+                return await res(ctx.status(403), ctx.delay(50));
             }
             if (email === "reauth@email" && req.cookies.refresh_token !== "refreshSuccess") {
-                return await res(ctx.status(401));
+                return await res(ctx.status(401), ctx.delay(50));
             }
-            return await res(ctx.status(200));
+            return await res(ctx.status(200), ctx.delay(50));
         }),
         rest.post("api/v1/auth/refresh", async (req, res, ctx) => {
             if (req.cookies.refresh_token === "shouldFail") {
@@ -93,7 +94,7 @@ describe("apiSlice", () => {
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
 
-    it("fetch with auth - authorize failed, refresh failed -> logout", async () => {
+    it("fetch with auth - authorize failed, refresh failed -> logout and force login", async () => {
         document.cookie = "refresh_token=shouldFail;";
 
         const store = setupStore({
@@ -110,9 +111,12 @@ describe("apiSlice", () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
 
         await waitFor(async () => fillResendInput("reauth@email"));
-        await waitFor(() => clickSendButton());
+        act(() => clickSendButton());
 
-        // await waitForElementToBeRemoved(() => screen.getByText("Processing..."));
+        await waitFor(async () => { // wait for request
+            await new Promise(resolve => setTimeout(resolve, 50));
+        });
+        await waitForElementToBeRemoved(() => screen.getByText("Processing..."));
 
         await waitFor(async () => {
             expect(document.cookie.split(";") // refresh processed
@@ -128,22 +132,21 @@ describe("apiSlice", () => {
                 isInitialized: true,
                 isForceLogin: true,
             });
-            // Can`t handle redirect because of not react redirect (window.location.href)
             // redirected to login page
-            // expect(screen.getByTestId("login-page")).toBeInTheDocument();
+            expect(screen.getByTestId("login-page")).toBeInTheDocument();
         });
 
-        // await waitFor(async () => {
-        //     expect(store.getState().appMessages).toEqual({
-        //         messages: [{
-        //             type: AppMessageType.WARNING,
-        //             messageCode: AppMessageCode.AUTH_EXPIRED,
-        //             page: "login",
-        //         }]
-        //     });
-        //     // Display message
-        //    expect(screen.getByText("Session expired. Please log in again.")).toBeInTheDocument();
-        // });
+        await waitFor(async () => {
+            expect(store.getState().appMessages).toEqual({
+                messages: [{
+                    type: AppMessageType.WARNING,
+                    messageCode: AppMessageCode.AUTH_EXPIRED,
+                    page: "login",
+                }],
+            });
+            // Display message
+           expect(screen.getByText("Session expired. Please log in again.")).toBeInTheDocument();
+        });
     });
 });
 

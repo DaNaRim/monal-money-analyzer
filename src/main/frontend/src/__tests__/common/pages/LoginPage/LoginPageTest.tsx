@@ -29,7 +29,7 @@ export const loginTestHandlers = [
                 errorCode: "code",
                 fieldName: ResponseErrorType.GLOBAL_ERROR,
             };
-            return await res(ctx.status(401), ctx.json([error]));
+            return await res(ctx.status(401), ctx.json([error]), ctx.delay(50));
         }
         if (username === "serverError") {
             const error: ErrorResponse = {
@@ -38,7 +38,7 @@ export const loginTestHandlers = [
                 errorCode: "code",
                 fieldName: ResponseErrorType.SERVER_ERROR,
             };
-            return await res(ctx.status(500), ctx.json([error]));
+            return await res(ctx.status(500), ctx.json([error]), ctx.delay(50));
         }
         if (username === "emailError") {
             const error: ErrorResponse = {
@@ -47,7 +47,7 @@ export const loginTestHandlers = [
                 errorCode: "code",
                 fieldName: "username",
             };
-            return await res(ctx.status(400), ctx.json([error]));
+            return await res(ctx.status(400), ctx.json([error]), ctx.delay(50));
         }
         if (username === "disabledUserError") {
             const error: ErrorResponse = {
@@ -56,7 +56,7 @@ export const loginTestHandlers = [
                 errorCode: "validation.auth.disabled",
                 fieldName: ResponseErrorType.GLOBAL_ERROR,
             };
-            return await res(ctx.status(400), ctx.json([error]));
+            return await res(ctx.status(400), ctx.json([error]), ctx.delay(50));
         }
         return await res(ctx.status(200), ctx.json({
             username: "John",
@@ -64,7 +64,7 @@ export const loginTestHandlers = [
             lastName: "Smith",
             roles: ["ROLE_USER"],
             csrfToken: "1234567890",
-        }));
+        }), ctx.delay(50));
     }),
     rest.post("api/v1/auth/getState", async (req, res, ctx) => {
         const accessToken = req.cookies.access_token;
@@ -254,11 +254,93 @@ describe("LoginPage", () => {
         await waitFor(() => fillLoginInputs("Error", "123"));
         act(() => clickLoginButton());
 
+        await waitFor(async () => { // wait for request
+            await new Promise(resolve => setTimeout(resolve, 50));
+        });
+        await waitForElementToBeRemoved(() => screen.getByText("Logging in..."));
+
         // app message should still exist
         await waitFor(() => {
             expect(screen.getByText("Account activated successfully. You can now log in."))
                 .toBeInTheDocument();
             expect(store.getState().appMessages.messages).toHaveLength(1);
+        });
+    });
+
+    it("app message - leave login page -> delete message", async () => {
+        const store = setupStoreWithAppMessage({
+            type: AppMessageType.INFO,
+            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            page: "login",
+        });
+        renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
+
+        await waitFor(() => {
+            expect(screen.getByTestId("login-page")).toBeInTheDocument(); // page is loaded
+            fireEvent.click(screen.getByText("Home")); // leave login page
+        });
+
+        await waitFor(() => expect(store.getState().appMessages.messages).toHaveLength(0));
+    });
+
+    it("force login from page - login success -> redirect to previous page", async () => {
+        window.history.pushState({}, "Previous page", "/resendVerificationToken");
+        window.history.pushState({}, "Login page", "/login");
+
+        const store = setupStore({
+            auth: {
+                username: null,
+                firstName: null,
+                lastName: null,
+                roles: [],
+                csrfToken: null,
+                isInitialized: true,
+                isForceLogin: true,
+            },
+        });
+        renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
+
+        await waitFor(() => fillLoginInputs("123", "123"));
+        act(() => clickLoginButton());
+
+        await waitFor(async () => { // wait for request
+            await new Promise(resolve => setTimeout(resolve, 30));
+        });
+
+        await waitForElementToBeRemoved(() => screen.getByTestId("login-page"));
+
+        expect(store.getState().auth.isForceLogin).toBeFalsy(); // force login should be disabled
+        expect(window.location.pathname).toBe("/resendVerificationToken");
+        expect(screen.getByTestId("resend-verification-token-page")).toBeInTheDocument();
+    });
+
+    it("force login from page - leave login page -> disable force login", async () => {
+        window.history.pushState({}, "Previous page", "/resendVerificationToken");
+        window.history.pushState({}, "Login page", "/login");
+
+        const store = setupStore({
+            auth: {
+                username: null,
+                firstName: null,
+                lastName: null,
+                roles: [],
+                csrfToken: null,
+                isInitialized: true,
+                isForceLogin: true,
+            },
+        });
+        renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
+
+        await waitFor(() => {
+            expect(screen.getByTestId("login-page")).toBeInTheDocument(); // page is loaded
+            fireEvent.click(screen.getByText("Home")); // leave login page
+        });
+
+        await waitFor(() => {
+            expect(window.location.pathname).toBe("/");
+            expect(screen.getByTestId("home-page")).toBeInTheDocument();
+            // force login should be disabled
+            expect(store.getState().auth.isForceLogin).toBeFalsy();
         });
     });
 });

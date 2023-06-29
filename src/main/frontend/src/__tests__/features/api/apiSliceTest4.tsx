@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import React from "react";
@@ -21,12 +21,12 @@ describe("apiSlice", () => {
             const email = req.url.searchParams.get("email");
 
             if (req.headers.get("X-CSRF-TOKEN") !== "1234567890") {
-                return await res(ctx.status(403));
+                return await res(ctx.status(403), ctx.delay(50));
             }
             if (email === "reauth@email" && req.cookies.refresh_token !== "refreshSuccess") {
-                return await res(ctx.status(401));
+                return await res(ctx.status(401), ctx.delay(50));
             }
-            return await res(ctx.status(200));
+            return await res(ctx.status(200), ctx.delay(50));
         }),
         rest.post("api/v1/auth/refresh", async (req, res, ctx) => {
             if (req.cookies.refresh_token === "shouldFail") {
@@ -113,6 +113,11 @@ describe("apiSlice", () => {
             await waitFor(async () => fillResendInput("reauth@email"));
             act((): void => clickSendButton());
 
+            await waitFor(async () => { // wait for request
+                await new Promise(resolve => setTimeout(resolve, 50));
+            });
+            await waitForElementToBeRemoved(() => screen.getByText("Processing..."));
+
             await waitFor(async () => {
                 expect(document.cookie.split(";") // refresh processed
                     .find((cookie) => cookie.includes("refresh_token"))?.split("=")[1])
@@ -127,9 +132,8 @@ describe("apiSlice", () => {
                     isInitialized: true,
                     isForceLogin: false, // not force login
                 });
-                // Can`t handle redirect because of not react redirect (window.location.href)
                 // redirected to error page
-                // expect(screen.getByTestId("error-page")).toBeInTheDocument();
+                expect(screen.getByTestId("error-page")).toBeInTheDocument();
             });
         });
 });
