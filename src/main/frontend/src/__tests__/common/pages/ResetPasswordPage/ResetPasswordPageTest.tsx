@@ -6,7 +6,7 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
 import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
-import { renderWithProviders } from "../../../../common/utils/test-utils";
+import { getStateHandler, renderWithProviders } from "../../../../common/utils/test-utils";
 
 describe("RegistrationPage", () => {
     const handlers = [
@@ -42,6 +42,7 @@ describe("RegistrationPage", () => {
             }
             return await res(ctx.status(200));
         }),
+        getStateHandler, // disable unhandled request warning
     ];
 
     const server = setupServer(...handlers);
@@ -54,7 +55,7 @@ describe("RegistrationPage", () => {
     it("render", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        expect(screen.getByText("Loading...")).toBeInTheDocument();
+        expect(screen.getByTestId("main-loader")).toBeInTheDocument();
 
         await waitFor(() => {
             expect(screen.getByTestId("main-header")).toBeInTheDocument();

@@ -41,6 +41,9 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
             api.dispatch(setCredentials(authResult)); // update csrf token
             result = await baseQuery(args, api, extraOptions);
         } else if (refreshResult.meta?.response?.status === 401) {
+            if ((args as FetchArgs).url === "/auth/getState") { // If auth init -> no force login
+                return result;
+            }
             await baseQuery({ url: "/logout", method: "POST" }, api, extraOptions);
             api.dispatch(clearAuthState());
             api.dispatch(setForceLogin(true));

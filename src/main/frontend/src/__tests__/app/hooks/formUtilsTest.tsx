@@ -6,7 +6,7 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../app/App";
 import { type ErrorResponse, ResponseErrorType } from "../../../app/hooks/formUtils";
-import { renderWithProviders } from "../../../common/utils/test-utils";
+import { getStateHandler, renderWithProviders } from "../../../common/utils/test-utils";
 
 const handlers = [
     rest.post("api/v1/resendVerificationToken", async (req, res, ctx) => {
@@ -54,6 +54,7 @@ const handlers = [
         };
         return await res(ctx.status(401), ctx.json([errorMessage1, errorMessage2]));
     }),
+    getStateHandler, // disable unhandled request warning
 ];
 
 describe("formUtils", () => {
@@ -84,7 +85,7 @@ describe("formUtils", () => {
         window.history.pushState({}, "Login", "/login");
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        await waitForElementToBeRemoved(() => screen.getByText("Loading..."));
+        await waitForElementToBeRemoved(() => screen.getByTestId("auth-loader"));
 
         await waitFor(() => fillLoginInputs("401", "401"));
         act(() => clickLoginButton());

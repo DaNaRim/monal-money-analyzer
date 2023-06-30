@@ -59,7 +59,6 @@ public class AuthController {
 
         String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         String refreshToken = CookieUtil.getRefreshTokenValueByRequest(request);
-        boolean isInitCookieExists = CookieUtil.isAuthInitCookieExists(request);
 
         if (accessToken != null) {
             jwtUtil.blockToken(accessToken);
@@ -68,9 +67,6 @@ public class AuthController {
         if (refreshToken != null) {
             jwtUtil.blockToken(refreshToken);
             response.addCookie(CookieUtil.deleteRefreshTokenCookie());
-        }
-        if (isInitCookieExists) {
-            response.addCookie(CookieUtil.deleteAuthInitCookie());
         }
     }
 

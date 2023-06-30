@@ -39,26 +39,11 @@ describe("Header auth block", () => {
     beforeAll(() => server.listen());
     afterEach(() => {
         server.resetHandlers();
-        document.cookie = "authInit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     });
     afterAll(() => server.close());
 
-    it("rendered. authInit cookie NOT exists -> display auth buttons", async () => {
-        const store = setupStore();
-        renderWithProviders(<Header/>, { wrapper: BrowserRouter, store });
-
-        expect(screen.queryByText(LOADING_TEXT)).toBeNull();
-        expect(screen.getByText(LOGIN_BUTTON_TEXT)).toBeInTheDocument();
-        expect(screen.getByText(REGISTER_BUTTON_TEXT)).toBeInTheDocument();
-        expect(screen.queryByText(LOGOUT_BUTTON_TEXT)).toBeNull();
-
-        expect(store.getState().auth.isInitialized).toBeTruthy();
-    });
-
-    it("rendered. authInit cookie exists -> display auth loading", async () => {
-        document.cookie = "authInit=true";
-
+    it("rendered -> display auth loading", async () => {
         const store = setupStore();
         renderWithProviders(<Header/>, { wrapper: BrowserRouter, store });
 
@@ -71,8 +56,6 @@ describe("Header auth block", () => {
     });
 
     it("init auth failed -> display auth buttons", async () => {
-        document.cookie = "authInit=true";
-
         const store = setupStore();
         renderWithProviders(<Header/>, { wrapper: BrowserRouter, store });
 
@@ -87,7 +70,6 @@ describe("Header auth block", () => {
     });
 
     it("init auth success -> display name and logout button", async () => {
-        document.cookie = "authInit=true";
         document.cookie = "access_token=1234567890";
 
         const store = setupStore();
@@ -105,7 +87,6 @@ describe("Header auth block", () => {
     });
 
     it("click logout button -> logout", async () => {
-        document.cookie = "authInit=true";
         document.cookie = "access_token=1234567890";
 
         const store = setupStore();

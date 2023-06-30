@@ -6,7 +6,7 @@ const Loading = () => {
     const t = useTranslation();
 
     return (
-        <main className={styles.loading}>
+        <main className={styles.loading} data-testid="main-loader">
             <h2>{t.mainLoader}</h2>
         </main>
     );

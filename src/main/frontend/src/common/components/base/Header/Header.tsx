@@ -41,21 +41,14 @@ const Header = () => {
         if (isAuthInit) {
             return;
         }
-        // Check if user is already logged in. Cookie is set by server.
-        const authInitCookie = document.cookie.split("; ").find(row => row.startsWith("authInit="));
-
-        if (authInitCookie === undefined) {
-            dispatch(setInitialized());
-        } else {
-            getAuthState().unwrap()
-                .then(res => dispatch(setCredentials(res)))
-                .catch(() => dispatch(setInitialized()));
-        }
+        getAuthState().unwrap()
+            .then(res => dispatch(setCredentials(res)))
+            .catch(() => dispatch(setInitialized()));
     }, [dispatch, getAuthState, isAuthInit]);
 
     const getAuthBlock = () => {
         if (isAuthStateLoading || isLogoutLoading) {
-            return <div>{t.mainHeader.loading}</div>;
+            return <div data-testid="auth-loader">{t.mainHeader.loading}</div>;
         } else if (username != null) {
             return <div>
                 <p>{firstName} {lastName}</p>
