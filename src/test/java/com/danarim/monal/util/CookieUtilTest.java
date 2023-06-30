@@ -104,23 +104,6 @@ class CookieUtilTest {
     }
 
     @Test
-    void createAuthInitCookie() {
-        Cookie result = CookieUtil.createAuthInitCookie();
-
-        assertEquals("/", result.getPath(), "authInit cookie should be set to root path");
-        assertTrue(result.getMaxAge() > 0, "Max age should be greater than 0");
-    }
-
-    @Test
-    void deleteAuthInitCookie() {
-        Cookie result = CookieUtil.deleteAuthInitCookie();
-
-        assertNull(result.getValue(), "authInit cookie value should be null after deletion");
-        assertEquals("/", result.getPath(), "authInit cookie should be set to root path");
-        assertEquals(0, result.getMaxAge(), "Max age should be 0 after deletion");
-    }
-
-    @Test
     void createAppMessageCookie() {
         //Can`t test for JsonProcessingException because it is a checked exception
         AppMessage applicationMessage = new AppMessage(

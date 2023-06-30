@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
@@ -56,6 +56,15 @@ const LoginPage = () => {
 
     const [login, { isLoading }] = useLoginMutation();
 
+    useEffect(() => {
+        return () => { // unmount
+            dispatch(setForceLogin(false));
+            if (appMessage != null) {
+                dispatch(deleteAppMessage(appMessage.messageCode));
+            }
+        };
+    }, []);
+
     const handleLogin = (data: LoginFormFields) => {
         clearFormSystemFields(data);
 
@@ -69,9 +78,9 @@ const LoginPage = () => {
             .then(() => {
                 if (isForceLogin) {
                     dispatch(setForceLogin(false));
-                    navigate(-1);
+                    navigate(-1); // Previous page
                 } else {
-                    navigate("/");
+                    navigate("/"); // Home page
                 }
             })
             .catch(e => {

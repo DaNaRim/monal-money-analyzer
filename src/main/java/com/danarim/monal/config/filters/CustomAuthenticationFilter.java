@@ -100,7 +100,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         response.addCookie(CookieUtil.createAccessTokenCookie(accessToken));
         response.addCookie(CookieUtil.createRefreshTokenCookie(refreshToken));
-        response.addCookie(CookieUtil.createAuthInitCookie());
 
         AuthResponseEntity authResponse = AuthResponseEntity.generateAuthResponse(user, csrfToken);
 

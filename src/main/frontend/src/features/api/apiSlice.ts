@@ -1,7 +1,8 @@
+import { createSlice } from "@reduxjs/toolkit";
 import { type BaseQueryApi } from "@reduxjs/toolkit/dist/query/baseQueryTypes";
 import { createApi, type FetchArgs, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { type RootState } from "../../app/store";
-import { AppMessageCode, AppMessageType, saveAppMessage } from "../appMessages/appMessagesSlice";
+import { addAppMessage, AppMessageCode, AppMessageType } from "../appMessages/appMessagesSlice";
 import {
     type AuthResponseEntity,
     clearAuthState,
@@ -40,20 +41,22 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
             api.dispatch(setCredentials(authResult)); // update csrf token
             result = await baseQuery(args, api, extraOptions);
         } else if (refreshResult.meta?.response?.status === 401) {
+            if ((args as FetchArgs).url === "/auth/getState") { // If auth init -> no force login
+                return result;
+            }
             await baseQuery({ url: "/logout", method: "POST" }, api, extraOptions);
             api.dispatch(clearAuthState());
             api.dispatch(setForceLogin(true));
 
-            api.dispatch(saveAppMessage({
+            api.dispatch(addAppMessage({
                 type: AppMessageType.WARNING,
                 messageCode: AppMessageCode.AUTH_EXPIRED,
                 page: "login",
             }));
-
-            window.history.replaceState(null, "", "/login");
+            api.dispatch(setRedirectTo("/login"));
         } else {
             api.dispatch(clearAuthState());
-            window.history.replaceState(null, "", "/error");
+            api.dispatch(setRedirectTo("/error"));
         }
     }
     return result;
@@ -63,3 +66,28 @@ export const apiSlice = createApi({
     baseQuery: baseQueryWithReauth,
     endpoints: () => ({}),
 });
+
+/*
+Used to redirect using browser router in App.tsx.
+We cant redirect with hooks in baseQueryWithReauth because it is not a component.
+ */
+const redirectInitialState = {
+    redirectTo: null,
+};
+
+export const redirectSlice = createSlice({
+    name: "redirect",
+    initialState: redirectInitialState,
+    reducers: {
+        setRedirectTo(state, action) {
+            state.redirectTo = action.payload;
+        },
+        clearRedirect(state) {
+            state.redirectTo = null;
+        },
+    },
+});
+
+export const { setRedirectTo, clearRedirect } = redirectSlice.actions;
+
+export const selectRedirectTo = (state: RootState) => state.redirect.redirectTo;

@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import React from "react";
@@ -51,11 +51,11 @@ describe("apiSlice", () => {
                 ctx.json(refreshResponse),
             );
         }),
-        rest.post("api/v1/login", async (req, res, ctx) => {
+        rest.post("/api/v1/login", async (req, res, ctx) => {
             const { username } = await req.json();
 
             if (username === "Fail") {
-                return await res(ctx.status(401));
+                return await res(ctx.status(401), ctx.delay(50));
             }
             return await res(ctx.status(200), ctx.delay(100), ctx.json({
                 username: "John",
@@ -109,7 +109,7 @@ describe("apiSlice", () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
 
         await waitFor(() => fillResendInput("test@email"));
-        clickSendButton();
+        act(() => clickSendButton());
 
         await waitFor(async () =>
             expect(screen.getByText("Verification email sent."
@@ -118,15 +118,22 @@ describe("apiSlice", () => {
                 .toBeInTheDocument());
     });
 
-    it("fetch with auth - authorize failed, login req -> no refresh", async () => {
+    it("fetch with auth - authorize failed, login request -> no refresh", async () => {
         window.history.pushState({}, "Resend ver. token", "/login");
 
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        await waitFor(() => fillLoginInputs("Fail", "123"));
-        await waitFor(() => clickLoginButton());
+        // clear initial auth cookie
+        await waitForElementToBeRemoved(() => screen.getByTestId("auth-loader"));
+        document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-        // await waitForElementToBeRemoved(() => screen.getByText("Logging in..."));
+        await waitFor(() => fillLoginInputs("Fail", "123"));
+        act(() => clickLoginButton());
+
+        await waitFor(async () => { // wait for request
+            await new Promise(resolve => setTimeout(resolve, 50));
+        });
+        await waitForElementToBeRemoved(() => screen.getByText("Logging in..."));
 
         expect(document.cookie).toEqual(""); // no refresh processed
     });

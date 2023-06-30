@@ -19,7 +19,6 @@ public final class CookieUtil {
 
     public static final String COOKIE_ACCESS_TOKEN_KEY = "access_token";
     public static final String COOKIE_REFRESH_TOKEN_KEY = "refresh_token";
-    public static final String COOKIE_AUTH_INIT_KEY = "authInit";
     public static final String COOKIE_APP_MESSAGE_KEY = "serverMessage";
     public static final String COOKIE_PASSWORD_RESET_TOKEN_KEY = "passwordResetToken";
 
@@ -133,48 +132,6 @@ public final class CookieUtil {
     public static Cookie deleteRefreshTokenCookie() {
         Cookie cookie = new Cookie(COOKIE_REFRESH_TOKEN_KEY, null);
         cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        return cookie;
-    }
-
-    /*
-      Auth init Cookie
-     */
-
-    /**
-     * This cookie is used to check if jwt token cookies exist. With it frontend can check if user
-     * is logged in or not.
-     *
-     * @return cookie with auth init
-     */
-    public static Cookie createAuthInitCookie() {
-        Cookie cookie = new Cookie(COOKIE_AUTH_INIT_KEY, "true");
-        cookie.setPath("/");
-        cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(
-                JwtUtil.REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS));
-        return cookie;
-    }
-
-    /**
-     * Checks if auth init cookie exists.
-     *
-     * @param request http request
-     *
-     * @return true if auth init cookie exists
-     */
-    public static boolean isAuthInitCookieExists(HttpServletRequest request) {
-        return getCookieValueByRequest(request, COOKIE_AUTH_INIT_KEY) != null;
-    }
-
-    /**
-     * Creates a new auth init cookie with null value and expiration 0. To delete the cookie you
-     * need to add it to the response.
-     *
-     * @return cookie with null value and expiration 0
-     */
-    public static Cookie deleteAuthInitCookie() {
-        Cookie cookie = new Cookie(COOKIE_AUTH_INIT_KEY, null);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         return cookie;

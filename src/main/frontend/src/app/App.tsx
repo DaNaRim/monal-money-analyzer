@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Route, Routes } from "react-router";
+import { Route, Routes, useNavigate } from "react-router";
 import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
+import { clearRedirect, selectRedirectTo } from "../features/api/apiSlice";
 import { checkForServerMessages } from "../features/appMessages/appMessagesSlice";
-import { selectAuthIsForceLogin, setForceLogin } from "../features/auth/authSlice";
 import "./App.scss";
 import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
 
@@ -35,17 +35,21 @@ const NotFoundPage = React.lazy(async () =>
 
 const App = (): JSX.Element => {
     const dispatch = useAppDispatch();
-    // const location = useLocation();
+    const navigate = useNavigate();
 
-    const isForceLoin = useAppSelector<boolean>(selectAuthIsForceLogin);
-
-    if (!window.location.href.endsWith("/login") && isForceLoin) {
-        dispatch(setForceLogin(false));
-    }
+    const redirectTo = useAppSelector<string | null>(selectRedirectTo);
 
     useEffect(() => {
         dispatch(checkForServerMessages());
     }, [dispatch]);
+
+    // Used for redirecting from apiSlice (auth refresh)
+    useEffect(() => {
+        if (redirectTo !== null) {
+            navigate(redirectTo);
+        }
+        dispatch(clearRedirect());
+    }, [dispatch, navigate, redirectTo]);
 
     return (
         <Routes>

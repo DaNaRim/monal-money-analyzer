@@ -79,20 +79,6 @@ export const appMessagesSlice = createSlice({
                 messageCode: message.messageCode,
             });
         },
-        saveAppMessage: (state, action: PayloadAction<AppMessage>) => {
-            const message = action.payload;
-
-            state.messages.push({
-                type: message.type,
-                page: message.page,
-                messageCode: message.messageCode,
-            });
-
-            const expires = new Date(Date.now() + 5 * 60 * 1000).toUTCString();
-
-            document.cookie = `${COOKIE_KEY_APPLICATION_MESSAGE}=${JSON.stringify(message)};`
-                + ` path=/; expires=${expires}`; // 5 minutes is enough
-        },
         deleteAppMessage: (state, action: PayloadAction<string>) => {
             const msgCode = action.payload;
 
@@ -104,7 +90,6 @@ export const appMessagesSlice = createSlice({
 export const {
     checkForServerMessages,
     addAppMessage,
-    saveAppMessage,
     deleteAppMessage,
 } = appMessagesSlice.actions;
 

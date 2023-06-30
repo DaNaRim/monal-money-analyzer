@@ -6,7 +6,6 @@ import reducer, {
     AppMessageType,
     checkForServerMessages,
     deleteAppMessage,
-    saveAppMessage,
 } from "../../../features/appMessages/appMessagesSlice";
 
 describe("appMessagesSlice", () => {
@@ -87,18 +86,6 @@ describe("appMessagesSlice", () => {
         expect(reducer(prevState, addAppMessage(newMessage))).toEqual({
             messages: [prevState.messages[0], newMessage],
         });
-    });
-
-    test("saveAppMessage -> save to cookie", () => {
-        const message: AppMessage = {
-            type: AppMessageType.INFO,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
-            page: "login",
-        };
-        expect(reducer(undefined, saveAppMessage(message))).toEqual({
-            messages: [message],
-        });
-        expect(document.cookie === "").toBeFalsy(); // cookie should be set
     });
 
     test("deleteAppMessage -> delete from state", () => {

@@ -3,11 +3,7 @@ import { useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
-import {
-    useAuthGetStateMutation,
-    useAuthRefreshMutation,
-    useLogoutMutation,
-} from "../../../../features/auth/authApiSlice";
+import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features/auth/authApiSlice";
 import {
     clearAuthState,
     selectAuthFirstname,
@@ -33,7 +29,6 @@ const Header = () => {
     const isAuthInit = useAppSelector(selectAuthIsInitialized);
 
     const [getAuthState, { isLoading: isAuthStateLoading }] = useAuthGetStateMutation();
-    const [, { isLoading: isRequestAuthLoading }] = useAuthRefreshMutation();
     const [logout, { isLoading: isLogoutLoading }] = useLogoutMutation();
 
     const handleLogout = () => {
@@ -46,21 +41,14 @@ const Header = () => {
         if (isAuthInit) {
             return;
         }
-        // Check if user is already logged in. Cookie is set by server.
-        const authInitCookie = document.cookie.split("; ").find(row => row.startsWith("authInit="));
-
-        if (authInitCookie === undefined) {
-            dispatch(setInitialized());
-        } else {
-            getAuthState().unwrap()
-                .then(res => dispatch(setCredentials(res)))
-                .catch(() => dispatch(setInitialized()));
-        }
+        getAuthState().unwrap()
+            .then(res => dispatch(setCredentials(res)))
+            .catch(() => dispatch(setInitialized()));
     }, [dispatch, getAuthState, isAuthInit]);
 
     const getAuthBlock = () => {
-        if (isAuthStateLoading || isRequestAuthLoading || isLogoutLoading) {
-            return <div>{t.mainHeader.loading}</div>;
+        if (isAuthStateLoading || isLogoutLoading) {
+            return <div data-testid="auth-loader">{t.mainHeader.loading}</div>;
         } else if (username != null) {
             return <div>
                 <p>{firstName} {lastName}</p>

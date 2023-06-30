@@ -14,7 +14,7 @@ describe("ErrorPage", () => {
         expect(screen.getByTestId("main-header")).toBeInTheDocument();
         expect(screen.getByTestId("main-footer")).toBeInTheDocument();
 
-        expect(screen.getByText("Loading...")).toBeInTheDocument();
+        expect(screen.getByTestId("main-loader")).toBeInTheDocument();
 
         await waitFor(() => expect(screen.getByTestId("error-page")).toBeInTheDocument());
     });
