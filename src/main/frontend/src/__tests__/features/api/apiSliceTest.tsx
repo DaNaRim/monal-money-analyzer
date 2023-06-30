@@ -123,9 +123,9 @@ describe("apiSlice", () => {
 
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        //clear initial auth cookie
-        await waitForElementToBeRemoved(() => screen.getByTestId("auth-loader"))
-        document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        // clear initial auth cookie
+        await waitForElementToBeRemoved(() => screen.getByTestId("auth-loader"));
+        document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
         await waitFor(() => fillLoginInputs("Fail", "123"));
         act(() => clickLoginButton());

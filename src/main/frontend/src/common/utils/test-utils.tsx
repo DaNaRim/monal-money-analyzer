@@ -6,7 +6,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import type { AppStore, RootState } from "../../app/store";
 import { setupStore } from "../../app/store";
-import { AuthResponseEntity, Role } from "../../features/auth/authSlice";
+import { type AuthResponseEntity, Role } from "../../features/auth/authSlice";
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
@@ -30,7 +30,7 @@ export function renderWithProviders(
 }
 
 // Used to remove warning for unhandled request
-export const getStateHandler = rest.post("/api/v1/auth/getState", (req, res, con) => {
+export const getStateHandler = rest.post("/api/v1/auth/getState", async (req, res, con) => {
     const authResponse: AuthResponseEntity = {
         username: "test",
         firstName: "test",
@@ -38,5 +38,5 @@ export const getStateHandler = rest.post("/api/v1/auth/getState", (req, res, con
         roles: [Role.ROLE_USER],
         csrfToken: "test1213123",
     };
-    return res(con.status(200), con.json(authResponse));
+    return await res(con.status(200), con.json(authResponse));
 });
