@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Frontend idea tests" type="JavaScriptTestRunnerJest">
+    <node-interpreter value="project" />
+    <jest-package value="$PROJECT_DIR$/src/main/frontend/node_modules/react-scripts" />
+    <working-dir value="$PROJECT_DIR$/src/main/frontend" />
+    <envs />
+    <scope-kind value="DIRECTORY" />
+    <test-directory value="$PROJECT_DIR$/src/main/frontend/src/__tests__" />
+    <method v="2" />
+  </configuration>
+</component>
