@@ -5,23 +5,24 @@ import com.fasterxml.jackson.annotation.JsonValue;
 /**
  * Used to identify message in frontend.
  *
- * <p>All messages, except 'unresolved', should also have valid message in resource
+ * <p>All messages should also have valid message in resource
  * bundle, because server can also send messages in some cases.
+ *
+ * <p>AppMessagesCode words must be split only with underscores
  */
 public enum AppMessageCode {
 
-    UNRESOLVED_CODE("unresolved"),
+    ACCOUNT_CONFIRMATION_SUCCESS("account_confirmation_success"), // login page
 
-    REGISTRATION_CONFIRMATION_SUCCESS("registration.confirmation.success"),
+    TOKEN_WRONG_TYPE("validation_token_wrong_type"), // login page
+    TOKEN_NOT_FOUND("validation_token_not_found"), // login page
+    TOKEN_USED("validation_token_used"), // login page
+    TOKEN_EXPIRED("validation_token_expired"), // login page
 
-    TOKEN_WRONG_TYPE("validation.token.wrong-type"),
-    TOKEN_NOT_FOUND("validation.token.not-found"),
-    TOKEN_USED("validation.token.used"),
-    TOKEN_EXPIRED("validation.token.expired"),
-
-    TOKEN_VERIFICATION_NOT_FOUND("validation.token.verification.not-found"),
-    TOKEN_VERIFICATION_EXPIRED("validation.token.verification.expired"),
-    TOKEN_VERIFICATION_USER_ENABLED("validation.token.verification.user-enabled");
+    // Specific messages because code is used in fronted to suggest user to resend email
+    TOKEN_VERIFICATION_NOT_FOUND("validation_token_verification_not_found"), // login page
+    TOKEN_VERIFICATION_EXPIRED("validation_token_verification_expired"), // login page
+    TOKEN_VERIFICATION_USER_ENABLED("validation_token_verification_user_enabled"); // login page
 
     private final String code;
 

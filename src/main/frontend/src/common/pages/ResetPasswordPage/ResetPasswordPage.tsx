@@ -2,6 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
+import AppMessageComp from "../../../features/appMessages/AppMessageComp";
+import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import { useResetPasswordMutation } from "../../../features/registration/registrationApiSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
@@ -35,10 +37,9 @@ const ResetPasswordPage = () => {
     return (
         <main className={styles.reset_password_page} data-testid="reset-password-page">
             <h1>{t.resetPasswordPage.title}</h1>
-            {isSuccess &&
-              <span className={`${styles.app_message} ${styles.info}`}>
-                  {t.resetPasswordPage.success}
-              </span>
+            {isSuccess && <AppMessageComp type={AppMessageType.INFO}
+                                          messageCode="reset_password_success"
+                                          page="resetPassword"/>
             }
             <form onSubmit={handleSubmit(handleResetPassword)}>
 

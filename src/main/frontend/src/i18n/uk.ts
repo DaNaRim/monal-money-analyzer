@@ -20,31 +20,6 @@ export default {
         password_show: "Показати пароль",
     },
 
-    appMessages: {
-
-        // server
-
-        unresolved: "Невизначена помилка. Будь ласка, зверніться до адміністратора.",
-
-        registration_confirmation_success: "Аккаунт успішно активовано. Тепер ви можете увійти.",
-
-        validation_token_wrong_type: "Невірний тип токена.",
-        validation_token_not_found: "Токен не знайдено. Будь ласка, спробуйте ще раз.",
-        validation_token_used: "Токен вже був використаний.",
-        validation_token_expired: "Токен застарів.",
-
-        validation_token_verification_not_found: "Токен підтвердження не знайдено."
-            + " Будь ласка, спробуйте ще раз.",
-        validation_token_verification_expired: "Токен підтвердження застарів.",
-        validation_token_verification_user_enabled: "Аккаунт вже активовано."
-            + " Тепер ви можете увійти.",
-
-        // frontend
-
-        password_reset_success: "Пароль успішно оновлено. Тепер ви можете увійти.",
-        auth_expired: "Термін дії сесії закінчився. Будь ласка, увійдіть знову.",
-    },
-
     fetchErrors: {
         fetchError: "Сервер недоступний. Будь ласка, спробуйте пізніше",
         serverError: "Серверна помилка. Будь ласка, спробуйте пізніше."
@@ -79,6 +54,23 @@ export default {
     loginPage: {
         title: "Вхід",
         resendVerificationEmail: "Повторно надіслати листа з підтвердженням",
+        appMessages: {
+            account_confirmation_success: "Аккаунт успішно активовано. Тепер ви можете увійти.",
+
+            validation_token_wrong_type: "Невірний тип токена.",
+            validation_token_not_found: "Токен не знайдено. Будь ласка, спробуйте ще раз.",
+            validation_token_used: "Токен вже був використаний.",
+            validation_token_expired: "Час дії токену минув",
+
+            validation_token_verification_not_found: "Токен підтвердження не знайдено."
+                + " Будь ласка, спробуйте ще раз.",
+            validation_token_verification_expired: "Токен підтвердження застарів.",
+            validation_token_verification_user_enabled: "Аккаунт вже активовано."
+                + " Ви можете увійти.",
+
+            password_reset_success: "Пароль успішно оновлено. Тепер ви можете увійти.",
+            auth_expired: "Термін дії сесії закінчився. Будь ласка, увійдіть знову.",
+        },
         form: {
             fields: {
                 username: "Електронна пошта",
@@ -100,9 +92,11 @@ export default {
 
     registerPage: {
         title: "Реєстрація",
-        success: "Реєстрація успішна."
-            + " Будь ласка, перевірте свою електронну пошту для підтвердження."
-            + " Якщо ви не отримали листа, перевірте папку 'Спам'",
+        appMessages: {
+            registration_success: "Реєстрація успішна."
+                + " Будь ласка, перевірте свою електронну пошту для підтвердження."
+                + " Якщо ви не отримали листа, перевірте папку 'Спам'",
+        },
         form: {
             fields: {
                 firstName: "Ім'я",
@@ -135,9 +129,11 @@ export default {
 
     resendVerificationEmailPage: {
         title: "Повторно надіслати листа з підтвердженням",
-        success: "Листа з підтвердженням успішно надіслано."
-            + " Будь ласка, перевірте свою електронну пошту."
-            + " Якщо ви не отримали листа, перевірте папку 'Спам'",
+        appMessages: {
+            email_resend_success: "Листа з підтвердженням успішно надіслано."
+                + " Будь ласка, перевірте свою електронну пошту."
+                + " Якщо ви не отримали листа, перевірте папку 'Спам'",
+        },
         form: {
             fields: {
                 email: "Електронна пошта",
@@ -154,8 +150,10 @@ export default {
 
     resetPasswordPage: {
         title: "Скидання пароля",
-        success: "Вам надіслано листа з посиланням для скидання пароля."
-            + " Якщо лист не надійшов через декілька хвилин, перевірте папку 'Спам'",
+        appMessages: {
+            reset_password_success: "Вам надіслано листа з посиланням для скидання пароля."
+                + " Якщо лист не надійшов через декілька хвилин, перевірте папку 'Спам'",
+        },
         form: {
             fields: {
                 email: "Електронна пошта",

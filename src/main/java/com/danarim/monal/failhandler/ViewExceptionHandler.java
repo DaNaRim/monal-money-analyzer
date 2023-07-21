@@ -4,7 +4,6 @@ import com.danarim.monal.exceptions.InvalidTokenException;
 import com.danarim.monal.util.CookieUtil;
 import com.danarim.monal.util.appmessage.AppMessage;
 import com.danarim.monal.util.appmessage.AppMessageType;
-import com.danarim.monal.util.appmessage.AppMessageUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -47,7 +46,7 @@ public class ViewExceptionHandler {
         AppMessage applicationMessage =
                 new AppMessage(AppMessageType.ERROR,
                                "login",
-                               AppMessageUtil.resolveAppMessageCode(e.getMessageCode()));
+                               e.getAppMessageCode());
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 
         return new RedirectView("/login");

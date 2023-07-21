@@ -2,6 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
+import AppMessageComp from "../../../features/appMessages/AppMessageComp";
+import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import {
     type RegistrationDto,
     useRegisterMutation,
@@ -46,10 +48,9 @@ const RegistrationPage = () => {
     return (
         <main className={styles.registration_page} data-testid="registration-page">
             <h1>{t.registerPage.title}</h1>
-            {isSuccess &&
-              <span className={`${styles.app_message} ${styles.info}`}>
-                  {t.registerPage.success}
-              </span>
+            {isSuccess && <AppMessageComp type={AppMessageType.INFO}
+                                          messageCode="registration_success"
+                                          page="register"/>
             }
             <form onSubmit={handleSubmit(handleRegistration)}>
 

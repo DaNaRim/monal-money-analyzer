@@ -7,15 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * request was sent not from front-end. For example, when user activates his account by link from
  * email.
  *
- * <p>Recommended to use {@link AppMessageUtil#resolveAppMessageCode(String)} to resolve
- * messageCode
- * because it will check if messageCode is valid and if not, it will report error and return message
- * with {@link AppMessageCode#UNRESOLVED_CODE}. That way we can be sure that messageCode is valid,
- * and we can use it in frontend.
- *
  * @param type        Type of message (info, error, warning, etc.)
- * @param page        Page where message should be displayed. If null, message will be displayed on
- *                    the header for all pages
+ * @param page        Page where message should be displayed.
  * @param messageCode Message code to identify message in the front-end. Used to get localized
  *                    message in frontend and suggest additional actions to the user. For example:
  *                    "validation.token.expired" to suggest user to resend verification token. We
