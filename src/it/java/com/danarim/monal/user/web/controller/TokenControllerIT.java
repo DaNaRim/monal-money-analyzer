@@ -8,6 +8,7 @@ import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.user.service.RegistrationService;
 import com.danarim.monal.user.service.TokenService;
+import com.danarim.monal.util.appmessage.AppMessageCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -59,7 +60,7 @@ class TokenControllerIT {
 
     @Test
     void registrationConfirm_InvalidToken_ErrorInAppMesCookie() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.not-found", null))
+        doThrow(new InvalidTokenException("t", AppMessageCode.TOKEN_NOT_FOUND, null))
                 .when(registrationService).confirmRegistration(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/registrationConfirm")
@@ -88,7 +89,7 @@ class TokenControllerIT {
 
     @Test
     void resetPasswordConfirm_InvalidToken_ErrorInAppMesCookie() throws Exception {
-        doThrow(new InvalidTokenException("t", "validation.token.not-found", null))
+        doThrow(new InvalidTokenException("t", AppMessageCode.TOKEN_USED, null))
                 .when(tokenService).validatePasswordResetToken(anyString());
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/resetPasswordConfirm")

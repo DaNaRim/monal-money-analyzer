@@ -2,6 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
+import AppMessageComp from "../../../features/appMessages/AppMessageComp";
+import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import {
     useResendVerificationTokenMutation,
 } from "../../../features/registration/registrationApiSlice";
@@ -39,11 +41,9 @@ const ResendVerificationTokenPage = () => {
         <main className={styles.resend_verification_token_page}
               data-testid="resend-verification-token-page">
             <h1>{t.resendVerificationEmailPage.title}</h1>
-            {isSuccess &&
-                // Todo: use AppMessageComp
-              <span className={`${styles.app_message} ${styles.info}`}>
-                  {t.resendVerificationEmailPage.success}
-              </span>
+            {isSuccess && <AppMessageComp type={AppMessageType.INFO}
+                                          messageCode="email_resend_success"
+                                          page="resendVerificationEmail"/>
             }
             <form onSubmit={handleSubmit(handleResendToken)}>
 

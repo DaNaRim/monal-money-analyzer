@@ -22,7 +22,7 @@ describe("appMessagesSlice", () => {
     test("checkForServerMessages", () => {
         const message: AppMessage = {
             type: AppMessageType.INFO,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            messageCode: AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS,
             page: "login",
         };
         document.cookie = `serverMessage=${JSON.stringify(message)};`;
@@ -80,7 +80,7 @@ describe("appMessagesSlice", () => {
         };
         const newMessage: AppMessage = {
             type: AppMessageType.INFO,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            messageCode: AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS,
             page: "login",
         };
         expect(reducer(prevState, addAppMessage(newMessage))).toEqual({

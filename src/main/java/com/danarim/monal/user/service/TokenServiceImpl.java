@@ -6,6 +6,7 @@ import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
 import com.danarim.monal.user.persistence.model.User;
+import com.danarim.monal.util.appmessage.AppMessageCode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -88,7 +89,7 @@ public class TokenServiceImpl implements TokenService {
 
         if (verificationToken == null) {
             throw new InvalidTokenException("Token '" + tokenValue + "' not found",
-                                            "validation.token.verification.not-found",
+                                            AppMessageCode.TOKEN_VERIFICATION_NOT_FOUND,
                                             null);
         }
         if (verificationToken.getTokenType() != TokenType.VERIFICATION) {
@@ -96,7 +97,7 @@ public class TokenServiceImpl implements TokenService {
                                                     .formatted(tokenValue,
                                                                TokenType.VERIFICATION,
                                                                verificationToken.getTokenType()),
-                                            "validation.token.wrong-type",
+                                            AppMessageCode.TOKEN_WRONG_TYPE,
                                             new Object[] {
                                                     TokenType.VERIFICATION,
                                                     verificationToken.getTokenType()
@@ -104,17 +105,18 @@ public class TokenServiceImpl implements TokenService {
         }
         if (verificationToken.getUser().isEnabled()) {
             throw new InvalidTokenException("User already verified for token '" + tokenValue + "'",
-                                            "validation.token.verification.user-enabled",
-                                            null);
+                                            AppMessageCode.TOKEN_VERIFICATION_USER_ENABLED,
+                                            null
+            );
         }
         if (verificationToken.isUsed()) {
             throw new InvalidTokenException("Token '" + tokenValue + "' already used",
-                                            "validation.token.used",
+                                            AppMessageCode.TOKEN_USED,
                                             null);
         }
         if (verificationToken.isExpired()) {
             throw new InvalidTokenException("Token '" + tokenValue + "' expired",
-                                            "validation.token.verification.expired",
+                                            AppMessageCode.TOKEN_VERIFICATION_EXPIRED,
                                             null);
         }
         return verificationToken;
@@ -156,7 +158,7 @@ public class TokenServiceImpl implements TokenService {
 
         if (passwordResetToken == null) {
             throw new InvalidTokenException("Token '" + tokenValue + "' not found",
-                                            "validation.token.not-found",
+                                            AppMessageCode.TOKEN_NOT_FOUND,
                                             null);
         }
         if (passwordResetToken.getTokenType() != TokenType.PASSWORD_RESET) {
@@ -164,7 +166,7 @@ public class TokenServiceImpl implements TokenService {
                                                     .formatted(tokenValue,
                                                                TokenType.PASSWORD_RESET,
                                                                passwordResetToken.getTokenType()),
-                                            "validation.token.wrong-type",
+                                            AppMessageCode.TOKEN_WRONG_TYPE,
                                             new Object[] {
                                                     TokenType.PASSWORD_RESET,
                                                     passwordResetToken.getTokenType()
@@ -172,12 +174,12 @@ public class TokenServiceImpl implements TokenService {
         }
         if (passwordResetToken.isUsed()) {
             throw new InvalidTokenException("Token '" + tokenValue + "' already used",
-                                            "validation.token.used",
+                                            AppMessageCode.TOKEN_USED,
                                             null);
         }
         if (passwordResetToken.isExpired()) {
             throw new InvalidTokenException("Token '" + tokenValue + "' expired",
-                                            "validation.token.expired",
+                                            AppMessageCode.TOKEN_EXPIRED,
                                             null);
         }
         return passwordResetToken;

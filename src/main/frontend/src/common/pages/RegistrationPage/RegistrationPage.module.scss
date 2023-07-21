@@ -11,33 +11,6 @@
     text-align: center;
   }
 
-  .app_message {
-    margin: 1rem 0;
-    border: 0.1rem solid;
-    padding: 1rem;
-    width: 20rem;
-    text-align: center;
-
-    // TODO remove this
-    &.info {
-      border-color: #1e88e5;
-      background-color: #bbdefb;
-      color: #1e88e5;
-    }
-
-    &.warning {
-      border-color: #ff9800;
-      background-color: #ffe0b2;
-      color: #ff9800;
-    }
-
-    &.error {
-      border-color: #f44336;
-      background-color: #ffcdd2;
-      color: #f44336;
-    }
-  }
-
   form {
     display: flex;
     flex-direction: column;

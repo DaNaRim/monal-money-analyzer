@@ -1,6 +1,10 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "../../app/store";
 
+/*
+    App messages are messages that are shown to the user in special blocks of the page.
+ */
+
 const COOKIE_KEY_APPLICATION_MESSAGE = "serverMessage";
 
 export enum AppMessageType {
@@ -9,32 +13,35 @@ export enum AppMessageType {
     ERROR = "ERROR"
 }
 
+// AppMessagesCode words must be split only with underscores
 export enum AppMessageCode {
 
     // server messages
+    // That are sent from the server. They should be here to sure what we need in development
 
-    UNRESOLVED_CODE = "unresolved",
+    ACCOUNT_CONFIRMATION_SUCCESS = "account_confirmation_success", // login page
 
-    REGISTRATION_CONFIRMATION_SUCCESS = "registration.confirmation.success",
+    TOKEN_WRONG_TYPE = "validation_token_wrong_type", // login page
+    TOKEN_NOT_FOUND = "validation_token_not_found", // login page
+    TOKEN_USED = "validation_token_used", // login page
+    TOKEN_EXPIRED = "validation_token_expired", // login page
 
-    TOKEN_WRONG_TYPE = "validation.token.wrong-type",
-    TOKEN_NOT_FOUND = "validation.token.not-found",
-    TOKEN_USED = "validation.token.used",
-    TOKEN_EXPIRED = "validation.token.expired",
-
-    TOKEN_VERIFICATION_NOT_FOUND = "validation.token.verification.not-found",
-    TOKEN_VERIFICATION_EXPIRED = "validation.token.verification.expired",
-    TOKEN_VERIFICATION_USER_ENABLED = "validation.token.verification.user-enabled",
+    // Specific messages because code is used to suggest user to resend email
+    TOKEN_VERIFICATION_NOT_FOUND = "validation_token_verification_not_found", // login page
+    TOKEN_VERIFICATION_EXPIRED = "validation_token_verification_expired", // login page
+    TOKEN_VERIFICATION_USER_ENABLED = "validation_token_verification_user_enabled", // login page
 
     // frontend messages
+    // This app messages should be there in enum because they are created not inside components
+    // where they should be shown
 
-    PASSWORD_RESET_SUCCESS = "password-reset.success",
-    AUTH_EXPIRED = "auth.expired"
+    PASSWORD_RESET_SUCCESS = "password_reset_success", // login page
+    AUTH_EXPIRED = "auth_expired" // login page
 }
 
 export interface AppMessage {
     type: AppMessageType;
-    page: string | null;
+    page: string;
     messageCode: AppMessageCode;
 }
 

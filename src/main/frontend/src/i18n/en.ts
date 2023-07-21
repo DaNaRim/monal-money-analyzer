@@ -20,30 +20,6 @@ export default {
         password_show: "Show password",
     },
 
-    appMessages: {
-
-        // server
-
-        unresolved: "Unresolved message. Please contact the administrator.",
-
-        registration_confirmation_success: "Account activated successfully. You can now log in.",
-
-        validation_token_wrong_type: "Wrong token type.",
-        validation_token_not_found: "Token not found. Please try again.",
-        validation_token_used: "Token already used.",
-        validation_token_expired: "Token expired.",
-
-        validation_token_verification_not_found: "Verification token not found. Please try again.",
-        validation_token_verification_expired: "Verification token expired.",
-        validation_token_verification_user_enabled: "Account already activated."
-            + " You can now log in.",
-
-        // frontend
-
-        password_reset_success: "Password updated successfully. You can now log in.",
-        auth_expired: "Session expired. Please log in again.",
-    },
-
     fetchErrors: {
         fetchError: "Server unavailable. please try again later",
         serverError: "Server error. Please try again later. If the problem persists,"
@@ -78,6 +54,23 @@ export default {
     loginPage: {
         title: "Login",
         resendVerificationEmail: "Resend verification email",
+        appMessages: {
+            account_confirmation_success: "Account activated successfully. You can now log in.",
+
+            validation_token_wrong_type: "Wrong token type.",
+            validation_token_not_found: "Token not found. Please try again.",
+            validation_token_used: "Token already used.",
+            validation_token_expired: "Token expired.",
+
+            validation_token_verification_not_found: "Verification token not found."
+                + " Please try again.",
+            validation_token_verification_expired: "Verification token expired.",
+            validation_token_verification_user_enabled: "Account already activated."
+                + " You can log in.",
+
+            password_reset_success: "Password updated successfully. You can now log in.",
+            auth_expired: "Session expired. Please log in again.",
+        },
         form: {
             fields: {
                 username: "Email",
@@ -99,9 +92,11 @@ export default {
 
     registerPage: {
         title: "Register",
-        success: "Registration successful."
-            + " Please check your email to activate your account."
-            + " If it doesn't appear within a few minutes, check your spam folder.",
+        appMessages: {
+            registration_success: "Registration successful."
+                + " Please check your email to activate your account."
+                + " If it doesn't appear within a few minutes, check your spam folder.",
+        },
         form: {
             fields: {
                 firstName: "First name",
@@ -134,9 +129,11 @@ export default {
 
     resendVerificationEmailPage: {
         title: "Resend verification email",
-        success: "Verification email sent."
-            + " Please check your email to activate your account."
-            + " If it doesn't appear within a few minutes, check your spam folder.",
+        appMessages: {
+            email_resend_success: "Verification email sent."
+                + " Please check your email to activate your account."
+                + " If it doesn't appear within a few minutes, check your spam folder.",
+        },
         form: {
             fields: {
                 email: "Email",
@@ -153,8 +150,10 @@ export default {
 
     resetPasswordPage: {
         title: "Reset password",
-        success: "Check your email for a link to reset your password."
-            + " If it doesn't appear within a few minutes, check your spam folder.",
+        appMessages: {
+            reset_password_success: "Check your email for a link to reset your password."
+                + " If it doesn't appear within a few minutes, check your spam folder.",
+        },
         form: {
             fields: {
                 email: "Email",

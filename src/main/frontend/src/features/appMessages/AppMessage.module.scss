@@ -23,7 +23,7 @@
     color: #f44336;
   }
 
-  .message {
+  .message + * {
     margin-bottom: 0.5rem;
   }
 }

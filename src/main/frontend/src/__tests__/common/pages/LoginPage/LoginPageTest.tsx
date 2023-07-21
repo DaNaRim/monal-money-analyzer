@@ -192,7 +192,7 @@ describe("LoginPage", () => {
     it("app message exists -> display message", async () => {
         const store = setupStoreWithAppMessage({
             type: AppMessageType.WARNING,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            messageCode: AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS,
             page: "login",
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
@@ -231,7 +231,7 @@ describe("LoginPage", () => {
     it("app message & login success -> delete message", async () => {
         const store = setupStoreWithAppMessage({
             type: AppMessageType.INFO,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            messageCode: AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS,
             page: "login",
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
@@ -246,7 +246,7 @@ describe("LoginPage", () => {
     it("app message & login fail -> message still exists", async () => {
         const store = setupStoreWithAppMessage({
             type: AppMessageType.INFO,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            messageCode: AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS,
             page: "login",
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });
@@ -270,7 +270,7 @@ describe("LoginPage", () => {
     it("app message - leave login page -> delete message", async () => {
         const store = setupStoreWithAppMessage({
             type: AppMessageType.INFO,
-            messageCode: AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS,
+            messageCode: AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS,
             page: "login",
         });
         renderWithProviders(<App/>, { wrapper: BrowserRouter, store });

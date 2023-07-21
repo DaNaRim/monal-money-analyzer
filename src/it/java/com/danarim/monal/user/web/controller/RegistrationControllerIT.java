@@ -12,6 +12,7 @@ import com.danarim.monal.user.service.event.OnRegistrationCompleteEvent;
 import com.danarim.monal.user.web.dto.RegistrationDto;
 import com.danarim.monal.user.web.dto.ResetPasswordDto;
 import com.danarim.monal.util.CookieUtil;
+import com.danarim.monal.util.appmessage.AppMessageCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +188,7 @@ class RegistrationControllerIT {
 
         Cookie tokenCookie = CookieUtil.createPasswordResetCookie("someToken");
 
-        doThrow(new InvalidTokenException("t", "m", null))
+        doThrow(new InvalidTokenException("t", AppMessageCode.TOKEN_USED, null))
                 .when(registrationService).updateForgottenPassword(
                         eq(resetPasswordDto), anyString());
 

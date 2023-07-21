@@ -67,7 +67,7 @@ public class TokenController {
         AppMessage applicationMessage = new AppMessage(
                 AppMessageType.INFO,
                 "login",
-                AppMessageCode.REGISTRATION_CONFIRMATION_SUCCESS
+                AppMessageCode.ACCOUNT_CONFIRMATION_SUCCESS
         );
         response.addCookie(CookieUtil.createAppMessageCookie(applicationMessage));
 
