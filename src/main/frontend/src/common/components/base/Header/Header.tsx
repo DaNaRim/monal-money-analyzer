@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
+import { ROUTE_HOME, ROUTE_LOGIN, ROUTE_REGISTRATION } from "../../../../app/routes";
 import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features/auth/authApiSlice";
 import {
     clearAuthState,
@@ -34,7 +35,7 @@ const Header = () => {
     const handleLogout = () => {
         void logout();
         dispatch(clearAuthState());
-        navigate("/login");
+        navigate(ROUTE_LOGIN);
     };
 
     useEffect(() => {
@@ -56,8 +57,8 @@ const Header = () => {
             </div>;
         } else {
             return <ul>
-                <li><NavLink to="/login">{t.mainHeader.login}</NavLink></li>
-                <li><NavLink to="/registration">{t.mainHeader.register}</NavLink></li>
+                <li><NavLink to={ROUTE_LOGIN}>{t.mainHeader.login}</NavLink></li>
+                <li><NavLink to={ROUTE_REGISTRATION}>{t.mainHeader.register}</NavLink></li>
             </ul>;
         }
     };
@@ -66,11 +67,11 @@ const Header = () => {
         <header className={styles.main_header} data-testid="main-header">
             <nav>
                 <ul>
-                    <li><NavLink to="/">{t.mainHeader.nav.home}</NavLink></li>
+                    <li><NavLink to={ROUTE_HOME}>{t.mainHeader.nav.home}</NavLink></li>
                 </ul>
             </nav>
             <LanguageHandler/>
-            <div className="authBlock">
+            <div>
                 {getAuthBlock()}
             </div>
         </header>
