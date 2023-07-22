@@ -1,6 +1,8 @@
 package com.danarim.monal.user.persistence.model;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -40,11 +42,19 @@ public class Token implements Serializable {
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @Column(
+            columnDefinition = "VARCHAR CHECK (token_type IN ('VERIFICATION', 'PASSWORD_RESET'))",
+            nullable = false,
+            updatable = false
+    )
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date expirationDate;
 
     @Column(nullable = false, updatable = false)

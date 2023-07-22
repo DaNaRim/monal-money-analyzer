@@ -1,6 +1,8 @@
 package com.danarim.monal.user.persistence.model;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -52,6 +54,7 @@ public class User implements UserDetails {
     @Temporal(TemporalType.TIMESTAMP)
     private Date registrationDate;
 
+    @Column(nullable = false)
     private Boolean isEmailVerified;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -60,6 +63,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> roles;
 
     protected User() {
