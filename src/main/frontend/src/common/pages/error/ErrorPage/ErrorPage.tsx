@@ -8,9 +8,9 @@ const ErrorPage = () => {
 
     return (
         <main className={styles.error_page} data-testid="error-page">
-            <h1>{t.errorPages.main.header}</h1>
-            <p>{t.errorPages.main.desc}</p>
-            <Link to="/">{t.errorPages.main.link}</Link>
+            <h1>{t.errorPage.header}</h1>
+            <p>{t.errorPage.desc}</p>
+            <Link to="/">{t.errorPage.link}</Link>
         </main>
     );
 };
