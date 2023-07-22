@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
+import { ROUTE_LOGIN } from "../../../app/routes";
 import {
     addAppMessage,
     AppMessageCode,
@@ -48,7 +49,7 @@ const ResetPasswordSetPage = () => {
                 page: "login",
                 messageCode: AppMessageCode.PASSWORD_RESET_SUCCESS,
             })))
-            .then(() => navigate("/login"))
+            .then(() => navigate(ROUTE_LOGIN))
             .catch(e => {
                 setValue("newPassword", "");
                 setValue("matchingPassword", "");

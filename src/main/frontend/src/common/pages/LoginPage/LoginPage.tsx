@@ -8,6 +8,11 @@ import useFetchUtils, {
 } from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
+import {
+    ROUTE_HOME,
+    ROUTE_RESEND_VERIFICATION_TOKEN,
+    ROUTE_RESET_PASSWORD,
+} from "../../../app/routes";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import {
     AppMessageCode,
@@ -80,7 +85,7 @@ const LoginPage = () => {
                     dispatch(setForceLogin(false));
                     navigate(-1); // Previous page
                 } else {
-                    navigate("/"); // Home page
+                    navigate(ROUTE_HOME);
                 }
             })
             .catch(e => {
@@ -99,7 +104,9 @@ const LoginPage = () => {
     const suggestResendVerificationToken = () => {
         if (appMessage?.messageCode === AppMessageCode.TOKEN_VERIFICATION_NOT_FOUND
             || appMessage?.messageCode === AppMessageCode.TOKEN_VERIFICATION_EXPIRED) {
-            return <Link to="/resendVerificationToken">{t.loginPage.resendVerificationEmail}</Link>;
+            return <Link to={ROUTE_RESEND_VERIFICATION_TOKEN}>
+                {t.loginPage.resendVerificationEmail}
+            </Link>;
         }
         return null;
     };
@@ -124,7 +131,7 @@ const LoginPage = () => {
                 />
                 <ErrorGlobal {...{ register, errors }}/>
                 {isAccountNotActivated &&
-                  <Link to={"/resendVerificationToken"}>
+                  <Link to={ROUTE_RESEND_VERIFICATION_TOKEN}>
                       {t.loginPage.resendVerificationEmail}
                   </Link>
                 }
@@ -134,7 +141,7 @@ const LoginPage = () => {
                     ? <span>{t.loginPage.form.loading}</span>
                     : <button type="submit">{t.loginPage.form.submit}</button>
                 }
-                <Link to={"/resetPassword"}>{t.loginPage.form.forgotPassword}</Link>
+                <Link to={ROUTE_RESET_PASSWORD}>{t.loginPage.form.forgotPassword}</Link>
             </form>
         </main>
     );

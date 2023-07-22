@@ -5,6 +5,55 @@ import { clearRedirect, selectRedirectTo } from "../features/api/apiSlice";
 import { checkForServerMessages } from "../features/appMessages/appMessagesSlice";
 import "./App.scss";
 import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
+import {
+    ROUTE_ERROR,
+    ROUTE_FORBIDDEN,
+    ROUTE_HOME,
+    ROUTE_LOGIN,
+    ROUTE_REGISTRATION,
+    ROUTE_RESEND_VERIFICATION_TOKEN,
+    ROUTE_RESET_PASSWORD,
+    ROUTE_RESET_PASSWORD_SET,
+} from "./routes";
+
+const App = (): JSX.Element => {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
+    const redirectTo = useAppSelector<string | null>(selectRedirectTo);
+
+    useEffect(() => {
+        dispatch(checkForServerMessages());
+    }, [dispatch]);
+
+    // Used for redirecting from apiSlice (auth refresh)
+    useEffect(() => {
+        if (redirectTo !== null) {
+            navigate(redirectTo);
+        }
+        dispatch(clearRedirect());
+    }, [dispatch, navigate, redirectTo]);
+
+    return (
+        <Routes>
+            <Route path="/" element={<PageWrapper/>}>
+                <Route path={ROUTE_HOME} index element={<HomePage/>}/>
+                <Route path={ROUTE_REGISTRATION} element={<RegistrationPage/>}/>
+                <Route path={ROUTE_LOGIN} element={<LoginPage/>}/>
+                <Route path={ROUTE_RESEND_VERIFICATION_TOKEN}
+                       element={<ResendVerificationTokenPage/>}/>
+                <Route path={ROUTE_RESET_PASSWORD} element={<ResetPasswordPage/>}/>
+                <Route path={ROUTE_RESET_PASSWORD_SET} element={<ResetPasswordSetPage/>}/>
+
+                <Route path={ROUTE_FORBIDDEN} element={<ForbiddenPage/>}/>
+                <Route path={ROUTE_ERROR} element={<ErrorPage/>}/>
+                <Route path="*" element={<NotFoundPage/>}/>
+            </Route>
+        </Routes>
+    );
+};
+
+export default App;
 
 const HomePage = React.lazy(async () => await import("../common/pages/HomePage/HomePage"));
 const RegistrationPage = React.lazy(async () =>
@@ -32,41 +81,3 @@ const ErrorPage = React.lazy(async () =>
 const NotFoundPage = React.lazy(async () =>
     await import("../common/pages/error/NotFoundPage/NotFoundPage"),
 );
-
-const App = (): JSX.Element => {
-    const dispatch = useAppDispatch();
-    const navigate = useNavigate();
-
-    const redirectTo = useAppSelector<string | null>(selectRedirectTo);
-
-    useEffect(() => {
-        dispatch(checkForServerMessages());
-    }, [dispatch]);
-
-    // Used for redirecting from apiSlice (auth refresh)
-    useEffect(() => {
-        if (redirectTo !== null) {
-            navigate(redirectTo);
-        }
-        dispatch(clearRedirect());
-    }, [dispatch, navigate, redirectTo]);
-
-    return (
-        <Routes>
-            <Route path="/" element={<PageWrapper/>}>
-                <Route path="/" index element={<HomePage/>}/>
-                <Route path="/registration" element={<RegistrationPage/>}/>
-                <Route path="/login" element={<LoginPage/>}/>
-                <Route path="/resendVerificationToken" element={<ResendVerificationTokenPage/>}/>
-                <Route path="/resetPassword" element={<ResetPasswordPage/>}/>
-                <Route path="/resetPasswordSet" element={<ResetPasswordSetPage/>}/>
-
-                <Route path="/forbidden" element={<ForbiddenPage/>}/>
-                <Route path="/error" element={<ErrorPage/>}/>
-                <Route path="*" element={<NotFoundPage/>}/>
-            </Route>
-        </Routes>
-    );
-};
-
-export default App;
