@@ -8,9 +8,9 @@ const ForbiddenPage = () => {
 
     return (
         <main className={styles.forbidden_page} data-testid="forbidden-page">
-            <h1>{t.errorPages.forbidden.header}</h1>
-            <p>{t.errorPages.forbidden.desc}</p>
-            <Link to="/">{t.errorPages.forbidden.link}</Link>
+            <h1>{t.forbiddenPage.header}</h1>
+            <p>{t.forbiddenPage.desc}</p>
+            <Link to="/">{t.forbiddenPage.link}</Link>
         </main>
     );
 };

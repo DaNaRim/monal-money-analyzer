@@ -28,24 +28,28 @@ export default {
             + " please contact the administrator",
     },
 
-    errorPages: {
-        main: {
-            header: "Error",
-            desc: "Something went wrong. Please try again later. If the problem persists,"
-                + " please contact the administrator.",
-            link: "Go to home page",
-        },
-        forbidden: {
-            header: "Forbidden",
-            desc: "You don't have permission to access this page.",
-            link: "Go to home page",
-        },
-        notFound: {
-            header: "Not found",
-            desc: "The page you are looking for does not exist.",
-            link: "Go to home page",
-        },
+    // Error pages
+
+    errorPage: {
+        header: "Error",
+        desc: "Something went wrong. Please try again later. If the problem persists,"
+            + " please contact the administrator.",
+        link: "Go to home page",
     },
+
+    forbiddenPage: {
+        header: "Forbidden",
+        desc: "You don't have permission to access this page.",
+        link: "Go to home page",
+    },
+
+    notFoundPage: {
+        header: "Not found",
+        desc: "The page you are looking for does not exist.",
+        link: "Go to home page",
+    },
+
+    // Pages
 
     homePage: {
         title: "Home page",
