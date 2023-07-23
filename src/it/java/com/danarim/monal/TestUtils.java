@@ -121,6 +121,32 @@ public final class TestUtils {
         }
     }
 
+    /**
+     * Add default headers to request and perform login request for user with matched role.
+     *
+     * @param uri      request uri
+     * @param body     request body
+     * @param userRole user role for auth
+     * @param mockMvc  mock mvc. Used for login request.
+     *
+     * @return request builder. Can be extended
+     *
+     * @throws Exception if login request or data parsing failed
+     */
+    public static MockHttpServletRequestBuilder postExtWithAuth(String uri,
+                                                                Object body,
+                                                                RoleName userRole,
+                                                                MockMvc mockMvc
+    ) throws Exception {
+
+        MvcResult result = getLoginResult(userRole, mockMvc);
+
+        return postExt(uri, body)
+                .headers(csrfTokenHeader(result))
+                .cookie(getAccessTokenCookie(result))
+                .cookie(getRefreshTokenCookie(result));
+    }
+
     /*
         Other utils
      */
@@ -136,6 +162,7 @@ public final class TestUtils {
      * @throws AssertionError if login request not working correctly
      * @throws Exception      if login request failed
      * @see #getExtWithAuth(String, RoleName, MockMvc)
+     * @see #postExtWithAuth(String, Object, RoleName, MockMvc)
      */
     public static MvcResult getLoginResult(RoleName userRole, MockMvc mockMvc) throws Exception {
         String loginJson;

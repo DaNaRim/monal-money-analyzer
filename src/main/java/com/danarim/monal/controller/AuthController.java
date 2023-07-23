@@ -6,12 +6,10 @@ import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.CsrfTokenGenerator;
 import com.danarim.monal.config.security.auth.AuthResponseEntity;
 import com.danarim.monal.config.security.jwt.JwtUtil;
+import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.User;
 import com.danarim.monal.util.CookieUtil;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,22 +27,22 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
     private final CsrfTokenGenerator csrfTokenGenerator;
-    private final UserDetailsService userDetailsService;
+    private final UserDao userDao;
 
     /**
      * Dependency injection constructor.
      *
      * @param jwtUtil            utility for generating and decoding JWT tokens
      * @param csrfTokenGenerator utility for generating CSRF tokens
-     * @param userDetailsService service for getting user details
+     * @param userDao            user data access object
      */
     public AuthController(JwtUtil jwtUtil,
                           CsrfTokenGenerator csrfTokenGenerator,
-                          UserDetailsService userDetailsService
+                          UserDao userDao
     ) {
         this.jwtUtil = jwtUtil;
         this.csrfTokenGenerator = csrfTokenGenerator;
-        this.userDetailsService = userDetailsService;
+        this.userDao = userDao;
     }
 
     /**
@@ -81,12 +79,12 @@ public class AuthController {
      *                                  not found
      */
     @PostMapping("auth/getState")
-    public ResponseEntity<AuthResponseEntity> getAuthState(HttpServletRequest request) {
+    public AuthResponseEntity getAuthState(HttpServletRequest request) {
 
         String accessToken = CookieUtil.getAccessTokenValueByRequest(request);
         DecodedJWT decodedJwt = jwtUtil.decode(accessToken);
 
-        String email = decodedJwt.getSubject();
+        String userId = decodedJwt.getSubject();
         String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
         String tokenId = decodedJwt.getId();
 
@@ -96,15 +94,12 @@ public class AuthController {
         if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {
             throw new JWTVerificationException("Token is blocked");
         }
-        User user;
-        try {
-            user = (User) userDetailsService.loadUserByUsername(email);
-        } catch (UsernameNotFoundException e) {
-            throw new JWTVerificationException("User not found", e);
-        }
+        User user = userDao.findById(Long.parseLong(userId)).orElseThrow(
+                () -> new JWTVerificationException("User not found")
+        );
         String csrfToken = decodedJwt.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
 
-        return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
+        return AuthResponseEntity.generateAuthResponse(user, csrfToken);
     }
 
     /**
@@ -118,14 +113,12 @@ public class AuthController {
      * @throws JWTVerificationException if token is invalid, wrong type, expired or user not found
      */
     @PostMapping("auth/refresh")
-    public ResponseEntity<AuthResponseEntity> refresh(HttpServletRequest request,
-                                                      HttpServletResponse response
-    ) {
+    public AuthResponseEntity refresh(HttpServletRequest request, HttpServletResponse response) {
 
         String refreshToken = CookieUtil.getRefreshTokenValueByRequest(request);
         DecodedJWT decodedJwt = jwtUtil.decode(refreshToken);
 
-        String email = decodedJwt.getSubject();
+        String userId = decodedJwt.getSubject();
         String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
         String tokenId = decodedJwt.getId();
 
@@ -135,12 +128,9 @@ public class AuthController {
         if (jwtUtil.isTokenBlocked(Long.parseLong(tokenId))) {
             throw new JWTVerificationException("Token is blocked");
         }
-        User user;
-        try {
-            user = (User) userDetailsService.loadUserByUsername(email);
-        } catch (UsernameNotFoundException e) {
-            throw new JWTVerificationException("User not found", e);
-        }
+        User user = userDao.findById(Long.parseLong(userId)).orElseThrow(
+                () -> new JWTVerificationException("User not found")
+        );
         String csrfToken = csrfTokenGenerator.generateCsrfToken();
 
         String accessToken = jwtUtil.generateAccessToken(user, csrfToken);
@@ -148,7 +138,7 @@ public class AuthController {
         response.addCookie(CookieUtil.createAccessTokenCookie(accessToken));
 
         // update csrf token and auth state
-        return ResponseEntity.ok(AuthResponseEntity.generateAuthResponse(user, csrfToken));
+        return AuthResponseEntity.generateAuthResponse(user, csrfToken);
     }
 
 }

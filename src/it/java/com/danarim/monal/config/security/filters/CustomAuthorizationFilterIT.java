@@ -98,7 +98,7 @@ class CustomAuthorizationFilterIT {
     @Test
     void authorization_ExpiredToken_Unauthorized() throws Exception {
         String accessToken =
-                jwtUtil.generateAccessToken(DbUserFiller.testUser, "csrf doesn't matter", -1L);
+                jwtUtil.generateAccessToken(DbUserFiller.getTestUser(), "csrf doesn't matter", -1L);
 
         Cookie accessTokenCookie = new Cookie(CookieUtil.COOKIE_ACCESS_TOKEN_KEY, accessToken);
 
@@ -121,7 +121,7 @@ class CustomAuthorizationFilterIT {
     @Test
     void authorization_IncorrectToken_Unauthorized() throws Exception {
         String accessToken =
-                jwtUtil.generateAccessToken(DbUserFiller.testUser, "doesn`t matter", -1L);
+                jwtUtil.generateAccessToken(DbUserFiller.getTestUser(), "doesn`t matter", -1L);
         accessToken = accessToken.substring(0, accessToken.length() - 1);
 
         Cookie incorrectAccessTokenCookie =

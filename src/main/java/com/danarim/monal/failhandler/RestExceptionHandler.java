@@ -12,6 +12,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
@@ -42,6 +43,8 @@ import javax.validation.Valid;
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     protected static final String LOG_TEMPLATE = "%s during request: %s : %s";
+
+    private static final String INTERNAL_SERVER_ERROR_CODE = "error.server.internal-error";
 
     //Use own logger because Spring's logger defaults to INFO level and configures by own property.
     private static final Log rexLogger = LogFactory.getLog(RestExceptionHandler.class);
@@ -126,8 +129,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles {@link TokenExpiredException} thrown by auth refresh endpoint when token is
-     * expired.
+     * Handles {@link TokenExpiredException} thrown by auth refresh endpoint when token is expired.
      * Needed to return 401 instead of 403.
      *
      * @param e       exception caused by expired token.
@@ -141,7 +143,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                                                                  WebRequest request
     ) {
         logger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e
-                             .getMessage()), e);
+                .getMessage()), e);
 
         Locale locale = LocaleContextHolder.getLocale();
 
@@ -223,6 +225,57 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Handles {@link HttpMessageNotWritableException}. Needed to be overridden because default
+     * implementation returns html page with exception message.
+     *
+     * @param ex      the exception
+     * @param headers the headers to be written to the response
+     * @param status  the selected response status. Doesn't matter because it is overridden to 500
+     * @param request the current request
+     *
+     * @return list of {@link ErrorResponse} with one element.
+     */
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotWritable(
+            HttpMessageNotWritableException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request
+    ) {
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messages.getMessage(INTERNAL_SERVER_ERROR_CODE, null, locale);
+
+        ErrorResponse errorResponse =
+                ErrorResponse.serverError(INTERNAL_SERVER_ERROR_CODE, message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse),
+                                    HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Handles validation errors thrown by {@link Validated} and {@link Valid} annotations.
+     *
+     * @param e       exception caused by validation.
+     * @param headers http headers.
+     * @param status  http status.
+     * @param request request where exception occurred.
+     *
+     * @return response with list of {@link ErrorResponse}.
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request
+    ) {
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
+
+        ArrayList<ErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
+        return new ResponseEntity<>(mappedErrors, headers, status);
+    }
+
+    /**
      * Handles server exceptions.
      *
      * @param e       exception caused by server.
@@ -237,34 +290,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         rexLogger.error("Internal server error during request: " + request.getContextPath(), e);
 
         Locale locale = LocaleContextHolder.getLocale();
-        String message = messages.getMessage("error.server.internal-error", null, locale);
+        String message = messages.getMessage(INTERNAL_SERVER_ERROR_CODE, null, locale);
 
         ErrorResponse errorResponse =
-                ErrorResponse.serverError("error.server.internal-error", message);
+                ErrorResponse.serverError(INTERNAL_SERVER_ERROR_CODE, message);
 
         return new ResponseEntity<>(Collections.singletonList(errorResponse),
                                     HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /**
-     * Handles validation errors thrown by {@link Validated} and {@link Valid} annotations.
-     *
-     * @param e       exception caused by validation.
-     * @param headers http headers.
-     * @param status  http status.
-     * @param request request where exception occurred.
-     */
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatus status,
-                                                                  WebRequest request
-    ) {
-        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
-                                               e.getMessage()), e);
-
-        ArrayList<ErrorResponse> mappedErrors = mapErrors(e.getBindingResult());
-        return new ResponseEntity<>(mappedErrors, headers, status);
     }
 
     /**
