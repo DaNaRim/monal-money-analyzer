@@ -38,7 +38,12 @@ public class DbUserFiller {
 
     private static final Log logger = LogFactory.getLog(DbUserFiller.class);
 
-    public static User testUser;
+    private static User testUser; // Authenticated user
+
+    private static long testUserId; // Authenticated user id
+    private static long testAdminId; // Authenticated admin id
+
+    private static boolean isDbFilled;
 
     @Autowired
     private UserDao userDao;
@@ -53,6 +58,9 @@ public class DbUserFiller {
     @EventListener(ApplicationStartedEvent.class)
     @Order(1)
     public void prepareDbWithUsersForTests() {
+        if (isDbFilled) {
+            return;
+        }
         logger.info("Filling the database with test users");
 
         saveNotVerificatedUser();
@@ -60,6 +68,20 @@ public class DbUserFiller {
         saveAdmin();
 
         logger.info("Database filled with test users");
+
+        isDbFilled = true;
+    }
+
+    public static User getTestUser() {
+        return testUser;
+    }
+
+    public static long getTestUserId() {
+        return testUserId;
+    }
+
+    public static long getTestAdminId() {
+        return testAdminId;
     }
 
     private void saveVerificatedUser() {
@@ -74,6 +96,7 @@ public class DbUserFiller {
         user.setEmailVerified(true);
 
         this.testUser = userDao.save(user);
+        this.testUserId = testUser.getId();
     }
 
     private void saveNotVerificatedUser() {
@@ -101,7 +124,8 @@ public class DbUserFiller {
         );
         admin.setEmailVerified(true);
 
-        userDao.save(admin);
+        User result = userDao.save(admin);
+        this.testAdminId = result.getId();
     }
 
 }
