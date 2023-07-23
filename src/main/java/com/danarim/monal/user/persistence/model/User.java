@@ -70,6 +70,16 @@ public class User implements UserDetails {
     }
 
     /**
+     * Use this constructor when you only have the id of the user. This is useful when you want to
+     * use it in other entities and don't want to fetch the whole user object.
+     *
+     * @param id id of the user
+     */
+    public User(Long id) {
+        this.id = id;
+    }
+
+    /**
      * Creates a new user entity.
      *
      * @param firstName first name of the user
