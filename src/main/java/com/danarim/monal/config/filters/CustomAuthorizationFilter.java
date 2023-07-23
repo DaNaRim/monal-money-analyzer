@@ -33,7 +33,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 /**
  * Validate the JWT token and set the authentication in the security context if authentication is
- * successful Also check for csrf attacks.
+ * successful. Also check csrf tokens.
  */
 @Component
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
@@ -106,7 +106,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         validateToken(decodedJwt, csrfToken);
 
-        String username = decodedJwt.getSubject();
+        String userId = decodedJwt.getSubject();
         String[] roles = decodedJwt.getClaim(JwtUtil.CLAIM_AUTHORITIES).asArray(String.class);
 
         Collection<GrantedAuthority> authorities = new HashSet<>();
@@ -114,7 +114,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             authorities.add(new Role(RoleName.valueOf(role)));
         }
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(username, null, authorities));
+                new UsernamePasswordAuthenticationToken(userId, null, authorities));
     }
 
     /**

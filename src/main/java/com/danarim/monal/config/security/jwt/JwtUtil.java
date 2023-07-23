@@ -75,7 +75,8 @@ public class JwtUtil {
     }
 
     /**
-     * Create a new access token for the given user and save it to the database.
+     * Create a new access token for the given user and save it to the database. Token subject is
+     * the user id.
      *
      * @param user             user to generate token for
      * @param csrfToken        csrf token to be included in the token
@@ -96,7 +97,7 @@ public class JwtUtil {
                 jwtTokenDao.save(new JwtTokenEntity(TOKEN_TYPE_ACCESS, expirationDate, user));
 
         return JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(user.getId().toString())
                 .withExpiresAt(expirationDate)
                 .withIssuer(issuer)
                 .withJWTId(jwtTokenEntity.getId().toString())
@@ -107,7 +108,8 @@ public class JwtUtil {
     }
 
     /**
-     * Create a new access token for the given user and save it to the database.
+     * Create a new access token for the given user and save it to the database. Token subject is
+     * the user id.
      * <br>
      * The token will expire in {@link #ACCESS_TOKEN_DEFAULT_EXPIRATION_IN_DAYS} days
      *
@@ -121,7 +123,8 @@ public class JwtUtil {
     }
 
     /**
-     * Create a new refresh token for the given user and save it to the database.
+     * Create a new refresh token for the given user and save it to the database. Token subject is
+     * the user id.
      *
      * @param user             user to generate token for
      * @param expirationInDays number of days after which the token will expire
@@ -139,7 +142,7 @@ public class JwtUtil {
                 jwtTokenDao.save(new JwtTokenEntity(TOKEN_TYPE_REFRESH, expirationDate, user));
 
         return JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(user.getId().toString())
                 .withExpiresAt(expirationDate)
                 .withJWTId(jwtTokenEntity.getId().toString())
                 .withIssuer(issuer)
@@ -148,7 +151,8 @@ public class JwtUtil {
     }
 
     /**
-     * Create a new refresh token for the given user and save it to the database.
+     * Create a new refresh token for the given user and save it to the database. Token subject is
+     * the user id.
      * <br>
      * The token will expire in {@link #REFRESH_TOKEN_DEFAULT_EXPIRATION_IN_DAYS} days
      *
