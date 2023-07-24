@@ -10,6 +10,7 @@ import com.danarim.monal.user.persistence.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Currency;
+import java.util.List;
 
 /**
  * Service for {@link Wallet} entities.
@@ -45,11 +46,13 @@ public class WalletServiceImpl implements WalletService {
                                           "validation.user.notFound",
                                           null);
         }
+        // Currency parsing is case-sensitive
+        String walletCurrency = walletDto.currency().toUpperCase();
 
         try { // Check is valid currency
-            Currency.getInstance(walletDto.currency());
+            Currency.getInstance(walletCurrency);
         } catch (IllegalArgumentException e) {
-            throw new BadFieldException("Currency " + walletDto.currency() + " is not valid.", e,
+            throw new BadFieldException("Currency " + walletCurrency + " is not valid.", e,
                                         "validation.wallet.invalid.currency",
                                         null,
                                         "currency");
@@ -57,8 +60,27 @@ public class WalletServiceImpl implements WalletService {
         // User with only id is enough for linking in the database.
         return walletDao.save(new Wallet(walletDto.name(),
                                          walletDto.balance(),
-                                         walletDto.currency(),
+                                         walletCurrency,
                                          new User(userId)));
+    }
+
+    /**
+     * Returns all wallets owned by the user with the given id.
+     *
+     * @param userId id of the user that owns the wallets
+     *
+     * @return list of wallets owned by the user with the given id
+     *
+     * @throws BadRequestException if user with the given id does not exist
+     */
+    @Override
+    public List<Wallet> getUserWallets(long userId) {
+        if (!userDao.existsById(userId)) {
+            throw new BadRequestException("User with id " + userId + " does not exist.",
+                                          "validation.user.notFound",
+                                          null);
+        }
+        return walletDao.findAllByOwnerId(userId);
     }
 
 }

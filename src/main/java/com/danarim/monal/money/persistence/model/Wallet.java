@@ -35,7 +35,7 @@ public class Wallet implements Serializable {
     private double balance;
 
     @Column(nullable = false)
-    private String currency;
+    private String currency; // In database, currency is stored as a String
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false, updatable = false)

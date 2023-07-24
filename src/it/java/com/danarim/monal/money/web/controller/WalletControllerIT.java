@@ -14,6 +14,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
+import static com.danarim.monal.TestUtils.getExtWithAuth;
 import static com.danarim.monal.TestUtils.postExtWithAuth;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,6 +56,30 @@ class WalletControllerIT {
                 .andExpect(jsonPath("$.currency").value(createWalletDto.currency()));
 
         verify(walletService).createWallet(createWalletDto, DbUserFiller.getTestUserId());
+    }
+
+    @Test
+    void getUserWallets() throws Exception {
+        List<Wallet> wallets = List.of(
+                new Wallet("Test", 23.0, "USD", DbUserFiller.getTestUser()),
+                new Wallet("Test2", 42.0, "UAH", DbUserFiller.getTestUser())
+        );
+
+        when(walletService.getUserWallets(DbUserFiller.getTestUserId()))
+                .thenReturn(wallets);
+
+        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/wallet",
+                                       RoleName.ROLE_USER,
+                                       mockMvc))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value(wallets.get(0).getName()))
+                .andExpect(jsonPath("$[0].balance").value(wallets.get(0).getBalance()))
+                .andExpect(jsonPath("$[0].currency").value(wallets.get(0).getCurrency()
+                                                                   .getCurrencyCode()))
+                .andExpect(jsonPath("$[1].name").value(wallets.get(1).getName()))
+                .andExpect(jsonPath("$[1].balance").value(wallets.get(1).getBalance()))
+                .andExpect(jsonPath("$[1].currency").value(wallets.get(1).getCurrency()
+                                                                   .getCurrencyCode()));
     }
 
 }
