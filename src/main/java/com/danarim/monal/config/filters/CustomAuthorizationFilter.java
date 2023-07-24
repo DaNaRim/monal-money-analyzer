@@ -9,6 +9,7 @@ import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.util.CookieUtil;
 import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -160,8 +162,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                                   String exMessageCode
     ) throws IOException {
         response.setStatus(responseStatus);
-        Locale locale = localeResolver.resolveLocale(request);
+        response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
+        Locale locale = localeResolver.resolveLocale(request);
         response.getWriter().write(messages.getMessage(exMessageCode, null, locale));
     }
 
