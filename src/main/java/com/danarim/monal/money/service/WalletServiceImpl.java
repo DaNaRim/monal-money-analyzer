@@ -1,5 +1,6 @@
 package com.danarim.monal.money.service;
 
+import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.money.persistence.dao.WalletDao;
 import com.danarim.monal.money.persistence.model.Wallet;
@@ -9,6 +10,7 @@ import com.danarim.monal.user.persistence.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Currency;
+import java.util.List;
 
 /**
  * Service for {@link Wallet} entities.
@@ -26,6 +28,17 @@ public class WalletServiceImpl implements WalletService {
         this.userDao = userDao;
     }
 
+    /**
+     * Creates a new wallet for the user with the given id.
+     *
+     * @param walletDto wallet data
+     * @param userId    id of the user that owns the wallet
+     *
+     * @return created wallet
+     *
+     * @throws BadRequestException if user with the given id does not exist
+     * @throws BadFieldException   if currency is not valid
+     */
     @Override
     public Wallet createWallet(CreateWalletDto walletDto, long userId) {
         if (!userDao.existsById(userId)) {
@@ -33,19 +46,41 @@ public class WalletServiceImpl implements WalletService {
                                           "validation.user.notFound",
                                           null);
         }
+        // Currency parsing is case-sensitive
+        String walletCurrency = walletDto.currency().toUpperCase();
 
         try { // Check is valid currency
-            Currency.getInstance(walletDto.currency());
+            Currency.getInstance(walletCurrency);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Currency " + walletDto.currency() + " is not valid.", e,
-                                          "validation.wallet.invalid.currency",
-                                          null);
+            throw new BadFieldException("Currency " + walletCurrency + " is not valid.", e,
+                                        "validation.wallet.invalid.currency",
+                                        null,
+                                        "currency");
         }
         // User with only id is enough for linking in the database.
         return walletDao.save(new Wallet(walletDto.name(),
                                          walletDto.balance(),
-                                         walletDto.currency(),
+                                         walletCurrency,
                                          new User(userId)));
+    }
+
+    /**
+     * Returns all wallets owned by the user with the given id.
+     *
+     * @param userId id of the user that owns the wallets
+     *
+     * @return list of wallets owned by the user with the given id
+     *
+     * @throws BadRequestException if user with the given id does not exist
+     */
+    @Override
+    public List<Wallet> getUserWallets(long userId) {
+        if (!userDao.existsById(userId)) {
+            throw new BadRequestException("User with id " + userId + " does not exist.",
+                                          "validation.user.notFound",
+                                          null);
+        }
+        return walletDao.findAllByOwnerId(userId);
     }
 
 }
