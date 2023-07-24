@@ -1,5 +1,6 @@
 package com.danarim.monal.money.service;
 
+import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.money.persistence.dao.WalletDao;
 import com.danarim.monal.money.persistence.model.Wallet;
@@ -26,6 +27,17 @@ public class WalletServiceImpl implements WalletService {
         this.userDao = userDao;
     }
 
+    /**
+     * Creates a new wallet for the user with the given id.
+     *
+     * @param walletDto wallet data
+     * @param userId    id of the user that owns the wallet
+     *
+     * @return created wallet
+     *
+     * @throws BadRequestException if user with the given id does not exist
+     * @throws BadFieldException   if currency is not valid
+     */
     @Override
     public Wallet createWallet(CreateWalletDto walletDto, long userId) {
         if (!userDao.existsById(userId)) {
@@ -37,9 +49,10 @@ public class WalletServiceImpl implements WalletService {
         try { // Check is valid currency
             Currency.getInstance(walletDto.currency());
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Currency " + walletDto.currency() + " is not valid.", e,
-                                          "validation.wallet.invalid.currency",
-                                          null);
+            throw new BadFieldException("Currency " + walletDto.currency() + " is not valid.", e,
+                                        "validation.wallet.invalid.currency",
+                                        null,
+                                        "currency");
         }
         // User with only id is enough for linking in the database.
         return walletDao.save(new Wallet(walletDto.name(),
