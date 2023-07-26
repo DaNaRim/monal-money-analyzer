@@ -57,7 +57,8 @@ public class WebConfig implements WebMvcConfigurer {
     );
 
     private static final List<String> SQL_INIT_SCRIPTS = List.of(
-            "data-roles.sql"
+            "data-roles.sql",
+            "data-categories.sql"
     );
 
     @Override
