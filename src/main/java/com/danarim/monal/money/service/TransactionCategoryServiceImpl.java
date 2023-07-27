@@ -2,6 +2,7 @@ package com.danarim.monal.money.service;
 
 import com.danarim.monal.money.persistence.dao.TransactionCategoryDao;
 import com.danarim.monal.money.persistence.model.TransactionCategory;
+import com.danarim.monal.money.persistence.model.TransactionType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +36,11 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
             category.setSubCategories(getSubCategories(category.getId(), mixedCategories));
         });
         return categories;
+    }
+
+    @Override
+    public TransactionType getCategoryType(long categoryId) {
+        return transactionCategoryDao.getTypeById(categoryId);
     }
 
     /**

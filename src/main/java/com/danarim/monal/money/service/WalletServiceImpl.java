@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for {@link Wallet} entities.
@@ -81,6 +82,21 @@ public class WalletServiceImpl implements WalletService {
                                           null);
         }
         return walletDao.findAllByOwnerId(userId);
+    }
+
+    @Override
+    public Optional<Wallet> getWalletByIdForUpdate(long id) {
+        return walletDao.findById(id);
+    }
+
+    /**
+     * For INTERNAL use only.
+     *
+     * @param wallet wallet to update in the database.
+     */
+    @Override
+    public void updateWallet(Wallet wallet) {
+        walletDao.save(wallet);
     }
 
 }
