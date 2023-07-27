@@ -2,6 +2,7 @@ package com.danarim.monal.failhandler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
@@ -124,6 +125,29 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String message = messages.getMessage("error.access.denied", null, locale);
 
         ErrorResponse errorResponse = ErrorResponse.globalError("error.access.denied", message);
+
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Handles custom {@link ActionDeniedException} thrown by service when user is not allowed to
+     * perform action.
+     *
+     * @param e       exception caused by action that user is not allowed to perform.
+     * @param request request where exception occurred.
+     *
+     * @return response with a list of {@link ErrorResponse} with one element.
+     */
+    @ExceptionHandler(ActionDeniedException.class)
+    protected ResponseEntity<List<ErrorResponse>> handleActionDeniedException(
+            ActionDeniedException e,
+            WebRequest request
+    ) {
+        rexLogger.warn(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                              e.getMessage()), e);
+
+        ErrorResponse errorResponse =
+                ErrorResponse.globalError("error.action.denied", e.getMessage());
 
         return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.FORBIDDEN);
     }
