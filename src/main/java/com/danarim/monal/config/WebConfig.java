@@ -21,6 +21,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -38,10 +39,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     //If you change list count of supported locales, you should also change
     // SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
-    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(
+    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             DEFAULT_LOCALE,
             new Locale("uk")
-    );
+    ));
 
     public static final String API_V1_PREFIX = "/api/v1";
 
