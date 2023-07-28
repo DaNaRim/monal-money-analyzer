@@ -14,14 +14,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Date;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -54,7 +57,7 @@ class TransactionServiceImplTest {
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.INCOME);
-        when(walletService.getWalletByIdForUpdate(transactionDto.walletId()))
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
                 .thenReturn(Optional.of(wallet));
 
         transactionService.createTransaction(transactionDto, 1L);
@@ -62,7 +65,7 @@ class TransactionServiceImplTest {
         assertEquals(1.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
-        verify(walletService, times(1)).getWalletByIdForUpdate(transactionDto.walletId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, times(1)).save(any(Transaction.class));
         verify(walletService, times(1)).updateWallet(wallet);
     }
@@ -76,7 +79,7 @@ class TransactionServiceImplTest {
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.OUTCOME);
-        when(walletService.getWalletByIdForUpdate(transactionDto.walletId()))
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
                 .thenReturn(Optional.of(wallet));
 
         transactionService.createTransaction(transactionDto, 1L);
@@ -84,7 +87,7 @@ class TransactionServiceImplTest {
         assertEquals(-1.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
-        verify(walletService, times(1)).getWalletByIdForUpdate(transactionDto.walletId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, times(1)).save(any(Transaction.class));
         verify(walletService, times(1)).updateWallet(wallet);
     }
@@ -98,7 +101,7 @@ class TransactionServiceImplTest {
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(null);
-        when(walletService.getWalletByIdForUpdate(transactionDto.walletId()))
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
                 .thenReturn(Optional.of(wallet));
 
         BadFieldException e = assertThrows(
@@ -110,7 +113,7 @@ class TransactionServiceImplTest {
         assertEquals(0.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
-        verify(walletService, times(1)).getWalletByIdForUpdate(transactionDto.walletId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, never()).save(any(Transaction.class));
         verify(walletService, never()).updateWallet(wallet);
     }
@@ -122,7 +125,7 @@ class TransactionServiceImplTest {
         );
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.INCOME);
-        when(walletService.getWalletByIdForUpdate(transactionDto.walletId()))
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
                 .thenReturn(Optional.empty());
 
         BadRequestException e = assertThrows(
@@ -132,7 +135,7 @@ class TransactionServiceImplTest {
         assertEquals("validation.wallet.notFound", e.getMessageCode());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
-        verify(walletService, times(1)).getWalletByIdForUpdate(transactionDto.walletId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, never()).save(any(Transaction.class));
         verify(walletService, never()).updateWallet(any(Wallet.class));
     }
@@ -146,7 +149,7 @@ class TransactionServiceImplTest {
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.INCOME);
-        when(walletService.getWalletByIdForUpdate(transactionDto.walletId()))
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
                 .thenReturn(Optional.of(wallet));
 
         ActionDeniedException e = assertThrows(
@@ -156,9 +159,49 @@ class TransactionServiceImplTest {
         assertNotNull(e.getMessage());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
-        verify(walletService, times(1)).getWalletByIdForUpdate(transactionDto.walletId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, never()).save(any(Transaction.class));
         verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void getTransactionsBetweenDates() {
+        when(walletService.isUserWalletOwner(anyLong(), anyLong()))
+                .thenReturn(true);
+
+        assertDoesNotThrow(() -> transactionService.getTransactionsBetweenDates(
+                new Date(1L), new Date(), 1L, 1L));
+    }
+
+    @Test
+    void getTransactionsBetweenDates_UserNotWalletOwner_AccessDeniedException() {
+        when(walletService.isUserWalletOwner(anyLong(), anyLong()))
+                .thenReturn(false);
+
+        Date from = new Date(1L);
+        Date to = new Date();
+
+        AccessDeniedException e = assertThrows(
+                AccessDeniedException.class,
+                () -> transactionService.getTransactionsBetweenDates(from, to, 1L, 1L));
+
+        assertNotNull(e.getMessage());
+    }
+
+    @Test
+    void getTransactionsBetweenDates_DateFromAfterDateTo_BadRequestException() {
+        when(walletService.isUserWalletOwner(anyLong(), anyLong()))
+                .thenReturn(true);
+
+        Date from = new Date();
+        Date to = new Date(1L);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> transactionService.getTransactionsBetweenDates(from, to, 1L, 1L));
+
+        assertNotNull(e.getMessage());
+        assertEquals("validation.transaction.date-from-after-date-to", e.getMessageCode());
     }
 
 }

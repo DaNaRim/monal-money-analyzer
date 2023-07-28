@@ -15,12 +15,14 @@ public interface WalletService {
 
     List<Wallet> getUserWallets(long userId);
 
-    Optional<Wallet> getWalletByIdForUpdate(long id);
+    Optional<Wallet> getWalletForUpdate(long id);
 
     boolean isUserWalletOwner(long walletId, long userId);
 
     /**
      * For INTERNAL use only.
+     *
+     * <p>Use with {@link WalletService#getWalletForUpdate(long id)}.
      *
      * @param wallet wallet to update
      */

@@ -61,7 +61,7 @@ public class TransactionServiceImpl implements TransactionService {
                 categoryService.getCategoryType(createTransactionDto.categoryId());
 
         Optional<Wallet> optionalWallet =
-                walletService.getWalletByIdForUpdate(createTransactionDto.walletId());
+                walletService.getWalletForUpdate(createTransactionDto.walletId());
 
         validateTransaction(createTransactionDto, userId, categoryType, optionalWallet);
 
@@ -74,7 +74,6 @@ public class TransactionServiceImpl implements TransactionService {
                 new TransactionCategory(createTransactionDto.categoryId()),
                 wallet
         ));
-
         updateWalletBalance(wallet, createTransactionDto.amount(), categoryType);
 
         return result;
@@ -141,9 +140,9 @@ public class TransactionServiceImpl implements TransactionService {
                     null);
         }
         if (optionalWallet.get().getOwner().getId() != userId) {
-            throw new ActionDeniedException("User with ID %d does not own wallet with ID %d"
-                                                    .formatted(userId,
-                                                               optionalWallet.get().getId()));
+            throw new ActionDeniedException(
+                    "User with ID %d does not own wallet with ID %d"
+                            .formatted(userId, optionalWallet.get().getId()));
         }
     }
 
