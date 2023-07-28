@@ -10,9 +10,11 @@ import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.TransactionType;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateTransactionDto;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
 
@@ -76,6 +78,36 @@ public class TransactionServiceImpl implements TransactionService {
         updateWalletBalance(wallet, createTransactionDto.amount(), categoryType);
 
         return result;
+    }
+
+    /**
+     * Gets all transactions between two dates for a wallet.
+     *
+     * @param from         date from
+     * @param to           date to
+     * @param walletId     wallet ID
+     * @param loggedUserId logged in user ID
+     *
+     * @return list of transactions
+     *
+     * @throws AccessDeniedException if a user does not own the wallet
+     * @throws BadRequestException   if date 'from' is after date 'to'
+     */
+    @Override
+    public List<Transaction> getTransactionsBetweenDates(Date from,
+                                                         Date to, long walletId,
+                                                         long loggedUserId
+    ) {
+        if (!walletService.isUserWalletOwner(walletId, loggedUserId)) {
+            throw new AccessDeniedException("User with ID %d is not the owner of wallet with ID %d"
+                                                    .formatted(loggedUserId, walletId));
+        }
+        if (from.after(to)) {
+            throw new BadRequestException("Date 'from' must be before date 'to'",
+                                          "validation.transaction.date-from-after-date-to",
+                                          null);
+        }
+        return transactionDao.getTransactionsByWalletIdAndDateBetween(walletId, from, to);
     }
 
     /**

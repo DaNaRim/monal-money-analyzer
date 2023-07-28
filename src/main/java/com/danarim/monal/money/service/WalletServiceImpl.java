@@ -90,6 +90,19 @@ public class WalletServiceImpl implements WalletService {
     }
 
     /**
+     * Checks if the user with the given id owns the wallet with the given id.
+     *
+     * @param walletId id of the wallet
+     * @param userId   id of the user
+     *
+     * @return true if the user owns the wallet, false otherwise
+     */
+    @Override
+    public boolean isUserWalletOwner(long walletId, long userId) {
+        return walletDao.isUserWalletOwner(walletId, userId);
+    }
+
+    /**
      * For INTERNAL use only.
      *
      * @param wallet wallet to update in the database.

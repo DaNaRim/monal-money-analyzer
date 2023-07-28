@@ -17,6 +17,8 @@ public interface WalletService {
 
     Optional<Wallet> getWalletByIdForUpdate(long id);
 
+    boolean isUserWalletOwner(long walletId, long userId);
+
     /**
      * For INTERNAL use only.
      *

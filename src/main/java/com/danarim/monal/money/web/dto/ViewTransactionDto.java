@@ -3,20 +3,18 @@ package com.danarim.monal.money.web.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * DTO for viewing a {@link com.danarim.monal.money.persistence.model.Transaction Transaction}.
  */
-public class ViewTransactionDto {
+public class ViewTransactionDto implements Comparable<ViewTransactionDto> {
 
     private long id;
 
     private String description;
 
-    @JsonFormat(
-            shape = JsonFormat.Shape.NUMBER,
-            without = JsonFormat.Feature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS
-    )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date date;
 
     private double amount;
@@ -61,6 +59,39 @@ public class ViewTransactionDto {
 
     public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description, date, amount, categoryId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ViewTransactionDto that = (ViewTransactionDto) o;
+        return id == that.id
+                && Double.compare(amount, that.amount) == 0
+                && categoryId == that.categoryId
+                && Objects.equals(description, that.description)
+                && Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int compareTo(ViewTransactionDto o) {
+        //Compare by date. Newest first.
+        if (this.date.after(o.date)) {
+            return -1;
+        }
+        if (this.date.before(o.date)) {
+            return 1;
+        }
+        return 0;
     }
 
 }

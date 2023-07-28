@@ -1,5 +1,7 @@
 package com.danarim.monal.money.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -20,6 +22,7 @@ public record CreateTransactionDto(
         String description,
 
         @NotNull(message = "{validation.transaction.date.notnull}")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         Date date,
 
         @Positive(message = "{validation.transaction.amount.positive}")
