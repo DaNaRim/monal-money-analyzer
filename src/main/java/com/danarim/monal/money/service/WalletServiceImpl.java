@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for {@link Wallet} entities.
@@ -65,7 +66,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     /**
-     * Returns all wallets owned by the user with the given id.
+     * Returns all wallets owned by the user with the given id. DON'T check if the user exists.
      *
      * @param userId id of the user that owns the wallets
      *
@@ -75,12 +76,45 @@ public class WalletServiceImpl implements WalletService {
      */
     @Override
     public List<Wallet> getUserWallets(long userId) {
-        if (!userDao.existsById(userId)) {
-            throw new BadRequestException("User with id " + userId + " does not exist.",
-                                          "validation.user.notFound",
-                                          null);
-        }
         return walletDao.findAllByOwnerId(userId);
+    }
+
+    /**
+     * Locks the wallet with the given id for update. Require Transactional annotation.
+     *
+     * @param id id of the wallet
+     *
+     * @return wallet with the given id
+     */
+    @Override
+    public Optional<Wallet> getWalletForUpdate(long id) {
+        return walletDao.findById(id);
+    }
+
+    /**
+     * Checks if the user with the given id owns the wallet with the given id.
+     *
+     * @param walletId id of the wallet
+     * @param userId   id of the user
+     *
+     * @return true if the user owns the wallet, false otherwise. If the user or the wallet does not
+     *         exist, returns false.
+     */
+    @Override
+    public boolean isUserWalletOwner(long walletId, long userId) {
+        return walletDao.isUserWalletOwner(walletId, userId);
+    }
+
+    /**
+     * For INTERNAL use only.
+     *
+     * <p>Use with {@link WalletService#getWalletForUpdate(long id)}.
+     *
+     * @param wallet wallet to update in the database.
+     */
+    @Override
+    public void updateWallet(Wallet wallet) {
+        walletDao.save(wallet);
     }
 
 }

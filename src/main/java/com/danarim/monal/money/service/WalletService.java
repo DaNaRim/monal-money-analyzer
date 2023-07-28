@@ -4,6 +4,7 @@ import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateWalletDto;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for {@link Wallet} entities.
@@ -13,5 +14,18 @@ public interface WalletService {
     Wallet createWallet(CreateWalletDto walletDto, long userId);
 
     List<Wallet> getUserWallets(long userId);
+
+    Optional<Wallet> getWalletForUpdate(long id);
+
+    boolean isUserWalletOwner(long walletId, long userId);
+
+    /**
+     * For INTERNAL use only.
+     *
+     * <p>Use with {@link WalletService#getWalletForUpdate(long id)}.
+     *
+     * @param wallet wallet to update
+     */
+    void updateWallet(Wallet wallet);
 
 }

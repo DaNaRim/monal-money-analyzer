@@ -21,8 +21,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 /**
@@ -36,10 +39,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     //If you change list count of supported locales, you should also change
     // SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
-    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(
+    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             DEFAULT_LOCALE,
             new Locale("uk")
-    );
+    ));
 
     public static final String API_V1_PREFIX = "/api/v1";
 
@@ -61,6 +64,17 @@ public class WebConfig implements WebMvcConfigurer {
             "data-categories.sql"
     );
 
+    @PostConstruct
+    public static void init() {
+        // Setting Spring Boot SetTimeZone
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LocaleChangeInterceptor());
+    }
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         for (String url : FRONTEND_URLS) {
@@ -73,13 +87,6 @@ public class WebConfig implements WebMvcConfigurer {
         LocalValidatorFactoryBean validatorBean = new LocalValidatorFactoryBean();
         validatorBean.setValidationMessageSource(messageSource());
         return validatorBean;
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        LocaleChangeInterceptor localeInterceptor = new LocaleChangeInterceptor();
-
-        registry.addInterceptor(localeInterceptor);
     }
 
     /**

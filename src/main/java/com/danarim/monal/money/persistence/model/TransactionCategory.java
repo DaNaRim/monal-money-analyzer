@@ -60,6 +60,16 @@ public class TransactionCategory implements Serializable {
     }
 
     /**
+     * Use this constructor when you have only the ID of the category. This is useful when you want
+     * to create a new transaction, and you want to set the category of the transaction.
+     *
+     * @param id The ID of the category.
+     */
+    public TransactionCategory(long id) {
+        this.id = id;
+    }
+
+    /**
      * Creates a new category.
      *
      * @param name           The name of the category.

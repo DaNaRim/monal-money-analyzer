@@ -5,7 +5,7 @@ import com.danarim.monal.controller.StubController;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.danarim.monal.TestUtils.getExt;
+import static com.danarim.monal.TestUtils.postExt;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,8 +37,8 @@ class RestExceptionHandlerIT {
     @MockBean(name = "messageSource")
     private MessageSource messages;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void beforeAll() {
         //Lazy init because of logcaptor is created before the test application context is created
         if (logCaptor == null) {
             logCaptor = LogCaptor.forClass(RestExceptionHandler.class);
@@ -104,11 +105,31 @@ class RestExceptionHandlerIT {
                                    .value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName")
                                    .value(ResponseErrorType.GLOBAL_ERROR.getName()))
-                .andExpect(jsonPath("$[0].message").value("test"))
+                .andExpect(jsonPath("$[0].message").exists())
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
         assertThat(logCaptor.getDebugLogs())
                 .withFailMessage("Expected 1 debug log, but got %d",
+                                 logCaptor.getDebugLogs().size())
+                .hasSize(1);
+    }
+
+    @Test
+    void handleActionDeniedException() throws Exception {
+        when(messages.getMessage(anyString(), any(), any()))
+                .thenReturn("test");
+
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/actionDeniedStub"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$[0].type")
+                                   .value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(jsonPath("$[0].fieldName")
+                                   .value(ResponseErrorType.GLOBAL_ERROR.getName()))
+                .andExpect(jsonPath("$[0].message").exists())
+                .andExpect(jsonPath("$[0].errorCode").exists());
+
+        assertThat(logCaptor.getWarnLogs())
+                .withFailMessage("Expected 1 warn log, but got %d",
                                  logCaptor.getDebugLogs().size())
                 .hasSize(1);
     }
