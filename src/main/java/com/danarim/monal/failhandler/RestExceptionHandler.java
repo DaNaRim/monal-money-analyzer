@@ -123,8 +123,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage("error.access.denied", null, locale);
+        String extendedMessage = message + ' ' + e.getMessage();
 
-        ErrorResponse errorResponse = ErrorResponse.globalError("error.access.denied", message);
+        ErrorResponse errorResponse =
+                ErrorResponse.globalError("error.access.denied", extendedMessage);
 
         return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.FORBIDDEN);
     }

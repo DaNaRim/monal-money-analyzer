@@ -104,7 +104,7 @@ class RestExceptionHandlerIT {
                                    .value(ResponseErrorType.GLOBAL_ERROR.getName()))
                 .andExpect(jsonPath("$[0].fieldName")
                                    .value(ResponseErrorType.GLOBAL_ERROR.getName()))
-                .andExpect(jsonPath("$[0].message").value("test"))
+                .andExpect(jsonPath("$[0].message").exists())
                 .andExpect(jsonPath("$[0].errorCode").exists());
 
         assertThat(logCaptor.getDebugLogs())
