@@ -2,6 +2,7 @@ package com.danarim.monal.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.DbUserFiller;
+import com.danarim.monal.TestContainersConfig;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.CsrfTokenGenerator;
 import com.danarim.monal.config.security.jwt.JwtTokenDao;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -33,7 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(DbUserFiller.class)
+@Import({TestContainersConfig.class, DbUserFiller.class})
+@ActiveProfiles("test")
 class AuthControllerIT {
 
     @Autowired

@@ -1,20 +1,24 @@
 package com.danarim.monal.money.web.controller;
 
-import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.config.security.auth.AuthUtil;
+import com.danarim.monal.failhandler.RestExceptionHandler;
 import com.danarim.monal.money.persistence.model.Transaction;
 import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.service.TransactionService;
 import com.danarim.monal.money.web.dto.CreateTransactionDto;
-import com.danarim.monal.user.persistence.model.RoleName;
+import com.danarim.monal.user.persistence.model.User;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.text.ParseException;
@@ -23,21 +27,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.danarim.monal.TestUtils.getExtWithAuth;
-import static com.danarim.monal.TestUtils.postExtWithAuth;
+import static com.danarim.monal.TestUtils.getExt;
+import static com.danarim.monal.TestUtils.postExt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(DbUserFiller.class)
+@WebMvcTest(TransactionController.class)
+@ContextConfiguration(classes = {TransactionController.class, RestExceptionHandler.class})
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class TransactionControllerIT {
 
     private static final SimpleDateFormat dateFormatter =
             new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    private static final MockedStatic<AuthUtil> authUtilMockedStatic = mockStatic(AuthUtil.class);
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,6 +57,13 @@ class TransactionControllerIT {
     static void beforeAll() {
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
+        when(AuthUtil.getLoggedUserId()).thenReturn(1L);
+    }
+
+    @AfterAll
+    static void afterAll() {
+        authUtilMockedStatic.close();
     }
 
     @Test
@@ -57,23 +72,20 @@ class TransactionControllerIT {
                 "test", new Date(), 1.0, 1L, 1L
         );
         when(transactionService.createTransaction(any(CreateTransactionDto.class),
-                                                  eq(DbUserFiller.getTestUserId())))
+                                                  eq(1L)))
                 .thenAnswer(invocation -> {
                     Transaction transaction = new Transaction(
                             dto.description(),
                             dto.date(),
                             dto.amount(),
                             new TransactionCategory(dto.categoryId()),
-                            new Wallet("Test", 0.0, "USD", DbUserFiller.getTestUser())
+                            new Wallet("Test", 0.0, "USD", new User(1L))
                     );
                     transaction.setId(1L);
 
                     return transaction;
                 });
-        mockMvc.perform(postExtWithAuth(WebConfig.API_V1_PREFIX + "/transaction",
-                                        dto,
-                                        RoleName.ROLE_USER,
-                                        mockMvc))
+        mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/transaction", dto))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.description").value(dto.description()))
@@ -90,12 +102,10 @@ class TransactionControllerIT {
         when(transactionService.getTransactionsBetweenDates(any(Date.class),
                                                             any(Date.class),
                                                             eq(1L),
-                                                            eq(DbUserFiller.getTestUserId())))
+                                                            eq(1L)))
                 .thenReturn(transactions);
 
-        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/transaction/date",
-                                       RoleName.ROLE_USER,
-                                       mockMvc)
+        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/transaction/date")
                                 .param("from", "2020-01-01 00")
                                 .param("to", "2020-01-02 00")
                                 .param("walletId", "1"))
@@ -113,10 +123,10 @@ class TransactionControllerIT {
     }
 
     private static List<Transaction> prepareTransaction() throws ParseException {
-        Wallet wallet = new Wallet("Test", 0.0, "USD", DbUserFiller.getTestUser());
+        Wallet wallet = new Wallet("Test", 0.0, "USD", new User(1L));
         wallet.setId(1L);
 
-        List<Transaction> transactions = List.of(
+        return List.of(
                 new Transaction(
                         "test",
                         new Date(dateFormatter.parse("2020-01-01 12:40:00").getTime()),
@@ -132,7 +142,6 @@ class TransactionControllerIT {
                         wallet
                 )
         );
-        return transactions;
     }
 
 }

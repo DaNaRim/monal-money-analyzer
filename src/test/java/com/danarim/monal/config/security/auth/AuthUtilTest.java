@@ -1,7 +1,7 @@
 package com.danarim.monal.config.security.auth;
 
 import com.danarim.monal.exceptions.InternalServerException;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,21 +24,21 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AuthUtilTest {
 
-    private final MockedStatic<SecurityContextHolder> securityContextHolder =
+    private static final MockedStatic<SecurityContextHolder> securityContextHolder =
             mockStatic(SecurityContextHolder.class);
 
     private final SecurityContext securityContext = mock(SecurityContext.class);
     private final Authentication authentication = mock(Authentication.class);
 
+    @AfterAll
+    static void afterAll() {
+        securityContextHolder.close();
+    }
+
     @BeforeEach
     void setUp() {
         when(SecurityContextHolder.getContext()).thenReturn(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
-    }
-
-    @AfterEach
-    void tearDown() {
-        securityContextHolder.close();
     }
 
     @Test

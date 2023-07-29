@@ -1,29 +1,30 @@
 package com.danarim.monal.money.web.controller;
 
-import com.danarim.monal.DbUserFiller;
 import com.danarim.monal.config.WebConfig;
+import com.danarim.monal.failhandler.RestExceptionHandler;
 import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.TransactionType;
 import com.danarim.monal.money.service.TransactionCategoryService;
-import com.danarim.monal.user.persistence.model.RoleName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static com.danarim.monal.TestUtils.getExtWithAuth;
+import static com.danarim.monal.TestUtils.getExt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(DbUserFiller.class)
+@WebMvcTest(TransactionCategoryController.class)
+@ContextConfiguration(classes = {TransactionCategoryController.class, RestExceptionHandler.class})
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class TransactionCategoryControllerIT {
 
     @Autowired
@@ -47,9 +48,7 @@ class TransactionCategoryControllerIT {
 
         when(categoryService.getAvailableCategories()).thenReturn(categories);
 
-        mockMvc.perform(getExtWithAuth(WebConfig.API_V1_PREFIX + "/category",
-                                       RoleName.ROLE_USER,
-                                       mockMvc))
+        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/category"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value(parentCategory.getName()))
                 .andExpect(jsonPath("$[0].type").value(parentCategory.getType().toString()))

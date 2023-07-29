@@ -4,13 +4,15 @@ import com.danarim.monal.controller.ViewStubController;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.annotation.PostConstruct;
 
 import static com.danarim.monal.TestUtils.getExt;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -20,20 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ViewStubController.class)
 @ContextConfiguration(classes = {ViewStubController.class, ViewExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class ViewExceptionHandlerIT {
 
     private static LogCaptor logCaptor;
 
     @Autowired
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        //Lazy init because of logcaptor is created before the test application context is created
-        if (logCaptor == null) {
-            logCaptor = LogCaptor.forClass(ViewExceptionHandler.class);
-        }
-    }
 
     @AfterAll
     public static void tearDown() {
@@ -43,6 +38,11 @@ class ViewExceptionHandlerIT {
     @AfterEach
     public void clearLogs() {
         logCaptor.clearLogs();
+    }
+
+    @PostConstruct
+    static void init() {
+        logCaptor = LogCaptor.forClass(ViewExceptionHandler.class);
     }
 
     @Test

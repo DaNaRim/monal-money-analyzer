@@ -5,15 +5,17 @@ import com.danarim.monal.controller.StubController;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.annotation.PostConstruct;
 
 import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.postExt;
@@ -27,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(StubController.class)
 @ContextConfiguration(classes = {StubController.class, RestExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class RestExceptionHandlerIT {
 
     private static LogCaptor logCaptor;
@@ -37,14 +40,6 @@ class RestExceptionHandlerIT {
     @MockBean(name = "messageSource")
     private MessageSource messages;
 
-    @BeforeAll
-    static void beforeAll() {
-        //Lazy init because of logcaptor is created before the test application context is created
-        if (logCaptor == null) {
-            logCaptor = LogCaptor.forClass(RestExceptionHandler.class);
-        }
-    }
-
     @AfterAll
     public static void tearDown() {
         logCaptor.close();
@@ -53,6 +48,11 @@ class RestExceptionHandlerIT {
     @AfterEach
     public void clearLogs() {
         logCaptor.clearLogs();
+    }
+
+    @PostConstruct
+    static void init() {
+        logCaptor = LogCaptor.forClass(RestExceptionHandler.class);
     }
 
     @Test
