@@ -1,6 +1,7 @@
 package com.danarim.monal.money.web.controller;
 
 import com.danarim.monal.DbUserFiller;
+import com.danarim.monal.TestContainersConfig;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.service.WalletService;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -25,7 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(DbUserFiller.class)
+@Import({TestContainersConfig.class, DbUserFiller.class})
+@ActiveProfiles("test")
 class WalletControllerIT {
 
     @Autowired
