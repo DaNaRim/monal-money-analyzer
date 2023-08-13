@@ -2,14 +2,15 @@ package com.danarim.monal.money.service;
 
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
+import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.money.persistence.dao.WalletDao;
+import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateWalletDto;
 import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.stereotype.Service;
 
-import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,9 +23,7 @@ public class WalletServiceImpl implements WalletService {
     private final WalletDao walletDao;
     private final UserDao userDao;
 
-    public WalletServiceImpl(WalletDao walletDao,
-                             UserDao userDao
-    ) {
+    public WalletServiceImpl(WalletDao walletDao, UserDao userDao) {
         this.walletDao = walletDao;
         this.userDao = userDao;
     }
@@ -42,26 +41,32 @@ public class WalletServiceImpl implements WalletService {
      */
     @Override
     public Wallet createWallet(CreateWalletDto walletDto, long userId) {
-        if (!userDao.existsById(userId)) {
-            throw new BadRequestException("User with id " + userId + " does not exist.",
-                                          "validation.user.notFound",
-                                          null);
-        }
-        // Currency parsing is case-sensitive
-        String walletCurrency = walletDto.currency().toUpperCase();
+        validateCreateWallet(walletDto, userId);
 
+        Currency parsedCurrency;
         try { // Check is valid currency
-            Currency.getInstance(walletCurrency);
+            parsedCurrency = Currency.valueOf(walletDto.currency().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new BadFieldException("Currency " + walletCurrency + " is not valid.", e,
+            throw new BadFieldException("Currency " + walletDto.currency() + " is not valid.", e,
                                         "validation.wallet.invalid.currency",
                                         null,
                                         "currency");
         }
+        // Round balance based on a currency type
+        double parsedBalance = switch (parsedCurrency.getType()) {
+            // 2 decimal places
+            case BASIC -> Math.floor(walletDto.balance() * 100.0) / 100.0;
+            // 8 decimal places
+            case CRYPTO -> Math.floor(walletDto.balance() * 100_000_000.0) / 100_000_000.0;
+            default -> throw new InternalServerException(
+                    // Should never happen
+                    "Currency type %s is not supported.".formatted(parsedCurrency.getType())
+            );
+        };
         // User with only id is enough for linking in the database.
         return walletDao.save(new Wallet(walletDto.name(),
-                                         walletDto.balance(),
-                                         walletCurrency,
+                                         parsedBalance,
+                                         parsedCurrency,
                                          new User(userId)));
     }
 
@@ -115,6 +120,22 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public void updateWallet(Wallet wallet) {
         walletDao.save(wallet);
+    }
+
+    private void validateCreateWallet(CreateWalletDto walletDto, long userId) {
+        if (!userDao.existsById(userId)) {
+            throw new BadRequestException("User with id " + userId + " does not exist.",
+                                          "validation.user.notFound",
+                                          null);
+        }
+        if (walletDao.existsByOwnerIdAndName(userId, walletDto.name())) {
+            throw new BadFieldException(
+                    "Wallet with name %s already exists for user with id %d."
+                            .formatted(walletDto.name(), userId),
+                    "validation.wallet.name-for-user.alreadyExists",
+                    null,
+                    "name");
+        }
     }
 
 }
