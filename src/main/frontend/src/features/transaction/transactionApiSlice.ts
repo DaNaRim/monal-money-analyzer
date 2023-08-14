@@ -5,7 +5,7 @@ import { type Transaction } from "./transactionSlice";
 interface SelectTransactionsParams {
     walletId: number;
     date: string; // Date in format 'yyyy/MM/dd'
-};
+}
 
 const transactionApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({

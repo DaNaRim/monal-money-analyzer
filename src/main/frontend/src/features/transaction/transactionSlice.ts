@@ -11,7 +11,7 @@ export interface Transaction {
     date: Date;
     amount: number;
     categoryId: number;
-};
+}
 
 type TransactionsState = {
     [walletId in number]: {
@@ -25,13 +25,13 @@ interface SetTransactionsPayload {
     walletId: number;
     date: string;
     transactions: Transaction[];
-};
+}
 
 interface SetTransactionPayload {
     walletId: number;
     date: string;
     transaction: Transaction;
-};
+}
 
 const transactionsSlice = createSlice({
     name: "transactions",

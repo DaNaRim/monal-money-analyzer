@@ -6,11 +6,11 @@ export interface Category {
     name: string;
     type: TransactionType;
     subCategories: Category[];
-};
+}
 
 interface CategoryState {
     categories: Category[];
-};
+}
 
 const initialState: CategoryState = {
     categories: [],
