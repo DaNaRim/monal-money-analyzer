@@ -96,6 +96,7 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
                            autoWidth={true}
                            displayEmpty={true} // To display placeholder if smth went wrong
                            label=""
+                           data-testid="select-wallet"
               >
                     {/* KeyDown on div because mui ignore focus and keydown events for it's
                      children */}

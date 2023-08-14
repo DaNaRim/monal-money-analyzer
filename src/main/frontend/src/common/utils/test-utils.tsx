@@ -24,9 +24,15 @@ export function renderWithProviders(
         ...renderOptions
     }: ExtendedRenderOptions = {},
 ) {
-    const wrapperUi = <Provider store={store}>{ui}</Provider>;
+    const wrapUi = (ui: React.ReactElement) => <Provider store={store}>{ui}</Provider>;
 
-    return { store, ...render(wrapperUi, { ...renderOptions }) };
+    const renderResult = render(wrapUi(ui), { ...renderOptions });
+
+    // Use it to re-render and keep the store
+    const rerenderWithProviders = (newUi: React.ReactElement) => {
+        renderResult.rerender(wrapUi(newUi));
+    };
+    return { store, rerenderWithProviders, ...renderResult };
 }
 
 // Used to remove warning for unhandled request

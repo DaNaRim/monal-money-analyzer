@@ -134,10 +134,11 @@ const CreateWalletForm = ({
     return (
         <>
             <h1>{t.createWalletModal.title}</h1>
-            <form onSubmit={handleSubmit(handleCreateWallet)} data-testId="createWalletForm">
+            <form onSubmit={handleSubmit(handleCreateWallet)} data-testid="createWalletForm">
                 <InputText name="name"
                            options={{ required: true }}
                            componentName={componentName}
+                           additionalProps={{ autoComplete: "off" }}
                            {...{ register, errors }}/>
 
                 <div className={styles.double_field}>
@@ -155,13 +156,13 @@ const CreateWalletForm = ({
                         control={control}
                         render={(controllerProps) => (
                             <Autocomplete
-                                {...controllerProps}
                                 onChange={(_, data) => controllerProps.field.onChange(data)}
                                 onBlur={controllerProps.field.onBlur}
                                 options={currencyList}
                                 getOptionLabel={option => option}
                                 fullWidth={true}
                                 disableClearable={true}
+                                data-testid={"autocomplete-currency"}
                                 filterOptions={(options, params) => {
                                     const input = params.inputValue.toLowerCase();
                                     return options.filter(option => {

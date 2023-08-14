@@ -165,7 +165,7 @@ describe("LoginPage", () => {
 
         // should display error message
         await waitFor(() =>
-            expect(screen.getByTestId("global-error"))
+            expect(screen.getByTestId("global-error-message"))
                 .toHaveTextContent("Invalid username or password"));
     });
 
@@ -177,7 +177,7 @@ describe("LoginPage", () => {
 
         // should display error message
         await waitFor(() =>
-            expect(screen.getByTestId("server-error"))
+            expect(screen.getByTestId("server-error-message"))
                 .toHaveTextContent("Server error. Please try again later. If the problem"
                     + " persists, please contact the administrator"));
     });

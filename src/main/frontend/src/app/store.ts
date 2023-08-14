@@ -19,7 +19,6 @@ const rootReducer = combineReducers({
     redirect: redirectSlice.reducer,
     auth: authReducer,
     appMessages: appMessagesReducer,
-    wallet: walletSlice,
     categories: categorySlice,
     wallets: walletSlice,
     transactions: transactionSlice,
