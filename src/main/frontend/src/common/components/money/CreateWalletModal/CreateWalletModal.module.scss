@@ -1,18 +1,17 @@
-@import "src/common/components/form/Input/Input.module.scss";
+@import "src/common/components/form/Input/Input.module";
 
 .modal_block {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 22.5em;
-  padding: 1em;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 1em rgb(0 0 0 / 50%);
   border-radius: 0.5em;
   background-color: #fff;
-  box-shadow: 0 0 1em rgba(0, 0, 0, 0.5);
+  padding: 1em;
+  width: 22.5em;
 
   form {
-
     .double_field {
       display: flex;
       justify-content: space-between;
@@ -23,47 +22,47 @@
       }
 
       .currency_select {
-        @include input_val;
+        @include input-val;
 
         margin-top: 1em;
 
         fieldset {
-          height: inherit;
-          border: none;
           outline: none;
+          border: none;
+          height: inherit;
         }
       }
     }
 
     .submit_button {
-      font-size: 1.4rem;
-      width: 100%;
       margin-top: 1em;
-      padding: 0.5em 1em;
-      color: #fff;
       border: none;
       border-radius: 0.5em;
       background-color: green;
+      padding: 0.5em 1em;
+      width: 100%;
+      color: #fff;
+      font-size: 1.4rem;
     }
   }
 }
 
 .option {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4em 0.5em;
   width: 20em;
   max-width: 18em;
-  padding: 0.4em 0.5em;
-  gap: 1rem;
 
   .option_value {
     font-weight: bold;
   }
 
   .option_description {
+    opacity: 0.6;
     text-align: right;
     white-space: break-spaces;
-    opacity: 0.6;
   }
 }
