@@ -6,7 +6,7 @@ const TransactionsPage = () => {
     const [selectedWalletId, setSelectedWalletId] = useLocalStorage("selectedWalletId", undefined);
 
     return (
-        <main>
+        <main data-testid="transaction-page">
             <WalletBlock selectedWalletId={selectedWalletId}
                          setSelectedWalletId={setSelectedWalletId}/>
         </main>

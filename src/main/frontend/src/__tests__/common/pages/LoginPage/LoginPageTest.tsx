@@ -83,6 +83,7 @@ export const loginTestHandlers = [
     }),
     rest.post("api/v1/auth/refresh", async (req, res, ctx) => await res(ctx.status(401))),
     rest.post("api/v1/logout", async (req, res, ctx) => await res(ctx.status(200))),
+    rest.get("api/v1/wallet", async (req, res, ctx) => await res(ctx.status(200))),
 ];
 
 describe("LoginPage", () => {
@@ -130,14 +131,18 @@ describe("LoginPage", () => {
         await waitFor(() => fillLoginInputs("123", "123"));
         act(() => clickLoginButton());
 
-        // should display loading message
+        // should display a loading message
         await waitFor(() => expect(screen.getByText("Logging in...")).toBeInTheDocument());
 
         // should redirect to home page
         await waitFor(() => {
-            expect(screen.getByTestId("home-page")).toBeInTheDocument();
             expect(screen.getByText("John Smith")).toBeInTheDocument(); // header username
         });
+
+        // To disable act warning. I don't know how to fix it
+        await waitFor(async () => await new Promise(resolve => setTimeout(resolve, 100)));
+
+        await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
     });
 
     it("login field error -> display error message", async () => {
