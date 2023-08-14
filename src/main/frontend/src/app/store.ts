@@ -8,6 +8,9 @@ import {
 import { apiSlice, redirectSlice } from "../features/api/apiSlice";
 import appMessagesReducer from "../features/appMessages/appMessagesSlice";
 import authReducer from "../features/auth/authSlice";
+import categorySlice from "../features/category/categorySlice";
+import transactionSlice from "../features/transaction/transactionSlice";
+import walletSlice from "../features/wallet/walletSlice";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -16,6 +19,10 @@ const rootReducer = combineReducers({
     redirect: redirectSlice.reducer,
     auth: authReducer,
     appMessages: appMessagesReducer,
+    wallet: walletSlice,
+    categories: categorySlice,
+    wallets: walletSlice,
+    transactions: transactionSlice,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) =>

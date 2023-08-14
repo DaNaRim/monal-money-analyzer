@@ -1,0 +1,81 @@
+@import "src/assets/styles/mixins";
+
+.wallet_header {
+  width: 100%;
+  height: fit-content;
+  border-bottom: 1px solid black;
+
+  .wallet_select {
+    width: 20em;
+    height: 4em;
+    margin-left: 1em;
+
+    & > div {
+      padding: 0.5em 1em;
+    }
+  }
+}
+
+ul li.add_wallet_button_wrapper {
+  background: none !important;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+
+  &:focus {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+.add_wallet_button {
+  @include clear-button-styles;
+
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5em 1em;
+  border-bottom: 2px solid black;
+
+  .plus {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-right: 0.5em;
+  }
+
+  .text {
+    font-size: 1.2rem;
+  }
+}
+
+.wallet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 8em;
+  max-width: 20em;
+  cursor: pointer;
+  gap: 1em;
+
+  .wallet_name {
+    font-size: 1.2rem;
+    white-space: break-spaces;
+    word-break: break-all;
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+
+    .wallet_balance {
+      font-size: 1.2rem;
+    }
+
+    .wallet_currency {
+      font-size: 1.2rem;
+      margin-left: 0.2em;
+      opacity: 0.5;
+    }
+  }
+}

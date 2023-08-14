@@ -36,7 +36,8 @@ export enum AppMessageCode {
     // where they should be shown
 
     PASSWORD_RESET_SUCCESS = "password_reset_success", // login page
-    AUTH_EXPIRED = "auth_expired" // login page
+    AUTH_EXPIRED = "auth_expired", // login page
+    AUTH_NEEDED = "auth_needed" // login page
 }
 
 export interface AppMessage {

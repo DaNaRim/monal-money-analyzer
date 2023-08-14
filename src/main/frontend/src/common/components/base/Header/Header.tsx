@@ -3,13 +3,20 @@ import { useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
-import { ROUTE_HOME, ROUTE_LOGIN, ROUTE_REGISTRATION } from "../../../../app/routes";
+import {
+    ROUTE_HOME,
+    ROUTE_LOGIN,
+    ROUTE_REGISTRATION,
+    ROUTE_TRANSACTIONS,
+} from "../../../../app/routes";
 import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features/auth/authApiSlice";
 import {
     clearAuthState,
+    Role,
     selectAuthFirstname,
     selectAuthIsInitialized,
     selectAuthLastname,
+    selectAuthRoles,
     selectAuthUsername,
     setCredentials,
     setInitialized,
@@ -68,6 +75,11 @@ const Header = () => {
             <nav>
                 <ul>
                     <li><NavLink to={ROUTE_HOME}>{t.mainHeader.nav.home}</NavLink></li>
+
+                    <PrivateLink to={ROUTE_TRANSACTIONS}>
+                        {t.mainHeader.nav.transactions}
+                    </PrivateLink>
+
                 </ul>
             </nav>
             <LanguageHandler/>
@@ -79,3 +91,18 @@ const Header = () => {
 };
 
 export default Header;
+
+interface PrivateLinkProps {
+    role?: Role;
+    to: string;
+    children: React.ReactNode;
+}
+
+const PrivateLink = ({ role = Role.ROLE_USER, to, children }: PrivateLinkProps) => {
+    const userRoles = useAppSelector(selectAuthRoles);
+
+    if (userRoles.includes(role)) {
+        return <li><NavLink to={to}>{children}</NavLink></li>;
+    }
+    return <></>;
+};

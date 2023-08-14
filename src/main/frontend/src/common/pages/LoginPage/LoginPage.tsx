@@ -9,9 +9,9 @@ import useFetchUtils, {
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import {
-    ROUTE_HOME,
     ROUTE_RESEND_VERIFICATION_TOKEN,
     ROUTE_RESET_PASSWORD,
+    ROUTE_TRANSACTIONS,
 } from "../../../app/routes";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import {
@@ -85,7 +85,7 @@ const LoginPage = () => {
                     dispatch(setForceLogin(false));
                     navigate(-1); // Previous page
                 } else {
-                    navigate(ROUTE_HOME);
+                    navigate(ROUTE_TRANSACTIONS);
                 }
             })
             .catch(e => {
