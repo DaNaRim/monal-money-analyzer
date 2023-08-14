@@ -3,23 +3,23 @@ import React, { useEffect } from "react";
 import { type Control, Controller, useForm, type UseFormHandleSubmit } from "react-hook-form";
 import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import { type UseFormRegister } from "react-hook-form/dist/types/form";
-import useFetchUtils, { type FormSystemFields } from "../../../../app/hooks/formUtils";
-import { useAppDispatch } from "../../../../app/hooks/reduxHooks";
-import useTranslation from "../../../../app/hooks/translation";
-import AppMessageComp from "../../../../features/appMessages/AppMessageComp";
-import { AppMessageType } from "../../../../features/appMessages/appMessagesSlice";
-import { useCreateWalletMutation } from "../../../../features/wallet/walletApiSlice";
+import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
+import { useAppDispatch } from "../../../app/hooks/reduxHooks";
+import useTranslation from "../../../app/hooks/translation";
+import AppMessageComp from "../../../features/appMessages/AppMessageComp";
+import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
+import { useCreateWalletMutation } from "../../../features/wallet/walletApiSlice";
 import {
     addUserWallet,
     type CreateWalletDto,
     WALLET_BALANCE_MAX_VALUE,
     WALLET_BALANCE_PRECISION_VALUE,
-} from "../../../../features/wallet/walletSlice";
-import ErrorGlobal from "../../form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../form/ErrorServer/ErrorServer";
-import InputNumber from "../../form/InputNumber/InputNumber";
-import InputText from "../../form/InputText/InputText";
-import OptionInput from "../../form/OptionInput/OptionInput";
+} from "../../../features/wallet/walletSlice";
+import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
+import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import InputNumber from "../../components/form/InputNumber/InputNumber";
+import InputText from "../../components/form/InputText/InputText";
+import OptionInput from "../../components/form/OptionInput/OptionInput";
 import styles from "./CreateWalletModal.module.scss";
 import currencyList from "./currencyList";
 
@@ -134,7 +134,7 @@ const CreateWalletForm = ({
     return (
         <>
             <h1>{t.createWalletModal.title}</h1>
-            <form onSubmit={handleSubmit(handleCreateWallet)}>
+            <form onSubmit={handleSubmit(handleCreateWallet)} data-testId="createWalletForm">
                 <InputText name="name"
                            options={{ required: true }}
                            componentName={componentName}

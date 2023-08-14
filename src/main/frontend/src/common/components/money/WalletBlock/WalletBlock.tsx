@@ -9,7 +9,7 @@ import {
     setUserWallets,
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
-import CreateWalletModal from "../CreateWalletModal/CreateWalletModal";
+import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
 import styles from "./WalletBlock.module.scss";
 
 interface WalletBlockProps {
