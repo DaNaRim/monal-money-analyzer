@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { act, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { BrowserRouter } from "react-router-dom";
@@ -13,6 +13,9 @@ describe("ProtectedRoute", () => {
         rest.post("api/v1/auth/getState", async (req, res, ctx) => {
             return await res(ctx.status(401)); // Just to be sure
         }),
+        rest.post("api/v1/auth/refresh", async (req, res, ctx) => {
+            return await res(ctx.status(401)); // Just to be sure
+        }),
     ];
     const server = setupServer(...handlers);
 
@@ -21,10 +24,8 @@ describe("ProtectedRoute", () => {
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
 
-    it("pending auth -> loading", async () => {
+    it("pending auth -> display stub", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
-
-        await act(async () => await new Promise((resolve) => setTimeout(resolve, 10)));
 
         expect(screen.getByTestId("main-loader")).toBeInTheDocument();
         expect(screen.queryByTestId("transaction-page")).not.toBeInTheDocument();
@@ -57,7 +58,7 @@ describe("ProtectedRoute", () => {
                 firstName: "Test",
                 lastName: "Test",
                 username: "Test",
-                roles: [],
+                roles: [Role.ROLE_ADMIN],
                 csrfToken: "Test",
                 isInitialized: true,
                 isForceLogin: false,
@@ -86,6 +87,15 @@ describe("ProtectedRoute", () => {
         });
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
+        const loaders = screen.getAllByTestId("main-loader");
+
+        await waitFor(() => {
+            // There is a moment when both loaders (from ProtectedRoute and from PageWrapper)
+            // are in the DOM but only one is visible
+            expect(loaders[0]).toBeInTheDocument();
+            expect(loaders[0]).toHaveStyle("display: none");
+            expect(loaders[1]).toBeInTheDocument();
+        });
         await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
     });
 });

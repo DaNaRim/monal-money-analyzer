@@ -14,7 +14,7 @@ import {
     selectAuthRoles,
     setForceLogin,
 } from "../../../../features/auth/authSlice";
-import Loading from "../../base/Loading/Loading";
+import Loading from "../Loading/Loading";
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
