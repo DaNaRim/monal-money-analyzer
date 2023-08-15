@@ -9,6 +9,7 @@ import {
     ROUTE_REGISTRATION,
     ROUTE_TRANSACTIONS,
 } from "../../../../app/routes";
+import { apiSlice } from "../../../../features/api/apiSlice";
 import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features/auth/authApiSlice";
 import {
     clearAuthState,
@@ -41,7 +42,9 @@ const Header = () => {
 
     const handleLogout = () => {
         void logout();
+        // Clear redux state
         dispatch(clearAuthState());
+        dispatch(apiSlice.util.resetApiState()); // Clear api cache
         navigate(ROUTE_LOGIN);
     };
 

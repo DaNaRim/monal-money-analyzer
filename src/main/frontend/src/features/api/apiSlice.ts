@@ -45,7 +45,8 @@ const baseQueryWithReauth = async (args: string | FetchArgs,
                 return result;
             }
             await baseQuery({ url: "/logout", method: "POST" }, api, extraOptions);
-            api.dispatch(clearAuthState());
+            api.dispatch(clearAuthState()); // Clear redux state
+            apiSlice.util.resetApiState(); // Clear api cache
             api.dispatch(setForceLogin(true));
 
             api.dispatch(addAppMessage({
@@ -69,7 +70,7 @@ export const apiSlice = createApi({
 
 /*
 Used to redirect using browser router in App.tsx.
-We cant redirect with hooks in baseQueryWithReauth because it is not a component.
+We can't redirect with hooks in baseQueryWithReauth because it is not a component.
  */
 const redirectInitialState = {
     redirectTo: null,
@@ -86,6 +87,7 @@ export const redirectSlice = createSlice({
             state.redirectTo = null;
         },
     },
+    extraReducers: builder => builder.addCase(clearAuthState, () => redirectInitialState),
 });
 
 export const { setRedirectTo, clearRedirect } = redirectSlice.actions;

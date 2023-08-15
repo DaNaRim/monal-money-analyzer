@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { clearAuthState } from "../auth/authSlice";
 
 export enum TransactionType {
     INCOME = "INCOME",
@@ -61,6 +62,7 @@ const transactionsSlice = createSlice({
             state[walletId][date].push(transaction);
         },
     },
+    extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
 
 export default transactionsSlice.reducer;

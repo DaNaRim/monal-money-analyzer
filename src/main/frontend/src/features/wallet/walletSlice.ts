@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "../../app/store";
+import { clearAuthState } from "../auth/authSlice";
 
 export const WALLET_BALANCE_MAX_VALUE = 1_000_000_000;
 export const WALLET_BALANCE_PRECISION_VALUE = 0.00000001; // 8 digits after dot
@@ -39,6 +40,7 @@ const walletsSlice = createSlice({
             state.wallets.push(action.payload);
         },
     },
+    extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
 
 export const selectWallets = (state: RootState) => state.wallets.wallets;

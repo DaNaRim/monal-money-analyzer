@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { clearAuthState } from "../auth/authSlice";
 import { type TransactionType } from "../transaction/transactionSlice";
 
 export interface Category {
@@ -24,6 +25,7 @@ const categorySlice = createSlice({
             state.categories = action.payload;
         },
     },
+    extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
 
 export const selectTransactionCategories = (state: CategoryState) => state.categories;
