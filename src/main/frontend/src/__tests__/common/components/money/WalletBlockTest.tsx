@@ -5,7 +5,7 @@ import WalletBlock from "../../../../common/components/money/WalletBlock/WalletB
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 
 describe("WalletBlock", () => {
-    it("render", () => {
+    it("render", async () => {
         const store = setupStore({
             wallets: {
                 wallets: [
@@ -26,10 +26,10 @@ describe("WalletBlock", () => {
         renderWithProviders(<WalletBlock {...elProps} />, { store });
 
         // Display a selected wallet name
-        waitFor(() => expect(screen.getByText("Wallet 1")).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText("Wallet 1")).toBeInTheDocument());
     });
 
-    it("render no wallets", () => {
+    it("render no wallets", async () => {
         const store = setupStore({
             wallets: {
                 wallets: [],
@@ -43,10 +43,10 @@ describe("WalletBlock", () => {
         renderWithProviders(<WalletBlock {...elProps} />, { store });
 
         // Add new wallet button
-        waitFor(() => expect(screen.getByText("Add new wallet")).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText("Add new wallet")).toBeInTheDocument());
     });
 
-    it("render no wallets, selectedWalletId exists", () => {
+    it("render no wallets, selectedWalletId exists", async () => {
         const store = setupStore({
             wallets: {
                 wallets: [],
@@ -60,10 +60,10 @@ describe("WalletBlock", () => {
         renderWithProviders(<WalletBlock {...elProps} />, { store });
 
         // Add new wallet button
-        waitFor(() => expect(screen.getByText("Add new wallet")).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText("Add new wallet")).toBeInTheDocument());
     });
 
-    it("select wallet", () => {
+    it("select wallet", async () => {
         const store = setupStore({
             wallets: {
                 wallets: [
@@ -94,13 +94,13 @@ describe("WalletBlock", () => {
         fireEvent.keyDown(select, { key: "ArrowDown" });
         fireEvent.keyDown(select, { key: "Enter" });
 
-        waitFor(() => {
+        await waitFor(() => {
             expect(elProps.setSelectedWalletId).toBeCalledTimes(1);
             expect(elProps.setSelectedWalletId).toBeCalledWith("2");
         });
     });
 
-    it("select add wallet button -> open modal", () => {
+    it("select add wallet button -> open modal", async () => {
         const store = setupStore({
             wallets: {
                 wallets: [
@@ -131,7 +131,7 @@ describe("WalletBlock", () => {
         fireEvent.keyDown(select, { key: "ArrowUp" });
         fireEvent.keyDown(select, { key: "Enter" });
 
-        waitFor(() => {
+        await waitFor(() => {
             expect(screen.getByTestId("createWalletForm")).toBeInTheDocument();
             expect(elProps.setSelectedWalletId).toBeCalledTimes(0);
         });

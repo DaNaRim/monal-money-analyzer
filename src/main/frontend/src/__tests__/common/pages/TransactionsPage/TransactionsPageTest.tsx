@@ -7,9 +7,9 @@ import { renderWithProviders } from "../../../../common/utils/test-utils";
 describe("TransactionsPage", () => {
     beforeEach(() => window.history.pushState({}, "transactions", "/transactions"));
 
-    it("render", () => {
+    it("render", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        waitFor(() => screen.getByTestId("transaction-page"));
+        await waitFor(() => screen.getByTestId("transaction-page"));
     });
 });

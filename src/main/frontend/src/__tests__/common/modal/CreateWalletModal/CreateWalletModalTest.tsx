@@ -9,15 +9,15 @@ import {
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import React from "react";
-import { ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import CreateWalletModal from "../../../../common/modal/CreateWalletModal/CreateWalletModal";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
-import { CreateWalletDto, Wallet } from "../../../../features/wallet/walletSlice";
+import { type Wallet } from "../../../../features/wallet/walletSlice";
 
 const walletTestHandler = [
     rest.post("api/v1/wallet", async (req, res, ctx) => {
-        const { name, balance, currency } = await req.json() as CreateWalletDto;
+        const { name, balance, currency } = await req.json();
 
         if (name === "fieldError") {
             const error: ErrorResponse = {
@@ -28,12 +28,13 @@ const walletTestHandler = [
             };
             return await res(ctx.status(400), ctx.json([error]));
         }
-        return res(ctx.status(201), ctx.json({
+        const wallet: Wallet = {
             id: 1,
             name,
             balance,
             currency,
-        } as Wallet));
+        };
+        return await res(ctx.status(201), ctx.json(wallet));
     }),
 ];
 

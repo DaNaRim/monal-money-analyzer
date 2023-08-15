@@ -11,7 +11,7 @@ import { Role } from "../../../../../features/auth/authSlice";
 describe("ProtectedRoute", () => {
     const handlers = [
         rest.post("api/v1/auth/getState", async (req, res, ctx) => {
-            return res(ctx.status(401)); // Just to be sure
+            return await res(ctx.status(401)); // Just to be sure
         }),
     ];
     const server = setupServer(...handlers);
@@ -30,7 +30,7 @@ describe("ProtectedRoute", () => {
         expect(screen.queryByTestId("transaction-page")).not.toBeInTheDocument();
     });
 
-    it("no auth -> navigate to login", () => {
+    it("no auth -> navigate to login", async () => {
         const store = setupStore({
             auth: {
                 firstName: null,
@@ -44,14 +44,14 @@ describe("ProtectedRoute", () => {
         });
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
-        waitFor(() => {
+        await waitFor(() => {
             expect(screen.queryByTestId("transaction-page")).not.toBeInTheDocument();
             expect(screen.getByTestId("login-page")).toBeInTheDocument();
             expect(store.getState().auth.isForceLogin).toBeTruthy();
         });
     });
 
-    it("auth without needed role -> navigate to forbidden", () => {
+    it("auth without needed role -> navigate to forbidden", async () => {
         const store = setupStore({
             auth: {
                 firstName: "Test",
@@ -65,14 +65,14 @@ describe("ProtectedRoute", () => {
         });
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
-        waitFor(() => {
+        await waitFor(() => {
             expect(screen.queryByTestId("transaction-page")).not.toBeInTheDocument();
             expect(screen.getByTestId("forbidden-page")).toBeInTheDocument();
             expect(store.getState().auth.isForceLogin).toBeFalsy();
         });
     });
 
-    it("auth check success -> navigate to page", () => {
+    it("auth check success -> navigate to page", async () => {
         const store = setupStore({
             auth: {
                 firstName: "Test",
@@ -86,6 +86,6 @@ describe("ProtectedRoute", () => {
         });
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
-        waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
     });
 });
