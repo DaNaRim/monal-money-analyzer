@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router";
 import PageWrapper from "../common/components/base/PageWrapper/PageWrapper";
+import ProtectedRoute from "../common/components/base/ProtectedRoute/ProtectedRoute";
 import { clearRedirect, selectRedirectTo } from "../features/api/apiSlice";
 import { checkForServerMessages } from "../features/appMessages/appMessagesSlice";
 import "./App.scss";
@@ -14,6 +15,7 @@ import {
     ROUTE_RESEND_VERIFICATION_TOKEN,
     ROUTE_RESET_PASSWORD,
     ROUTE_RESET_PASSWORD_SET,
+    ROUTE_TRANSACTIONS,
 } from "./routes";
 
 const App = (): JSX.Element => {
@@ -45,9 +47,14 @@ const App = (): JSX.Element => {
                 <Route path={ROUTE_RESET_PASSWORD} element={<ResetPasswordPage/>}/>
                 <Route path={ROUTE_RESET_PASSWORD_SET} element={<ResetPasswordSetPage/>}/>
 
+                <Route path={ROUTE_TRANSACTIONS} element={<ProtectedRoute>
+                    <TransactionsPage/>
+                </ProtectedRoute>}/>
+
                 <Route path={ROUTE_FORBIDDEN} element={<ForbiddenPage/>}/>
                 <Route path={ROUTE_ERROR} element={<ErrorPage/>}/>
                 <Route path="*" element={<NotFoundPage/>}/>
+
             </Route>
         </Routes>
     );
@@ -70,6 +77,10 @@ const ResetPasswordPage = React.lazy(async () =>
 );
 const ResetPasswordSetPage = React.lazy(async () =>
     await import("../common/pages/ResetPasswordSetPage/ResetPasswordSetPage"),
+);
+
+const TransactionsPage = React.lazy(async () =>
+    await import("../common/pages/TransactionsPage/TransactionsPage"),
 );
 
 const ForbiddenPage = React.lazy(async () =>

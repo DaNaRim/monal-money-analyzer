@@ -3,6 +3,7 @@ package com.danarim.monal.money.web.controller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.auth.AuthUtil;
 import com.danarim.monal.failhandler.RestExceptionHandler;
+import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Transaction;
 import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.Wallet;
@@ -79,7 +80,7 @@ class TransactionControllerIT {
                             dto.date(),
                             dto.amount(),
                             new TransactionCategory(dto.categoryId()),
-                            new Wallet("Test", 0.0, "USD", new User(1L))
+                            new Wallet("Test", 0.0, Currency.USD, new User(1L))
                     );
                     transaction.setId(1L);
 
@@ -123,7 +124,7 @@ class TransactionControllerIT {
     }
 
     private static List<Transaction> prepareTransaction() throws ParseException {
-        Wallet wallet = new Wallet("Test", 0.0, "USD", new User(1L));
+        Wallet wallet = new Wallet("Test", 0.0, Currency.USD, new User(1L));
         wallet.setId(1L);
 
         return List.of(

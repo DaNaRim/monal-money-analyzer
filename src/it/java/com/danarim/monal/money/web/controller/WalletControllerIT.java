@@ -3,6 +3,7 @@ package com.danarim.monal.money.web.controller;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.auth.AuthUtil;
 import com.danarim.monal.failhandler.RestExceptionHandler;
+import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.service.WalletService;
 import com.danarim.monal.money.web.dto.CreateWalletDto;
@@ -59,7 +60,7 @@ class WalletControllerIT {
 
         Wallet resultWallet = new Wallet(createWalletDto.name(),
                                          createWalletDto.balance(),
-                                         "USD",
+                                         Currency.USD,
                                          new User(1L));
 
         when(walletService.createWallet(createWalletDto, 1L))
@@ -77,8 +78,8 @@ class WalletControllerIT {
     @Test
     void getUserWallets() throws Exception {
         List<Wallet> wallets = List.of(
-                new Wallet("Test", 23.0, "USD", new User(1L)),
-                new Wallet("Test2", 42.0, "UAH", new User(1L))
+                new Wallet("Test", 23.0, Currency.USD, new User(1L)),
+                new Wallet("Test2", 42.0, Currency.UAH, new User(1L))
         );
 
         when(walletService.getUserWallets(1L))
@@ -89,11 +90,11 @@ class WalletControllerIT {
                 .andExpect(jsonPath("$[0].name").value(wallets.get(0).getName()))
                 .andExpect(jsonPath("$[0].balance").value(wallets.get(0).getBalance()))
                 .andExpect(jsonPath("$[0].currency").value(wallets.get(0).getCurrency()
-                                                                   .getCurrencyCode()))
+                                                                   .toString()))
                 .andExpect(jsonPath("$[1].name").value(wallets.get(1).getName()))
                 .andExpect(jsonPath("$[1].balance").value(wallets.get(1).getBalance()))
                 .andExpect(jsonPath("$[1].currency").value(wallets.get(1).getCurrency()
-                                                                   .getCurrencyCode()));
+                                                                   .toString()));
     }
 
 }

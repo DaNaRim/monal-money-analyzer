@@ -4,6 +4,7 @@ import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.money.persistence.dao.TransactionDao;
+import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Transaction;
 import com.danarim.monal.money.persistence.model.TransactionType;
 import com.danarim.monal.money.persistence.model.Wallet;
@@ -53,7 +54,7 @@ class TransactionServiceImplTest {
         CreateTransactionDto transactionDto = new CreateTransactionDto(
                 "test", new Date(), 1.0, 1L, 1L
         );
-        Wallet wallet = new Wallet("test", 0.0, "USD", new User(1L));
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.INCOME);
@@ -75,7 +76,7 @@ class TransactionServiceImplTest {
         CreateTransactionDto transactionDto = new CreateTransactionDto(
                 "test", new Date(), 1.0, 1L, 1L
         );
-        Wallet wallet = new Wallet("test", 0.0, "USD", new User(1L));
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.OUTCOME);
@@ -97,7 +98,7 @@ class TransactionServiceImplTest {
         CreateTransactionDto transactionDto = new CreateTransactionDto(
                 "test", new Date(), 1.0, 1L, 1L
         );
-        Wallet wallet = new Wallet("test", 0.0, "USD", new User(1L));
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(null);
@@ -145,7 +146,7 @@ class TransactionServiceImplTest {
         CreateTransactionDto transactionDto = new CreateTransactionDto(
                 "test", new Date(), 1.0, 1L, 1L
         );
-        Wallet wallet = new Wallet("test", 0.0, "USD", new User(2L));
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(2L));
 
         when(categoryService.getCategoryType(transactionDto.categoryId()))
                 .thenReturn(TransactionType.INCOME);

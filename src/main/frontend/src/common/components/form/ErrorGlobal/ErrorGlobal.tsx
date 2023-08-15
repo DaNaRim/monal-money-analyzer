@@ -10,9 +10,9 @@ export interface ErrorProps {
 
 const ErrorGlobal = ({ register, errors }: ErrorProps) => (
     <>
-        <input type="hidden" {...register("globalError")}/>
+        <input type="hidden" {...register("globalError")} data-testid="global-error-input"/>
         {(errors.globalError != null) &&
-          <span className={styles.message} data-testid="global-error">
+          <span className={styles.message} data-testid="global-error-message">
               {errors.globalError.message as string}
           </span>
         }

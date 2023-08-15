@@ -77,6 +77,7 @@ export const {
 export const selectAuthUsername = (state: RootState) => state.auth.username;
 export const selectAuthFirstname = (state: RootState) => state.auth.firstName;
 export const selectAuthLastname = (state: RootState) => state.auth.lastName;
+export const selectAuthRoles = (state: RootState) => state.auth.roles;
 export const selectAuthIsInitialized = (state: RootState) => state.auth.isInitialized;
 export const selectAuthIsForceLogin = (state: RootState) => state.auth.isForceLogin;
 

@@ -19,6 +19,8 @@ public interface WalletDao extends JpaRepository<Wallet, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Wallet> findById(long id);
 
+    boolean existsByOwnerIdAndName(long ownerId, String name);
+
     @Query(
             "SELECT CASE WHEN COUNT(w) > 0 THEN true ELSE false END AS is_user_wallet_owner"
                     + " FROM Wallet w"

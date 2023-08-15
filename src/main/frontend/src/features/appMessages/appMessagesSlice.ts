@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "../../app/store";
+import { clearAuthState } from "../auth/authSlice";
 
 /*
     App messages are messages that are shown to the user in special blocks of the page.
@@ -16,7 +17,7 @@ export enum AppMessageType {
 // AppMessagesCode words must be split only with underscores
 export enum AppMessageCode {
 
-    // server messages
+    // Server messages
     // That are sent from the server. They should be here to sure what we need in development
 
     ACCOUNT_CONFIRMATION_SUCCESS = "account_confirmation_success", // login page
@@ -26,17 +27,18 @@ export enum AppMessageCode {
     TOKEN_USED = "validation_token_used", // login page
     TOKEN_EXPIRED = "validation_token_expired", // login page
 
-    // Specific messages because code is used to suggest user to resend email
+    // Specific messages because code is used to suggest resend email for user
     TOKEN_VERIFICATION_NOT_FOUND = "validation_token_verification_not_found", // login page
     TOKEN_VERIFICATION_EXPIRED = "validation_token_verification_expired", // login page
     TOKEN_VERIFICATION_USER_ENABLED = "validation_token_verification_user_enabled", // login page
 
-    // frontend messages
+    // Frontend messages
     // This app messages should be there in enum because they are created not inside components
     // where they should be shown
 
     PASSWORD_RESET_SUCCESS = "password_reset_success", // login page
-    AUTH_EXPIRED = "auth_expired" // login page
+    AUTH_EXPIRED = "auth_expired", // login page
+    AUTH_NEEDED = "auth_needed" // login page
 }
 
 export interface AppMessage {
@@ -92,6 +94,7 @@ export const appMessagesSlice = createSlice({
             state.messages = state.messages.filter(message => message.messageCode !== msgCode);
         },
     },
+    extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
 
 export const {
