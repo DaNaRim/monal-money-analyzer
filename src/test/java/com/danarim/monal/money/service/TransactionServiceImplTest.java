@@ -94,6 +94,52 @@ class TransactionServiceImplTest {
     }
 
     @Test
+    void createTransaction_basicCurrency_roundAmountToTwoDigitsAfterComma() {
+        CreateTransactionDto transactionDto = new CreateTransactionDto(
+                "test", new Date(), 1.1234, 1L, 1L
+        );
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+
+        when(categoryService.getCategoryType(transactionDto.categoryId()))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
+                .thenReturn(Optional.of(wallet));
+
+        Transaction result = transactionService.createTransaction(transactionDto, 1L);
+
+        assertEquals(1.12, wallet.getBalance());
+        assertEquals(1.12, result.getAmount());
+
+        verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void createTransaction_cryptoCurrency_roundAmountToTwoEightDigitsAfterComma() {
+        CreateTransactionDto transactionDto = new CreateTransactionDto(
+                "test", new Date(), 1.1234567890, 1L, 1L
+        );
+        Wallet wallet = new Wallet("test", 0.0, Currency.BTC, new User(1L));
+
+        when(categoryService.getCategoryType(transactionDto.categoryId()))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(transactionDto.walletId()))
+                .thenReturn(Optional.of(wallet));
+
+        Transaction result = transactionService.createTransaction(transactionDto, 1L);
+
+        assertEquals(1.12345678, wallet.getBalance());
+        assertEquals(1.12345678, result.getAmount());
+
+        verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
+        verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
     void createTransaction_invalidCategory_BadFieldException() {
         CreateTransactionDto transactionDto = new CreateTransactionDto(
                 "test", new Date(), 1.0, 1L, 1L
