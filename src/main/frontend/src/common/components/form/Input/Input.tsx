@@ -3,13 +3,15 @@ import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import { type UseFormRegister } from "react-hook-form/dist/types/form";
 import { type RegisterOptions } from "react-hook-form/dist/types/validator";
 import useTranslation from "../../../../app/hooks/translation";
+import ErrorField from "../ErrorField/ErrorField";
 import styles from "./Input.module.scss";
 
-type InputTypes = "text" | "password" | "email" | "number";
+// Supported input types for this component
+type InputTypes = "text" | "password" | "email" | "number" | "date" | "datetime-local";
 
 export interface InputExtProps {
-    name: string;
-    componentName: string;
+    name: string; // Name of the field for react-hook-form and i18n
+    componentName: string; // Name of the component for i18n parent key
     options?: RegisterOptions;
     register: UseFormRegister<any>;
     errors: FieldErrors;
@@ -43,12 +45,8 @@ const Input = ({
         ? ""
         : <span className={styles.required} title={t.form.required}>*</span>;
 
-    const requiredError = options?.required === undefined || options?.required === false
-        ? ""
-        : t.getString(`${componentName}.form.errors.${name}.required`);
-
     return (
-        <div> {/* Div is needed to always show errors under input */}
+        <div>
             <div className={`${styles.inputWrapper} ${className}`}>
                 <input type={type}
                        id={id}
@@ -59,15 +57,7 @@ const Input = ({
                        data-testid={`input-${name}`}/>
                 <label htmlFor={id}>{label} {requiredSign}</label>
             </div>
-            {errors?.[name]?.type === "required" &&
-              <span className={styles.error}>{requiredError}</span>
-            }
-            {/* Don't show an error block if it is null or a required error */}
-            {((errors?.[name]) != null && errors?.[name]?.type !== "required") &&
-              <span className={styles.error} data-testid={`error-${name}`}>
-                  {errors?.[name]?.message as string}
-              </span>
-            }
+            <ErrorField {...{ name, componentName, errors }}/>
         </div>
     );
 };

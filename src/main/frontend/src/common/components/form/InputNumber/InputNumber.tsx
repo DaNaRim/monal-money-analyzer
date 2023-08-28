@@ -14,7 +14,7 @@ const InputNumber = (props: InputNumberProps) => {
         step: props.step,
     };
     return (
-        <Input type="number" {...props} additionalProps={additionalProps} />
+        <Input type="number" {...props} additionalProps={additionalProps}/>
     );
 };
 

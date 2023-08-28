@@ -4,6 +4,7 @@ $input-background: #fff;
 $input-border-size: 1px;
 
 @mixin input-val {
+  text-align: left;
   box-sizing: border-box;
   outline: none;
   box-shadow: 0 1px 2px rgb(16 24 40 / 5%);
@@ -14,6 +15,42 @@ $input-border-size: 1px;
   width: 100%;
   height: 3em;
   color: $text-color;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:is(
+    :not([type="button"]):focus,
+    :not([value=""]),
+    :not([type="button"])[value=""]:not(:placeholder-shown)
+    ) + label {
+    top: calc($input-border-size / 2);
+    opacity: 1;
+    padding: 0 0.4em;
+    font-size: 0.8rem;
+  }
+}
+
+@mixin label-val {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: $input-padding-x;
+  transform: translateY(-50%);
+  z-index: 1;
+  transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
+  border-radius: 0.5em;
+  background-color: $input-background;
+  color: $text-color;
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 1.5em;
+  cursor: text;
+}
+
+span.required {
+  color: red;
 }
 
 div.inputWrapper {
@@ -21,43 +58,41 @@ div.inputWrapper {
   margin-top: 1em;
 
   label {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: $input-padding-x;
-    transform: translateY(-50%);
-    z-index: 0;
-    transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
-    border-radius: 0.5em;
-    background-color: $input-background;
-    color: $text-color;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
+    @include label-val;
   }
 
   input {
     @include input-val;
 
+    &[type="button"] {
+      cursor: pointer;
+
+      & + label {
+        cursor: pointer;
+      }
+    }
+  }
+
+  textarea:not([aria-hidden="true"]) {
+    @include input-val;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 3em;
+    max-height: 14em;
+
     &:focus {
       outline: none;
     }
 
-    &:is(:focus, :not(:placeholder-shown)) + label {
+    &:is(:focus, :not(:placeholder-shown)) + textarea + label {
       top: calc($input-border-size / 2);
       opacity: 1;
       padding: 0 0.4em;
       font-size: 0.8rem;
     }
-  }
 
-  span.required {
-    color: red;
+    & + textarea + label {
+      top: 1.5em;
+    }
   }
-}
-
-.error {
-  margin-top: 0.5em;
-  color: red;
-  font-size: 0.875em;
 }

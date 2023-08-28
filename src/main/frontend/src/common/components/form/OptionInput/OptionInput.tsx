@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React, { HTMLProps, useMemo } from "react";
 import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import useTranslation from "../../../../app/hooks/translation";
+import ErrorField from "../ErrorField/ErrorField";
 import styles from "../Input/Input.module.scss";
 
 interface OptionInputProps {
@@ -8,7 +9,7 @@ interface OptionInputProps {
     componentName: string;
     isRequired?: boolean;
     errors: FieldErrors;
-    inputProps: any;
+    inputProps: HTMLProps<HTMLInputElement>;
     ref0?: React.Ref<HTMLInputElement>;
 }
 
@@ -33,12 +34,8 @@ const OptionInput = (props: OptionInputProps) => {
         ? <span className={styles.required} title={t.form.required}>*</span>
         : "";
 
-    const requiredError = isRequired
-        ? t.getString(`${componentName}.form.errors.${name}.required`)
-        : "";
-
     return (
-        <div ref={ref0}> {/* Div is needed to always show errors under input */}
+        <div ref={ref0}>
             <div className={`${styles.inputWrapper}`}>
                 <input id={id}
                        placeholder=" "
@@ -47,15 +44,7 @@ const OptionInput = (props: OptionInputProps) => {
                 />
                 <label htmlFor={id}>{label} {requiredSign}</label>
             </div>
-            {errors?.[name]?.type === "required" &&
-              <span className={styles.error}>{requiredError}</span>
-            }
-            {/* Don't show an error block if it is null or a required error */}
-            {((errors?.[name]) != null && errors?.[name]?.type !== "required") &&
-              <span className={styles.error} data-testid={`error-${name}`}>
-                  {errors?.[name]?.message as string}
-              </span>
-            }
+            <ErrorField {...{ name, componentName, errors }}/>
         </div>
     );
 };
