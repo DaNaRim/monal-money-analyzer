@@ -11,10 +11,10 @@ export interface Category {
     id: number;
     name: string;
     type: CategoryType;
-    subCategories: Category[];
+    subCategories: Category[] | null;
 }
 
-interface CategoryState {
+export interface CategoryState {
     categories: Category[];
     isInitialized: boolean;
 }
@@ -30,12 +30,12 @@ const categorySlice = createSlice({
     reducers: {
         setCategories(state, action: PayloadAction<Category[]>) {
             const categories = action.payload;
+            state.isInitialized = true;
 
             if (categories == null || categories.length === 0) {
                 return;
             }
             state.categories = action.payload;
-            state.isInitialized = true;
         },
     },
     extraReducers: builder => builder.addCase(clearAuthState, () => initialState),

@@ -1,8 +1,8 @@
 import { describe } from "@jest/globals";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
-import { setupStore } from "../../../../app/store";
-import WalletBlock from "../../../../common/components/money/WalletBlock/WalletBlock";
-import { renderWithProviders } from "../../../../common/utils/test-utils";
+import { setupStore } from "../../../../../app/store";
+import WalletBlock from "../../../../../common/components/money/WalletBlock/WalletBlock";
+import { renderWithProviders } from "../../../../../common/utils/test-utils";
 
 describe("WalletBlock", () => {
     it("render", async () => {

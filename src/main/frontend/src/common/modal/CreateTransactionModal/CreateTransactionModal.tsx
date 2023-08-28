@@ -90,13 +90,11 @@ const CreateTransactionModal = ({ open, setOpen, walletId }: CreateTransactionMo
                     category,
                 };
                 dispatch(addTransaction({ transaction: newTransaction, walletId: data.walletId }));
-
                 dispatch(updateWalletBalance({
                     walletId: data.walletId,
                     deltaBalance: res.amount,
                     categoryType: category?.type ?? CategoryType.INCOME,
                 }));
-
                 setTimeout(() => {
                     handleClose();
                     resetForm();
@@ -220,9 +218,8 @@ const CreateTransactionForm = ({
                     <InputButton name="categoryId"
                                  componentName={COMPONENT_NAME}
                                  isRequired={true}
-                                 value={selectedCategory?.id}
                                  displayValue={getCategoryLocalName(selectedCategory)}
-                                 emptyText={t.createTransactionModal.form.fields.categoryId}
+                                 label={t.createTransactionModal.form.fields.categoryId}
                                  onClick={() => setSelectCategoryModalOpen(true)}
                                  {...{ register, errors }}
                     />

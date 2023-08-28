@@ -10,9 +10,9 @@ interface InputButtonProps {
     name: string;
     componentName: string;
     onClick: () => void;
-    value: string | number | undefined;
-    displayValue: string | undefined;
-    emptyText: string;
+    // Value managed by React Hook Form and external component.
+    displayValue: string | undefined; // Value displayed in the button.
+    label: string;
     isRequired?: boolean;
 
     register: UseFormRegister<any>;
@@ -24,9 +24,8 @@ const InputButton = ({
                          componentName,
                          register,
                          errors,
-                         value,
                          displayValue,
-                         emptyText,
+                         label,
                          isRequired = false,
                          onClick,
                      }: InputButtonProps) => {
@@ -37,15 +36,16 @@ const InputButton = ({
     const requiredSign = isRequired
         ? <span className={styles.required} title={t.form.required}>*</span>
         : "";
+
     return (
         <div>
             <div className={`${styles.inputWrapper} ${buttonStyles.buttonWrapper}`}>
                 <input type="button"
                        id={id}
-                       value={displayValue ?? ""}
+                       value={displayValue ?? " "}
                        onClick={onClick}/>
-                <label htmlFor={id}>{emptyText} {requiredSign}</label>
-                <input type="hidden" value={value} {...register(name, { required: isRequired })}/>
+                <label htmlFor={id}>{label} {requiredSign}</label>
+                <input type="hidden" {...register(name, { required: isRequired })}/>
             </div>
             <ErrorField {...{ name, componentName, errors }}/>
         </div>

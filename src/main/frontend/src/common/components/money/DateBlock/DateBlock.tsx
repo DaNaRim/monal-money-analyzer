@@ -5,9 +5,9 @@ import React, { useEffect, useRef, useState } from "react";
 import useTranslation from "../../../../app/hooks/translation";
 import styles from "../DateBlock/DateBlock.module.scss";
 
-const DATE_FORMAT = "YYYY-MM-DD";
+export const DATE_BLOCK_DATE_FORMAT = "YYYY-MM-DD";
 
-const highestAllowedDate = dayjs(new Date()).add(10, "year").format(DATE_FORMAT);
+const highestAllowedDate = dayjs(new Date()).add(10, "year").format(DATE_BLOCK_DATE_FORMAT);
 
 interface DateBlockProps {
     date: string;
@@ -22,13 +22,13 @@ const DateBlock = ({ date, setDate }: DateBlockProps) => {
     const dateInputRef = useRef<HTMLInputElement>(null);
 
     const setPreviousDay = () => {
-        const newDate0 = dayjs(date).subtract(1, "day").format(DATE_FORMAT);
+        const newDate0 = dayjs(date).subtract(1, "day").format(DATE_BLOCK_DATE_FORMAT);
         setDate(newDate0);
         setNewDate(newDate0);
     };
 
     const setNextDay = () => {
-        const newDate0 = dayjs(date).add(1, "day").format(DATE_FORMAT);
+        const newDate0 = dayjs(date).add(1, "day").format(DATE_BLOCK_DATE_FORMAT);
         setDate(newDate0);
         setNewDate(newDate0);
     };
@@ -53,11 +53,11 @@ const DateBlock = ({ date, setDate }: DateBlockProps) => {
 
     const displayDayOfWeek = () => {
         if (isDateError) {
-            return <p className={styles.dateError}>{t.transactionBlock.invalidDateError}</p>;
+            return <p className={styles.dateError}>{t.dateBlock.invalidDateError}</p>;
         }
         return dayjs(newDate).isValid()
             ? <p>{t.getString(`data.dayOfWeek.${(dayjs(newDate).format("d"))}`)}</p>
-            : <p>{t.transactionBlock.invalidDate}</p>;
+            : <p>{t.dateBlock.invalidDate}</p>;
     };
 
     const handleDateInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -77,8 +77,8 @@ const DateBlock = ({ date, setDate }: DateBlockProps) => {
         <div className={styles.date_block}>
             <button className={styles.arrow_button}
                     onClick={setPreviousDay}
-                    title={t.transactionBlock.prevDay}>
-                <FontAwesomeIcon icon={faChevronLeft}/>
+                    title={t.dateBlock.prevDay}>
+                <FontAwesomeIcon icon={faChevronLeft} data-testid="date-previous"/>
             </button>
             <div className={styles.date_display}>
                 <input type="date"
@@ -96,16 +96,11 @@ const DateBlock = ({ date, setDate }: DateBlockProps) => {
             </div>
             <button className={styles.arrow_button}
                     onClick={setNextDay}
-                    title={t.transactionBlock.nextDay}>
-                <FontAwesomeIcon icon={faChevronRight}/>
+                    title={t.dateBlock.nextDay}>
+                <FontAwesomeIcon icon={faChevronRight} data-testid="date-next"/>
             </button>
         </div>
     );
 };
 
 export default DateBlock;
-
-// Return the current date in the format YYYY-MM-DD
-export function getParsedCurrentDate(): string {
-    return dayjs(new Date()).format(DATE_FORMAT);
-}

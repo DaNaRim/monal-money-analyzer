@@ -29,7 +29,7 @@ export interface CreateTransactionDto {
     walletId: number;
 }
 
-type TransactionsState = {
+export type TransactionsState = {
     [walletId in number]: {
         [date in string]: Transaction[]
     };
@@ -52,7 +52,7 @@ const transactionsSlice = createSlice({
     name: "transactions",
     initialState,
     reducers: {
-        saveTransactionsByWalletAndDate(state, action: PayloadAction<SetTransactionsPayload>) {
+        saveTransactions(state, action: PayloadAction<SetTransactionsPayload>) {
             const { walletId, date, transactions } = action.payload;
 
             if (state[walletId] == null) {
@@ -69,6 +69,9 @@ const transactionsSlice = createSlice({
 
             if (state[walletId] == null) {
                 state[walletId] = {};
+            }
+            if (state[walletId][date] == null) {
+                state[walletId][date] = [];
             }
             state[walletId][date].push(transaction);
             state[walletId][date].sort(sortByDate);
@@ -88,7 +91,7 @@ export const selectTransactionsByWalletAndDate = (state: RootState,
 ): Transaction[] => state.transactions[walletId]?.[date] ?? [];
 
 export const {
-    saveTransactionsByWalletAndDate,
+    saveTransactions,
     addTransaction,
 } = transactionsSlice.actions;
 

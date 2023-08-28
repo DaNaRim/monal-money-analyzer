@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import useLocalStorage from "react-use-localstorage";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
@@ -8,8 +9,12 @@ import {
     setCategories,
 } from "../../../features/category/categorySlice";
 import { useGetUserWalletsQuery } from "../../../features/wallet/walletApiSlice";
-import { selectIsWalletsInitialized, setUserWallets } from "../../../features/wallet/walletSlice";
-import DateBlock, { getParsedCurrentDate } from "../../components/money/DateBlock/DateBlock";
+import {
+    selectIsWalletsExists,
+    selectIsWalletsInitialized,
+    setUserWallets,
+} from "../../../features/wallet/walletSlice";
+import DateBlock, { DATE_BLOCK_DATE_FORMAT } from "../../components/money/DateBlock/DateBlock";
 import TransactionBlock from "../../components/money/TransactionBlock/TransactionBlock";
 import WalletBlock from "../../components/money/WalletBlock/WalletBlock";
 import CreateTransactionModal from "../../modal/CreateTransactionModal/CreateTransactionModal";
@@ -25,9 +30,11 @@ const TransactionsPage = () => {
 
     const [newWalletModalOpen, setNewWalletModalOpen] = useState<boolean>(false);
 
-    const isWalletsInitialized = useAppSelector<boolean>(selectIsWalletsInitialized);
+    const isWalletsInitialized = useAppSelector(selectIsWalletsInitialized);
 
-    const isCategoriesInitialized = useAppSelector<boolean>(selectIsCategoriesInitialized);
+    const isCategoriesInitialized = useAppSelector(selectIsCategoriesInitialized);
+
+    const isWalletsExists = useAppSelector(selectIsWalletsExists);
 
     const {
         data: walletsData,
@@ -55,16 +62,18 @@ const TransactionsPage = () => {
             <header className={styles.wallet_header}>
                 <WalletBlock selectedWalletId={selectedWalletId}
                              setSelectedWalletId={setSelectedWalletId}/>
-                <button className={styles.add_transaction_button}
-                        onClick={() => setNewWalletModalOpen(true)}>
-                    {t.transactionsPage.addNewTransaction}
-                </button>
+                {isWalletsExists && (
+                    <button className={styles.add_transaction_button}
+                            onClick={() => setNewWalletModalOpen(true)}>
+                        {t.transactionsPage.addNewTransaction}
+                    </button>
+                )}
             </header>
-            <div className={styles.transaction_left}>
+             <div className={styles.transaction_left}>
                 <DateBlock {...{ date, setDate }}/>
                 <TransactionBlock walletId={Number(selectedWalletId)} date={date}/>
-            </div>
-            <CreateTransactionModal open={newWalletModalOpen}
+             </div>
+             <CreateTransactionModal open={newWalletModalOpen}
                                     setOpen={setNewWalletModalOpen}
                                     walletId={Number(selectedWalletId)}/>
         </main>
@@ -72,3 +81,8 @@ const TransactionsPage = () => {
 };
 
 export default TransactionsPage;
+
+// Return the current date in the format YYYY-MM-DD
+export function getParsedCurrentDate(): string {
+    return dayjs(new Date()).format(DATE_BLOCK_DATE_FORMAT);
+}

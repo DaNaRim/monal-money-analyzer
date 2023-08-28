@@ -43,7 +43,6 @@ const SelectCategoryModal = ({
                     <Tabs value={selectedTab}
                           classes={{
                               indicator: styles.category_type_tab_indicator,
-
                           }}
                           onChange={(_e, value) => setSelectedTab(value)}
                           aria-label="category type">
@@ -89,6 +88,7 @@ const CategoryGroup = ({ category, onChoose, selectedCategory }: CategoryGroupPr
         <div className={`${styles.subcategories_dot_wrapper}`
             + `${selectedCategory?.id === subCategory.id ? styles.selected : ""}`}
              onClick={() => onChoose(subCategory)}
+             key={subCategory.id}
              role="option">
             <div className={styles.subcategories_dot}></div>
             <div className={styles.subcategory}>
@@ -148,10 +148,10 @@ const CategoryGroup = ({ category, onChoose, selectedCategory }: CategoryGroupPr
 
     return (
         <div className={styles.category_group}>
-            <div className={`${styles.parent_option} ${selectedCategory?.id === category.id
-                ? styles.selected
-                : ""}`}
-                 onClick={() => onChoose(category)} role="option">
+            <div className={`${styles.parent_option}`
+                + ` ${selectedCategory?.id === category.id ? styles.selected : ""}`}
+                 onClick={() => onChoose(category)}
+                 role="option">
                 {getCategoryLocalName(category)}
             </div>
             {getSubcategories()}

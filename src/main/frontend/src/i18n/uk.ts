@@ -19,6 +19,7 @@ export default {
     form: {
         required: "Обов'язкове",
         password_show: "Показати пароль",
+        no_options_text: "Немає варіантів",
     },
 
     data: {
@@ -501,11 +502,18 @@ export default {
         addNewWallet: "Додати новий гаманець",
     },
 
-    transactionBlock: {
+    dateBlock: {
         invalidDate: "Невірна дата",
         invalidDateError: "Будь ласка, виберіть дійсну дату для відображення транзакцій",
         nextDay: "Наступний день",
         prevDay: "Попередній день",
+    },
+
+    transactionBlock: {
+        loading: "Завантаження...",
+        failToLoadTransactions: "Не вдалося завантажити транзакції",
+        noTransactions: "Немає транзакцій",
+        noWallets: "Додайте гаманець щоб почати",
     },
 
     createWalletModal: {

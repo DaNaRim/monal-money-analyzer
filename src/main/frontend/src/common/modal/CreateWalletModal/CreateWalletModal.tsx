@@ -162,7 +162,8 @@ const CreateWalletForm = ({
                                 getOptionLabel={option => option}
                                 fullWidth={true}
                                 disableClearable={true}
-                                data-testid={"autocomplete-currency"}
+                                noOptionsText={t.form.no_options_text}
+                                data-testid="autocomplete-currency"
                                 filterOptions={(options, params) => {
                                     const input = params.inputValue.toLowerCase();
                                     return options.filter(option => {

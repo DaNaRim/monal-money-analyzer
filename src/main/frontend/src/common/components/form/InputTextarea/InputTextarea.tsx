@@ -55,6 +55,7 @@ const InputTextarea = ({
                             defaultValue={defaultValue}
                             minRows={minRows}
                             style={{ overflow: "auto" }}
+                            data-testid={`input-${name}`}
                         />
                     )}/>
                 <label htmlFor={id}>{label} {requiredSign}</label>

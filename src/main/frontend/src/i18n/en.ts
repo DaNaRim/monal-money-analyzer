@@ -19,6 +19,7 @@ export default {
     form: {
         required: "Required",
         password_show: "Show password",
+        no_options_text: "No options",
     },
 
     data: {
@@ -501,11 +502,18 @@ export default {
         addNewWallet: "Add new wallet",
     },
 
-    transactionBlock: {
+    dateBlock: {
         invalidDate: "Invalid date",
         invalidDateError: "Please select a valid date to display transactions",
         nextDay: "Next day",
         prevDay: "Previous day",
+    },
+
+    transactionBlock: {
+        loading: "Loading...",
+        failToLoadTransactions: "Failed to load transactions",
+        noTransactions: "No transactions",
+        noWallets: "Add a wallet to start",
     },
 
     createWalletModal: {

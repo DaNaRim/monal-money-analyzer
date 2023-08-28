@@ -61,16 +61,18 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
     }, [newWalletId, wallets]);
 
     return (
-        <div className={styles.wallet_header}>
+        <div className={styles.wallet_header} data-testid="wallet-block">
             {!isWalletsInitialized && <div>{t.walletBlock.loading}</div>}
             {isWalletsInitialized && wallets.length === 0
                 && <CreateWalletButton setNewWalletModalOpen={setNewWalletModalOpen}/>
             }
             {isWalletsInitialized && wallets.length !== 0
                 && <Select className={styles.wallet_select}
-                           value={Number(selectedWalletId)}
+                           value={selectedWalletId == null || selectedWalletId === ""
+                               ? ""
+                               : selectedWalletId}
                            renderValue={id => {
-                               const walletToRender = getWalletById(id);
+                               const walletToRender = getWalletById(Number(id));
                                if (walletToRender == null) {
                                    // Appears when something went wrong and Select is empty
                                    // Should never happen

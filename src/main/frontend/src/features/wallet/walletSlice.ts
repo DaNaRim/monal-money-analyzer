@@ -68,6 +68,7 @@ const walletsSlice = createSlice({
 
 export const selectWallets = (state: RootState) => state.wallets.wallets;
 export const selectIsWalletsInitialized = (state: RootState) => state.wallets.isInitialized;
+export const selectIsWalletsExists = (state: RootState) => state.wallets.wallets.length > 0;
 
 export const selectWalletNameById = (state: RootState, walletId: number) =>
     state.wallets.wallets.find(wallet => wallet.id === walletId)?.name ?? "";

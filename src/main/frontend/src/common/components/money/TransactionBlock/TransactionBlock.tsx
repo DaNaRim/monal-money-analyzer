@@ -10,11 +10,12 @@ import {
 } from "../../../../features/category/categorySlice";
 import { useGetTransactionsQuery } from "../../../../features/transaction/transactionApiSlice";
 import {
-    saveTransactionsByWalletAndDate,
+    saveTransactions,
     selectIsTransactionsInitByWalletAndDate,
     selectTransactionsByWalletAndDate,
     type Transaction,
 } from "../../../../features/transaction/transactionSlice";
+import { selectIsWalletsExists } from "../../../../features/wallet/walletSlice";
 import styles from "./TransactionBlock.module.scss";
 
 dayjs.extend(utc);
@@ -25,10 +26,13 @@ interface TransactionBlockProps {
 }
 
 const TransactionBlock = ({ walletId, date }: TransactionBlockProps) => {
+    const t = useTranslation();
     const dispatch = useAppDispatch();
 
     const isCategoriesInitialized = useAppSelector(selectIsCategoriesInitialized);
     const categoriesWithSubcategories = useAppSelector(selectCategoriesWithSubcategories);
+
+    const isWalletsExists = useAppSelector(selectIsWalletsExists);
 
     const transactions
         = useAppSelector(state => selectTransactionsByWalletAndDate(state, walletId, date));
@@ -39,7 +43,11 @@ const TransactionBlock = ({ walletId, date }: TransactionBlockProps) => {
     const {
         data: fetchedTransactions,
         isFetching: isTransactionsFetching,
-    } = useGetTransactionsQuery({ walletId, date }, { skip: isTransactionsInitialized });
+        isError: isTransactionsError,
+    } = useGetTransactionsQuery({
+        walletId,
+        date,
+    }, { skip: isTransactionsInitialized || !isWalletsExists });
 
     useEffect(() => {
         if (fetchedTransactions == null || !isCategoriesInitialized) {
@@ -55,7 +63,7 @@ const TransactionBlock = ({ walletId, date }: TransactionBlockProps) => {
             };
             return parsedTransaction;
         });
-        dispatch(saveTransactionsByWalletAndDate({
+        dispatch(saveTransactions({
             walletId,
             date,
             transactions: preparedTransactions,
@@ -63,12 +71,22 @@ const TransactionBlock = ({ walletId, date }: TransactionBlockProps) => {
     }, [fetchedTransactions, isCategoriesInitialized]);
 
     return (
-        <div className={styles.transactions}>
-            {(!isCategoriesInitialized || isTransactionsFetching) &&
-              <p className={styles.message}>Loading...</p>
+        <div className={styles.transactions} data-testid="transaction-block">
+            {(!isCategoriesInitialized || isTransactionsFetching)
+                && <p className={styles.message}>{t.transactionBlock.loading}</p>
             }
-            {isCategoriesInitialized && !isTransactionsFetching && transactions.length === 0
-                && <p className={styles.message}>No transactions</p>
+            {!isWalletsExists && !isTransactionsFetching && isCategoriesInitialized
+                && <p className={styles.message}>{t.transactionBlock.noWallets}</p>
+            }
+            {isTransactionsError
+                && <p className={styles.error}>{t.transactionBlock.failToLoadTransactions}</p>
+            }
+            {isCategoriesInitialized
+                && !isTransactionsFetching
+                && transactions.length === 0
+                && !isTransactionsError
+                && isWalletsExists
+                && <p className={styles.message}>{t.transactionBlock.noTransactions}</p>
             }
             {isCategoriesInitialized && !isTransactionsFetching && transactions.length > 0
                 && transactions.map(transaction => (
