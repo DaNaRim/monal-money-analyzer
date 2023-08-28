@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "../../app/store";
 import { clearAuthState } from "../auth/authSlice";
+import { CategoryType } from "../category/categorySlice";
 
 export const WALLET_BALANCE_MAX_VALUE = 1_000_000_000;
 export const WALLET_BALANCE_PRECISION_VALUE = 0.00000001; // 8 digits after dot
@@ -28,16 +29,38 @@ export interface CreateWalletDto {
     currency: string;
 }
 
+interface UpdateWalletBalancePayload {
+    walletId: number;
+    deltaBalance: number;
+    categoryType: CategoryType;
+}
+
 const walletsSlice = createSlice({
     name: "wallets",
     initialState,
     reducers: {
-        setUserWallets(state, action: PayloadAction<Wallet[]>) {
-            state.wallets = action.payload;
+        setUserWallets(state, action: PayloadAction<Wallet[] | undefined>) {
             state.isInitialized = true;
+            if (action.payload == null) {
+                return;
+            }
+            state.wallets = action.payload;
         },
         addUserWallet(state, action: PayloadAction<Wallet>) {
             state.wallets.push(action.payload);
+        },
+        updateWalletBalance(state, action: PayloadAction<UpdateWalletBalancePayload>) {
+            const { walletId, deltaBalance, categoryType } = action.payload;
+
+            const wallet = state.wallets.find(wallet => wallet.id === walletId);
+            if (wallet == null) {
+                return;
+            }
+            if (categoryType === CategoryType.INCOME) {
+                wallet.balance += deltaBalance;
+            } else if (categoryType === CategoryType.OUTCOME) {
+                wallet.balance -= deltaBalance;
+            }
         },
     },
     extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
@@ -46,6 +69,9 @@ const walletsSlice = createSlice({
 export const selectWallets = (state: RootState) => state.wallets.wallets;
 export const selectIsWalletsInitialized = (state: RootState) => state.wallets.isInitialized;
 
-export const { setUserWallets, addUserWallet } = walletsSlice.actions;
+export const selectWalletNameById = (state: RootState, walletId: number) =>
+    state.wallets.wallets.find(wallet => wallet.id === walletId)?.name ?? "";
+
+export const { setUserWallets, addUserWallet, updateWalletBalance } = walletsSlice.actions;
 
 export default walletsSlice.reducer;

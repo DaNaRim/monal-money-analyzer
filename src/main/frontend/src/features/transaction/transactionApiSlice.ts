@@ -1,17 +1,21 @@
 import dayjs from "dayjs";
+
+import utc from "dayjs/plugin/utc";
 import { apiSlice } from "../api/apiSlice";
-import { type Transaction } from "./transactionSlice";
+import { type CreateTransactionDto, type ViewTransactionDto } from "./transactionSlice";
+
+dayjs.extend(utc);
 
 interface SelectTransactionsParams {
     walletId: number;
-    date: string; // Date in format 'yyyy/MM/dd'
+    date: string; // Date in format 'yyyy-MM-dd'
 }
 
 const transactionApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
-        getTransactions: builder.query<Transaction[], SelectTransactionsParams>({
+        getTransactions: builder.query<ViewTransactionDto[], SelectTransactionsParams>({
             query: ({ walletId, date }) => ({
-                url: "/transactions",
+                url: "/transaction/date",
                 method: "GET",
                 params: {
                     walletId,
@@ -20,39 +24,32 @@ const transactionApiSlice = apiSlice.injectEndpoints({
                 },
             }),
         }),
+        createTransaction: builder.mutation<ViewTransactionDto, CreateTransactionDto>({
+            query: transaction => ({
+                url: "/transaction",
+                method: "POST",
+                body: {
+                    ...transaction,
+                    date: getDateInUtcFormatForCreate(transaction.date),
+                },
+            }),
+        }),
     }),
 });
 
 export const {
     useGetTransactionsQuery,
+    useCreateTransactionMutation,
 } = transactionApiSlice;
 
-export default transactionApiSlice.reducer;
-
-// Input date format 'yyyy/MM/dd'
-// Output date format 'yyyy-MM-dd HH'
-function getDateInUtcFormat(date: string): string {
-    const preparedDate = new Date(date);
-
-    const utcDate = new Date(
-        preparedDate.getUTCFullYear(),
-        preparedDate.getUTCMonth(),
-        preparedDate.getUTCDate(),
-        preparedDate.getUTCHours(),
-    );
-    return dayjs(utcDate).format("yyyy-MM-dd HH");
+function getDateInUtcFormat(date: string | Date): string {
+    return dayjs(date).utc().format("YYYY-MM-DD HH");
 }
 
-// Input date format 'yyyy/MM/dd'
-// Output date format 'yyyy-MM-dd HH'
-function getNextDateInUtcFormat(date: string): string {
-    const preparedDate = new Date(date);
+function getNextDateInUtcFormat(date: string | Date): string {
+    return dayjs(date).utc().add(1, "day").format("YYYY-MM-DD HH");
+}
 
-    const utcDate = new Date(
-        preparedDate.getUTCFullYear(),
-        preparedDate.getUTCMonth(),
-        preparedDate.getUTCDate(),
-        preparedDate.getUTCHours(),
-    );
-    return dayjs(utcDate).add(1, "day").format("yyyy-MM-dd HH");
+function getDateInUtcFormatForCreate(date: string | Date): string {
+    return dayjs(date).utc().format("YYYY-MM-DD HH:mm");
 }

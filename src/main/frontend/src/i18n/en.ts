@@ -22,6 +22,15 @@ export default {
     },
 
     data: {
+        dayOfWeek: {
+            0: "Sunday",
+            1: "Monday",
+            2: "Tuesday",
+            3: "Wednesday",
+            4: "Thursday",
+            5: "Friday",
+            6: "Saturday",
+        },
         currency: {
             AED: "United Arab Emirates dirham",
             AFN: "Afghan afghani",
@@ -207,6 +216,100 @@ export default {
             SOL: "Solana",
             TRX: "TRON",
         },
+        transactionCategory: {
+            outcome: {
+                food_and_beverages: "Food and beverages",
+                grocery: "Grocery",
+                restaurant: "Restaurant",
+                cafe: "Cafe",
+                alcohol_and_bars: "Alcohol and Bars",
+                snacks: "Snacks",
+
+                transportation: "Transportation",
+                public_transportation: "Public Transportation",
+                taxi: "Taxi",
+                gas: "Gas",
+                parking: "Parking",
+                car_warranty: "Car warranty",
+                car_maintenance: "Car maintenance",
+
+                travel: "Travel",
+
+                entertainment: "Entertainment",
+                movies: "Movies",
+                concerts: "Concerts",
+                theater: "Theater",
+                games: "Games",
+
+                family: "Family",
+                partner: "Partner",
+                children: "Children",
+                parents: "Parents",
+                pets: "Pets",
+
+                friends: "Friends",
+
+                hobby: "Hobby",
+
+                sport: "Sport",
+                gym: "Gym",
+                sport_equipment: "Sport equipment",
+
+                personal_care: "Personal care",
+                haircut: "Haircut",
+                beauty: "Beauty",
+                cosmetics: "Cosmetics",
+                spa: "Spa",
+
+                health: "Health",
+                pharmacy: "Pharmacy",
+                primary_care: "Primary care",
+                dental_care: "Dental care",
+                specialty_care: "Specialty care",
+                surgery: "Surgery",
+                medical_devices: "Medical devices",
+
+                education: "Education",
+                books: "Books",
+                courses: "Courses",
+
+                shopping: "Shopping",
+                clothing: "Clothing",
+                shoes: "Shoes",
+                electronics: "Electronics",
+                accessories: "Accessories",
+                home: "Home",
+
+                bills: "Bills",
+                subscription: "Subscription",
+                phone_bill: "Phone Bill",
+                internet_bill: "Internet Bill",
+                television_bill: "Television Bill",
+                rent: "Rent",
+                watter_bill: "Watter Bill",
+                electricity_bill: "Electricity Bill",
+                gas_bill: "Gas Bill",
+
+                gift: "Gift",
+                birthday: "Birthday",
+                charity: "Charity",
+
+                business: "Business",
+
+                savings: "Savings",
+
+                other: "Other",
+            },
+            income: {
+                salary: "Salary",
+                gift: "Gift",
+                award: "Award",
+                sponsorship: "Sponsorship",
+                business: "Business",
+                other: "Other",
+            },
+            deleted: "Deleted category",
+        },
     },
 
     fetchErrors: {
@@ -387,13 +490,22 @@ export default {
     transactionsPage: {
         appMessages: {
             wallet_create_success: "Wallet created successfully.",
+            transaction_create_success: "Transaction created successfully.",
         },
+        addNewTransaction: "Add new transaction",
     },
 
     walletBlock: {
         noWalletSelected: "Select a wallet",
         loading: "Loading...",
         addNewWallet: "Add new wallet",
+    },
+
+    transactionBlock: {
+        invalidDate: "Invalid date",
+        invalidDateError: "Please select a valid date to display transactions",
+        nextDay: "Next day",
+        prevDay: "Previous day",
     },
 
     createWalletModal: {
@@ -418,5 +530,41 @@ export default {
             loading: "Creating...",
             submit: "Create",
         },
+    },
+
+    createTransactionModal: {
+        title: "Create transaction",
+        form: {
+            fields: {
+                walletId: "Wallet",
+                categoryId: "Category",
+                date: "Date",
+                amount: "Amount",
+                description: "Description",
+            },
+            errors: {
+                walletId: {
+                    required: "Wallet is required",
+                },
+                categoryId: {
+                    required: "Category is required",
+                },
+                date: {
+                    required: "Date is required",
+                },
+                amount: {
+                    required: "Amount is required",
+                },
+            },
+            loading: "Creating...",
+            submit: "Create",
+        },
+    },
+
+    selectCategoryModal: {
+        income: "Income",
+        outcome: "Outcome",
+        showMore: "Show more",
+        showLess: "Show less",
     },
 };

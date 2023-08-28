@@ -1,0 +1,39 @@
+@import "src/common/components/form/Input/Input.module";
+
+div.form_control {
+  margin-top: 1em;
+
+  label {
+    top: 50%;
+    left: 1em;
+    transform: translateY(-50%);
+    transition: top 0.3s ease, font-size 0.3s ease, opacity 0.3s ease;
+    border-radius: 0.5em;
+    background-color: $input-background;
+    color: black;
+
+    &[data-shrink="true"] {
+      top: calc($input-border-size / 2);
+      opacity: 1;
+      padding: 0 0.4em;
+      color: black;
+      font-size: 0.8rem;
+    }
+  }
+
+  div.input_select {
+    @include input-val;
+
+    padding: 0;
+
+    & > div {
+      padding: 0.75em 1em;
+    }
+
+    fieldset {
+      margin: 0;
+      border: none;
+      padding: 0;
+    }
+  }
+}

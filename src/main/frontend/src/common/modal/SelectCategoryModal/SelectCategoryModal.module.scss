@@ -1,0 +1,115 @@
+@use "sass:color";
+@import "src/assets/styles/mixins";
+
+.modal_block {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 1em rgb(0 0 0 / 50%);
+  border-radius: 0.5em;
+  background-color: #fff;
+  padding: 1em;
+  width: 30em;
+
+  .category_type_tab {
+    width: 50%;
+
+    &[aria-selected="true"] {
+      color: green;
+    }
+  }
+
+  .category_type_tab_indicator {
+    background-color: green;
+  }
+
+  .categories_list {
+    max-height: 60vh;
+    overflow-y: scroll;
+
+    .category_group {
+      border-bottom-right-radius: 0.5em;
+      border-bottom-left-radius: 0.5em;
+      background: rgb(255 255 255);
+      background: linear-gradient(180deg, rgb(255 255 255 / 100%) 0%, rgb(239 239 239) 2.75em);
+      width: calc(100% - 0.5em);
+    }
+
+    .parent_option {
+      cursor: pointer;
+      padding: 0.5em 0.5em 0.25em 1em;
+      font-size: 1.2em;
+
+      &:hover {
+        background-color: color.adjust(#fff, $lightness: -15%)
+      }
+
+      &.selected {
+        background-color: color.adjust(#fff, $lightness: -10%);
+        color: green;
+        font-weight: bold;
+      }
+    }
+
+    .subcategories_list {
+      padding-left: 1em;
+
+      .dotsWrapper {
+        display: flex;
+        margin-right: 1em;
+        border-top: 2px solid green;
+
+        .dots {
+          margin-bottom: 1.5em;
+          border-left: 3px dotted green;
+          width: 0;
+        }
+
+        .sub_categories {
+          width: 100%;
+        }
+      }
+    }
+
+    .subcategories_dot_wrapper {
+      display: flex;
+      align-items: center;
+      height: 3em;
+
+      &.selected {
+        background-color: color.adjust(#fff, $lightness: -10%);
+        color: green;
+        font-weight: bold;
+      }
+
+      &:hover {
+        background-color: color.adjust(#fff, $lightness: -15%)
+      }
+
+      .subcategories_dot {
+        border-bottom: 3px dotted green;
+        width: 0.75em;
+        height: 0;
+      }
+
+      .subcategory {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin-left: 0.5em;
+      }
+    }
+
+    .expand_button {
+      @include clear-button-styles;
+
+      padding: 0.5em 0.5em 1em 1.5em;
+      width: calc(100% - 1em);
+      color: green;
+      font-weight: bold;
+      text-align: left;
+    }
+  }
+}
+

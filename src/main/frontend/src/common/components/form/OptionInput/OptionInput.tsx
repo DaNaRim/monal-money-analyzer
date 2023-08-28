@@ -1,4 +1,4 @@
-import React, { HTMLProps, useMemo } from "react";
+import React, { type HTMLProps, useMemo } from "react";
 import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import useTranslation from "../../../../app/hooks/translation";
 import ErrorField from "../ErrorField/ErrorField";

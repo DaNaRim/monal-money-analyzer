@@ -1,5 +1,5 @@
 import React from "react";
-import { FieldErrors } from "react-hook-form/dist/types/errors";
+import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import useTranslation from "../../../../app/hooks/translation";
 import styles from "./ErrorField.module.scss";
 
@@ -9,7 +9,7 @@ interface ErrorFieldProps {
     errors: FieldErrors;
 }
 
-const ErrorField = ({name, componentName, errors}: ErrorFieldProps) => {
+const ErrorField = ({ name, componentName, errors }: ErrorFieldProps) => {
     const t = useTranslation();
 
     return (
@@ -26,6 +26,6 @@ const ErrorField = ({name, componentName, errors}: ErrorFieldProps) => {
             }
         </>
     );
-}
+};
 
 export default ErrorField;

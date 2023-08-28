@@ -1,12 +1,10 @@
 import { MenuItem, Select } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
+import { useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
-import { useGetUserWalletsQuery } from "../../../../features/wallet/walletApiSlice";
 import {
     selectIsWalletsInitialized,
     selectWallets,
-    setUserWallets,
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
 import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
@@ -19,15 +17,10 @@ interface WalletBlockProps {
 
 const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps) => {
     const t = useTranslation();
-    const dispatch = useAppDispatch();
 
     const wallets = useAppSelector<Wallet[]>(selectWallets);
-    const isWalletsInitialized = useAppSelector<boolean>(selectIsWalletsInitialized);
 
-    const {
-        data: walletsData,
-        isLoading,
-    } = useGetUserWalletsQuery(undefined, { skip: isWalletsInitialized });
+    const isWalletsInitialized = useAppSelector<boolean>(selectIsWalletsInitialized);
 
     const [newWalletId, setNewWalletId] = useState<number | null>(null);
 
@@ -49,13 +42,6 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
         }
     };
 
-    // Initialize wallets
-    useEffect(() => {
-        if (!isWalletsInitialized && !isLoading && walletsData != null && walletsData.length > 0) {
-            dispatch(setUserWallets(walletsData));
-        }
-    }, [dispatch, isWalletsInitialized, isLoading, walletsData]);
-
     // If the default wallet does not exist, select first wallet
     useEffect(() => {
         const isSavedWalletExist
@@ -76,11 +62,11 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
 
     return (
         <div className={styles.wallet_header}>
-            {isLoading && <div>{t.walletBlock.loading}</div>}
-            {!isLoading && wallets.length === 0
+            {!isWalletsInitialized && <div>{t.walletBlock.loading}</div>}
+            {isWalletsInitialized && wallets.length === 0
                 && <CreateWalletButton setNewWalletModalOpen={setNewWalletModalOpen}/>
             }
-            {!isLoading && wallets.length !== 0
+            {isWalletsInitialized && wallets.length !== 0
                 && <Select className={styles.wallet_select}
                            value={Number(selectedWalletId)}
                            renderValue={id => {
@@ -216,6 +202,8 @@ function addSpacesToNumber(number: number | string): string {
     const numberParts = number.toString().split(".");
     const integerGroups = numberParts[0].match(/(\d+?)(?=(\d{3})+(?!\d)|$)/g) ?? [];
 
+    const sign = number < 0 ? "-" : "";
     // Add space between groups of three digits
-    return `${integerGroups?.join(" ")}${(numberParts[1] == null ? "" : "." + numberParts[1])}`;
+    return `${sign}${integerGroups?.join(" ")}`
+        + `${(numberParts[1] == null ? "" : "." + numberParts[1])}`;
 }
