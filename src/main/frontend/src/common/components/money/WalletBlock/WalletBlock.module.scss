@@ -1,5 +1,15 @@
 @import "src/assets/styles/mixins";
 
+.wallet_select {
+  margin-left: 1em;
+  width: 20em;
+  height: 4em;
+
+  & > div {
+    padding: 0.5em 1em;
+  }
+}
+
 .wallet {
   display: flex;
   justify-content: space-between;
@@ -28,22 +38,6 @@
       opacity: 0.5;
       margin-left: 0.2em;
       font-size: 1.2rem;
-    }
-  }
-}
-
-.wallet_header {
-  border-bottom: 1px solid black;
-  width: 100%;
-  height: fit-content;
-
-  .wallet_select {
-    margin-left: 1em;
-    width: 20em;
-    height: 4em;
-
-    & > div {
-      padding: 0.5em 1em;
     }
   }
 }

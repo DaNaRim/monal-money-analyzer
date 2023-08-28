@@ -5,6 +5,7 @@ import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.money.persistence.dao.TransactionDao;
+import com.danarim.monal.money.persistence.model.CurrencyType;
 import com.danarim.monal.money.persistence.model.Transaction;
 import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.TransactionType;
@@ -56,7 +57,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional(rollbackOn = Exception.class)
     public Transaction createTransaction(CreateTransactionDto createTransactionDto, long userId) {
-
         TransactionType categoryType =
                 categoryService.getCategoryType(createTransactionDto.categoryId());
 
@@ -67,14 +67,18 @@ public class TransactionServiceImpl implements TransactionService {
 
         Wallet wallet = optionalWallet.get(); // Wallet is present because of validation
 
+        double amount = roundTransactionAmount(
+                createTransactionDto.amount(), wallet.getCurrency().getType()
+        );
+
         Transaction result = transactionDao.save(new Transaction(
                 createTransactionDto.description(),
                 new Date(createTransactionDto.date().getTime()),
-                createTransactionDto.amount(),
+                amount,
                 new TransactionCategory(createTransactionDto.categoryId()),
                 wallet
         ));
-        updateWalletBalance(wallet, createTransactionDto.amount(), categoryType);
+        updateWalletBalance(wallet, amount, categoryType);
 
         return result;
     }
@@ -165,6 +169,15 @@ public class TransactionServiceImpl implements TransactionService {
             );
         }
         walletService.updateWallet(wallet);
+    }
+
+    private static double roundTransactionAmount(double amount, CurrencyType currencyType) {
+        return switch (currencyType) {
+            // round to 2 decimal places
+            case BASIC -> Math.floor(amount * 100.0) / 100.0;
+            // round to 8 decimal places
+            case CRYPTO -> Math.floor(amount * 100000000.0) / 100000000.0;
+        };
     }
 
 }

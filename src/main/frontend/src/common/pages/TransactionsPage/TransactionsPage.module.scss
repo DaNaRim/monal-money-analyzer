@@ -1,0 +1,26 @@
+@import "src/assets/styles/mixins";
+
+.transaction_page {
+  .wallet_header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid black;
+    width: 100%;
+    height: fit-content;
+
+    .add_transaction_button {
+      @include clear-button-styles;
+
+      margin-left: 1em;
+      border: 1px solid black;
+      border-radius: 0.5em;
+      padding: 1em;
+    }
+  }
+
+  .transaction_left {
+    border-right: 1px solid black;
+    width: 50%;
+    min-width: 40em;
+  }
+}

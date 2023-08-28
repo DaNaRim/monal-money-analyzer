@@ -19,9 +19,19 @@ export default {
     form: {
         required: "Обов'язкове",
         password_show: "Показати пароль",
+        no_options_text: "Немає варіантів",
     },
 
     data: {
+        dayOfWeek: {
+            0: "Неділя",
+            1: "Понеділок",
+            2: "Вівторок",
+            3: "Середа",
+            4: "Четвер",
+            5: "П'ятниця",
+            6: "Субота",
+        },
         currency: {
             AED: "Дирхам ОАЕ",
             AFN: "Афганський афгані",
@@ -207,6 +217,100 @@ export default {
             SOL: "Solana",
             TRX: "TRON",
         },
+        transactionCategory: {
+            outcome: {
+                food_and_beverages: "Їжа і напої",
+                grocery: "Продукти",
+                restaurant: "Ресторан",
+                cafe: "Кафе",
+                alcohol_and_bars: "Алкоголь і бари",
+                snacks: "Закуски",
+
+                transportation: "Транспорт",
+                public_transportation: "Громадський транспорт",
+                taxi: "Таксі",
+                gas: "Паливо",
+                parking: "Паркінг",
+                car_warranty: "Гарантія на автомобіль",
+                car_maintenance: "Обслуговування автомобіля",
+
+                travel: "Подорожі",
+
+                entertainment: "Розваги",
+                movies: "Кіно",
+                concerts: "Концерти",
+                theater: "Театр",
+                games: "Ігри",
+
+                family: "Сім'я",
+                partner: "Партнер",
+                children: "Діти",
+                parents: "Батьки",
+                pets: "Домашні тварини",
+
+                friends: "Друзі",
+
+                hobby: "Хобі",
+
+                sport: "Спорт",
+                gym: "Спортзал",
+                sport_equipment: "Спортивне обладнання",
+
+                personal_care: "Особистий догляд",
+                haircut: "Стрижка",
+                beauty: "Краса",
+                cosmetics: "Косметика",
+                spa: "Спа",
+
+                health: "Здоров'я",
+                pharmacy: "Аптека",
+                primary_care: "Первинна допомога",
+                dental_care: "Стоматологія",
+                specialty_care: "Спеціалізована допомога",
+                surgery: "Хірургія",
+                medical_devices: "Медичні прилади",
+
+                education: "Освіта",
+                books: "Книги",
+                courses: "Курси",
+
+                shopping: "Покупки",
+                clothing: "Одяг",
+                shoes: "Взуття",
+                electronics: "Електроніка",
+                accessories: "Аксесуари",
+                home: "Дім",
+
+                bills: "Рахунки",
+                subscription: "Підписка",
+                phone_bill: "Рахунок за телефон",
+                internet_bill: "Рахунок за інтернет",
+                television_bill: "Рахунок за телебачення",
+                rent: "Оренда",
+                watter_bill: "Рахунок за воду",
+                electricity_bill: "Рахунок за електрику",
+                gas_bill: "Рахунок за газ",
+
+                gift: "Подарунок",
+                birthday: "День народження",
+                charity: "Благодійність",
+
+                business: "Бізнес",
+
+                savings: "Заощадження",
+
+                other: "Інше",
+            },
+            income: {
+                salary: "Зарплата",
+                gift: "Подарунок",
+                award: "Нагорода",
+                sponsorship: "Спонсорство",
+                business: "Бізнес",
+                other: "Інше",
+            },
+            deleted: "Видаленa категорія",
+        },
     },
 
     fetchErrors: {
@@ -387,13 +491,29 @@ export default {
     transactionsPage: {
         appMessages: {
             wallet_create_success: "Гаманець успішно створено.",
+            transaction_create_success: "Транзакція успішно створена.",
         },
+        addNewTransaction: "Додати нову транзакцію",
     },
 
     walletBlock: {
         noWalletSelected: "Виберіть гаманець",
         loading: "Завантаження...",
         addNewWallet: "Додати новий гаманець",
+    },
+
+    dateBlock: {
+        invalidDate: "Невірна дата",
+        invalidDateError: "Будь ласка, виберіть дійсну дату для відображення транзакцій",
+        nextDay: "Наступний день",
+        prevDay: "Попередній день",
+    },
+
+    transactionBlock: {
+        loading: "Завантаження...",
+        failToLoadTransactions: "Не вдалося завантажити транзакції",
+        noTransactions: "Немає транзакцій",
+        noWallets: "Додайте гаманець щоб почати",
     },
 
     createWalletModal: {
@@ -418,5 +538,41 @@ export default {
             loading: "Створення...",
             submit: "Створити",
         },
+    },
+
+    createTransactionModal: {
+        title: "Створити транзакцію",
+        form: {
+            fields: {
+                walletId: "Гаманець",
+                categoryId: "Категорія",
+                date: "Дата",
+                amount: "Сума",
+                description: "Опис",
+            },
+            errors: {
+                walletId: {
+                    required: "Гаманець обов'язковий",
+                },
+                categoryId: {
+                    required: "Категорія обов'язкова",
+                },
+                date: {
+                    required: "Дата обов'язкова",
+                },
+                amount: {
+                    required: "Сума обов'язкова",
+                },
+            },
+            loading: "Створення...",
+            submit: "Створити",
+        },
+    },
+
+    selectCategoryModal: {
+        outcome: "Витрата",
+        income: "Дохід",
+        showMore: "Показати більше",
+        showLess: "Показати менше",
     },
 };

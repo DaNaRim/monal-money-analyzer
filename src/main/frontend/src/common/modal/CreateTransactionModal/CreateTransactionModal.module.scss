@@ -1,0 +1,65 @@
+@import "src/common/components/form/Input/Input.module";
+
+.modal_block {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 1em rgb(0 0 0 / 50%);
+  border-radius: 0.5em;
+  background-color: #fff;
+  padding: 1em;
+  width: 30em;
+
+  .appMessage {
+    width: 100%;
+  }
+
+  .title {
+    text-align: center;
+  }
+
+  .form {
+    $field-gap: 1.5em;
+
+    .double_field {
+      display: flex;
+      justify-content: space-between;
+      gap: $field-gap;
+
+      & > * {
+        width: calc(50% - $field-gap / 2);
+      }
+    }
+
+    .wallet_select {
+      @include input-val;
+
+      margin-top: 1em;
+      padding: 0;
+      width: calc(50% - $field-gap / 2);
+
+      & > div {
+        padding: 0.75em 1em;
+      }
+
+      fieldset {
+        margin: 0;
+        border: none;
+        padding: 0;
+      }
+    }
+
+    .submit_button {
+      cursor: pointer;
+      margin-top: 1em;
+      border: none;
+      border-radius: 0.5em;
+      background-color: green;
+      padding: 0.5em 1em;
+      width: 100%;
+      color: #fff;
+      font-size: 1.4rem;
+    }
+  }
+}

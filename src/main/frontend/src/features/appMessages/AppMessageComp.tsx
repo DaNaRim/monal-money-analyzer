@@ -6,6 +6,7 @@ import { type AppMessageType } from "./appMessagesSlice";
 type Formatted = number | string | JSX.Element; // duplicate from react-localization
 
 interface AppMessageCompProps {
+    className?: string;
     type: AppMessageType;
     page?: string; // Needed for i18n message code if code belongs to a page
     messageCode: string; // i18n message code
@@ -14,6 +15,7 @@ interface AppMessageCompProps {
 }
 
 const AppMessageComp = ({
+                            className = "",
                             messageCode,
                             messageArgs = "",
                             type,
@@ -29,7 +31,7 @@ const AppMessageComp = ({
     const message = t.formatString(t.getString(preparedMessageCode), messageArgs);
 
     return (
-        <div className={AppMessageCodeClassMap[type]}>
+        <div className={`${AppMessageCodeClassMap[type]} ${className}`}>
             <p className={styles.message}>{message}</p>
             {children}
         </div>

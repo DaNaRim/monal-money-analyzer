@@ -1,0 +1,58 @@
+@import "src/assets/styles/mixins";
+
+.date_block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5em 1em;
+  width: 100%;
+
+  .date_display {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.1em;
+
+    .date_input {
+      box-sizing: content-box;
+      border: none;
+      border-bottom: 2px solid black;
+
+      &:focus {
+        animation: data-input-signalization 1s ease-in-out infinite;
+        outline: none;
+      }
+    }
+
+    .dateError {
+      color: red;
+      font-weight: bold;
+    }
+  }
+
+  .arrow_button {
+    @include clear-button-styles;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3em;
+    height: 3em;
+  }
+}
+
+
+@keyframes data-input-signalization {
+  0% {
+    border: 2px solid rgb(0 0 0 / 0%);
+  }
+
+  50% {
+    border: 2px solid orange;
+  }
+
+  100% {
+    border: 2px solid rgb(0 0 0 / 0%);
+  }
+}
