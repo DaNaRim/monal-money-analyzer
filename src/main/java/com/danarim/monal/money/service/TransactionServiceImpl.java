@@ -174,9 +174,9 @@ public class TransactionServiceImpl implements TransactionService {
     private static double roundTransactionAmount(double amount, CurrencyType currencyType) {
         return switch (currencyType) {
             // round to 2 decimal places
-            case BASIC -> Math.round(amount * 100.0) / 100.0;
+            case BASIC -> Math.floor(amount * 100.0) / 100.0;
             // round to 8 decimal places
-            case CRYPTO -> Math.round(amount * 100000000.0) / 100000000.0;
+            case CRYPTO -> Math.floor(amount * 100000000.0) / 100000000.0;
         };
     }
 
