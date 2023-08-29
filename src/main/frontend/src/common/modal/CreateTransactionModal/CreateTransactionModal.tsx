@@ -45,13 +45,14 @@ interface CreateTransactionModalProps {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
     walletId: number;
+    date: string;
 }
 
 type CreateTransactionFormFields = CreateTransactionDto & FormSystemFields;
 
 const COMPONENT_NAME = "createTransactionModal";
 
-const CreateTransactionModal = ({ open, setOpen, walletId }: CreateTransactionModalProps) => {
+const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransactionModalProps) => {
     const dispatch = useAppDispatch();
 
     const { handleResponseError, clearFormSystemFields } = useFetchUtils();
@@ -134,7 +135,8 @@ const CreateTransactionModal = ({ open, setOpen, walletId }: CreateTransactionMo
                                                  handleSubmit={handleSubmit}
                                                  isLoading={isLoading}
                                                  handleCreateTransaction={handleSubmitForm}
-                                                 walletId={walletId}/>
+                                                 walletId={walletId}
+                                                 date={date}/>
                     }
                 </Box>
             </Fade>
@@ -155,6 +157,7 @@ interface CreateTransactionFormProps {
 
     handleCreateTransaction: (data: CreateTransactionFormFields) => void;
     walletId: number;
+    date: string;
 }
 
 const CreateTransactionForm = ({
@@ -166,6 +169,7 @@ const CreateTransactionForm = ({
                                    isLoading,
                                    handleCreateTransaction,
                                    walletId,
+                                   date,
                                }: CreateTransactionFormProps) => {
     const t = useTranslation();
 
@@ -194,6 +198,14 @@ const CreateTransactionForm = ({
         }
         setValue("categoryId", selectedCategory?.id);
     }, [selectedCategory]);
+
+    // Set the default date in form to selected date
+    useEffect(() => {
+        setValue("date", dayjs(date)
+            .add(dayjs().hour(), "hour")
+            .add(dayjs().minute(), "minute")
+            .format("YYYY-MM-DDTHH:mm"));
+    }, [date]);
 
     return (
         <>
@@ -227,7 +239,6 @@ const CreateTransactionForm = ({
                 <div className={styles.double_field}>
                     <InputDateTime name="date"
                                    componentName={COMPONENT_NAME}
-                                   defaultValue={dayjs().format("YYYY-MM-DD HH:mm")}
                                    options={{
                                        required: true,
                                        min: "2000-01-01",

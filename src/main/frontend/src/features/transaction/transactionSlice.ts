@@ -23,7 +23,8 @@ export interface ViewTransactionDto {
 
 export interface CreateTransactionDto {
     description: string;
-    date: Date;
+    // Server also accepts Date, but it's easier to use string. Format: "YYYY-MM-DD HH:mm"
+    date: string;
     amount: number;
     categoryId: number;
     walletId: number;

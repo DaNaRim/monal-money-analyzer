@@ -75,7 +75,8 @@ const TransactionsPage = () => {
              </div>
              <CreateTransactionModal open={newWalletModalOpen}
                                     setOpen={setNewWalletModalOpen}
-                                    walletId={Number(selectedWalletId)}/>
+                                    walletId={Number(selectedWalletId)}
+                                    date={date}/>
         </main>
     );
 };
