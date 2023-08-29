@@ -57,7 +57,7 @@ const Input = ({
                        data-testid={`input-${name}`}/>
                 <label htmlFor={id}>{label} {requiredSign}</label>
             </div>
-            <ErrorField {...{ name, componentName, errors }}/>
+            <ErrorField {...{ name, componentName, errors, options }}/>
         </div>
     );
 };

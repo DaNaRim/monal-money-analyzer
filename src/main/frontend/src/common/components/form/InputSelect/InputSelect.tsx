@@ -68,7 +68,7 @@ const InputSelect = ({
                     </FormControl>
                 )}
             />
-            <ErrorField {...{ name, componentName, errors }}/>
+            <ErrorField {...{ name, componentName, errors, options }}/>
         </div>
     );
 };
