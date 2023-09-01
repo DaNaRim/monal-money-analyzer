@@ -1,6 +1,6 @@
 import React from "react";
 import { type FieldErrors } from "react-hook-form/dist/types/errors";
-import { RegisterOptions } from "react-hook-form/dist/types/validator";
+import { type RegisterOptions } from "react-hook-form/dist/types/validator";
 import useTranslation from "../../../../app/hooks/translation";
 import styles from "./ErrorField.module.scss";
 
