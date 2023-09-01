@@ -77,6 +77,7 @@ describe("CreateTransactionModal", () => {
             categories: categoriesState,
         });
         renderWithProviders(<CreateTransactionModal open={true}
+                                                    date={dayjs().format("YYYY-MM-DD")}
                                                     setOpen={jest.fn()}
                                                     walletId={1}/>, { store });
 
@@ -99,6 +100,7 @@ describe("CreateTransactionModal", () => {
             categories: categoriesState,
         });
         renderWithProviders(<CreateTransactionModal open={true}
+                                                    date={dayjs().format("YYYY-MM-DD")}
                                                     setOpen={setOpen}
                                                     walletId={1}/>, { store });
 
@@ -139,6 +141,7 @@ describe("CreateTransactionModal", () => {
             categories: categoriesState,
         });
         renderWithProviders(<CreateTransactionModal open={true}
+                                                    date={dayjs().format("YYYY-MM-DD")}
                                                     setOpen={setOpen}
                                                     walletId={1}/>, { store });
 
@@ -164,6 +167,7 @@ describe("CreateTransactionModal", () => {
             categories: categoriesState,
         });
         renderWithProviders(<CreateTransactionModal open={true}
+                                                    date={dayjs().format("YYYY-MM-DD")}
                                                     setOpen={setOpen}
                                                     walletId={1}/>, { store });
 

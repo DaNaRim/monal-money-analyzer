@@ -17,7 +17,7 @@ interface InputTextAreaProps {
     options?: RegisterOptions;
     control: Control<any>;
     errors: FieldErrors;
-};
+}
 
 const InputTextarea = ({
                            name,
@@ -60,7 +60,7 @@ const InputTextarea = ({
                     )}/>
                 <label htmlFor={id}>{label} {requiredSign}</label>
             </div>
-            <ErrorField {...{ name, componentName, errors }}/>
+            <ErrorField {...{ name, componentName, errors, options }}/>
         </div>
     );
 };

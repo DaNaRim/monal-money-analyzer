@@ -217,6 +217,10 @@ export default {
             SOL: "Solana",
             TRX: "TRON",
         },
+        transactionCategoryType: {
+            income: "Income",
+            outcome: "Outcome",
+        },
         transactionCategory: {
             outcome: {
                 food_and_beverages: "Food and beverages",
@@ -559,6 +563,8 @@ export default {
                 },
                 date: {
                     required: "Date is required",
+                    min: "Date must be greater than or equal to {0}",
+                    max: "Date must be less than to {0}",
                 },
                 amount: {
                     required: "Amount is required",
@@ -570,9 +576,12 @@ export default {
     },
 
     selectCategoryModal: {
-        income: "Income",
-        outcome: "Outcome",
         showMore: "Show more",
         showLess: "Show less",
+    },
+
+    analyticsBlock: {
+        showChildCategories: "Show child categories",
+        noDataForAnalytics: "No transactions for analytics",
     },
 };

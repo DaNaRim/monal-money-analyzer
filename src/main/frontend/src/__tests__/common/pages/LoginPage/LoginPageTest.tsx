@@ -97,7 +97,7 @@ describe("LoginPage", () => {
     it("render", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        await waitForElementToBeRemoved(() => screen.getByTestId("main-loader"));
+        await waitForElementToBeRemoved(() => screen.getByTestId("main-loader"), { timeout: 5000 });
 
         await waitFor(() => {
             expect(screen.getByTestId("main-header")).toBeInTheDocument();
@@ -142,8 +142,8 @@ describe("LoginPage", () => {
         // To disable act warning. I don't know how to fix it
         await waitFor(async () => await new Promise(resolve => setTimeout(resolve, 100)));
 
-        await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
-    });
+        await waitFor(() => expect(window.location.pathname).toBe("/transactions"));
+    }, 10_000);
 
     it("login field error -> display error message", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });

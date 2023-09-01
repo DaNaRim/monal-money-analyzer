@@ -8,6 +8,7 @@ import {
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
 import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
+import { addSpacesToNumber } from "../../../utils/moneyUtils";
 import styles from "./WalletBlock.module.scss";
 
 interface WalletBlockProps {
@@ -198,14 +199,3 @@ const WalletDisplay = ({ name, balance, currency }: WalletCompProps) => {
         </div>
     );
 };
-
-function addSpacesToNumber(number: number | string): string {
-    // Add space between groups of three digits
-    const numberParts = number.toString().split(".");
-    const integerGroups = numberParts[0].match(/(\d+?)(?=(\d{3})+(?!\d)|$)/g) ?? [];
-
-    const sign = number < 0 ? "-" : "";
-    // Add space between groups of three digits
-    return `${sign}${integerGroups?.join(" ")}`
-        + `${(numberParts[1] == null ? "" : "." + numberParts[1])}`;
-}

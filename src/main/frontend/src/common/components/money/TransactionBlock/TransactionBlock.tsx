@@ -16,6 +16,7 @@ import {
     type Transaction,
 } from "../../../../features/transaction/transactionSlice";
 import { selectIsWalletsExists } from "../../../../features/wallet/walletSlice";
+import { addSpacesToNumber } from "../../../utils/moneyUtils";
 import styles from "./TransactionBlock.module.scss";
 
 dayjs.extend(utc);
@@ -127,7 +128,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
                 </div>
                 <p className={`${styles.transaction_amount}`
                     + ` ${isIncome ? styles.transaction_income : ""}`}>
-                    {transaction.amount}
+                    {addSpacesToNumber(transaction.amount)}
                 </p>
             </div>
         </div>
