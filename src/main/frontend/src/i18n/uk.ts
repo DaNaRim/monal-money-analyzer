@@ -579,4 +579,9 @@ export default {
         showMore: "Показати більше",
         showLess: "Показати менше",
     },
+
+    analyticsBlock: {
+        showChildCategories: "Показати дочірні категорії",
+        noDataForAnalytics: "Немає даних для аналітики",
+    },
 };

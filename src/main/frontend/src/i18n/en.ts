@@ -579,4 +579,9 @@ export default {
         showMore: "Show more",
         showLess: "Show less",
     },
+
+    analyticsBlock: {
+        showChildCategories: "Show child categories",
+        noDataForAnalytics: "No transactions for analytics",
+    },
 };

@@ -18,9 +18,17 @@
     }
   }
 
-  .transaction_left {
-    border-right: 1px solid black;
-    width: 50%;
-    min-width: 40em;
+  .wrapper {
+    display: flex;
+
+    .transaction_left {
+      border-right: 1px solid black;
+      width: 50%;
+      min-width: 40em;
+    }
+
+    .transaction_right {
+      width: 50%;
+    }
   }
 }
