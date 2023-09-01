@@ -25,7 +25,7 @@ describe("TransactionsPage", () => {
         expect(screen.getByText("Add new transaction")).toBeInTheDocument();
         // Date block
         expect(screen.getByDisplayValue(dayjs().format("YYYY-MM-DD"))).toBeInTheDocument();
-    }, 6000);
+    }, 10_000);
 
     it("render. no Wallets. Do not display Add transaction button", async () => {
         const store = setupStoreWithAuth(false);

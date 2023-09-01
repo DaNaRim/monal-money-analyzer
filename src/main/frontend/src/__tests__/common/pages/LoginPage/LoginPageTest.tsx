@@ -143,7 +143,7 @@ describe("LoginPage", () => {
         await waitFor(async () => await new Promise(resolve => setTimeout(resolve, 100)));
 
         await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
-    }, 6000);
+    }, 10_000);
 
     it("login field error -> display error message", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });

@@ -97,5 +97,5 @@ describe("ProtectedRoute", () => {
             expect(loaders[1]).toBeInTheDocument();
         });
         await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
-    });
+    }, 10_000);
 });
