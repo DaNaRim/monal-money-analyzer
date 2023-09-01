@@ -29,7 +29,6 @@ import {
     selectWallets,
     updateWalletBalance,
     WALLET_BALANCE_MAX_VALUE,
-    WALLET_BALANCE_PRECISION_VALUE,
 } from "../../../features/wallet/walletSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
@@ -38,6 +37,7 @@ import InputDateTime from "../../components/form/InputDateTime/InputDateTime";
 import InputNumber from "../../components/form/InputNumber/InputNumber";
 import InputSelect from "../../components/form/InputSelect/InputSelect";
 import InputTextarea from "../../components/form/InputTextarea/InputTextarea";
+import { getCurrencyTypePrecision } from "../CreateWalletModal/currencyList";
 import SelectCategoryModal from "../SelectCategoryModal/SelectCategoryModal";
 import styles from "./CreateTransactionModal.module.scss";
 
@@ -173,6 +173,8 @@ const CreateTransactionForm = ({
                                }: CreateTransactionFormProps) => {
     const t = useTranslation();
 
+    const [amountPrecision, setAmountPrecision] = useState<0.01 | 0.00000001>(0.01);
+
     const wallets = useAppSelector(selectWallets);
 
     const [selectCategoryModalOpen, setSelectCategoryModalOpen] = useState<boolean>(false);
@@ -207,6 +209,13 @@ const CreateTransactionForm = ({
             .format("YYYY-MM-DDTHH:mm"));
     }, [date]);
 
+    // Set amount precision to selected wallet currency precision
+    useEffect(() => {
+        setAmountPrecision(getCurrencyTypePrecision(
+            wallets.find(wallet => wallet.id === walletId)?.currency,
+        ));
+    }, [walletId]);
+
     return (
         <>
             <h1 className={styles.title}>{t.createTransactionModal.title}</h1>
@@ -217,6 +226,11 @@ const CreateTransactionForm = ({
                         defaultValue={walletId}
                         componentName={COMPONENT_NAME}
                         options={{ required: true }}
+                        onChange={walletId => {
+                            setAmountPrecision(getCurrencyTypePrecision(
+                                wallets.find(wallet => wallet.id === walletId)?.currency,
+                            ));
+                        }}
                         renderValue={id => <p>{wallets.find(wallet => wallet.id === id)?.name}</p>}
                         {...{ control, errors, setValue }}
                     >
@@ -249,9 +263,9 @@ const CreateTransactionForm = ({
                     <InputNumber name="amount"
                                  componentName={COMPONENT_NAME}
                                  options={{ required: true }}
-                                 step={WALLET_BALANCE_PRECISION_VALUE}
+                                 step={amountPrecision}
                                  max={WALLET_BALANCE_MAX_VALUE}
-                                 min={-WALLET_BALANCE_MAX_VALUE}
+                                 min={0}
                                  {...{ register, errors }}
                     />
                 </div>

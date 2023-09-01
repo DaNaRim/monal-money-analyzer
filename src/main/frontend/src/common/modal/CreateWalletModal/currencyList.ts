@@ -1,9 +1,7 @@
 // If you want to add/remove a currency, don't forget to update the i18n files
 
-const currencyList: string[] = [
-
-    // Basic currencies (ISO 4217)
-
+// Basic currencies (ISO 4217)
+const basicCurrencies: string[] = [
     "AED",
     "AFN",
     "ALL",
@@ -174,9 +172,10 @@ const currencyList: string[] = [
     "ZAR",
     "ZMW",
     "ZWL",
+];
 
-    // Crypto currencies
-
+// Crypto currencies
+const cryptoCurrencies: string[] = [
     "BTC",
     "ETH",
     "USDT",
@@ -189,4 +188,19 @@ const currencyList: string[] = [
     "TRX",
 ];
 
+const currencyList: string[] = [
+    ...basicCurrencies,
+    ...cryptoCurrencies,
+];
+
 export default currencyList;
+
+export const getCurrencyTypePrecision = (currency: string | undefined): 0.01 | 0.00000001 => {
+    if (currency == null) {
+        return 0.01;
+    }
+    if (cryptoCurrencies.includes(currency)) {
+        return 0.00000001;
+    }
+    return 0.01;
+};
