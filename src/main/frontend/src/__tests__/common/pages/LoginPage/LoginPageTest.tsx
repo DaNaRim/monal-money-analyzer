@@ -142,7 +142,7 @@ describe("LoginPage", () => {
         // To disable act warning. I don't know how to fix it
         await waitFor(async () => await new Promise(resolve => setTimeout(resolve, 100)));
 
-        await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
+        await waitFor(() => expect(window.location.pathname).toBe("/transactions"));
     }, 10_000);
 
     it("login field error -> display error message", async () => {
