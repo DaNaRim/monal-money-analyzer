@@ -47,10 +47,10 @@ const SelectCategoryModal = ({
                           onChange={(_e, value) => setSelectedTab(value)}
                           aria-label="category type">
                         <Tab className={styles.category_type_tab}
-                             label={t.selectCategoryModal.outcome}
+                             label={t.data.transactionCategoryType.outcome}
                              value={CategoryType.OUTCOME}/>
                         <Tab className={styles.category_type_tab}
-                             label={t.selectCategoryModal.income}
+                             label={t.data.transactionCategoryType.income}
                              value={CategoryType.INCOME}/>
                     </Tabs>
                     <div className={styles.categories_list}>

@@ -217,6 +217,10 @@ export default {
             SOL: "Solana",
             TRX: "TRON",
         },
+        transactionCategoryType: {
+            income: "Income",
+            outcome: "Outcome",
+        },
         transactionCategory: {
             outcome: {
                 food_and_beverages: "Food and beverages",
@@ -572,8 +576,6 @@ export default {
     },
 
     selectCategoryModal: {
-        income: "Income",
-        outcome: "Outcome",
         showMore: "Show more",
         showLess: "Show less",
     },

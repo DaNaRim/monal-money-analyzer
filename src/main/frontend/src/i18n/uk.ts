@@ -217,6 +217,10 @@ export default {
             SOL: "Solana",
             TRX: "TRON",
         },
+        transactionCategoryType: {
+            income: "Дохід",
+            outcome: "Витрата",
+        },
         transactionCategory: {
             outcome: {
                 food_and_beverages: "Їжа і напої",
@@ -572,8 +576,6 @@ export default {
     },
 
     selectCategoryModal: {
-        outcome: "Витрата",
-        income: "Дохід",
         showMore: "Показати більше",
         showLess: "Показати менше",
     },
