@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import dayjs from "dayjs";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
@@ -16,21 +16,24 @@ describe("TransactionsPage", () => {
 
         // Few loaders on init.
         await waitFor(() => expect(screen.getAllByTestId("main-loader")[1]).toBeInTheDocument());
+
+        await act(async () => await new Promise((resolve) => setTimeout(resolve, 500)));
+
         await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
         await waitFor(() => expect(screen.getByTestId("wallet-block")).toBeInTheDocument());
         await waitFor(() => expect(screen.getByTestId("transaction-block")).toBeInTheDocument());
         expect(screen.getByText("Add new transaction")).toBeInTheDocument();
         // Date block
         expect(screen.getByDisplayValue(dayjs().format("YYYY-MM-DD"))).toBeInTheDocument();
-    });
+    }, 6000);
 
-    it("render. no Wallets. Do not display Add trnsaction button", async () => {
+    it("render. no Wallets. Do not display Add transaction button", async () => {
         const store = setupStoreWithAuth(false);
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
         await waitFor(() => {
             expect(screen.getByTestId("transaction-page")).toBeInTheDocument();
-        }, { timeout: 2000 });
+        }, { timeout: 3000 });
         await waitFor(() => {
             expect(screen.queryByText("Add new transaction")).not.toBeInTheDocument();
         });

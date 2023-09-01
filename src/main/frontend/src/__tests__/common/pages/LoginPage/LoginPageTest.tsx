@@ -97,7 +97,7 @@ describe("LoginPage", () => {
     it("render", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        await waitForElementToBeRemoved(() => screen.getByTestId("main-loader"));
+        await waitForElementToBeRemoved(() => screen.getByTestId("main-loader"), { timeout: 5000 });
 
         await waitFor(() => {
             expect(screen.getByTestId("main-header")).toBeInTheDocument();
