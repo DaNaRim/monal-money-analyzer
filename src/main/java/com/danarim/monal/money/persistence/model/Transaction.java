@@ -36,7 +36,7 @@ public class Transaction implements Serializable {
      * The amount of the transaction. Can't be negative or zero.
      */
     @Column(
-            columnDefinition = "NUMERIC(1000, 2) CHECK (amount <> 0)",
+            columnDefinition = "NUMERIC(1000, 8) CHECK (amount > 0)",
             nullable = false
     )
     private double amount;
