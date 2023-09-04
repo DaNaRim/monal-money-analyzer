@@ -10,8 +10,8 @@ interface InputButtonProps {
     name: string;
     componentName: string;
     onClick: () => void;
-    // Value managed by React Hook Form and external component.
-    displayValue: string | undefined; // Value displayed in the button.
+    // Value managed by React Hook Form and external component. Displayed in the button.
+    displayValue: string | undefined;
     label: string;
     isRequired?: boolean;
 
@@ -42,7 +42,7 @@ const InputButton = ({
             <div className={`${styles.inputWrapper} ${buttonStyles.buttonWrapper}`}>
                 <input type="button"
                        id={id}
-                       value={displayValue ?? " "}
+                       value={displayValue ?? ""}
                        onClick={onClick}/>
                 <label htmlFor={id}>{label} {requiredSign}</label>
                 <input type="hidden" {...register(name, { required: isRequired })}/>
