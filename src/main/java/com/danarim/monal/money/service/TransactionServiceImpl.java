@@ -14,6 +14,7 @@ import com.danarim.monal.money.web.dto.CreateTransactionDto;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -150,6 +151,15 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+    private static double roundTransactionAmount(double amount, CurrencyType currencyType) {
+        return switch (currencyType) {
+            // round to 2 decimal places
+            case BASIC -> Math.floor(amount * 100.0) / 100.0;
+            // round to 8 decimal places
+            case CRYPTO -> Math.floor(amount * 100000000.0) / 100000000.0;
+        };
+    }
+
     /**
      * Updates the balance of the wallet after a transaction.
      *
@@ -162,22 +172,17 @@ public class TransactionServiceImpl implements TransactionService {
      */
     private void updateWalletBalance(Wallet wallet, double amount, TransactionType categoryType) {
         switch (categoryType) {
-            case INCOME -> wallet.setBalance(wallet.getBalance() + amount);
-            case OUTCOME -> wallet.setBalance(wallet.getBalance() - amount);
+            case INCOME -> wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
+                                                     .add(BigDecimal.valueOf(amount))
+                                                     .doubleValue());
+            case OUTCOME -> wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
+                                                      .subtract(BigDecimal.valueOf(amount))
+                                                      .doubleValue());
             default -> throw new InternalServerException(
                     "Unsupported transaction type " + categoryType + " for updating wallet balance."
             );
         }
         walletService.updateWallet(wallet);
-    }
-
-    private static double roundTransactionAmount(double amount, CurrencyType currencyType) {
-        return switch (currencyType) {
-            // round to 2 decimal places
-            case BASIC -> Math.floor(amount * 100.0) / 100.0;
-            // round to 8 decimal places
-            case CRYPTO -> Math.floor(amount * 100000000.0) / 100000000.0;
-        };
     }
 
 }
