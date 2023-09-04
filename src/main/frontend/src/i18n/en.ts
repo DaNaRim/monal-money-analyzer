@@ -563,8 +563,8 @@ export default {
                 },
                 date: {
                     required: "Date is required",
-                    min: "Date must be greater than or equal to {0}",
-                    max: "Date must be less than to {0}",
+                    min: "Date must be greater than {0}",
+                    max: "Date must be less than {0}",
                 },
                 amount: {
                     required: "Amount is required",

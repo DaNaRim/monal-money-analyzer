@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Fade, Modal } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { type Control, Controller, useForm, type UseFormHandleSubmit } from "react-hook-form";
 import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import { type UseFormRegister } from "react-hook-form/dist/types/form";
@@ -13,7 +13,6 @@ import {
     addUserWallet,
     type CreateWalletDto,
     WALLET_BALANCE_MAX_VALUE,
-    WALLET_BALANCE_PRECISION_VALUE,
 } from "../../../features/wallet/walletSlice";
 import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
@@ -21,7 +20,7 @@ import InputNumber from "../../components/form/InputNumber/InputNumber";
 import InputText from "../../components/form/InputText/InputText";
 import OptionInput from "../../components/form/OptionInput/OptionInput";
 import styles from "./CreateWalletModal.module.scss";
-import currencyList from "./currencyList";
+import currencyList, { getCurrencyTypePrecision } from "./currencyList";
 
 interface CreateWalletModalProps {
     open: boolean;
@@ -131,6 +130,8 @@ const CreateWalletForm = ({
                           }: CreateWalletFormProps) => {
     const t = useTranslation();
 
+    const [walletBalancePrecision, setWalletBalancePrecision] = useState<0.01 | 0.00000001>(0.01);
+
     return (
         <>
             <h1>{t.createWalletModal.title}</h1>
@@ -143,7 +144,7 @@ const CreateWalletForm = ({
 
                 <div className={styles.double_field}>
                     <InputNumber name="balance"
-                                 step={WALLET_BALANCE_PRECISION_VALUE}
+                                 step={walletBalancePrecision}
                                  max={WALLET_BALANCE_MAX_VALUE}
                                  min={-WALLET_BALANCE_MAX_VALUE}
                                  defaultValue={0}
@@ -156,7 +157,10 @@ const CreateWalletForm = ({
                         control={control}
                         render={(controllerProps) => (
                             <Autocomplete
-                                onChange={(_, data) => controllerProps.field.onChange(data)}
+                                onChange={(_, data) => {
+                                    controllerProps.field.onChange(data);
+                                    setWalletBalancePrecision(getCurrencyTypePrecision(data));
+                                }}
                                 onBlur={controllerProps.field.onBlur}
                                 options={currencyList}
                                 getOptionLabel={option => option}

@@ -30,11 +30,11 @@
         text-align: center;
 
         &:nth-child(1) {
-          color: green;
+          color: red;
         }
 
         &:nth-child(2) {
-          color: red;
+          color: green;
         }
       }
     }

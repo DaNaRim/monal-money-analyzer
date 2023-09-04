@@ -156,6 +156,12 @@ const WalletComp = ({ name, balance, currency }: WalletCompProps) => {
 const WalletDisplay = ({ name, balance, currency }: WalletCompProps) => {
     const isInRange = (value: number, min: number, max: number) => value >= min && value < max;
 
+    let preparedBalance = balance;
+
+    if (balance.toString().includes("E")) {
+        const arr = balance.toString().split("E");
+        preparedBalance = Number(arr[0]) * Math.pow(10, Number(arr[1]));
+    }
     /*
        Balance max number = 1 000 000 000
        Based on integer part of balance, display balance in different ways:
@@ -169,14 +175,14 @@ const WalletDisplay = ({ name, balance, currency }: WalletCompProps) => {
        ii iii iii.dd -> ii.ii'M'
        iii iii iii.dd -> iii.ii'M'
      */
-    let processedBalance: string = balance.toString(); // (i.dd...)
+    let processedBalance: string = preparedBalance.toString(); // (i.dd...)
 
-    if (isInRange(balance, 10, 10_000)) {
-        processedBalance = balance.toFixed(2);
-    } else if (isInRange(balance, 10_000, 1_000_000)) {
-        processedBalance = balance.toFixed(0);
-    } else if (isInRange(balance, 1_000_000, 1_000_000_000)) {
-        const fixed = balance.toFixed(0);
+    if (isInRange(preparedBalance, 10, 10_000)) {
+        processedBalance = preparedBalance.toFixed(2);
+    } else if (isInRange(preparedBalance, 10_000, 1_000_000)) {
+        processedBalance = preparedBalance.toFixed(0);
+    } else if (isInRange(preparedBalance, 1_000_000, 1_000_000_000)) {
+        const fixed = preparedBalance.toFixed(0);
         const integerPart = fixed.substring(0, fixed.length - 6);
         const decimalPart = fixed.substring(fixed.length - 6, fixed.length - 4);
         processedBalance = `${integerPart}.${decimalPart}M`;

@@ -18,6 +18,7 @@ interface InputSelectProps {
     errors: FieldErrors;
     setValue: UseFormSetValue<any>;
 
+    onChange?: (value: string | number) => void;
     renderValue: (id: string | number) => ReactNode;
     children: ReactNode;
 }
@@ -30,6 +31,7 @@ const InputSelect = ({
                          options,
                          errors,
                          setValue,
+                         onChange = () => {},
                          renderValue,
                          children,
                      }: InputSelectProps) => {
@@ -58,7 +60,10 @@ const InputSelect = ({
                                 labelId={id}
                                 defaultValue={defaultValue}
                                 renderValue={renderValue}
-                                onChange={e => controllerProps.field.onChange(e.target.value)}
+                                onChange={e => {
+                                    controllerProps.field.onChange(e.target.value);
+                                    onChange(e.target.value);
+                                }}
                                 autoWidth={true}
                                 displayEmpty={true}
                                 label={label}
