@@ -46,6 +46,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     public static final String API_V1_PREFIX = "/api/v1";
 
+    // Public because it is used in tests.
+    public static final List<String> SQL_INIT_SCRIPTS = List.of(
+            "data-roles.sql",
+            "data-categories.sql"
+    );
+
     private static final List<String> FRONTEND_URLS = List.of(
             "/",
             "/{x:[\\w\\-]+}",
@@ -57,11 +63,6 @@ public class WebConfig implements WebMvcConfigurer {
             "errors",
             "mail",
             "messages"
-    );
-
-    private static final List<String> SQL_INIT_SCRIPTS = List.of(
-            "data-roles.sql",
-            "data-categories.sql"
     );
 
     @PostConstruct
