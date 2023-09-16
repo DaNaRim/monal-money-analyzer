@@ -56,9 +56,7 @@ describe("AnalyticsBar", () => {
         expect(document.querySelector("div[style=\"width: 100%; height: 100%;\"]"))
             .toBeInTheDocument();
 
-        await waitFor(() => {
-            expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-        });
+        await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
     });
 
     it("render fetch Analytics Error", async () => {
