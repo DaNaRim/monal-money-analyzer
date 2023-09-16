@@ -2,13 +2,14 @@ import { describe } from "@jest/globals";
 import { act, fireEvent, screen } from "@testing-library/react";
 import dayjs from "dayjs";
 import { setupStore } from "../../../../../app/store";
-import AnalyticsBlock from "../../../../../common/components/money/AnalyticsBlock/AnalyticsBlock";
+import DailyAnalyticsBlock
+    from "../../../../../common/components/money/DailyAnalyticsBlock/DailyAnalyticsBlock";
 import { renderWithProviders } from "../../../../../common/utils/test-utils";
 import { type Category, CategoryType } from "../../../../../features/category/categorySlice";
 
 // Nivo pie does not render in tests. So, I don't know how to test it.
 
-describe("AnalyticsBlock", () => {
+describe("DailyAnalyticsBlock", () => {
     it("render", () => {
         const category: Category = {
             id: 1,
@@ -38,7 +39,7 @@ describe("AnalyticsBlock", () => {
                 },
             },
         });
-        renderWithProviders(<AnalyticsBlock walletId={1} date="2021-01-01"/>, { store });
+        renderWithProviders(<DailyAnalyticsBlock walletId={1} date="2021-01-01"/>, { store });
         // Tabs
         expect(screen.getByText("Outcome")).toBeInTheDocument();
         expect(screen.getByText("Income")).toBeInTheDocument();
@@ -51,7 +52,7 @@ describe("AnalyticsBlock", () => {
     });
 
     it("render no transactions -> display no analytics", () => {
-        renderWithProviders(<AnalyticsBlock walletId={1} date="2021-01-01"/>);
+        renderWithProviders(<DailyAnalyticsBlock walletId={1} date="2021-01-01"/>);
         // Tabs
         expect(screen.getByText("Outcome")).toBeInTheDocument();
         expect(screen.getByText("Income")).toBeInTheDocument();
@@ -85,7 +86,7 @@ describe("AnalyticsBlock", () => {
                 },
             },
         });
-        renderWithProviders(<AnalyticsBlock walletId={1} date="2021-01-01"/>, { store });
+        renderWithProviders(<DailyAnalyticsBlock walletId={1} date="2021-01-01"/>, { store });
 
         expect(screen.queryByText("No transactions for analytics")).not.toBeInTheDocument();
 
