@@ -3,15 +3,25 @@ import { act, screen, waitFor } from "@testing-library/react";
 import dayjs from "dayjs";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { setupStore } from "../../../../app/store";
-import { renderWithProviders } from "../../../../common/utils/test-utils";
-import { Role } from "../../../../features/auth/authSlice";
+import { renderWithProviders, setupStoreWithAuth } from "../../../../common/utils/test-utils";
 
 describe("TransactionsPage", () => {
     beforeEach(() => window.history.pushState({}, "transactions", "/transactions"));
 
     it("render", async () => {
-        const store = setupStoreWithAuth();
+        const store = setupStoreWithAuth({
+            wallets: {
+                wallets: [
+                    {
+                        id: 1,
+                        name: "Wallet 1",
+                        balance: 100,
+                        currency: "USD",
+                    },
+                ],
+                isInitialized: true,
+            },
+        });
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
         // Few loaders on init.
@@ -28,7 +38,7 @@ describe("TransactionsPage", () => {
     }, 10_000);
 
     it("render. no Wallets. Do not display Add transaction button", async () => {
-        const store = setupStoreWithAuth(false);
+        const store = setupStoreWithAuth();
         renderWithProviders(<App/>, { store, wrapper: BrowserRouter });
 
         await waitFor(() => {
@@ -39,35 +49,3 @@ describe("TransactionsPage", () => {
         });
     });
 });
-
-function setupStoreWithAuth(addWallets = true) {
-    const wallets = addWallets
-        ? {
-            wallets: [
-                {
-                    id: 1,
-                    name: "Wallet 1",
-                    balance: 100,
-                    currency: "USD",
-                },
-            ],
-            isInitialized: true,
-        }
-        : {
-            wallets: [],
-            isInitialized: true,
-        };
-
-    return setupStore({
-        auth: {
-            firstName: "Test",
-            lastName: "Test",
-            username: "Test",
-            roles: [Role.ROLE_USER],
-            csrfToken: "Test",
-            isInitialized: true,
-            isForceLogin: false,
-        },
-        wallets,
-    });
-}
