@@ -1,6 +1,22 @@
-export const categoryColorMap = {
+/**
+ * This file contains a map of colors for categories and subcategories.
+ * It is used in {@link getColorByCategory} function.
+ */
+
+export interface CategoryColorMapType {
+    incomeColor: string; // For basic income
+    outcomeColor: string; // For basic outcome
+    deletedColor: string; // If category is not found
+    outcome: Record<string, string>;
+    income: Record<string, string>;
+}
+
+export const categoryColorMap: CategoryColorMapType = {
+    incomeColor: "#0f0",
+    outcomeColor: "#f00",
+    deletedColor: "#490000",
     outcome: {
-        food_and_beverages: "#f00",
+        food_and_beverages: "#ffed00",
         grocery: "#ffcaca",
         restaurant: "#68ff2d",
         cafe: "#ff9e00",

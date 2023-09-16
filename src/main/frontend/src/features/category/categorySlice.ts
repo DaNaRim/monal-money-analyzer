@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "../../app/store";
 import { clearAuthState } from "../auth/authSlice";
+import { categoriesToFlatArray } from "./categoryUtil";
 
 export enum CategoryType {
     INCOME = "INCOME",
@@ -44,18 +45,8 @@ const categorySlice = createSlice({
 export const selectTransactionCategories = (state: RootState) => state.categories.categories;
 export const selectIsCategoriesInitialized = (state: RootState) => state.categories.isInitialized;
 
-export const selectCategoriesWithSubcategories = (state: RootState) => {
-    const categories = state.categories.categories;
-    const categoriesWithSubcategories = [...categories];
-    categories.forEach(category => {
-        if (category.subCategories != null) {
-            category.subCategories.forEach(subcategory => {
-                categoriesWithSubcategories.push(subcategory);
-            });
-        }
-    });
-    return categoriesWithSubcategories;
-};
+export const selectCategoriesWithSubcategories = (state: RootState) =>
+    categoriesToFlatArray(state.categories.categories);
 
 export const { setCategories } = categorySlice.actions;
 
