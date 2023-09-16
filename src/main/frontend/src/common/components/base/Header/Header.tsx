@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
 import {
+    ROUTE_ANALYTICS,
     ROUTE_HOME,
     ROUTE_LOGIN,
     ROUTE_REGISTRATION,
@@ -82,7 +83,9 @@ const Header = () => {
                     <PrivateLink to={ROUTE_TRANSACTIONS}>
                         {t.mainHeader.nav.transactions}
                     </PrivateLink>
-
+                    <PrivateLink to={ROUTE_ANALYTICS}>
+                        {t.mainHeader.nav.analytics}
+                    </PrivateLink>
                 </ul>
             </nav>
             <LanguageHandler/>

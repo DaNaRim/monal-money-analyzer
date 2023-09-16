@@ -6,6 +6,7 @@ export const ROUTE_RESET_PASSWORD = "/resetPassword";
 export const ROUTE_RESET_PASSWORD_SET = "/resetPasswordSet";
 
 export const ROUTE_TRANSACTIONS = "/transactions";
+export const ROUTE_ANALYTICS = "/analytics";
 
 export const ROUTE_FORBIDDEN = "/forbidden";
 export const ROUTE_ERROR = "/error";

@@ -7,6 +7,7 @@ export default {
         nav: {
             home: "Домашня",
             transactions: "Транзакції",
+            analytics: "Аналітика",
         },
     },
 
@@ -31,6 +32,20 @@ export default {
             4: "Четвер",
             5: "П'ятниця",
             6: "Субота",
+        },
+        month: {
+            1: "Січень",
+            2: "Лютий",
+            3: "Березень",
+            4: "Квітень",
+            5: "Травень",
+            6: "Червень",
+            7: "Липень",
+            8: "Серпень",
+            9: "Вересень",
+            10: "Жовтень",
+            11: "Листопад",
+            12: "Грудень",
         },
         currency: {
             AED: "Дирхам ОАЕ",
@@ -222,6 +237,9 @@ export default {
             outcome: "Витрата",
         },
         transactionCategory: {
+            incomeName: "Дохід",
+            outcomeName: "Витрата",
+            deleted: "Видалена категорія",
             outcome: {
                 food_and_beverages: "Їжа і напої",
                 grocery: "Продукти",
@@ -291,7 +309,7 @@ export default {
                 internet_bill: "Рахунок за інтернет",
                 television_bill: "Рахунок за телебачення",
                 rent: "Оренда",
-                watter_bill: "Рахунок за воду",
+                water_bill: "Рахунок за воду",
                 electricity_bill: "Рахунок за електрику",
                 gas_bill: "Рахунок за газ",
 
@@ -313,7 +331,6 @@ export default {
                 business: "Бізнес",
                 other: "Інше",
             },
-            deleted: "Видаленa категорія",
         },
     },
 
@@ -583,5 +600,24 @@ export default {
     analyticsBlock: {
         showChildCategories: "Показати дочірні категорії",
         noDataForAnalytics: "Немає даних для аналітики",
+    },
+
+    analyticsBar: {
+        showCategories: "Показати категорії",
+        showChildCategories: "Показати дочірні категорії",
+        loading: "Завантаження...",
+        error: "Не вдалося завантажити аналітику",
+        dateControl: {
+            prev: {
+                month: "Попередній місяць",
+                year: "Попередній рік",
+                years: "Попередні {0} роки",
+            },
+            next: {
+                month: "Наступний місяць",
+                year: "Наступний рік",
+                years: "Наступні {0} роки",
+            },
+        },
     },
 };

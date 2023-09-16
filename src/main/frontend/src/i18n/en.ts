@@ -7,6 +7,7 @@ export default {
         nav: {
             home: "Home",
             transactions: "Transactions",
+            analytics: "Analytics",
         },
     },
 
@@ -31,6 +32,20 @@ export default {
             4: "Thursday",
             5: "Friday",
             6: "Saturday",
+        },
+        month: {
+            1: "January",
+            2: "February",
+            3: "March",
+            4: "April",
+            5: "May",
+            6: "June",
+            7: "July",
+            8: "August",
+            9: "September",
+            10: "October",
+            11: "November",
+            12: "December",
         },
         currency: {
             AED: "United Arab Emirates dirham",
@@ -222,6 +237,9 @@ export default {
             outcome: "Outcome",
         },
         transactionCategory: {
+            incomeName: "Income",
+            outcomeName: "Outcome",
+            deleted: "Deleted category",
             outcome: {
                 food_and_beverages: "Food and beverages",
                 grocery: "Grocery",
@@ -291,7 +309,7 @@ export default {
                 internet_bill: "Internet Bill",
                 television_bill: "Television Bill",
                 rent: "Rent",
-                watter_bill: "Watter Bill",
+                water_bill: "Water Bill",
                 electricity_bill: "Electricity Bill",
                 gas_bill: "Gas Bill",
 
@@ -313,7 +331,6 @@ export default {
                 business: "Business",
                 other: "Other",
             },
-            deleted: "Deleted category",
         },
     },
 
@@ -583,5 +600,24 @@ export default {
     analyticsBlock: {
         showChildCategories: "Show child categories",
         noDataForAnalytics: "No transactions for analytics",
+    },
+
+    analyticsBar: {
+        showCategories: "Show categories",
+        showChildCategories: "Show child categories",
+        loading: "Loading...",
+        error: "Failed to load analytics",
+        dateControl: {
+            prev: {
+                month: "Previous month",
+                year: "Previous year",
+                years: "Previous {0} years",
+            },
+            next: {
+                month: "Next month",
+                year: "Next year",
+                years: "Next {0} years",
+            },
+        },
     },
 };

@@ -5,6 +5,7 @@ import {
     type PreloadedState,
     type ThunkAction,
 } from "@reduxjs/toolkit";
+import analyticsSlice from "../features/analytics/analyticsSlice";
 import { apiSlice, redirectSlice } from "../features/api/apiSlice";
 import appMessagesReducer from "../features/appMessages/appMessagesSlice";
 import authReducer from "../features/auth/authSlice";
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
     categories: categorySlice,
     wallets: walletSlice,
     transactions: transactionSlice,
+    analytics: analyticsSlice,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) =>

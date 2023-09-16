@@ -7,6 +7,7 @@ import { checkForServerMessages } from "../features/appMessages/appMessagesSlice
 import "./App.scss";
 import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
 import {
+    ROUTE_ANALYTICS,
     ROUTE_ERROR,
     ROUTE_FORBIDDEN,
     ROUTE_HOME,
@@ -50,11 +51,13 @@ const App = (): JSX.Element => {
                 <Route path={ROUTE_TRANSACTIONS} element={<ProtectedRoute>
                     <TransactionsPage/>
                 </ProtectedRoute>}/>
+                <Route path={ROUTE_ANALYTICS} element={<ProtectedRoute>
+                    <AnalyticsPage/>
+                </ProtectedRoute>}/>
 
                 <Route path={ROUTE_FORBIDDEN} element={<ForbiddenPage/>}/>
                 <Route path={ROUTE_ERROR} element={<ErrorPage/>}/>
                 <Route path="*" element={<NotFoundPage/>}/>
-
             </Route>
         </Routes>
     );
@@ -81,6 +84,9 @@ const ResetPasswordSetPage = React.lazy(async () =>
 
 const TransactionsPage = React.lazy(async () =>
     await import("../common/pages/TransactionsPage/TransactionsPage"),
+);
+const AnalyticsPage = React.lazy(async () =>
+    await import("../common/pages/AnalyticsPage/AnalyticsPage"),
 );
 
 const ForbiddenPage = React.lazy(async () =>
