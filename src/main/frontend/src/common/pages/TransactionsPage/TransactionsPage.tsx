@@ -14,7 +14,7 @@ import {
     selectIsWalletsInitialized,
     setUserWallets,
 } from "../../../features/wallet/walletSlice";
-import AnalyticsBlock from "../../components/money/AnalyticsBlock/AnalyticsBlock";
+import DailyAnalyticsBlock from "../../components/money/DailyAnalyticsBlock/DailyAnalyticsBlock";
 import DateBlock, { DATE_BLOCK_DATE_FORMAT } from "../../components/money/DateBlock/DateBlock";
 import TransactionBlock from "../../components/money/TransactionBlock/TransactionBlock";
 import WalletBlock from "../../components/money/WalletBlock/WalletBlock";
@@ -76,7 +76,7 @@ const TransactionsPage = () => {
                     <TransactionBlock walletId={Number(selectedWalletId)} date={date}/>
                 </div>
                 <div className={styles.transaction_right}>
-                    <AnalyticsBlock walletId={Number(selectedWalletId)} date={date}/>
+                    <DailyAnalyticsBlock walletId={Number(selectedWalletId)} date={date}/>
                 </div>
             </div>
             <CreateTransactionModal open={newWalletModalOpen}

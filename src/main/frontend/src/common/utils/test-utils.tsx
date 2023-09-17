@@ -46,3 +46,18 @@ export const getStateHandler = rest.post("/api/v1/auth/getState", async (req, re
     };
     return await res(con.status(200), con.json(authResponse));
 });
+
+export function setupStoreWithAuth(preloadedState?: PreloadedState<RootState>) {
+    return setupStore({
+        auth: {
+            firstName: "Test",
+            lastName: "Test",
+            username: "Test",
+            roles: [Role.ROLE_USER],
+            csrfToken: "Test",
+            isInitialized: true,
+            isForceLogin: false,
+        },
+        ...preloadedState,
+    });
+}

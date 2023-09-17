@@ -4,6 +4,7 @@ import { ResponsivePie } from "@nivo/pie";
 import React, { useMemo, useState } from "react";
 import { useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
+import { categoryColorMap } from "../../../../features/category/categoryColorMap";
 import {
     type Category,
     CategoryType,
@@ -13,10 +14,9 @@ import {
     selectTransactionsByWalletAndDate,
 } from "../../../../features/transaction/transactionSlice";
 import { addSpacesToNumber } from "../../../utils/moneyUtils";
-import styles from "./AnalyticsBlock.module.scss";
-import { categoryColorMap } from "./categoryColorMap";
+import styles from "./DailyAnalyticsBlock.module.scss";
 
-interface AnalyticsBlockProps {
+interface DailyAnalyticsBlockProps {
     walletId: number;
     date: string;
 }
@@ -28,7 +28,7 @@ interface DataTemplate {
     color: string;
 }
 
-const AnalyticsBlock = ({ walletId, date }: AnalyticsBlockProps) => {
+const DailyAnalyticsBlock = ({ walletId, date }: DailyAnalyticsBlockProps) => {
     const t = useTranslation();
 
     const [selectedTab, setSelectedTab] = useState<CategoryType>(CategoryType.OUTCOME);
@@ -212,7 +212,7 @@ const AnalyticsBlock = ({ walletId, date }: AnalyticsBlockProps) => {
     );
 };
 
-export default AnalyticsBlock;
+export default DailyAnalyticsBlock;
 
 const legendProps: LegendProps = {
     anchor: "bottom",

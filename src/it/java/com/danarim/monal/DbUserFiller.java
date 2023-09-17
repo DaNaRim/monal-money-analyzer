@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import java.util.Set;
  * Used to fill database with users and helping to test authentication.
  */
 @TestConfiguration
+@Import(TestBeans.class)
 public class DbUserFiller {
 
     public static final String USER_NOT_ACTIVATED_USERNAME = "user_not_activated";

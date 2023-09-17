@@ -117,8 +117,10 @@ describe("CreateTransactionModal", () => {
         await act(() => jest.advanceTimersByTime(1500));
 
         await waitFor(() => {
+            const date = dayjs().utc();
+
             const transactionByDate
-                = store.getState().transactions?.["1"]?.[dayjs().utc().format("YYYY-MM-DD")];
+                = store.getState().transactions?.["1"]?.[date.format("YYYY-MM-DD")];
 
             expect(transactionByDate).toHaveLength(1);
             expect(transactionByDate?.[0]).toEqual({
@@ -126,7 +128,7 @@ describe("CreateTransactionModal", () => {
                 category: expect.any(Object),
                 amount: "100",
                 description: "Test",
-                date: dayjs().utc().format("YYYY-MM-DD HH:mm"),
+                date: date.format("YYYY-MM-DD HH:mm"),
                 categoryId: expect.any(Number), // Useless
             });
             expect(setOpen).toBeCalledWith(false);
