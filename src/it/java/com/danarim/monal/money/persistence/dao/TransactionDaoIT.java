@@ -48,7 +48,7 @@ class TransactionDaoIT {
     }
 
     @Test
-    void getTransactionDailyAnalyticsBetweenDates() {
+    void getTransactionAnalyticsBetweenDates_Daily() {
         fillDatabase();
 
         Calendar calendar = Calendar.getInstance();
@@ -63,6 +63,7 @@ class TransactionDaoIT {
                 AnalyticsPeriod.DAILY.getDateFormat(), 1L, from, to
         );
         assertEquals(3, result.size(), "Wrong number of analytics returned");
+
         assertEquals("2021-01-01", result.get(0).getGroupedDate());
         assertEquals("Category 1", result.get(0).getCategoryName());
         assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
@@ -78,6 +79,76 @@ class TransactionDaoIT {
         assertEquals(1.0, result.get(2).getSum());
     }
 
+    @Test
+    void getTransactionAnalyticsBetweenDates_Monthly() {
+        fillDatabase();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(prepareDate(2021, 1, 1));
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        Date from = calendar.getTime();
+        calendar.add(Calendar.MONTH, 1);
+        Date to = calendar.getTime();
+
+        List<AnalyticsDbDto> result = transactionDao.getTransactionAnalyticsBetweenDates(
+                AnalyticsPeriod.MONTHLY.getDateFormat(), 1L, from, to
+        );
+        assertEquals(3, result.size(), "Wrong number of analytics returned");
+
+        assertEquals("2021-01", result.get(0).getGroupedDate());
+        assertEquals("Category 1", result.get(0).getCategoryName());
+        assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
+        assertEquals(3.0, result.get(0).getSum());
+
+        assertEquals("2021-01", result.get(1).getGroupedDate());
+        assertEquals("Category 2", result.get(1).getCategoryName());
+        assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
+        assertEquals(1.0, result.get(1).getSum());
+
+        assertEquals("2021-02", result.get(2).getGroupedDate());
+        assertEquals("Category 2", result.get(2).getCategoryName());
+        assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
+        assertEquals(1.0, result.get(2).getSum());
+    }
+
+    @Test
+    void getTransactionAnalyticsBetweenDates_Yearly() {
+        fillDatabase();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(prepareDate(2021, 1, 1));
+        calendar.set(Calendar.YEAR, 2021);
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        Date from = calendar.getTime();
+        calendar.add(Calendar.YEAR, 1);
+        calendar.add(Calendar.MONTH, 1);
+        Date to = calendar.getTime();
+
+        List<AnalyticsDbDto> result = transactionDao.getTransactionAnalyticsBetweenDates(
+                AnalyticsPeriod.YEARLY.getDateFormat(), 1L, from, to
+        );
+        assertEquals(3, result.size(), "Wrong number of analytics returned");
+
+        assertEquals("2021", result.get(0).getGroupedDate());
+        assertEquals("Category 1", result.get(0).getCategoryName());
+        assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
+        assertEquals(3.0, result.get(0).getSum());
+
+        assertEquals("2021", result.get(1).getGroupedDate());
+        assertEquals("Category 2", result.get(1).getCategoryName());
+        assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
+        assertEquals(2.0, result.get(1).getSum());
+
+        assertEquals("2022", result.get(2).getGroupedDate());
+        assertEquals("Category 2", result.get(2).getCategoryName());
+        assertEquals(TransactionType.OUTCOME, result.get(0).getCategoryType());
+        assertEquals(1.0, result.get(2).getSum());
+    }
+
     private static Date prepareDate(int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
@@ -86,6 +157,10 @@ class TransactionDaoIT {
     }
 
     private void fillDatabase() {
+        if (walletDao.existsById(1L)) {
+            return;
+        }
+
         Wallet wallet = new Wallet("Test", 1.0, Currency.USD, DbUserFiller.getTestUser());
         walletDao.save(wallet);
 
@@ -107,12 +182,15 @@ class TransactionDaoIT {
                 = new Transaction("Test", prepareDate(2021, 1, 1), 1.0, category2, wallet);
         Transaction transaction5
                 = new Transaction("Test", prepareDate(2021, 2, 1), 1.0, category2, wallet);
+        Transaction transaction6
+                = new Transaction("Test", prepareDate(2022, 2, 1), 1.0, category2, wallet);
 
         transactionDao.save(transaction1);
         transactionDao.save(transaction2);
         transactionDao.save(transaction3);
         transactionDao.save(transaction4);
         transactionDao.save(transaction5);
+        transactionDao.save(transaction6);
     }
 
 }

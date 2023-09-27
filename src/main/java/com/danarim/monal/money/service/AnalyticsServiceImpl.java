@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
 
+    /**
+     * Years before and after the current year to get analytics for.
+     */
+    private static final int YERLY_ANALYTICS_RANGE = 1;
+
     private final TransactionDao transactionDao;
     private final WalletService walletService;
 
@@ -33,6 +38,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     /**
      * Gets analytics for a wallet for a specific month.
      *
+     * @param period      analytics period to get analytics for
      * @param walletId     wallet ID to get analytics for
      * @param date         date to get analytics for (month and year)
      * @param loggedUserId logged in user ID
@@ -42,19 +48,20 @@ public class AnalyticsServiceImpl implements AnalyticsService {
      * @throws AccessDeniedException if the user is not the owner of the wallet
      */
     @Override
-    public ViewAnalyticsDto getDailyAnalytics(Long walletId,
-                                              Date date,
-                                              long loggedUserId
+    public ViewAnalyticsDto getAnalytics(AnalyticsPeriod period,
+                                         Long walletId,
+                                         Date date,
+                                         long loggedUserId
     ) {
         if (!walletService.isUserWalletOwner(walletId, loggedUserId)) {
             throw new AccessDeniedException("User with ID %d is not the owner of wallet with ID %d"
                                                     .formatted(loggedUserId, walletId));
         }
         List<AnalyticsDbDto> analytics = transactionDao.getTransactionAnalyticsBetweenDates(
-                AnalyticsPeriod.DAILY.getDateFormat(),
+                period.getDateFormat(),
                 walletId,
-                getStartDateByPeriod(AnalyticsPeriod.DAILY, date),
-                getEndDateByPeriod(AnalyticsPeriod.DAILY, date)
+                getStartDateByPeriod(period, date),
+                getEndDateByPeriod(period, date)
         );
         return new ViewAnalyticsDto(
                 convertAnalyticsWithTypeFilter(analytics, TransactionType.INCOME),
@@ -79,12 +86,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         switch (period) {
             case DAILY -> calendar.set(Calendar.DAY_OF_MONTH, 1);
             case MONTHLY -> {
-                calendar.set(Calendar.MONTH, 0);
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
             }
             case YEARLY -> {
-                calendar.add(Calendar.YEAR, -3);
-                calendar.set(Calendar.MONTH, 0);
+                calendar.add(Calendar.YEAR, -YERLY_ANALYTICS_RANGE);
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
             }
             default -> throw new InternalServerException(
@@ -117,7 +124,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                              calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
             }
             case YEARLY -> {
-                calendar.add(Calendar.YEAR, 3);
+                calendar.add(Calendar.YEAR, YERLY_ANALYTICS_RANGE);
                 calendar.set(Calendar.MONTH, calendar.getActualMaximum(Calendar.MONTH));
                 calendar.set(Calendar.DAY_OF_MONTH,
                              calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
