@@ -1,16 +1,16 @@
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Checkbox, FormControlLabel } from "@mui/material";
+import { Checkbox, FormControlLabel, MenuItem, Select } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { type LocalizedStrings } from "react-localization";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
-import { useGetDailyAnalyticsQuery } from "../../../../features/analytics/analyticsApiSlice";
+import { useGetAnalyticsQuery } from "../../../../features/analytics/analyticsApiSlice";
 import {
     type AnalyticsBarData,
-    AnalyticsPeriodType,
+    AnalyticsPeriod,
     saveAnalyticsFromServer,
     selectAnalyticsForBarChart,
 } from "../../../../features/analytics/analyticsSlice";
@@ -36,7 +36,7 @@ const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
     const t = useTranslation();
     const dispatch = useAppDispatch();
 
-    const [periodType] = useState<AnalyticsPeriodType>(AnalyticsPeriodType.DAY);
+    const [periodType, setPeriodType] = useState<AnalyticsPeriod>(AnalyticsPeriod.DAILY);
 
     const [selectedDate, setSelectedDate] = useState<string>(getParsedCurrentDate());
 
@@ -45,15 +45,6 @@ const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
     const [showChildCategories, setShowChildCategories] = useState<boolean>(false);
 
     const [maxNumberWithoutSign, setMaxNumberWithoutSign] = useState<number>(0);
-
-    const {
-        data: analyticsFetchData,
-        isFetching,
-        isError: isAnalyticsError,
-    } = useGetDailyAnalyticsQuery({
-        walletId,
-        date: selectedDate,
-    }, { skip: periodType !== AnalyticsPeriodType.DAY });
 
     const categories = useAppSelector(selectCategoriesWithSubcategories);
     const isCategoriesInitialized = useAppSelector(selectIsCategoriesInitialized);
@@ -65,6 +56,16 @@ const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
         selectedDate,
         { showCategories, showChildCategories },
     ), (left, right) => JSON.stringify(left) === JSON.stringify(right));
+
+    const {
+        data: analyticsFetchData,
+        isFetching: isAnalyticsFetching,
+        isError: isAnalyticsError,
+    } = useGetAnalyticsQuery({
+        walletId,
+        date: selectedDate,
+        period: periodType,
+    });
 
     useEffect(() => {
         dispatch(saveAnalyticsFromServer({
@@ -80,70 +81,82 @@ const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
 
     return (
         <div className={styles.analytics_bar} data-testid="analytics-bar">
-            {isFetching && <div className={styles.data_loader}>{t.analyticsBar.loading}</div>}
-            {isAnalyticsError && <div>{t.analyticsBar.error}</div>}
-            {!isAnalyticsError &&
-              <>
-                <div className={styles.controls}>
-                  <div className={styles.date_wrapper}>
+            {isAnalyticsFetching
+                && <div className={styles.data_loader}>{t.analyticsBar.loading}</div>}
+            {isAnalyticsError
+                && <div className={styles.data_error}>{t.analyticsBar.error}</div>}
+            <div className={styles.controls}>
+                <Select className={styles.period_select}
+                        value={periodType}
+                        renderValue={value =>
+                            t.getString(`analyticsBar.period.${value.toLowerCase()}`)}
+                        onChange={e => setPeriodType(e.target.value as AnalyticsPeriod)}
+                        disabled={isAnalyticsFetching}
+                        autoWidth={true}
+                        label="">
+                    {Object.values(AnalyticsPeriod).map(periodType =>
+                        <MenuItem key={periodType} value={periodType}>
+                            {t.getString(`analyticsBar.period.${periodType.toLowerCase()}`)}
+                        </MenuItem>,
+                    )}
+                </Select>
+                <div className={styles.date_wrapper}>
                     <button className={styles.arrow_button}
                             onClick={() =>
                                 setSelectedDate(getPreviousDate(selectedDate, periodType))
                             }
                             title={getDateButtonTitle(periodType, "prev", t)}>
-                      <FontAwesomeIcon icon={faChevronLeft}/>
+                        <FontAwesomeIcon icon={faChevronLeft}/>
                     </button>
                     <p>{getDateToDisplay(selectedDate, periodType, t)}</p>
                     <button className={styles.arrow_button}
                             onClick={() => setSelectedDate(getNextDate(selectedDate, periodType))}
                             title={getDateButtonTitle(periodType, "next", t)}>
-                      <FontAwesomeIcon icon={faChevronRight}/>
+                        <FontAwesomeIcon icon={faChevronRight}/>
                     </button>
-                  </div>
-                  <div className={styles.checkbox_wrapper}>
-                    <FormControlLabel
-                      className={styles.checkbox}
-                      label={t.analyticsBar.showCategories}
-                      control={<Checkbox
-                          checked={showCategories}
-                          onChange={() => setShowCategories(!showCategories)}
-                          inputProps={{ "aria-label": "controlled" }}
-                      />}
-                    />
-                    <FormControlLabel
-                      className={styles.checkbox}
-                      label={t.analyticsBar.showChildCategories}
-                      disabled={!showCategories}
-                      control={<Checkbox
-                          checked={showChildCategories}
-                          onChange={() => setShowChildCategories(!showChildCategories)}
-                          inputProps={{ "aria-label": "controlled" }}
-                      />}
-                    />
-                  </div>
                 </div>
-                <ResponsiveBar
-                  data={analyticsData}
-                  keys={[...categories.map(cur => cur.name), "income", "outcome"]}
-                  indexBy="date"
-                  margin={{ top: 20, right: 100, bottom: 50, left: 100 }}
-                  maxValue={maxNumberWithoutSign}
-                  minValue={-maxNumberWithoutSign}
-                  enableLabel={false}
-                  colors={datum => getColorByCategory(datum.id as string, categories)}
-                  tooltipLabel={datum =>
-                      getCategoryLocalName(datum.id as string, categories, t)}
-                  layers={[
-                      "grid",
-                      "axes",
-                      "bars",
-                      ZeroLine,
-                      "annotations",
-                      "legends",
-                  ]}
-                />
-              </>
-            }
+                <div className={styles.checkbox_wrapper}>
+                    <FormControlLabel
+                        className={styles.checkbox}
+                        label={t.analyticsBar.showCategories}
+                        control={<Checkbox
+                            checked={showCategories}
+                            onChange={() => setShowCategories(!showCategories)}
+                            inputProps={{ "aria-label": "controlled" }}
+                        />}
+                    />
+                    <FormControlLabel
+                        className={styles.checkbox}
+                        label={t.analyticsBar.showChildCategories}
+                        disabled={!showCategories}
+                        control={<Checkbox
+                            checked={showChildCategories}
+                            onChange={() => setShowChildCategories(!showChildCategories)}
+                            inputProps={{ "aria-label": "controlled" }}
+                        />}
+                    />
+                </div>
+            </div>
+            <ResponsiveBar
+                data={analyticsData}
+                keys={[...categories.map(cur => cur.name), "income", "outcome"]}
+                indexBy="date"
+                margin={{ top: 20, right: 100, bottom: 50, left: 100 }}
+                maxValue={maxNumberWithoutSign}
+                minValue={-maxNumberWithoutSign}
+                enableLabel={false}
+                colors={datum => getColorByCategory(datum.id as string, categories)}
+                tooltipLabel={datum =>
+                    getCategoryLocalName(datum.id as string, categories, t)}
+                layers={[
+                    "grid",
+                    "axes",
+                    "bars",
+                    ZeroLine,
+                    "annotations",
+                    "legends",
+                ]}
+            />
         </div>
     );
 };
@@ -179,53 +192,53 @@ const calculateMaxNumber = (analyticsData: AnalyticsBarData[]): number => {
 };
 
 const getDateToDisplay = (date: string,
-                          periodType: AnalyticsPeriodType,
+                          periodType: AnalyticsPeriod,
                           t: LocalizedStrings<Localization>,
 ): string => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return `${t.getString(`data.month.${dayjs(date).format("M")}`)}`
                 + ` ${dayjs(date).format("YYYY")}`;
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return dayjs(date).format("YYYY");
-        case AnalyticsPeriodType.YEAR:
-            return `${dayjs(date).subtract(3, "year").format("YYYY")}`
-                + ` - ${dayjs(date).add(3, "year").format("YYYY")}`;
+        case AnalyticsPeriod.YEARLY:
+            return `${dayjs(date).subtract(1, "year").format("YYYY")}`
+                + ` - ${dayjs(date).add(1, "year").format("YYYY")}`;
     }
 };
 
-const getNextDate = (date: string, periodType: AnalyticsPeriodType): string => {
+const getNextDate = (date: string, periodType: AnalyticsPeriod): string => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return dayjs(date).add(1, "month").format(DATE_BLOCK_DATE_FORMAT);
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return dayjs(date).add(1, "year").format(DATE_BLOCK_DATE_FORMAT);
-        case AnalyticsPeriodType.YEAR:
+        case AnalyticsPeriod.YEARLY:
             return dayjs(date).add(3, "year").format(DATE_BLOCK_DATE_FORMAT);
     }
 };
 
-const getPreviousDate = (date: string, periodType: AnalyticsPeriodType): string => {
+const getPreviousDate = (date: string, periodType: AnalyticsPeriod): string => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return dayjs(date).subtract(1, "month").format(DATE_BLOCK_DATE_FORMAT);
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return dayjs(date).subtract(1, "year").format(DATE_BLOCK_DATE_FORMAT);
-        case AnalyticsPeriodType.YEAR:
+        case AnalyticsPeriod.YEARLY:
             return dayjs(date).subtract(3, "year").format(DATE_BLOCK_DATE_FORMAT);
     }
 };
 
-const getDateButtonTitle = (periodType: AnalyticsPeriodType,
+const getDateButtonTitle = (periodType: AnalyticsPeriod,
                             moveTo: "next" | "prev",
                             t: LocalizedStrings<Localization>,
 ): string => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return t.getString(`analyticsBar.dateControl.${moveTo}.month`);
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return t.getString(`analyticsBar.dateControl.${moveTo}.year`);
-        case AnalyticsPeriodType.YEAR:
+        case AnalyticsPeriod.YEARLY:
             return t.formatString(
                 t.getString(`analyticsBar.dateControl.${moveTo}.years`), 3,
             ).toString();

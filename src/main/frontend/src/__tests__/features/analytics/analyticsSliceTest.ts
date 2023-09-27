@@ -2,7 +2,7 @@ import { describe } from "@jest/globals";
 import { setupStore } from "../../../app/store";
 import { type ViewAnalyticsDto } from "../../../features/analytics/analyticsApiSlice";
 import reducer, {
-    AnalyticsPeriodType,
+    AnalyticsPeriod,
     saveAnalyticsFromServer,
     selectAnalyticsForBarChart,
 } from "../../../features/analytics/analyticsSlice";
@@ -11,7 +11,7 @@ import { type Category, CategoryType } from "../../../features/category/category
 
 const analytics = {
     1: {
-        [AnalyticsPeriodType.DAY]: {
+        [AnalyticsPeriod.DAILY]: {
             income: {
                 "2021-01-01": {
                     "Category 1": 100,
@@ -84,7 +84,7 @@ describe("analyticsSlice", () => {
 
     // saveAnalyticsFromServer
 
-    test("saveAnalyticsFromServer", () => {
+    test("saveAnalyticsFromServer. Daily", () => {
         const analytics: ViewAnalyticsDto = {
             income: {
                 "2021-01-01": {
@@ -103,12 +103,70 @@ describe("analyticsSlice", () => {
         };
         const payload = {
             walletId: 1,
-            periodType: AnalyticsPeriodType.DAY,
+            periodType: AnalyticsPeriod.DAILY,
             data: analytics,
         };
         expect(reducer(undefined, saveAnalyticsFromServer(payload))).toEqual({
             1: {
-                [AnalyticsPeriodType.DAY]: analytics,
+                [AnalyticsPeriod.DAILY]: analytics,
+            },
+        });
+    });
+
+    test("saveAnalyticsFromServer. Monthly", () => {
+        const analytics: ViewAnalyticsDto = {
+            income: {
+                "2021-01": {
+                    "Category 1": 100,
+                    "Category 2": 200,
+                },
+                "2021-02": {
+                    "Category 1": 100,
+                },
+            },
+            outcome: {
+                "2021-02": {
+                    "Category 1": 100,
+                },
+            },
+        };
+        const payload = {
+            walletId: 1,
+            periodType: AnalyticsPeriod.MONTHLY,
+            data: analytics,
+        };
+        expect(reducer(undefined, saveAnalyticsFromServer(payload))).toEqual({
+            1: {
+                [AnalyticsPeriod.MONTHLY]: analytics,
+            },
+        });
+    });
+
+    test("saveAnalyticsFromServer. Yearly", () => {
+        const analytics: ViewAnalyticsDto = {
+            income: {
+                2021: {
+                    "Category 1": 100,
+                    "Category 2": 200,
+                },
+                2022: {
+                    "Category 1": 100,
+                },
+            },
+            outcome: {
+                2022: {
+                    "Category 1": 100,
+                },
+            },
+        };
+        const payload = {
+            walletId: 1,
+            periodType: AnalyticsPeriod.YEARLY,
+            data: analytics,
+        };
+        expect(reducer(undefined, saveAnalyticsFromServer(payload))).toEqual({
+            1: {
+                [AnalyticsPeriod.YEARLY]: analytics,
             },
         });
     });
@@ -120,12 +178,12 @@ describe("analyticsSlice", () => {
         };
         const payload = {
             walletId: 1,
-            periodType: AnalyticsPeriodType.DAY,
+            periodType: AnalyticsPeriod.DAILY,
             data: analytics,
         };
         expect(reducer(undefined, saveAnalyticsFromServer(payload))).toEqual({
             1: {
-                [AnalyticsPeriodType.DAY]: {
+                [AnalyticsPeriod.DAILY]: {
                     income: {},
                     outcome: {},
                 },
@@ -136,7 +194,7 @@ describe("analyticsSlice", () => {
     test("saveAnalyticsFromServer. undefined data -> no changes", () => {
         const payload = {
             walletId: 1,
-            periodType: AnalyticsPeriodType.DAY,
+            periodType: AnalyticsPeriod.DAILY,
             data: undefined,
         };
         expect(reducer(undefined, saveAnalyticsFromServer(payload))).toEqual({});
@@ -145,7 +203,7 @@ describe("analyticsSlice", () => {
     test("saveAnalyticsFromServer. Data already exist -> replace", () => {
         const prevState = {
             1: {
-                [AnalyticsPeriodType.DAY]: {
+                [AnalyticsPeriod.DAILY]: {
                     income: {
                         "2021-01-01": {
                             "Category 3": 50,
@@ -170,12 +228,12 @@ describe("analyticsSlice", () => {
 
         const payload = {
             walletId: 1,
-            periodType: AnalyticsPeriodType.DAY,
+            periodType: AnalyticsPeriod.DAILY,
             data: analytics,
         };
         expect(reducer(prevState, saveAnalyticsFromServer(payload))).toEqual({
             1: {
-                [AnalyticsPeriodType.DAY]: {
+                [AnalyticsPeriod.DAILY]: {
                     income: {
                         "2021-01-01": {
                             "Category 1": 100,
@@ -191,12 +249,58 @@ describe("analyticsSlice", () => {
         });
     });
 
+    test("saveAnalyticsFromServer. Data already exist different period -> add", () => {
+        const prevState = {
+            1: {
+                [AnalyticsPeriod.DAILY]: {
+                    income: {
+                        "2021-01-01": {
+                            "Category 3": 50,
+                        },
+                    },
+                    outcome: {},
+                },
+            },
+        };
+        const analytics: ViewAnalyticsDto = {
+            income: {
+                "2021-01": {
+                    "Category 1": 100,
+                    "Category 2": 200,
+                },
+                "2021-02": {
+                    "Category 1": 100,
+                },
+            },
+            outcome: {},
+        };
+
+        const payload = {
+            walletId: 1,
+            periodType: AnalyticsPeriod.MONTHLY,
+            data: analytics,
+        };
+        expect(reducer(prevState, saveAnalyticsFromServer(payload))).toEqual({
+            1: {
+                [AnalyticsPeriod.DAILY]: {
+                    income: {
+                        "2021-01-01": {
+                            "Category 3": 50,
+                        },
+                    },
+                    outcome: {},
+                },
+                [AnalyticsPeriod.MONTHLY]: analytics,
+            },
+        });
+    });
+
     // Extra reducers
 
     test("clearAuthState -> reset state", () => {
         const prevState = {
             1: {
-                [AnalyticsPeriodType.DAY]: {
+                [AnalyticsPeriod.DAILY]: {
                     income: {
                         "2021-01-01": {
                             "Category 3": 50,
@@ -215,7 +319,7 @@ describe("analyticsSlice", () => {
         const result = selectAnalyticsForBarChart(
             storeForSelect.getState(),
             1,
-            AnalyticsPeriodType.DAY,
+            AnalyticsPeriod.DAILY,
             "2021-01-01",
         );
         expect(result).toEqual([
@@ -240,7 +344,7 @@ describe("analyticsSlice", () => {
         const result = selectAnalyticsForBarChart(
             storeForSelect.getState(),
             1,
-            AnalyticsPeriodType.DAY,
+            AnalyticsPeriod.DAILY,
             "2021-01-10",
             {
                 showCategories: true,
@@ -269,7 +373,7 @@ describe("analyticsSlice", () => {
         const result = selectAnalyticsForBarChart(
             storeForSelect.getState(),
             1,
-            AnalyticsPeriodType.DAY,
+            AnalyticsPeriod.DAILY,
             "2021-01-10",
             {
                 showCategories: true,
@@ -301,7 +405,7 @@ describe("analyticsSlice", () => {
             const result = selectAnalyticsForBarChart(
                 storeForSelect.getState(),
                 1,
-                AnalyticsPeriodType.DAY,
+                AnalyticsPeriod.DAILY,
                 "2021-01-10",
                 {
                     showCategories: false,
@@ -336,7 +440,7 @@ describe("analyticsSlice", () => {
         const result = selectAnalyticsForBarChart(
             store.getState(),
             1,
-            AnalyticsPeriodType.DAY,
+            AnalyticsPeriod.DAILY,
             "2021-01-10",
         );
         expect(result).toEqual([]);
@@ -349,7 +453,7 @@ describe("analyticsSlice", () => {
         const result = selectAnalyticsForBarChart(
             store.getState(),
             1,
-            AnalyticsPeriodType.DAY,
+            AnalyticsPeriod.DAILY,
             "2021-01-01",
         );
         expect(result).toEqual([
@@ -377,7 +481,7 @@ describe("analyticsSlice", () => {
         const result = selectAnalyticsForBarChart(
             store.getState(),
             1,
-            AnalyticsPeriodType.DAY,
+            AnalyticsPeriod.DAILY,
             "2021-01-01",
             {
                 showCategories: true,
@@ -395,7 +499,7 @@ describe("analyticsSlice", () => {
             const result = selectAnalyticsForBarChart(
                 store.getState(),
                 1,
-                AnalyticsPeriodType.DAY,
+                AnalyticsPeriod.DAILY,
                 "2021-01-01",
                 {
                     showCategories: true,

@@ -9,7 +9,7 @@ import { type ViewAnalyticsDto } from "../../../../../features/analytics/analyti
 
 describe("AnalyticsBar", () => {
     const handlers = [
-        rest.get("/api/v1/analytics/daily", async (req, res, ctx) => {
+        rest.get("/api/v1/analytics", async (req, res, ctx) => {
             const walletId = req.url.searchParams.get("walletId");
 
             if (walletId === "0") {
@@ -66,6 +66,6 @@ describe("AnalyticsBar", () => {
 
         expect(screen.getByText("Failed to load analytics")).toBeInTheDocument();
         expect(document.querySelector("div[style=\"width: 100%; height: 100%;\"]"))
-            .not.toBeInTheDocument();
+            .toBeInTheDocument();
     });
 });

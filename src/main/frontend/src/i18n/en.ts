@@ -607,6 +607,11 @@ export default {
         showChildCategories: "Show child categories",
         loading: "Loading...",
         error: "Failed to load analytics",
+        period: {
+            daily: "Daily",
+            monthly: "Monthly",
+            yearly: "Yearly",
+        },
         dateControl: {
             prev: {
                 month: "Previous month",

@@ -607,6 +607,11 @@ export default {
         showChildCategories: "Показати дочірні категорії",
         loading: "Завантаження...",
         error: "Не вдалося завантажити аналітику",
+        period: {
+            daily: "По днях",
+            monthly: "По місяцях",
+            yearly: "По роках",
+        },
         dateControl: {
             prev: {
                 month: "Попередній місяць",

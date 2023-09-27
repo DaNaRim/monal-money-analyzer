@@ -1,7 +1,9 @@
 package com.danarim.monal.money.service;
 
+import com.danarim.monal.exceptions.InternalServerException;
 import com.danarim.monal.money.persistence.dao.TransactionDao;
 import com.danarim.monal.money.persistence.dto.AnalyticsDbDto;
+import com.danarim.monal.money.persistence.model.AnalyticsPeriod;
 import com.danarim.monal.money.persistence.model.TransactionType;
 import com.danarim.monal.money.web.dto.ViewAnalyticsDto;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,6 +22,11 @@ import java.util.stream.Collectors;
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
 
+    /**
+     * Years before and after the current year to get analytics for.
+     */
+    private static final int YERLY_ANALYTICS_RANGE = 1;
+
     private final TransactionDao transactionDao;
     private final WalletService walletService;
 
@@ -31,6 +38,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     /**
      * Gets analytics for a wallet for a specific month.
      *
+     * @param period      analytics period to get analytics for
      * @param walletId     wallet ID to get analytics for
      * @param date         date to get analytics for (month and year)
      * @param loggedUserId logged in user ID
@@ -40,58 +48,91 @@ public class AnalyticsServiceImpl implements AnalyticsService {
      * @throws AccessDeniedException if the user is not the owner of the wallet
      */
     @Override
-    public ViewAnalyticsDto getDailyAnalytics(Long walletId,
-                                              Date date,
-                                              long loggedUserId
+    public ViewAnalyticsDto getAnalytics(AnalyticsPeriod period,
+                                         Long walletId,
+                                         Date date,
+                                         long loggedUserId
     ) {
         if (!walletService.isUserWalletOwner(walletId, loggedUserId)) {
             throw new AccessDeniedException("User with ID %d is not the owner of wallet with ID %d"
                                                     .formatted(loggedUserId, walletId));
         }
-        List<Object> unparsedAnalytics = transactionDao.getTransactionDailyAnalyticsBetweenDates(
+        List<AnalyticsDbDto> analytics = transactionDao.getTransactionAnalyticsBetweenDates(
+                period.getDateFormat(),
                 walletId,
-                getMonthStart(date),
-                getMonthEnd(date)
+                getStartDateByPeriod(period, date),
+                getEndDateByPeriod(period, date)
         );
-        List<AnalyticsDbDto> parsedAnalytics = unparsedAnalytics.stream()
-                .map(AnalyticsDbDto::parse)
-                .toList();
-
         return new ViewAnalyticsDto(
-                convertAnalyticsWithTypeFilter(parsedAnalytics, TransactionType.INCOME),
-                convertAnalyticsWithTypeFilter(parsedAnalytics, TransactionType.OUTCOME)
+                convertAnalyticsWithTypeFilter(analytics, TransactionType.INCOME),
+                convertAnalyticsWithTypeFilter(analytics, TransactionType.OUTCOME)
         );
     }
 
     /**
-     * Calculates the start of the month for a given date.
+     * Get start date for the given period and date. For example, if the period is
+     * {@link AnalyticsPeriod#DAILY DAILY} and the date is 2021-01-15, the start date will be
+     * 2021-01-01.
      *
-     * @param date date to get the start of the month for
+     * @param period analytics period to get the start date for
+     * @param date   date to get the start date for
      *
-     * @return date with the start of the month
+     * @return start date for the given period and date
      */
-    private static Date getMonthStart(Date date) {
+    private static Date getStartDateByPeriod(AnalyticsPeriod period, Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
-        // We should keep hours to get the correct date in the UTC time zone
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        switch (period) {
+            case DAILY -> calendar.set(Calendar.DAY_OF_MONTH, 1);
+            case MONTHLY -> {
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+            }
+            case YEARLY -> {
+                calendar.add(Calendar.YEAR, -YERLY_ANALYTICS_RANGE);
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+            }
+            default -> throw new InternalServerException(
+                    "Unsupported analytics period: %s".formatted(period)
+            );
+        }
         return calendar.getTime();
     }
 
     /**
-     * Calculates the end of the month for a given date.
+     * Get end date for the given period and date. For example, if the period is
+     * {@link AnalyticsPeriod#DAILY DAILY} and the date is 2021-01-15, the end date will be
+     * 2021-01-31.
      *
-     * @param date date to get the end of the month for
+     * @param period analytics period to get the end date for
+     * @param date   date to get the end date for
      *
-     * @return date with the end of the month
+     * @return end date for the given period and date
      */
-    private static Date getMonthEnd(Date date) {
+    private static Date getEndDateByPeriod(AnalyticsPeriod period, Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
-        // We should keep hours to get the correct date in the UTC time zone
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        switch (period) {
+            case DAILY -> calendar.set(Calendar.DAY_OF_MONTH,
+                                       calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            case MONTHLY -> {
+                calendar.set(Calendar.MONTH, calendar.getActualMaximum(Calendar.MONTH));
+                calendar.set(Calendar.DAY_OF_MONTH,
+                             calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            }
+            case YEARLY -> {
+                calendar.add(Calendar.YEAR, YERLY_ANALYTICS_RANGE);
+                calendar.set(Calendar.MONTH, calendar.getActualMaximum(Calendar.MONTH));
+                calendar.set(Calendar.DAY_OF_MONTH,
+                             calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            }
+            default -> throw new InternalServerException(
+                    "Unsupported analytics period: %s".formatted(period)
+            );
+        }
         return calendar.getTime();
     }
 
@@ -100,9 +141,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             TransactionType type
     ) {
         return analytics.stream()
-                .filter(dto -> dto.category().getType() == type)
-                .map(dto -> Map.entry(dto.groupedDate(),
-                                      Map.entry(dto.category().getName(), dto.sum())))
+                .filter(dto -> dto.getCategoryType() == type)
+                .map(dto -> Map.entry(dto.getGroupedDate(),
+                                      Map.entry(dto.getCategoryName(), dto.getSum())))
                 .collect(Collectors.toMap(
                         // Key mapper
                         Map.Entry::getKey,
