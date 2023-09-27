@@ -88,7 +88,8 @@ const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
             <div className={styles.controls}>
                 <Select className={styles.period_select}
                         value={periodType}
-                        renderValue={value => t.getString(`analyticsBar.period.${value.toLowerCase()}`)}
+                        renderValue={value =>
+                            t.getString(`analyticsBar.period.${value.toLowerCase()}`)}
                         onChange={e => setPeriodType(e.target.value as AnalyticsPeriod)}
                         disabled={isAnalyticsFetching}
                         autoWidth={true}

@@ -145,16 +145,16 @@ describe("analyticsSlice", () => {
     test("saveAnalyticsFromServer. Yearly", () => {
         const analytics: ViewAnalyticsDto = {
             income: {
-                "2021": {
+                2021: {
                     "Category 1": 100,
                     "Category 2": 200,
                 },
-                "2022": {
+                2022: {
                     "Category 1": 100,
                 },
             },
             outcome: {
-                "2022": {
+                2022: {
                     "Category 1": 100,
                 },
             },

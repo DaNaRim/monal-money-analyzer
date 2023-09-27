@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { apiSlice } from "../api/apiSlice";
-import { AnalyticsPeriod } from "./analyticsSlice";
+import { type AnalyticsPeriod } from "./analyticsSlice";
 
 dayjs.extend(utc);
 
@@ -26,7 +26,7 @@ const analyticsApiSLice = apiSlice.injectEndpoints({
                 params: {
                     walletId,
                     date: dayjs(date).utc().format("YYYY-MM"),
-                    period
+                    period,
                 },
             }),
         }),
