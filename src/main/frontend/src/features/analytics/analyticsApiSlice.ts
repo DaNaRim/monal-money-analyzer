@@ -1,12 +1,14 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { apiSlice } from "../api/apiSlice";
+import { AnalyticsPeriod } from "./analyticsSlice";
 
 dayjs.extend(utc);
 
 interface ViewAnalyticsParams {
     walletId: number;
     date: string;
+    period: AnalyticsPeriod;
 }
 
 // Record<date, Record<category, amount>>
@@ -17,13 +19,14 @@ export interface ViewAnalyticsDto {
 
 const analyticsApiSLice = apiSlice.injectEndpoints({
     endpoints: builder => ({
-        getDailyAnalytics: builder.query<ViewAnalyticsDto, ViewAnalyticsParams>({
-            query: ({ walletId, date }) => ({
-                url: "/analytics/daily",
+        getAnalytics: builder.query<ViewAnalyticsDto, ViewAnalyticsParams>({
+            query: ({ walletId, date, period }) => ({
+                url: "/analytics",
                 method: "GET",
                 params: {
                     walletId,
-                    date: getDailyDateInUtcFormat(date),
+                    date: dayjs(date).utc().format("YYYY-MM"),
+                    period
                 },
             }),
         }),
@@ -31,9 +34,5 @@ const analyticsApiSLice = apiSlice.injectEndpoints({
 });
 
 export const {
-    useGetDailyAnalyticsQuery,
+    useGetAnalyticsQuery,
 } = analyticsApiSLice;
-
-function getDailyDateInUtcFormat(date: string | Date): string {
-    return dayjs(date).utc().format("YYYY-MM");
-}

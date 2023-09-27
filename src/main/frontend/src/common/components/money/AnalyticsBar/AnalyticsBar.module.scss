@@ -2,6 +2,7 @@
 
 .analytics_bar {
   position: relative;
+  margin-top: 2em;
   width: 100%;
   height: 20em;
 
@@ -14,12 +15,26 @@
     font-size: 2em;
   }
 
+  .data_error {
+    position: absolute;
+    top: 5em;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.5;
+    color: red;
+    font-size: 2em;
+  }
+
   .controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 5em;
     width: 100%;
+
+    .period_select {
+      width: 10em;
+    }
 
     .date_wrapper {
       display: flex;
@@ -49,6 +64,4 @@
       }
     }
   }
-
-
 }

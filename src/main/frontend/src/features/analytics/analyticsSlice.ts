@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import dayjs, { type ManipulateType } from "dayjs";
+import dayjs from "dayjs";
 import { type RootState } from "../../app/store";
 import { clearAuthState } from "../auth/authSlice";
 import {
@@ -11,8 +11,10 @@ import {
 import { getParentCategory } from "../category/categoryUtil";
 import { type ViewAnalyticsDto } from "./analyticsApiSlice";
 
+// Record<category, amount>
 type CategoryAnalytics = Record<string, number>;
 
+// Record<date, Record<category, amount>>
 type DateCategoryAnalytics = Record<string, CategoryAnalytics>;
 
 export interface Analytics {
@@ -20,10 +22,10 @@ export interface Analytics {
     outcome: DateCategoryAnalytics;
 }
 
-export enum AnalyticsPeriodType {
-    DAY = "DAY",
-    MONTH = "MONTH",
-    YEAR = "YEAR"
+export enum AnalyticsPeriod {
+    DAILY = "DAILY",
+    MONTHLY = "MONTHLY",
+    YEARLY = "YEARLY"
 }
 
 // <CategoryName or "date", value (string for date value and number for category amount)>
@@ -31,7 +33,7 @@ export type AnalyticsBarData = Record<string, number | string>;
 
 type AnalyticsState = {
     [walletId in number]: {
-        [periodType in AnalyticsPeriodType]?: Analytics;
+        [periodType in AnalyticsPeriod]?: Analytics;
     }
 };
 
@@ -39,7 +41,7 @@ const initialState: AnalyticsState = {};
 
 interface SaveDataFromServerPayload {
     walletId: number;
-    periodType: AnalyticsPeriodType;
+    periodType: AnalyticsPeriod;
     data: ViewAnalyticsDto | undefined;
 }
 
@@ -77,7 +79,7 @@ export const { saveAnalyticsFromServer } = analyticsSlice.actions;
  */
 export const selectAnalyticsForBarChart = (state: RootState,
                                            walletId: number,
-                                           periodType: AnalyticsPeriodType,
+                                           periodType: AnalyticsPeriod,
                                            date: string,
                                            options?: {
                                                showCategories: boolean;
@@ -134,13 +136,13 @@ export default analyticsSlice.reducer;
  *
  * @returns format for a period type
  */
-const getDateFormatByPeriodType = (periodType: AnalyticsPeriodType): string => {
+const getDateFormatByPeriodType = (periodType: AnalyticsPeriod): string => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return "DD";
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return "MM";
-        case AnalyticsPeriodType.YEAR:
+        case AnalyticsPeriod.YEARLY:
             return "YYYY";
     }
 };
@@ -153,14 +155,14 @@ const getDateFormatByPeriodType = (periodType: AnalyticsPeriodType): string => {
  *
  * @returns date from which analytics data is selected
  */
-const getDateFromByPeriodType = (date: string, periodType: AnalyticsPeriodType): dayjs.Dayjs => {
+const getDateFromByPeriodType = (date: string, periodType: AnalyticsPeriod): dayjs.Dayjs => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return dayjs(date).startOf("month");
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return dayjs(date).startOf("year");
-        case AnalyticsPeriodType.YEAR:
-            return dayjs(date).subtract(1, "year");
+        case AnalyticsPeriod.YEARLY:
+            return dayjs(date).subtract(1, "year").startOf("year");
         default:
             return dayjs(date);
     }
@@ -174,14 +176,14 @@ const getDateFromByPeriodType = (date: string, periodType: AnalyticsPeriodType):
  *
  * @returns date to which analytics data is selected
  */
-const getDateToByPeriodType = (date: string, periodType: AnalyticsPeriodType): dayjs.Dayjs => {
+const getDateToByPeriodType = (date: string, periodType: AnalyticsPeriod): dayjs.Dayjs => {
     switch (periodType) {
-        case AnalyticsPeriodType.DAY:
+        case AnalyticsPeriod.DAILY:
             return dayjs(date).endOf("month");
-        case AnalyticsPeriodType.MONTH:
+        case AnalyticsPeriod.MONTHLY:
             return dayjs(date).endOf("year");
-        case AnalyticsPeriodType.YEAR:
-            return dayjs(date);
+        case AnalyticsPeriod.YEARLY:
+            return dayjs(date).add(1, "year").endOf("year");
         default:
             return dayjs(date);
     }
@@ -216,7 +218,7 @@ const cutDataByDate = (analytics: DateCategoryAnalytics,
  * @returns analytics data for bar chart (Only for one category type)
  */
 const parseAnalyticsDataToBarChartFormat = (analytics: DateCategoryAnalytics,
-                                            periodType: AnalyticsPeriodType,
+                                            periodType: AnalyticsPeriod,
                                             categoryType: CategoryType,
                                             categories: Category[],
                                             options?: {
@@ -372,7 +374,7 @@ const unionAnalyticsData = (incomeData: AnalyticsBarData[],
 const fillWithEmptyDates = (data: AnalyticsBarData[],
                             dateFrom: dayjs.Dayjs,
                             dateTo: dayjs.Dayjs,
-                            periodType: AnalyticsPeriodType,
+                            periodType: AnalyticsPeriod,
 ): void => {
     const resultData = data;
 
@@ -384,6 +386,16 @@ const fillWithEmptyDates = (data: AnalyticsBarData[],
         if (resultData.find(el => el.date === dateLabel) == null) {
             resultData.push({ date: dateLabel });
         }
-        currentDate = currentDate.add(1, periodType.toLowerCase() as ManipulateType);
+        switch (periodType) {
+            case AnalyticsPeriod.DAILY:
+                currentDate = currentDate.add(1, "day");
+                break;
+            case AnalyticsPeriod.MONTHLY:
+                currentDate = currentDate.add(1, "month");
+                break;
+            case AnalyticsPeriod.YEARLY:
+                currentDate = currentDate.add(1, "year");
+                break;
+        }
     }
 };
