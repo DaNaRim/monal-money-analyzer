@@ -64,7 +64,7 @@ public class WalletServiceImpl implements WalletService {
             );
         };
         // User with only id is enough for linking in the database.
-        return walletDao.save(new Wallet(walletDto.name(),
+        return walletDao.save(new Wallet(walletDto.name().trim().replaceAll("\\s+", " "),
                                          parsedBalance,
                                          parsedCurrency,
                                          new User(userId)));

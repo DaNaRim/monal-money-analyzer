@@ -70,8 +70,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                     "email");
         }
 
-        User user = new User(registrationDto.firstName(),
-                             registrationDto.lastName(),
+        User user = new User(registrationDto.firstName().trim().replaceAll("\\s+", " "),
+                             registrationDto.lastName().trim().replaceAll("\\s+", " "),
                              registrationDto.email(),
                              passwordEncoder.encode(registrationDto.password()),
                              //To get role with correct id
