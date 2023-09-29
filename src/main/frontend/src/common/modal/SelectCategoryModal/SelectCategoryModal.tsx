@@ -7,6 +7,7 @@ import {
     CategoryType,
     selectTransactionCategories,
 } from "../../../features/category/categorySlice";
+import CategoryGroup from "./CategoryGroup";
 import styles from "./SelectCategoryModal.module.scss";
 
 interface SelectCategoryModalProps {
@@ -70,91 +71,3 @@ const SelectCategoryModal = ({
 };
 
 export default SelectCategoryModal;
-
-interface CategoryGroupProps {
-    category: Category;
-    selectedCategory?: Category;
-    onChoose: (category: Category) => void;
-}
-
-const CategoryGroup = ({ category, onChoose, selectedCategory }: CategoryGroupProps) => {
-    const t = useTranslation();
-
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    const subCategories = category.subCategories;
-
-    const getSubCategory = (subCategory: Category) => (
-        <div className={`${styles.subcategories_dot_wrapper}`
-            + `${selectedCategory?.id === subCategory.id ? styles.selected : ""}`}
-             onClick={() => onChoose(subCategory)}
-             key={subCategory.id}
-             role="option">
-            <div className={styles.subcategories_dot}></div>
-            <div className={styles.subcategory}>
-                {getCategoryLocalName(subCategory)}
-            </div>
-        </div>
-    );
-
-    const getCategoryLocalName = (category: Category | undefined) => {
-        const categoryNameKey
-            = category?.name.toLowerCase().replaceAll(" ", "_") ?? "";
-
-        return category == null
-            ? t.data.transactionCategory.deleted
-            : t.getString(
-                `data.transactionCategory.${category.type.toLowerCase()}.${categoryNameKey}`,
-            );
-    };
-
-    const getSubcategories = () => {
-        if (subCategories == null) {
-            return null;
-        }
-        if (isExpanded || subCategories.length < 3) {
-            return (
-                <div className={styles.subcategories_list}>
-                    <div className={styles.dotsWrapper}>
-                        <div className={styles.dots}></div>
-                        <div className={styles.sub_categories}>
-                            {subCategories.map(subCategory => getSubCategory(subCategory))}
-                        </div>
-                    </div>
-                    {subCategories.length > 2
-                        && <button className={styles.expand_button}
-                                   onClick={() => setIsExpanded(false)}>
-                            {t.selectCategoryModal.showLess}
-                      </button>
-                    }
-                </div>
-            );
-        }
-        return (
-            <div className={styles.subcategories_list}>
-                <div className={styles.dotsWrapper}>
-                    <div className={styles.dots}></div>
-                    <div className={styles.sub_categories}>
-                        {getSubCategory(subCategories[0])}
-                        {getSubCategory(subCategories[1])}
-                    </div>
-                </div>
-                <button className={styles.expand_button} onClick={() => setIsExpanded(true)}>
-                    {t.selectCategoryModal.showMore}
-                </button>
-            </div>
-        );
-    };
-
-    return (
-        <div className={styles.category_group}>
-            <div className={`${styles.parent_option}`
-                + ` ${selectedCategory?.id === category.id ? styles.selected : ""}`}
-                 onClick={() => onChoose(category)}
-                 role="option">
-                {getCategoryLocalName(category)}
-            </div>
-            {getSubcategories()}
-        </div>
-    );
-};

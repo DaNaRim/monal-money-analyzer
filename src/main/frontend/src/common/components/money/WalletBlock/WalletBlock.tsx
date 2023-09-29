@@ -8,8 +8,10 @@ import {
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
 import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
-import { addSpacesToNumber } from "../../../utils/moneyUtils";
+import CreateWalletButton from "./CreateWalletButton";
 import styles from "./WalletBlock.module.scss";
+import WalletComp from "./WalletComp";
+import WalletDisplay from "./WalletDisplay";
 
 interface WalletBlockProps {
     selectedWalletId: string | undefined;
@@ -112,96 +114,3 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
 };
 
 export default WalletBlock;
-
-interface CreateWalletButtonProps {
-    setNewWalletModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const CreateWalletButton = ({ setNewWalletModalOpen }: CreateWalletButtonProps) => {
-    const t = useTranslation();
-    return (
-        <button className={styles.add_wallet_button}
-                onClick={() => setNewWalletModalOpen(true)}>
-            <div className={styles.plus}>+</div>
-            <div className={styles.text}>{t.walletBlock.addNewWallet}</div>
-        </button>
-    );
-};
-
-interface WalletCompProps {
-    name: string;
-    balance: number;
-    currency: string;
-}
-
-// WalletComp is a wallet that is displayed in a Select dropdown list
-const WalletComp = ({ name, balance, currency }: WalletCompProps) => {
-    const t = useTranslation();
-
-    return (
-        <div className={styles.wallet}>
-            <p className={styles.wallet_name}>{name}</p>
-            <div>
-                <p className={styles.wallet_balance}>{addSpacesToNumber(balance)}</p>
-                <p className={styles.wallet_currency}
-                   title={t.getString(`data.currency.${currency}`)}>
-                    {currency}
-                </p>
-            </div>
-        </div>
-    );
-};
-
-// WalletDisplay is a wallet that is displayed in Select input
-const WalletDisplay = ({ name, balance, currency }: WalletCompProps) => {
-    const isInRange = (value: number, min: number, max: number) => value >= min && value < max;
-
-    let preparedBalance = balance;
-
-    if (balance.toString().includes("E")) {
-        const arr = balance.toString().split("E");
-        preparedBalance = Number(arr[0]) * Math.pow(10, Number(arr[1]));
-    }
-    /*
-       Balance max number = 1 000 000 000
-       Based on integer part of balance, display balance in different ways:
-       i.dd... -> i.dd...
-       ii.dd -> ii.dd
-       iii.dd -> iii.dd
-       i iii.dd -> i iii.dd
-       ii iii.dd -> ii iii
-       iii iii.dd -> iii iii
-       i iii iii.dd -> i.ii'M'
-       ii iii iii.dd -> ii.ii'M'
-       iii iii iii.dd -> iii.ii'M'
-     */
-    let processedBalance: string = preparedBalance.toString(); // (i.dd...)
-
-    if (isInRange(preparedBalance, 10, 10_000)) {
-        processedBalance = preparedBalance.toFixed(2);
-    } else if (isInRange(preparedBalance, 10_000, 1_000_000)) {
-        processedBalance = preparedBalance.toFixed(0);
-    } else if (isInRange(preparedBalance, 1_000_000, 1_000_000_000)) {
-        const fixed = preparedBalance.toFixed(0);
-        const integerPart = fixed.substring(0, fixed.length - 6);
-        const decimalPart = fixed.substring(fixed.length - 6, fixed.length - 4);
-        processedBalance = `${integerPart}.${decimalPart}M`;
-    }
-
-    const balanceToDisplay = addSpacesToNumber(processedBalance);
-
-    const nameMaxLength = 20 - balanceToDisplay.length;
-    const nameToDisplay = name.length > nameMaxLength
-        ? `${name.substring(0, nameMaxLength)}...`
-        : name;
-
-    return (
-        <div className={styles.wallet}>
-            <p className={styles.wallet_name}>{nameToDisplay}</p>
-            <div>
-                <p className={styles.wallet_balance}>{balanceToDisplay}</p>
-                <p className={styles.wallet_currency}>{currency}</p>
-            </div>
-        </div>
-    );
-};
