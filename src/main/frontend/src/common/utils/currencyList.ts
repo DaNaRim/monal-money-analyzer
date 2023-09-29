@@ -195,12 +195,17 @@ const currencyList: string[] = [
 
 export default currencyList;
 
-export const getCurrencyTypePrecision = (currency: string | undefined): 0.01 | 0.00000001 => {
+export const BASIC_CURRENCY_PRECISION = 0.01;
+export const CRYPTO_CURRENCY_PRECISION = 0.00000001;
+
+export type PossiblePrecision = typeof BASIC_CURRENCY_PRECISION | typeof CRYPTO_CURRENCY_PRECISION;
+
+export const getCurrencyTypePrecision = (currency: string | undefined): PossiblePrecision => {
     if (currency == null) {
-        return 0.01;
+        return BASIC_CURRENCY_PRECISION;
     }
     if (cryptoCurrencies.includes(currency)) {
-        return 0.00000001;
+        return CRYPTO_CURRENCY_PRECISION;
     }
-    return 0.01;
+    return BASIC_CURRENCY_PRECISION;
 };

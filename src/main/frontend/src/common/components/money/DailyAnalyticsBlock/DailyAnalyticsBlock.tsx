@@ -4,12 +4,15 @@ import { ResponsivePie } from "@nivo/pie";
 import React, { useMemo, useState } from "react";
 import { useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
-import { categoryColorMap } from "../../../../features/category/categoryColorMap";
 import {
-    type Category,
     CategoryType,
     selectTransactionCategories,
 } from "../../../../features/category/categorySlice";
+import {
+    getCategoryLocalName,
+    getColorByCategory,
+    getParentCategory,
+} from "../../../../features/category/categoryUtil";
 import {
     selectTransactionsByWalletAndDate,
 } from "../../../../features/transaction/transactionSlice";
@@ -40,40 +43,6 @@ const DailyAnalyticsBlock = ({ walletId, date }: DailyAnalyticsBlockProps) => {
 
     const categories = useAppSelector(selectTransactionCategories);
 
-    const getCategoryLocalName = (category: Category | undefined) => {
-        const categoryNameKey
-            = category?.name.toLowerCase().replaceAll(" ", "_") ?? "";
-
-        return category == null
-            ? t.data.transactionCategory.deleted
-            : t.getString(
-                `data.transactionCategory.${category.type.toLowerCase()}.${categoryNameKey}`,
-            );
-    };
-
-    const getParentCategory = (category: Category | null) => {
-        if (category == null) {
-            return null;
-        }
-        let result = null;
-        categories.forEach(cur => cur.subCategories?.forEach(subCategory => {
-            if (subCategory.id === category.id) {
-                result = cur;
-            }
-        }));
-        return result;
-    };
-
-    const getColorByCategory = (category: Category | null): string => {
-        if (category == null) {
-            return "";
-        }
-        const categoryName = category.name.toLowerCase().replaceAll(" ", "_");
-        // @ts-expect-error - Because of this error: element implicitly has an any type because
-        // expression of type string can't be used to index type
-        return categoryColorMap[category.type.toLowerCase()][categoryName];
-    };
-
     const getCategoryDiagramDataByType = (categoryType: CategoryType) => {
         const resultData: DataTemplate[] = [];
         transactions
@@ -81,12 +50,12 @@ const DailyAnalyticsBlock = ({ walletId, date }: DailyAnalyticsBlockProps) => {
             .forEach(transaction => {
                 const category = showChildCategories
                     ? transaction.category
-                    : getParentCategory(transaction.category) ?? transaction.category;
+                    : getParentCategory(transaction.category, categories) ?? transaction.category;
 
                 if (category == null) {
                     return;
                 }
-                const categoryLocalName = getCategoryLocalName(category);
+                const categoryLocalName = getCategoryLocalName(category, categories, t);
 
                 const categoryData
                     = resultData.find((data) => data.id === categoryLocalName);
@@ -96,7 +65,7 @@ const DailyAnalyticsBlock = ({ walletId, date }: DailyAnalyticsBlockProps) => {
                         id: categoryLocalName,
                         label: categoryLocalName,
                         value: transaction.amount,
-                        color: getColorByCategory(category),
+                        color: getColorByCategory(category, categories),
                     });
                 } else {
                     categoryData.value += transaction.amount;
