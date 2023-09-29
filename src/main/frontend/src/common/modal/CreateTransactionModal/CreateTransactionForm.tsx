@@ -23,7 +23,7 @@ import {
     BASIC_CURRENCY_PRECISION,
     getCurrencyTypePrecision,
     type PossiblePrecision,
-} from "../CreateWalletModal/currencyList";
+} from "../../utils/currencyList";
 import SelectCategoryModal from "../SelectCategoryModal/SelectCategoryModal";
 import { type CreateTransactionFormFields } from "./CreateTransactionModal";
 import styles from "./CreateTransactionModal.module.scss";

@@ -10,9 +10,9 @@ import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
 import InputNumber from "../../components/form/InputNumber/InputNumber";
 import InputText from "../../components/form/InputText/InputText";
 import OptionInput from "../../components/form/OptionInput/OptionInput";
+import currencyList, { getCurrencyTypePrecision } from "../../utils/currencyList";
 import { type CreateWalletFormFields } from "./CreateWalletModal";
 import styles from "./CreateWalletModal.module.scss";
-import currencyList, { getCurrencyTypePrecision } from "./currencyList";
 
 interface CreateWalletFormProps {
     register: UseFormRegister<CreateWalletFormFields>;
