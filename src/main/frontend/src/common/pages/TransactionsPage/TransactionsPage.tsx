@@ -11,12 +11,14 @@ import WalletBlock from "../../components/money/WalletBlock/WalletBlock";
 import WalletCategoriesInitializer
     from "../../components/money/WalletCategoriesInitializer/WalletCategoriesInitializer";
 import CreateTransactionModal from "../../modal/CreateTransactionModal/CreateTransactionModal";
+import { LOCAL_STORAGE_SELECTED_WALLET_ID } from "../../utils/moneyUtils";
 import styles from "./TransactionsPage.module.scss";
 
 const TransactionsPage = () => {
     const t = useTranslation();
 
-    const [selectedWalletId, setSelectedWalletId] = useLocalStorage("selectedWalletId");
+    const [selectedWalletId, setSelectedWalletId]
+        = useLocalStorage(LOCAL_STORAGE_SELECTED_WALLET_ID);
 
     const [date, setDate] = useState<string>(getParsedCurrentDate());
 

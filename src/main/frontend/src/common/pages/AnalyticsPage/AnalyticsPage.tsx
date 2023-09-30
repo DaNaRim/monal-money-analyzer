@@ -4,10 +4,12 @@ import AnalyticsBar from "../../components/money/AnalyticsBar/AnalyticsBar";
 import WalletBlock from "../../components/money/WalletBlock/WalletBlock";
 import WalletCategoriesInitializer
     from "../../components/money/WalletCategoriesInitializer/WalletCategoriesInitializer";
+import { LOCAL_STORAGE_SELECTED_WALLET_ID } from "../../utils/moneyUtils";
 import styles from "../TransactionsPage/TransactionsPage.module.scss";
 
 const AnalyticsPage = () => {
-    const [selectedWalletId, setSelectedWalletId] = useLocalStorage("selectedWalletId");
+    const [selectedWalletId, setSelectedWalletId]
+        = useLocalStorage(LOCAL_STORAGE_SELECTED_WALLET_ID);
 
     return (
         <WalletCategoriesInitializer>
