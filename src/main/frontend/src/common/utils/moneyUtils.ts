@@ -1,3 +1,5 @@
+export const LOCAL_STORAGE_SELECTED_WALLET_ID = "selectedWalletId";
+
 export function addSpacesToNumber(number: number | string): string {
     // Add space between groups of three digits
     const numberParts = Number(number).toFixed(8).replace(/[.]?0+$/, "").split(".");
