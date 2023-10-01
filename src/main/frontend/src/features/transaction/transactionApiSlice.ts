@@ -34,12 +34,22 @@ const transactionApiSlice = apiSlice.injectEndpoints({
                 },
             }),
         }),
+        deleteTransaction: builder.mutation<void, number>({
+            query: transactionId => ({
+                url: "/transaction",
+                method: "DELETE",
+                params: {
+                    transactionId,
+                },
+            }),
+        }),
     }),
 });
 
 export const {
     useGetTransactionsQuery,
     useCreateTransactionMutation,
+    useDeleteTransactionMutation,
 } = transactionApiSlice;
 
 function getDateInUtcFormat(date: string | Date): string {

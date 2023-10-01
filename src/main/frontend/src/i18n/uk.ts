@@ -537,6 +537,12 @@ export default {
         noWallets: "Додайте гаманець щоб почати",
     },
 
+    transactionElement: {
+        menu: {
+            delete: "Видалити",
+        },
+    },
+
     createWalletModal: {
         title: "Створити гаманець",
         form: {
@@ -595,6 +601,16 @@ export default {
     selectCategoryModal: {
         showMore: "Показати більше",
         showLess: "Показати менше",
+    },
+
+    deleteTransactionModal: {
+        title: "Видалити транзакцію?",
+        buttons: {
+            cancel: "Скасувати",
+            confirm: "Видалити",
+        },
+        loading: "Видалення...",
+        fetchError: "Не вдалося з'єднатися з сервером. Будь ласка, спробуйте пізніше",
     },
 
     analyticsBlock: {

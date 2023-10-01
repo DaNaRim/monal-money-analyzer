@@ -6,8 +6,8 @@ import { type Category } from "../category/categorySlice";
 
 export interface Transaction {
     id: number;
-    description: string;
-    date: Date;
+    description?: string;
+    date: string;
     amount: number;
     category: Category | null; // null if category is not found
 }
@@ -16,7 +16,7 @@ export interface Transaction {
 export interface ViewTransactionDto {
     id: number;
     description: string;
-    date: Date;
+    date: string;
     amount: number;
     categoryId: number;
 }
@@ -77,6 +77,27 @@ const transactionsSlice = createSlice({
             state[walletId][date].push(transaction);
             state[walletId][date].sort(sortByDate);
         },
+        deleteTransaction(state, action: PayloadAction<number>) {
+            const transactionId = action.payload;
+
+            for (const walletId in state) {
+                if (!Object.hasOwn(state, walletId)) {
+                    continue;
+                }
+                for (const date in state[walletId]) {
+                    if (!Object.hasOwn(state[walletId], date)) {
+                        continue;
+                    }
+                    const transactions = state[walletId][date];
+                    const index
+                        = transactions.findIndex(transaction => transaction.id === transactionId);
+                    if (index !== -1) {
+                        transactions.splice(index, 1);
+                        return;
+                    }
+                }
+            }
+        },
     },
     extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
@@ -94,6 +115,7 @@ export const selectTransactionsByWalletAndDate = (state: RootState,
 export const {
     saveTransactions,
     addTransaction,
+    deleteTransaction,
 } = transactionsSlice.actions;
 
 export default transactionsSlice.reducer;

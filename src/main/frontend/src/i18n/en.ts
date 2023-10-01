@@ -537,6 +537,12 @@ export default {
         noWallets: "Add a wallet to start",
     },
 
+    transactionElement: {
+        menu: {
+            delete: "Delete",
+        },
+    },
+
     createWalletModal: {
         title: "Create wallet",
         form: {
@@ -595,6 +601,16 @@ export default {
     selectCategoryModal: {
         showMore: "Show more",
         showLess: "Show less",
+    },
+
+    deleteTransactionModal: {
+        title: "Delete transaction?",
+        buttons: {
+            cancel: "Cancel",
+            confirm: "Delete",
+        },
+        loading: "Deleting...",
+        fetchError: "Failed to connect to server. Please try again later.",
     },
 
     analyticsBlock: {
