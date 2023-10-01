@@ -1,3 +1,5 @@
+@import "src/assets/styles/mixins";
+
 .transactions {
   position: relative;
   padding: 1em;
@@ -56,13 +58,36 @@
         }
       }
 
-      .transaction_amount {
-        color: red;
-        font-weight: bold;
-        font-size: 2em;
+      .transaction_right {
+        display: flex;
+        align-items: center;
 
-        &.transaction_income {
-          color: green;
+        .transaction_amount {
+          color: red;
+          font-weight: bold;
+          font-size: 2em;
+
+          &.transaction_income {
+            color: green;
+          }
+        }
+
+        .controls_icon {
+          @include clear-button-styles;
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 1.5em;
+          height: 2em;
+
+          &:hover {
+            color: #1e90ff;
+          }
+
+          svg {
+            font-size: 1.4em;
+          }
         }
       }
     }

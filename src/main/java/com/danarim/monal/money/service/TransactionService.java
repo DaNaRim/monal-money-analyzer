@@ -19,4 +19,6 @@ public interface TransactionService {
                                                   long loggedUserId
     );
 
+    void deleteTransaction(long transactionId, long loggedUserId);
+
 }

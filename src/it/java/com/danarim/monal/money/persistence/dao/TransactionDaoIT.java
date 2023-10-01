@@ -24,7 +24,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import static com.danarim.monal.DbUserFiller.getTestUserId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -45,6 +48,17 @@ class TransactionDaoIT {
     @BeforeAll
     static void beforeAll() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
+    @Test
+    void isUserTransactionOwner() {
+        fillDatabase();
+
+        boolean result = transactionDao.isUserTransactionOwner(1L, getTestUserId());
+        assertTrue(result, "User should be the owner of the transaction");
+
+        result = transactionDao.isUserTransactionOwner(1L, getTestUserId() + 1);
+        assertFalse(result, "User should not be the owner of the transaction");
     }
 
     @Test

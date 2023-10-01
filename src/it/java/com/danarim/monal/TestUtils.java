@@ -20,6 +20,7 @@ import static com.danarim.monal.DbUserFiller.AUTH_JSON_USER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -145,6 +146,17 @@ public final class TestUtils {
                 .headers(csrfTokenHeader(result))
                 .cookie(getAccessTokenCookie(result))
                 .cookie(getRefreshTokenCookie(result));
+    }
+
+    /**
+     * Add 'secured' flag to delete request.
+     *
+     * @param uri request uri
+     *
+     * @return request builder. Can be extended
+     */
+    public static MockHttpServletRequestBuilder deleteExt(String uri) {
+        return delete(uri).secure(true);
     }
 
     /*

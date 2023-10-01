@@ -17,6 +17,24 @@ public interface TransactionDao extends JpaRepository<Transaction, Long> {
     List<Transaction> getTransactionsByWalletIdAndDateBetween(long walletId, Date from, Date to);
 
     /**
+     * Checks if the user is the owner of the transaction.
+     *
+     * @param transactionId transaction ID
+     * @param userId        user ID
+     *
+     * @return true if the user is the owner of the transaction, false otherwise
+     */
+    @Query(
+            """
+            SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END AS is_user_transaction_owner
+              FROM Transaction AS t
+             WHERE t.id = :transactionId
+               AND t.wallet.owner.id = :userId
+            """
+    )
+    boolean isUserTransactionOwner(long transactionId, long userId);
+
+    /**
      * Used to get analytics for a wallet for a specific period. The result is grouped by date and
      * category.
      *
@@ -39,7 +57,7 @@ public interface TransactionDao extends JpaRepository<Transaction, Long> {
                            INNER JOIN transaction_category AS c ON c.id = t.category_id
                      WHERE t.wallet_id = :walletId AND t.date BETWEEN :from AND :to
                      GROUP BY groupeddate, categoryname, categorytype
-                       """,
+                    """,
             nativeQuery = true
     )
     List<AnalyticsDbDto> getTransactionAnalyticsBetweenDates(
