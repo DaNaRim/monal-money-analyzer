@@ -72,7 +72,9 @@ public class TransactionServiceImpl implements TransactionService {
                 createTransactionDto.amount(), wallet.getCurrency().getType()
         );
         Transaction result = transactionDao.save(new Transaction(
-                createTransactionDto.description().trim().replaceAll("\\s+", " "),
+                createTransactionDto.description() == null
+                        ? null
+                        : createTransactionDto.description().trim().replaceAll("\\s+", " "),
                 new Date(createTransactionDto.date().getTime()),
                 amount,
                 new TransactionCategory(createTransactionDto.categoryId()),

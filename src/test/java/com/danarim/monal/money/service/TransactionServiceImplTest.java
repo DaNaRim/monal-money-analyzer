@@ -74,7 +74,7 @@ class TransactionServiceImplTest {
     @Test
     void createTransaction_outcomeCategory() {
         CreateTransactionDto transactionDto = new CreateTransactionDto(
-                "test", new Date(), 1.0, 1L, 1L
+                null, new Date(), 1.0, 1L, 1L
         );
         Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
 
