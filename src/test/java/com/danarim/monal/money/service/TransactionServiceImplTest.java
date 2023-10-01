@@ -251,4 +251,49 @@ class TransactionServiceImplTest {
         assertEquals("validation.transaction.date-from-after-date-to", e.getMessageCode());
     }
 
+    @Test
+    void deleteTransaction() {
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+
+        assertDoesNotThrow(() -> transactionService.deleteTransaction(1L, 1L));
+
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(transactionDao, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void deleteTransaction_transactionNotFound_BadRequestException() {
+        when(transactionDao.existsById(1L))
+                .thenReturn(false);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> transactionService.deleteTransaction(1L, 1L));
+
+        assertEquals("validation.transaction.notFound", e.getMessageCode());
+
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, never()).isUserTransactionOwner(1L, 1L);
+        verify(transactionDao, never()).deleteById(1L);
+    }
+
+    @Test
+    void deleteTransaction_userNotTransactionOwner_ActionDeniedException() {
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(false);
+
+        assertThrows(ActionDeniedException.class,
+                     () -> transactionService.deleteTransaction(1L, 1L));
+
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(transactionDao, never()).deleteById(1L);
+    }
+
 }

@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,6 +87,11 @@ public class TransactionController {
                 .map(transaction -> modelMapper.map(transaction, ViewTransactionDto.class))
                 .sorted()
                 .toList();
+    }
+
+    @DeleteMapping
+    public void deleteTransaction(@RequestParam long transactionId) {
+        transactionService.deleteTransaction(transactionId, AuthUtil.getLoggedUserId());
     }
 
 }

@@ -116,6 +116,31 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     /**
+     * Deletes a transaction if it exists and the user is the owner of the transaction.
+     *
+     * @param transactionId transaction ID
+     * @param loggedUserId  logged in user ID
+     *
+     * @throws BadRequestException   if the transaction does not exist
+     * @throws ActionDeniedException if the user is not the owner of the transaction
+     */
+    @Override
+    public void deleteTransaction(long transactionId, long loggedUserId) {
+        if (!transactionDao.existsById(transactionId)) {
+            throw new BadRequestException(
+                    "Transaction with ID %d does not exist.".formatted(transactionId),
+                    "validation.transaction.notFound",
+                    null);
+        }
+        if (!transactionDao.isUserTransactionOwner(transactionId, loggedUserId)) {
+            throw new ActionDeniedException(
+                    "User with ID %d is not the owner of transaction with ID %d"
+                            .formatted(loggedUserId, transactionId));
+        }
+        transactionDao.deleteById(transactionId);
+    }
+
+    /**
      * Validates the transaction data.
      *
      * @param createTransactionDto DTO with transaction data

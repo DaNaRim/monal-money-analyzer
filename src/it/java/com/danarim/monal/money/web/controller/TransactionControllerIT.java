@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import static com.danarim.monal.TestUtils.deleteExt;
 import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.postExt;
 import static org.mockito.ArgumentMatchers.any;
@@ -121,6 +122,14 @@ class TransactionControllerIT {
                 .andExpect(jsonPath("$[0].categoryId")
                                    .value(transactions.get(1).getCategory().getId()))
                 .andExpect(jsonPath("$[0].walletId").doesNotExist());
+    }
+
+    @Test
+    void deleteTransaction() throws Exception {
+        mockMvc.perform(deleteExt(WebConfig.API_V1_PREFIX + "/transaction")
+                                .param("transactionId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").doesNotExist());
     }
 
     private static List<Transaction> prepareTransaction() throws ParseException {
