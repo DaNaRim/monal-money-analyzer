@@ -114,16 +114,14 @@ const transactionsSlice = createSlice({
                     if (index !== -1) { // transaction found
                         if (Number(walletId) === transaction.walletId) { // wallet didn't change
                             updateTransactionWalletNotChanges(
-                                state,
-                                transaction,
-                                newDate,
-                                Number(walletId),
-                                date,
+                                state, transaction, newDate, Number(walletId), date,
                             );
                             return;
                         }
                         // wallet changed
-                        updateTransactionWalletChanges(state, transaction, transactions, newDate, index);
+                        updateTransactionWalletChanges(
+                            state, transaction, transactions, newDate, index,
+                        );
                     }
                 }
             }
