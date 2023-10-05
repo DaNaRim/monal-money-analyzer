@@ -45,6 +45,8 @@ const InputSelect = ({
         ? ""
         : <span className={errorStyles.required} title={t.form.required}>*</span>;
 
+    const isDisabled = options?.disabled !== undefined && options.disabled;
+
     useEffect(() => setValue(name, defaultValue), []);
 
     return (
@@ -55,7 +57,9 @@ const InputSelect = ({
                 control={control}
                 render={(controllerProps) => (
                     <FormControl fullWidth={true} className={styles.form_control}>
-                        <InputLabel id={id}>{label} {requiredSign}</InputLabel>
+                        <InputLabel id={id} className={(isDisabled ? styles.disabled : "")}>
+                            {label} {requiredSign}
+                        </InputLabel>
                         <Select className={styles.input_select}
                                 labelId={id}
                                 defaultValue={defaultValue}
@@ -67,6 +71,7 @@ const InputSelect = ({
                                 autoWidth={true}
                                 displayEmpty={true}
                                 label={label}
+                                disabled={options?.disabled}
                         >
                             {children}
                         </Select>

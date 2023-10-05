@@ -19,6 +19,10 @@ div.form_control {
       color: black;
       font-size: 0.8rem;
     }
+
+    &.disabled {
+      color: rgb(0 0 0 / 38%);
+    }
   }
 
   div.input_select {
