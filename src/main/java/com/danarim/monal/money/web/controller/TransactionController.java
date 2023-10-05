@@ -5,6 +5,7 @@ import com.danarim.monal.config.security.auth.AuthUtil;
 import com.danarim.monal.money.persistence.model.Transaction;
 import com.danarim.monal.money.service.TransactionService;
 import com.danarim.monal.money.web.dto.CreateTransactionDto;
+import com.danarim.monal.money.web.dto.UpdateTransactionDto;
 import com.danarim.monal.money.web.dto.ViewTransactionDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -87,6 +89,24 @@ public class TransactionController {
                 .map(transaction -> modelMapper.map(transaction, ViewTransactionDto.class))
                 .sorted()
                 .toList();
+    }
+
+    /**
+     * Updates a transaction.
+     *
+     * @param updateTransactionDto The DTO with the updated transaction data.
+     *
+     * @return The DTO with the updated transaction data.
+     */
+    @PutMapping
+    public ViewTransactionDto updateTransaction(
+            @RequestBody @Valid UpdateTransactionDto updateTransactionDto
+    ) {
+        Transaction transaction = transactionService.updateTransaction(
+                updateTransactionDto,
+                AuthUtil.getLoggedUserId());
+
+        return modelMapper.map(transaction, ViewTransactionDto.class);
     }
 
     @DeleteMapping

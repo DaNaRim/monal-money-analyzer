@@ -1,5 +1,6 @@
 package com.danarim.monal.money.service;
 
+import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateWalletDto;
 
@@ -18,6 +19,8 @@ public interface WalletService {
     Optional<Wallet> getWalletForUpdate(long id);
 
     boolean isUserWalletOwner(long walletId, long userId);
+
+    Currency getWalletCurrency(long walletId);
 
     /**
      * For INTERNAL use only.

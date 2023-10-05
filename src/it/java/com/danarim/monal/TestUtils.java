@@ -23,6 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -113,13 +114,7 @@ public final class TestUtils {
      * @see #postExt(String, String)
      */
     public static MockHttpServletRequestBuilder postExt(String uri, Object body) {
-        try {
-            String json = new ObjectMapper().writeValueAsString(body);
-
-            return postExt(uri, json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return postExt(uri, convertToJson(body));
     }
 
     /**
@@ -157,6 +152,22 @@ public final class TestUtils {
      */
     public static MockHttpServletRequestBuilder deleteExt(String uri) {
         return delete(uri).secure(true);
+    }
+
+    /**
+     * Add default headers to request and convert body to json.
+     *
+     * @param uri request uri
+     *
+     * @return request builder. Can be extended
+     */
+    public static MockHttpServletRequestBuilder putExt(String uri, Object body) {
+        return put(uri)
+                .content(convertToJson(body))
+                .contentType(APPLICATION_JSON)
+                .characterEncoding(UTF_8)
+                .accept(APPLICATION_JSON)
+                .secure(true);
     }
 
     /*
@@ -288,6 +299,23 @@ public final class TestUtils {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-CSRF-TOKEN", authResponse.csrfToken());
         return headers;
+    }
+
+    /**
+     * Convert an object to json string.
+     *
+     * @param o Object to convert to json
+     *
+     * @return json string
+     *
+     * @throws RuntimeException if something went wrong during json parsing
+     */
+    private static String convertToJson(Object o) {
+        try {
+            return new ObjectMapper().writeValueAsString(o);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

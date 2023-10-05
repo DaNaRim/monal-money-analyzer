@@ -48,6 +48,7 @@ const InputTextarea = ({
                     control={control}
                     render={(controllerProps) => (
                         <TextareaAutosize
+                            value={controllerProps.field.value}
                             onChange={e => controllerProps.field.onChange(e.target.value)}
                             onBlur={controllerProps.field.onBlur}
                             id={id}

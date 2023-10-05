@@ -21,6 +21,8 @@ public class ViewTransactionDto implements Comparable<ViewTransactionDto> {
 
     private long categoryId;
 
+    private long walletId;
+
     public long getId() {
         return id;
     }
@@ -61,9 +63,17 @@ public class ViewTransactionDto implements Comparable<ViewTransactionDto> {
         this.categoryId = categoryId;
     }
 
+    public long getWalletId() {
+        return walletId;
+    }
+
+    public void setWalletId(long walletId) {
+        this.walletId = walletId;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(id, description, date, amount, categoryId);
+        return Objects.hash(id, description, date, amount, categoryId, walletId);
     }
 
     @Override
@@ -78,6 +88,7 @@ public class ViewTransactionDto implements Comparable<ViewTransactionDto> {
         return id == that.id
                 && Double.compare(amount, that.amount) == 0
                 && categoryId == that.categoryId
+                && walletId == that.walletId
                 && Objects.equals(description, that.description)
                 && Objects.equals(date, that.date);
     }

@@ -1,5 +1,6 @@
 package com.danarim.monal.money.persistence.dao;
 
+import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -22,11 +23,22 @@ public interface WalletDao extends JpaRepository<Wallet, Long> {
     boolean existsByOwnerIdAndName(long ownerId, String name);
 
     @Query(
-            "SELECT CASE WHEN COUNT(w) > 0 THEN true ELSE false END AS is_user_wallet_owner"
-                    + " FROM Wallet w"
-                    + " WHERE w.id = :walletId"
-                    + " AND w.owner.id = :userId"
+            """
+                SELECT CASE WHEN COUNT(w) > 0 THEN true ELSE false END AS is_user_wallet_owner
+                  FROM Wallet w
+                 WHERE w.id = :walletId
+                   AND w.owner.id = :userId
+                """
     )
     boolean isUserWalletOwner(long walletId, long userId);
+
+    @Query(
+            """
+                SELECT w.currency
+                  FROM Wallet w
+                 WHERE w.id = :walletId
+                """
+    )
+    Currency getWalletCurrency(long walletId);
 
 }

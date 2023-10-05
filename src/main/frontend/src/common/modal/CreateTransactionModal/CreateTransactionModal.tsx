@@ -16,8 +16,8 @@ import {
     type Transaction,
 } from "../../../features/transaction/transactionSlice";
 import { updateWalletBalance } from "../../../features/wallet/walletSlice";
-import CreateTransactionForm from "./CreateTransactionForm";
 import styles from "./CreateTransactionModal.module.scss";
+import CreateUpdateTransactionForm from "./CreateUpdateTransactionForm";
 
 interface CreateTransactionModalProps {
     open: boolean;
@@ -26,8 +26,16 @@ interface CreateTransactionModalProps {
     date: string;
 }
 
-export type CreateTransactionFormFields = CreateTransactionDto & FormSystemFields;
+export type TransactionFormFields = CreateTransactionDto & FormSystemFields;
 
+/**
+ * Modal for creating new transaction
+ *
+ * @param open  - modal open state
+ * @param setOpen - modal open state setter
+ * @param walletId - wallet id for which transaction is created
+ * @param date - default date for transaction. Format: YYYY-MM-DD
+ */
 const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransactionModalProps) => {
     const dispatch = useAppDispatch();
 
@@ -47,14 +55,15 @@ const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransac
         control,
         register,
         handleSubmit,
+        getValues,
         setValue,
         setError,
         reset: resetForm,
         clearErrors,
         formState: { errors },
-    } = useForm<CreateTransactionFormFields>();
+    } = useForm<TransactionFormFields>();
 
-    const handleSubmitForm = (data: CreateTransactionFormFields) => {
+    const handleSubmitForm = (data: TransactionFormFields) => {
         clearFormSystemFields(data);
 
         createTransaction(data).unwrap()
@@ -104,15 +113,17 @@ const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransac
                                           page="transactions"
                                           className={styles.appMessage}
                         />
-                        : <CreateTransactionForm register={register}
-                                                 control={control}
-                                                 errors={errors}
-                                                 setValue={setValue}
-                                                 handleSubmit={handleSubmit}
-                                                 isLoading={isLoading}
-                                                 handleCreateTransaction={handleSubmitForm}
-                                                 walletId={walletId}
-                                                 date={date}/>
+                        : <CreateUpdateTransactionForm mode={"create"}
+                                                       register={register as any}
+                                                       control={control}
+                                                       errors={errors}
+                                                       getValues={getValues}
+                                                       setValue={setValue}
+                                                       handleSubmit={handleSubmit}
+                                                       isLoading={isLoading}
+                                                       handleFormSubmit={handleSubmitForm}
+                                                       walletId={walletId}
+                                                       date={date}/>
                     }
                 </Box>
             </Fade>

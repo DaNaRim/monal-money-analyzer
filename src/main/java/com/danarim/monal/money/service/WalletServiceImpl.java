@@ -111,6 +111,18 @@ public class WalletServiceImpl implements WalletService {
     }
 
     /**
+     * Returns currency of the wallet with the given id.
+     *
+     * @param walletId id of the wallet
+     *
+     * @return currency of the wallet with the given id
+     */
+    @Override
+    public Currency getWalletCurrency(long walletId) {
+        return walletDao.getWalletCurrency(walletId);
+    }
+
+    /**
      * For INTERNAL use only.
      *
      * <p>Use with {@link WalletService#getWalletForUpdate(long id)}.
