@@ -540,6 +540,7 @@ export default {
     transactionElement: {
         menu: {
             delete: "Delete",
+            edit: "Edit",
         },
     },
 
@@ -595,6 +596,37 @@ export default {
             },
             loading: "Creating...",
             submit: "Create",
+        },
+    },
+
+    updateTransactionModal: {
+        title: "Edit transaction",
+        form: {
+            fields: {
+                walletId: "Wallet",
+                categoryId: "Category",
+                date: "Date",
+                amount: "Amount",
+                description: "Description",
+            },
+            errors: {
+                walletId: {
+                    required: "Wallet is required",
+                },
+                categoryId: {
+                    required: "Category is required",
+                },
+                date: {
+                    required: "Date is required",
+                    min: "Date must be greater than {0}",
+                    max: "Date must be less than {0}",
+                },
+                amount: {
+                    required: "Amount is required",
+                },
+            },
+            loading: "Updating...",
+            submit: "Update",
         },
     },
 

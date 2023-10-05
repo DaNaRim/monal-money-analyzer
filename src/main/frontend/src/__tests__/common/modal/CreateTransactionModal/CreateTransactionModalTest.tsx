@@ -1,5 +1,5 @@
 import { describe } from "@jest/globals";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import dayjs from "dayjs";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
@@ -58,8 +58,12 @@ describe("CreateTransactionModal", () => {
                 };
                 return await res(ctx.status(500), ctx.json([error]));
             }
-            delete transaction.walletId;
-            return await res(ctx.status(200), ctx.json({ id: 1, ...transaction }), ctx.delay(10));
+            const result = {
+                ...transaction,
+                id: 1,
+                amount: Number(transaction.amount),
+            };
+            return await res(ctx.status(200), ctx.json(result), ctx.delay(50));
         }),
     ];
 
@@ -105,31 +109,29 @@ describe("CreateTransactionModal", () => {
                                                     walletId={1}/>, { store });
 
         // Fill form (Wallet and date are filled by default)
-        fillCreateTransactionForm("Food and beverages", 100, "Test");
+        fillCreateUpdateTransactionForm("Food and beverages", 100, "Test");
         await act(() => fireEvent.click(screen.getByText("Create")));
 
-        expect(await screen.findByText("Creating...")).toBeInTheDocument();
+        await waitForElementToBeRemoved(() => screen.getByText("Creating..."), { timeout: 4000 });
 
-        await waitFor(() => {
-            expect(screen.getByText("Transaction created successfully.")).toBeInTheDocument();
-            expect(screen.queryByText("Create transaction")).not.toBeInTheDocument();
-        });
+        expect(screen.getByText("Transaction created successfully.")).toBeInTheDocument();
+        expect(screen.queryByText("Create transaction")).not.toBeInTheDocument();
+
         await act(() => jest.advanceTimersByTime(1500));
 
         await waitFor(() => {
-            const date = dayjs().utc();
-
             const transactionByDate
-                = store.getState().transactions?.["1"]?.[date.format("YYYY-MM-DD")];
+                = store.getState().transactions?.["1"]?.[dayjs().format("YYYY-MM-DD")];
 
             expect(transactionByDate).toHaveLength(1);
             expect(transactionByDate?.[0]).toEqual({
                 id: 1,
                 category: expect.any(Object),
-                amount: "100",
+                amount: 100,
                 description: "Test",
-                date: date.format("YYYY-MM-DD HH:mm"),
+                date: dayjs().format("YYYY-MM-DD HH:mm"),
                 categoryId: expect.any(Number), // Useless
+                walletId: 1,
             });
             expect(setOpen).toBeCalledWith(false);
         });
@@ -148,7 +150,7 @@ describe("CreateTransactionModal", () => {
                                                     walletId={1}/>, { store });
 
         // Fill form (Wallet and date are filled by default)
-        fillCreateTransactionForm("Food and beverages", 100, "globalError");
+        fillCreateUpdateTransactionForm("Food and beverages", 100, "globalError");
         await act(() => fireEvent.click(screen.getByText("Create")));
 
         expect(await screen.findByText("Creating...")).toBeInTheDocument();
@@ -174,7 +176,7 @@ describe("CreateTransactionModal", () => {
                                                     walletId={1}/>, { store });
 
         // Fill form (Wallet and date are filled by default)
-        fillCreateTransactionForm("Food and beverages", 100, "serverError");
+        fillCreateUpdateTransactionForm("Food and beverages", 100, "serverError");
         await act(() => fireEvent.click(screen.getByText("Create")));
 
         expect(await screen.findByText("Creating...")).toBeInTheDocument();
@@ -188,12 +190,21 @@ describe("CreateTransactionModal", () => {
     });
 });
 
-function fillCreateTransactionForm(category: string, amount: number, description: string) {
+export function fillCreateUpdateTransactionForm(category: string,
+                                                amount: number,
+                                                description: string,
+                                                categoryType: "Outcome" | "Income" = "Outcome",
+) {
     act(() => {
         fireEvent.click(screen.getByText("Category")); // Open category modal
     });
     act(() => {
-        fireEvent.click(screen.getByText(category)); // Select category
+        fireEvent.click(screen.getByText(categoryType)); // Select category type
+    });
+    act(() => { // Select category
+        fireEvent.click(
+            screen.getAllByText(category).filter(element => element.tagName === "DIV")[0],
+        );
     });
     act(() => {
         fireEvent.change(screen.getByTestId("input-amount"), { target: { value: amount } });

@@ -2,7 +2,11 @@ import dayjs from "dayjs";
 
 import utc from "dayjs/plugin/utc";
 import { apiSlice } from "../api/apiSlice";
-import { type CreateTransactionDto, type ViewTransactionDto } from "./transactionSlice";
+import {
+    type CreateTransactionDto,
+    type UpdateTransactionDto,
+    type ViewTransactionDto,
+} from "./transactionSlice";
 
 dayjs.extend(utc);
 
@@ -30,7 +34,17 @@ const transactionApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
                 body: {
                     ...transaction,
-                    date: getDateInUtcFormatForCreate(transaction.date),
+                    date: getDateInUtcFormatWithMinutes(transaction.date),
+                },
+            }),
+        }),
+        updateTransaction: builder.mutation<ViewTransactionDto, UpdateTransactionDto>({
+            query: transaction => ({
+                url: "/transaction",
+                method: "PUT",
+                body: {
+                    ...transaction,
+                    date: getDateInUtcFormatWithMinutes(transaction.date),
                 },
             }),
         }),
@@ -49,6 +63,7 @@ const transactionApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetTransactionsQuery,
     useCreateTransactionMutation,
+    useUpdateTransactionMutation,
     useDeleteTransactionMutation,
 } = transactionApiSlice;
 
@@ -60,6 +75,6 @@ function getNextDateInUtcFormat(date: string | Date): string {
     return dayjs(date).utc().add(1, "day").format("YYYY-MM-DD HH");
 }
 
-function getDateInUtcFormatForCreate(date: string | Date): string {
+function getDateInUtcFormatWithMinutes(date: string | Date): string {
     return dayjs(date).utc().format("YYYY-MM-DD HH:mm");
 }

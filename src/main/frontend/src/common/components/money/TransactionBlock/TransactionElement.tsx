@@ -13,15 +13,22 @@ import {
 import { getCategoryLocalName } from "../../../../features/category/categoryUtil";
 import { type Transaction } from "../../../../features/transaction/transactionSlice";
 import DeleteTransactionModal from "../../../modal/DeleteTransactionModal/DeleteTransactionModal";
+import UpdateTransactionModal from "../../../modal/UpdateTransactionModal/UpdateTransactionModal";
 import { addSpacesToNumber } from "../../../utils/moneyUtils";
 import styles from "./TransactionBlock.module.scss";
 
 dayjs.extend(utc);
 
+/**
+ * Transaction element component in transaction list
+ *
+ * @param transaction - transaction to display
+ */
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
     const t = useTranslation();
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    // Needed to display a menu near transaction element
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const isIncome = transaction.category?.type === CategoryType.INCOME;
 
@@ -29,15 +36,22 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+
     const handleDelete = () => {
         setIsDeleteModalOpen(true);
-        setAnchorEl(null);
+        setAnchorEl(null); // close menu
+    };
+
+    const handleEdit = () => {
+        setIsEditModalOpen(true);
+        setAnchorEl(null); // close menu
     };
 
     return (
         <div className={styles.transaction}>
             <p className={styles.transaction_date}>
-                {dayjs.utc(transaction.date).local().format("HH:mm")}
+                {dayjs(transaction.date).format("HH:mm")}
             </p>
             <div className={styles.transaction_display}>
                 <div className={styles.transaction_left}>
@@ -65,10 +79,16 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
                 <MenuItem key="delete" onClick={handleDelete}>
                     {t.transactionElement.menu.delete}
                 </MenuItem>
+                <MenuItem key="edit" onClick={handleEdit}>
+                    {t.transactionElement.menu.edit}
+                </MenuItem>
             </Menu>
             <DeleteTransactionModal open={isDeleteModalOpen}
                                     setOpen={setIsDeleteModalOpen}
                                     transactionId={transaction.id}/>
+            <UpdateTransactionModal open={isEditModalOpen}
+                                    setOpen={setIsEditModalOpen}
+                                    transaction={transaction}/>
         </div>
     );
 };

@@ -540,6 +540,7 @@ export default {
     transactionElement: {
         menu: {
             delete: "Видалити",
+            edit: "Редагувати",
         },
     },
 
@@ -595,6 +596,37 @@ export default {
             },
             loading: "Створення...",
             submit: "Створити",
+        },
+    },
+
+    updateTransactionModal: {
+        title: "Редагувати транзакцію",
+        form: {
+            fields: {
+                walletId: "Гаманець",
+                categoryId: "Категорія",
+                date: "Дата",
+                amount: "Сума",
+                description: "Опис",
+            },
+            errors: {
+                walletId: {
+                    required: "Гаманець обов'язковий",
+                },
+                categoryId: {
+                    required: "Категорія обов'язкова",
+                },
+                date: {
+                    required: "Дата обов'язкова",
+                    min: "Дата має бути пізнішою за {0}",
+                    max: "Дата має бути ранішою за {0}",
+                },
+                amount: {
+                    required: "Сума обов'язкова",
+                },
+            },
+            loading: "Оновлення...",
+            submit: "Оновити",
         },
     },
 

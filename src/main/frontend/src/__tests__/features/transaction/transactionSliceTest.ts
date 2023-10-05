@@ -4,11 +4,13 @@ import { setupStore } from "../../../app/store";
 import { CategoryType } from "../../../features/category/categorySlice";
 import reducer, {
     addTransaction,
+    deleteTransaction,
     saveTransactions,
     selectIsTransactionsInitByWalletAndDate,
     selectTransactionsByWalletAndDate,
     type Transaction,
     type TransactionsState,
+    updateTransaction,
 } from "../../../features/transaction/transactionSlice";
 
 describe("transactionSlice", () => {
@@ -20,7 +22,7 @@ describe("transactionSlice", () => {
         const transactions: Transaction[] = [
             {
                 id: 1,
-                date: dayjs("2021-01-01 12:38").toDate(),
+                date: "2021-01-01 12:38",
                 description: "test",
                 amount: 100,
                 category: {
@@ -29,13 +31,15 @@ describe("transactionSlice", () => {
                     type: CategoryType.INCOME,
                     subCategories: null,
                 },
+                walletId: 1,
             },
             {
                 id: 2,
-                date: dayjs("2021-01-01 12:40").toDate(),
+                date: "2021-01-01 12:40",
                 description: "test",
                 amount: 100,
                 category: null,
+                walletId: 1,
             },
         ];
         const setTransactionsPayload = {
@@ -56,20 +60,22 @@ describe("transactionSlice", () => {
                 "2021-01-01": [
                     {
                         id: 1,
-                        date: dayjs("2021-01-01 12:38").toDate(),
+                        date: "2021-01-01 12:38",
                         description: "test",
                         amount: 100,
                         category: null,
+                        walletId: 1,
                     },
                 ],
             },
         };
         const transaction: Transaction = {
             id: 2,
-            date: dayjs("2021-01-01 12:40").toDate(),
+            date: "2021-01-01 12:40",
             description: "test",
             amount: 100,
             category: null,
+            walletId: 1,
         };
         const setTransactionPayload = {
             walletId: 1,
@@ -78,7 +84,154 @@ describe("transactionSlice", () => {
         expect(reducer(prevState, addTransaction(setTransactionPayload))).toEqual({
             1: {
                 // transactions are sorted by date
-                "2021-01-01": [transaction, ...prevState[1]["2021-01-01"]],
+                "2021-01-01": [
+                    {
+                        ...transaction,
+                        date: dayjs.utc(transaction.date).local().format("YYYY-MM-DD HH:mm"),
+                    },
+                    ...prevState[1]["2021-01-01"],
+                ],
+            },
+        });
+    });
+
+    test("deleteTransaction", () => {
+        const transaction2: Transaction = {
+            id: 2,
+            date: "2021-01-02 12:38",
+            description: "test",
+            amount: 100,
+            category: null,
+            walletId: 1,
+        };
+        const prevState = {
+            1: {
+                "2021-01-01": [
+                    {
+                        id: 1,
+                        date: "2021-01-01 12:38",
+                        description: "test",
+                        amount: 100,
+                        category: null,
+                        walletId: 1,
+                    },
+                    transaction2,
+                ],
+            },
+        };
+        expect(reducer(prevState, deleteTransaction(1))).toEqual({
+            1: {
+                "2021-01-01": [transaction2],
+            },
+        });
+    });
+
+    test("updateTransaction", () => {
+        const prevState = {
+            1: {
+                "2021-01-01": [
+                    {
+                        id: 1,
+                        date: "2021-01-01 12:38",
+                        description: "test",
+                        amount: 100,
+                        category: null,
+                        walletId: 1,
+                    },
+                ],
+            },
+        };
+        const transaction: Transaction = {
+            id: 1,
+            date: "2021-01-01 12:38",
+            description: "updated",
+            amount: 200,
+            category: null,
+            walletId: 1,
+        };
+        expect(reducer(prevState, updateTransaction(transaction))).toEqual({
+            1: {
+                "2021-01-01": [
+                    {
+                        ...transaction,
+                        date: dayjs.utc(transaction.date).local().format("YYYY-MM-DD HH:mm"),
+                    },
+                ],
+            },
+        });
+    });
+
+    test("updateTransaction. update date", () => {
+        const prevState = {
+            1: {
+                "2021-01-01": [
+                    {
+                        id: 1,
+                        date: "2021-01-01 12:38",
+                        description: "test",
+                        amount: 100,
+                        category: null,
+                        walletId: 1,
+                    },
+                ],
+            },
+        };
+        const transaction: Transaction = {
+            id: 1,
+            date: "2021-01-02 12:38",
+            description: "updated",
+            amount: 200,
+            category: null,
+            walletId: 1,
+        };
+        expect(reducer(prevState, updateTransaction(transaction))).toEqual({
+            1: {
+                // The date is changed, so transaction is removed from previous date
+                "2021-01-01": [],
+                "2021-01-02": [
+                    {
+                        ...transaction,
+                        date: dayjs.utc(transaction.date).local().format("YYYY-MM-DD HH:mm"),
+                    },
+                ],
+            },
+        });
+    });
+
+    test("updateTransaction. update wallet", () => {
+        const prevState = {
+            1: {
+                "2021-01-01": [
+                    {
+                        id: 1,
+                        date: "2021-01-01 12:38",
+                        description: "test",
+                        amount: 100,
+                        category: null,
+                        walletId: 1,
+                    },
+                ],
+            },
+        };
+        const transaction: Transaction = {
+            id: 1,
+            date: "2021-01-01 12:38",
+            description: "updated",
+            amount: 200,
+            category: null,
+            walletId: 2,
+        };
+        expect(reducer(prevState, updateTransaction(transaction))).toEqual({
+            1: {
+                "2021-01-01": [],
+            },
+            2: {
+                "2021-01-01": [
+                    {
+                        ...transaction,
+                        date: dayjs.utc(transaction.date).local().format("YYYY-MM-DD HH:mm"),
+                    },
+                ],
             },
         });
     });
@@ -89,10 +242,11 @@ describe("transactionSlice", () => {
                 "2021-01-01": [
                     {
                         id: 1,
-                        date: dayjs("2021-01-01 12:38").toDate(),
+                        date: "2021-01-01 12:38",
                         description: "test",
                         amount: 100,
                         category: null,
+                        walletId: 1,
                     },
                 ],
             },
