@@ -9,6 +9,7 @@ import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.service.TransactionService;
 import com.danarim.monal.money.web.dto.CreateTransactionDto;
+import com.danarim.monal.money.web.dto.UpdateTransactionDto;
 import com.danarim.monal.user.persistence.model.User;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +32,7 @@ import java.util.TimeZone;
 import static com.danarim.monal.TestUtils.deleteExt;
 import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.postExt;
+import static com.danarim.monal.TestUtils.putExt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
@@ -84,7 +86,7 @@ class TransactionControllerIT {
                             new Wallet("Test", 0.0, Currency.USD, new User(1L))
                     );
                     transaction.setId(1L);
-
+                    transaction.getWallet().setId(dto.walletId());
                     return transaction;
                 });
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/transaction", dto))
@@ -94,7 +96,7 @@ class TransactionControllerIT {
                 .andExpect(jsonPath("$.date").value(dateFormatter.format(dto.date())))
                 .andExpect(jsonPath("$.amount").value(dto.amount()))
                 .andExpect(jsonPath("$.categoryId").value(dto.categoryId()))
-                .andExpect(jsonPath("$.walletId").doesNotExist());
+                .andExpect(jsonPath("$.walletId").value(dto.walletId()));
     }
 
     @Test
@@ -121,7 +123,8 @@ class TransactionControllerIT {
                 .andExpect(jsonPath("$[0].amount").value(transactions.get(1).getAmount()))
                 .andExpect(jsonPath("$[0].categoryId")
                                    .value(transactions.get(1).getCategory().getId()))
-                .andExpect(jsonPath("$[0].walletId").doesNotExist());
+                .andExpect(jsonPath("$[0].walletId")
+                                   .value(transactions.get(1).getWallet().getId()));
     }
 
     @Test
@@ -130,6 +133,35 @@ class TransactionControllerIT {
                                 .param("transactionId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    void updateTransaction() throws Exception {
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", new Date(), 1.0, 1L, 1L
+        );
+        when(transactionService.updateTransaction(any(UpdateTransactionDto.class),
+                                                  eq(1L)))
+                .thenAnswer(invocation -> {
+                    Transaction transaction = new Transaction(
+                            transactionDto.description(),
+                            transactionDto.date(),
+                            transactionDto.amount(),
+                            new TransactionCategory(transactionDto.categoryId()),
+                            new Wallet("Test", 0.0, Currency.USD, new User(1L))
+                    );
+                    transaction.setId(transactionDto.id());
+                    transaction.getWallet().setId(transactionDto.walletId());
+                    return transaction;
+                });
+        mockMvc.perform(putExt(WebConfig.API_V1_PREFIX + "/transaction", transactionDto))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(transactionDto.id()))
+                .andExpect(jsonPath("$.description").value(transactionDto.description()))
+                .andExpect(jsonPath("$.date").value(dateFormatter.format(transactionDto.date())))
+                .andExpect(jsonPath("$.amount").value(transactionDto.amount()))
+                .andExpect(jsonPath("$.categoryId").value(transactionDto.categoryId()))
+                .andExpect(jsonPath("$.walletId").value(transactionDto.walletId()));
     }
 
     private static List<Transaction> prepareTransaction() throws ParseException {

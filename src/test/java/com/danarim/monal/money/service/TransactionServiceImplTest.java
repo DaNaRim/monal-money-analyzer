@@ -6,9 +6,11 @@ import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.money.persistence.dao.TransactionDao;
 import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Transaction;
+import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.TransactionType;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateTransactionDto;
+import com.danarim.monal.money.web.dto.UpdateTransactionDto;
 import com.danarim.monal.user.persistence.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -294,6 +297,1055 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).existsById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(transactionDao, never()).deleteById(1L);
+    }
+
+    @Test
+    void updateTransaction_updateDescription_removeUnnecessarySpaces() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "old", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "ne  w  ", transactionDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("ne w", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_updateDescriptionToNull() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "old", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, null, transactionDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertNull(result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_updateDate() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Transaction oldState = new Transaction(
+                "test", new Date(), 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        Date newDate = new Date();
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", newDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(newDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_incomeTrUpdateAmountUp() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(2.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Income 1.0, new: Income 2.0. Old balance: 0.0, new balance: 2.0 - 1.0 = 1.0
+        assertEquals(1.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_incomeTrUpdateAmountDown() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Income 2.0, new: Income 1.0. Old balance: 0.0, new balance: 1.0 - 2.0 = -1.0
+        assertEquals(-1.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_outcomeTrUpdateAmountUp() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(2.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Outcome 1.0, new: Outcome 2.0. Old balance: 0.0, new balance: -2.0 - -1.0 = -1.0
+        assertEquals(-1.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_outcomeTrUpdateAmountDown() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Outcome 2.0, new: Outcome 1.0. Old balance: 0.0, new balance: -1.0 - -2.0 = 1.0
+        assertEquals(1.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_outcomeTrUpdateAmountRoundBasicPrecision() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.12345, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.12, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Outcome 2.0, new: Outcome 1.12. Old balance: 0.0, new balance: -1.12 - -2.0 = 0.88
+        assertEquals(0.88, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_outcomeTrUpdateAmountRoundCryptoPrecision() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.BTC, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.12345678, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.BTC);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.1234567788, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.12345677, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Outcome 2.12345678, new: Outcome 1.12345677.
+        // Old balance: 0.0, new balance: -1.12345677 - -2.12345678 = 1.00000001
+        assertEquals(1.00000001, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_updateCategorySameType() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(2.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        assertEquals(0.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_updateCategoryIncomeToOutcome() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Income 2.0, new: Outcome 1.0. Old balance: 0.0, new balance: -1.0 - 2.0 = -3.0
+        assertEquals(-3.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_updateCategoryOutcomeToIncome() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 2.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.0, 1L, 1L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(wallet, result.getWallet());
+        // Old: Outcome 2.0, new: Income 1.0. Old balance: 0.0, new balance: 1.0 - -2.0 = 3.0
+        assertEquals(3.0, wallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(1L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(wallet);
+    }
+
+    @Test
+    void updateTransaction_updateWallet() {
+        Wallet oldWallet = new Wallet("test1", 0.0, Currency.USD, new User(1L));
+        oldWallet.setId(1L);
+        Wallet newWallet = new Wallet("test2", 0.0, Currency.USD, new User(1L));
+        newWallet.setId(2L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, oldWallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(oldWallet));
+        when(walletService.getWalletForUpdate(2L))
+                .thenReturn(Optional.of(newWallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(2L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 1.0, 1L, 2L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(1.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(newWallet, result.getWallet());
+        // Old: Outcome 1.0, Old balance: 0.0, new balance: 0.0 - -1.0 = 1.0
+        assertEquals(1.0, oldWallet.getBalance());
+        // New: Outcome 1.0, Old balance: 0.0, new balance: 0.0 + -1.0 = -1.0
+        assertEquals(-1.0, newWallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(walletService, times(1)).getWalletForUpdate(2L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(2L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(oldWallet);
+        verify(walletService, times(1)).updateWallet(newWallet);
+    }
+
+    @Test
+    void updateTransaction_updateWalletAndCategoryTypeOutcomeToIncomeAndAmount() {
+        Wallet oldWallet = new Wallet("test1", 0.0, Currency.USD, new User(1L));
+        oldWallet.setId(1L);
+        Wallet newWallet = new Wallet("test2", 0.0, Currency.USD, new User(1L));
+        newWallet.setId(2L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.OUTCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, oldWallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(oldWallet));
+        when(walletService.getWalletForUpdate(2L))
+                .thenReturn(Optional.of(newWallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(2L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 2L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(2.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(newWallet, result.getWallet());
+        // Old: Outcome 1.0, Old balance: 0.0, new balance: 0.0 - -1.0 = 1.0
+        assertEquals(1.0, oldWallet.getBalance());
+        // New: Income 2.0, Old balance: 0.0, new balance: 0.0 + 2.0 = 1.0
+        assertEquals(2.0, newWallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(walletService, times(1)).getWalletForUpdate(2L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(2L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(oldWallet);
+        verify(walletService, times(1)).updateWallet(newWallet);
+    }
+
+    @Test
+    void updateTransaction_updateWalletAndCategoryTypeIncomeToOutcomeAndAmount() {
+        Wallet oldWallet = new Wallet("test1", 0.0, Currency.USD, new User(1L));
+        oldWallet.setId(1L);
+        Wallet newWallet = new Wallet("test2", 0.0, Currency.USD, new User(1L));
+        newWallet.setId(2L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, oldWallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.OUTCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(oldWallet));
+        when(walletService.getWalletForUpdate(2L))
+                .thenReturn(Optional.of(newWallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(2L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 2L
+        );
+        Transaction result = transactionService.updateTransaction(transactionDto, 1L);
+
+        assertEquals("test", result.getDescription());
+        assertEquals(2.0, result.getAmount());
+        assertEquals(transactionDate, result.getDate());
+        assertEquals(category.getId(), result.getCategory().getId());
+        assertEquals(newWallet, result.getWallet());
+        // Old: Income 1.0, Old balance: 0.0, new balance: 0.0 - 1.0 = -1.0
+        assertEquals(-1.0, oldWallet.getBalance());
+        // New: Outcome 2.0, Old balance: 0.0, new balance: 0.0 + -2.0 = -2.0
+        assertEquals(-2.0, newWallet.getBalance());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(walletService, times(1)).getWalletForUpdate(2L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).findById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(walletService, times(1)).getWalletCurrency(2L);
+
+        verify(transactionDao, times(1)).save(any(Transaction.class));
+        verify(walletService, times(1)).updateWallet(oldWallet);
+        verify(walletService, times(1)).updateWallet(newWallet);
+    }
+
+    @Test
+    void updateTransaction_notFound_BadRequestException() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(false);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 1L
+        );
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            transactionService.updateTransaction(transactionDto, 1L);
+        });
+        assertEquals("validation.transaction.notFound", exception.getMessageCode());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+
+        verify(transactionDao, never()).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_UserNotTransactionOwner_ActionDeniedException() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(false);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 1L
+        );
+        assertThrows(ActionDeniedException.class, () -> {
+            transactionService.updateTransaction(transactionDto, 1L);
+        });
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+
+        verify(transactionDao, never()).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_CategoryNotFound_BadFieldException() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(null);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 1L
+        );
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            transactionService.updateTransaction(transactionDto, 1L);
+        });
+        assertEquals("validation.category.notFound", exception.getMessageCode());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+
+        verify(transactionDao, never()).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_NewWalletNotFound_BadFieldException() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, wallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(2L))
+                .thenReturn(Optional.empty());
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 2L
+        );
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            transactionService.updateTransaction(transactionDto, 1L);
+        });
+        assertEquals("validation.wallet.notFound", exception.getMessageCode());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(2L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+
+        verify(transactionDao, never()).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_UserNotNewWalletOwner_ActionDeniedException() {
+        Wallet oldWallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        oldWallet.setId(1L);
+        Wallet newWallet = new Wallet("test", 0.0, Currency.USD, new User(2L));
+        newWallet.setId(2L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, oldWallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(2L))
+                .thenReturn(Optional.of(newWallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.USD);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 2L
+        );
+        assertThrows(ActionDeniedException.class, () -> {
+            transactionService.updateTransaction(transactionDto, 1L);
+        });
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(2L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+
+        verify(transactionDao, never()).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
+    }
+
+    @Test
+    void updateTransaction_NewWalletHasDifferentCurrency_BadRequestException() {
+        Wallet oldWallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        oldWallet.setId(1L);
+        Wallet newWallet = new Wallet("test", 0.0, Currency.UAH, new User(1L));
+        newWallet.setId(2L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        category.setId(1L);
+        Date transactionDate = new Date();
+        Transaction oldState = new Transaction(
+                "test", transactionDate, 1.0, category, oldWallet
+        );
+        oldState.setId(1L);
+
+        when(categoryService.getCategoryType(1L))
+                .thenReturn(TransactionType.INCOME);
+        when(walletService.getWalletForUpdate(2L))
+                .thenReturn(Optional.of(newWallet));
+        when(transactionDao.findById(1L))
+                .thenReturn(Optional.of(oldState));
+        when(transactionDao.existsById(1L))
+                .thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(walletService.getWalletCurrency(1L))
+                .thenReturn(Currency.UAH);
+
+        UpdateTransactionDto transactionDto = new UpdateTransactionDto(
+                1L, "test", transactionDate, 2.0, 1L, 2L
+        );
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            transactionService.updateTransaction(transactionDto, 1L);
+        });
+        assertEquals("validation.transaction.wallet-has-different-currency",
+                     exception.getMessageCode());
+
+        verify(categoryService, times(1)).getCategoryType(1L);
+        verify(walletService, times(1)).getWalletForUpdate(2L);
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+
+        verify(transactionDao, never()).save(any(Transaction.class));
+        verify(walletService, never()).updateWallet(any(Wallet.class));
     }
 
 }

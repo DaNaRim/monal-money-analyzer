@@ -11,6 +11,7 @@ import com.danarim.monal.money.persistence.model.TransactionCategory;
 import com.danarim.monal.money.persistence.model.TransactionType;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateTransactionDto;
+import com.danarim.monal.money.web.dto.UpdateTransactionDto;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
         Optional<Wallet> optionalWallet =
                 walletService.getWalletForUpdate(createTransactionDto.walletId());
 
-        validateTransaction(createTransactionDto, userId, categoryType, optionalWallet);
+        validateCreateTransaction(createTransactionDto, userId, categoryType, optionalWallet);
 
         Wallet wallet = optionalWallet.get(); // Wallet is present because of validation
 
@@ -141,6 +142,50 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     /**
+     * Updates a transaction and the wallet balance.
+     *
+     * @param transactionDto DTO with transaction data
+     * @param loggedUserId   logged in user ID
+     *
+     * @return updated transaction
+     */
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public Transaction updateTransaction(UpdateTransactionDto transactionDto, long loggedUserId) {
+        TransactionType newCategoryType =
+                categoryService.getCategoryType(transactionDto.categoryId());
+        Optional<Wallet> optionalNewWallet =
+                walletService.getWalletForUpdate(transactionDto.walletId());
+
+        validateUpdateTransaction(transactionDto, loggedUserId, newCategoryType, optionalNewWallet);
+
+        // Transaction is present because of validation
+        Transaction transaction = transactionDao.findById(transactionDto.id()).get();
+
+        // New wallet must have the same currency as the old wallet
+        if (walletService.getWalletCurrency(transactionDto.walletId())
+                != optionalNewWallet.get().getCurrency()) {
+            throw new BadRequestException(
+                    "Wallet with ID %d has different currency than transaction with ID %d"
+                            .formatted(transactionDto.walletId(), transactionDto.id()),
+                    "validation.transaction.wallet-has-different-currency",
+                    null);
+        }
+        // Wallet, category type or amount changed
+        if (transaction.getWallet().getId() != transactionDto.walletId()
+                || transaction.getCategory().getType() != newCategoryType
+                || transaction.getAmount() != transactionDto.amount()) {
+            updateWalletBallanceOnUpdate(transactionDto,
+                                         transaction,
+                                         optionalNewWallet,
+                                         newCategoryType);
+        }
+        // Must be after updating the wallet balance because updating use old transaction data
+        updateTransactionFields(transactionDto, transaction, optionalNewWallet);
+        return transactionDao.save(transaction);
+    }
+
+    /**
      * Validates the transaction data.
      *
      * @param createTransactionDto DTO with transaction data
@@ -152,11 +197,12 @@ public class TransactionServiceImpl implements TransactionService {
      * @throws BadRequestException   if wallet is not found
      * @throws ActionDeniedException if a user does not own the wallet
      */
-    private static void validateTransaction(CreateTransactionDto createTransactionDto,
-                                            long userId,
-                                            TransactionType categoryType,
-                                            Optional<Wallet> optionalWallet
+    private static void validateCreateTransaction(CreateTransactionDto createTransactionDto,
+                                                  long userId,
+                                                  TransactionType categoryType,
+                                                  Optional<Wallet> optionalWallet
     ) {
+        // categoryType fetched from the database by category ID from the DTO
         if (categoryType == null) {
             throw new BadFieldException(
                     "Missing category with ID " + createTransactionDto.categoryId(),
@@ -187,10 +233,100 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     /**
-     * Updates the balance of the wallet after a transaction.
+     * Calculates the wallet amount delta for new transaction state on update.
+     *
+     * @param oldType   transaction type for old transaction state
+     * @param oldAmount transaction amount for old transaction state
+     * @param newType   transaction type for new transaction state
+     * @param newAmount transaction amount for new transaction state
+     *
+     * @return wallet amount delta for new transaction state
+     */
+    private static double calculateWalletNewAmountDelta(TransactionType oldType,
+                                                        double oldAmount,
+                                                        TransactionType newType,
+                                                        double newAmount
+    ) {
+        double walletOldAmountDelta =
+                oldType == TransactionType.INCOME ? oldAmount : -oldAmount;
+
+        double walletNewAmountDelta =
+                newType == TransactionType.INCOME ? newAmount : -newAmount;
+
+        return BigDecimal.valueOf(walletNewAmountDelta)
+                .subtract(BigDecimal.valueOf(walletOldAmountDelta))
+                .doubleValue();
+    }
+
+    /**
+     * Updates the transaction fields from the DTO.
+     *
+     * @param transactionDto    DTO with transaction data
+     * @param transaction       transaction to update
+     * @param optionalNewWallet new transaction state wallet. Must be present!
+     */
+    private static void updateTransactionFields(UpdateTransactionDto transactionDto,
+                                                Transaction transaction,
+                                                Optional<Wallet> optionalNewWallet
+    ) {
+        transaction.setDescription(
+                transactionDto.description() == null
+                        ? null
+                        : transactionDto.description().trim().replaceAll("\\s+", " ")
+        );
+        transaction.setDate(new Date(transactionDto.date().getTime()));
+        transaction.setAmount(roundTransactionAmount(
+                transactionDto.amount(),
+                transaction.getWallet().getCurrency().getType()
+        ));
+        transaction.setCategory(new TransactionCategory(transactionDto.categoryId()));
+        transaction.setWallet(optionalNewWallet.get());
+    }
+
+    /**
+     * Validates the transaction data for updating.
+     *
+     * @param updateTransactionDto DTO with transaction data
+     * @param userId               logged in user ID
+     * @param categoryType         type of the transaction category from the DTO
+     * @param optionalWallet       optional wallet from the database with the ID from the DTO
+     *
+     * @throws BadFieldException     if category is not found
+     * @throws BadRequestException   if a wallet is not found or transaction does not exist
+     * @throws ActionDeniedException if a user does not own the transaction or wallet
+     */
+    private void validateUpdateTransaction(UpdateTransactionDto updateTransactionDto,
+                                           long userId,
+                                           TransactionType categoryType,
+                                           Optional<Wallet> optionalWallet
+    ) {
+        if (!transactionDao.existsById(updateTransactionDto.id())) {
+            throw new BadRequestException(
+                    "Transaction with ID %d does not exist.".formatted(updateTransactionDto.id()),
+                    "validation.transaction.notFound",
+                    null);
+        }
+        if (!transactionDao.isUserTransactionOwner(updateTransactionDto.id(), userId)) {
+            throw new ActionDeniedException(
+                    "User with ID %d is not the owner of transaction with ID %d"
+                            .formatted(userId, updateTransactionDto.id()));
+        }
+        CreateTransactionDto createTransactionDto = new CreateTransactionDto(
+                updateTransactionDto.description(),
+                updateTransactionDto.date(),
+                updateTransactionDto.amount(),
+                updateTransactionDto.categoryId(),
+                updateTransactionDto.walletId()
+        );
+        // Same validation as for creation transaction
+        validateCreateTransaction(createTransactionDto, userId, categoryType, optionalWallet);
+    }
+
+    /**
+     * Updates the balance of the wallet after a transaction. Update based on the transaction type.
      *
      * @param wallet       wallet to update
-     * @param amount       amount of the transaction
+     * @param amount       amount to add to the wallet balance
      * @param categoryType type of the transaction category
      *
      * @throws InternalServerException if the transaction type is not supported for updating the
@@ -198,17 +334,72 @@ public class TransactionServiceImpl implements TransactionService {
      */
     private void updateWalletBalance(Wallet wallet, double amount, TransactionType categoryType) {
         switch (categoryType) {
-            case INCOME -> wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
-                                                     .add(BigDecimal.valueOf(amount))
-                                                     .doubleValue());
-            case OUTCOME -> wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
-                                                      .subtract(BigDecimal.valueOf(amount))
-                                                      .doubleValue());
+            case INCOME -> updateWalletBalance(wallet, amount);
+            case OUTCOME -> updateWalletBalance(wallet, -amount);
             default -> throw new InternalServerException(
                     "Unsupported transaction type " + categoryType + " for updating wallet balance."
             );
         }
+    }
+
+    /**
+     * Updates the balance of the wallet.
+     *
+     * @param wallet wallet to update
+     * @param amount amount to add to the wallet balance (can be negative)
+     */
+    private void updateWalletBalance(Wallet wallet, double amount) {
+        wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
+                                  .add(BigDecimal.valueOf(amount))
+                                  .doubleValue());
         walletService.updateWallet(wallet);
+    }
+
+    /**
+     * If the wallet is not changed, updates the wallet balance. If the wallet is changed, updates
+     * the wallet balance for the old and new wallets.
+     *
+     * @param transactionDto     DTO with transaction data
+     * @param transaction        old transaction state
+     * @param optionalNewWallet  new transaction state wallet. Must be present!
+     * @param newTransactionType new transaction state category type
+     */
+    private void updateWalletBallanceOnUpdate(UpdateTransactionDto transactionDto,
+                                              Transaction transaction,
+                                              Optional<Wallet> optionalNewWallet,
+                                              TransactionType newTransactionType
+    ) {
+        TransactionType oldTransactionType = transaction.getCategory().getType();
+        double oldTransactionAmount = transaction.getAmount();
+
+        double transactionAmount = roundTransactionAmount(
+                transactionDto.amount(),
+                transaction.getWallet().getCurrency().getType()
+        );
+        if (transaction.getWallet().getId() == transactionDto.walletId()) { // Wallet isn't changed
+            double walletAmountDelta = calculateWalletNewAmountDelta(
+                    oldTransactionType,
+                    oldTransactionAmount,
+                    newTransactionType,
+                    transactionAmount
+            );
+            // Wallet is present because of validation
+            updateWalletBalance(optionalNewWallet.get(), walletAmountDelta);
+            return;
+        }
+        // Wallet changed
+        Optional<Wallet> optionalOldWallet =
+                walletService.getWalletForUpdate(transaction.getWallet().getId());
+
+        // Wallet is present because of validation
+        updateWalletBalance(optionalOldWallet.get(),
+                            oldTransactionType == TransactionType.INCOME
+                                    ? -oldTransactionAmount
+                                    : oldTransactionAmount);
+        updateWalletBalance(optionalNewWallet.get(),
+                            newTransactionType == TransactionType.INCOME
+                                    ? transactionAmount
+                                    : -transactionAmount);
     }
 
 }
