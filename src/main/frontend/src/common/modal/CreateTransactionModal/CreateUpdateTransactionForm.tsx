@@ -136,6 +136,9 @@ const CreateUpdateTransactionForm = ({
     return (
         <>
             <h1 className={styles.title}>{t[`${componentName}`].title}</h1>
+            {mode === "update" &&
+              <p className={styles.description}>{t.updateTransactionModal.description}</p>
+            }
             <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)}>
                 <div className={styles.double_field}>
                     <InputSelect

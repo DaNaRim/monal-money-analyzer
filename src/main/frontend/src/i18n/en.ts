@@ -601,6 +601,7 @@ export default {
 
     updateTransactionModal: {
         title: "Edit transaction",
+        description: "You can choose a wallet only with the same currency as the transaction",
         form: {
             fields: {
                 walletId: "Wallet",

@@ -601,6 +601,7 @@ export default {
 
     updateTransactionModal: {
         title: "Редагувати транзакцію",
+        description: "Ви можете вибрати гаманець тільки з такою ж валютою що й транзакція",
         form: {
             fields: {
                 walletId: "Гаманець",
