@@ -1,5 +1,6 @@
 package com.danarim.monal.money.service;
 
+import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InternalServerException;
@@ -7,7 +8,6 @@ import com.danarim.monal.money.persistence.dao.WalletDao;
 import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
 import com.danarim.monal.money.web.dto.CreateWalletDto;
-import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +21,16 @@ import java.util.Optional;
 public class WalletServiceImpl implements WalletService {
 
     private final WalletDao walletDao;
-    private final UserDao userDao;
 
-    public WalletServiceImpl(WalletDao walletDao, UserDao userDao) {
+    public WalletServiceImpl(WalletDao walletDao) {
         this.walletDao = walletDao;
-        this.userDao = userDao;
     }
 
     /**
      * Creates a new wallet for the user with the given id.
      *
-     * @param walletDto wallet data
-     * @param userId    id of the user that owns the wallet
+     * @param walletDto    wallet data
+     * @param loggedUserId id of the user that owns the wallet
      *
      * @return created wallet
      *
@@ -40,9 +38,15 @@ public class WalletServiceImpl implements WalletService {
      * @throws BadFieldException   if currency is not valid
      */
     @Override
-    public Wallet createWallet(CreateWalletDto walletDto, long userId) {
-        validateCreateWallet(walletDto, userId);
-
+    public Wallet createWallet(CreateWalletDto walletDto, long loggedUserId) {
+        if (walletDao.existsByOwnerIdAndName(loggedUserId, walletDto.name())) {
+            throw new BadFieldException(
+                    "Wallet with name %s already exists for user with id %d."
+                            .formatted(walletDto.name(), loggedUserId),
+                    "validation.wallet.name-for-user.alreadyExists",
+                    null,
+                    "name");
+        }
         Currency parsedCurrency;
         try { // Check is valid currency
             parsedCurrency = Currency.valueOf(walletDto.currency().toUpperCase());
@@ -67,21 +71,21 @@ public class WalletServiceImpl implements WalletService {
         return walletDao.save(new Wallet(walletDto.name().trim().replaceAll("\\s+", " "),
                                          parsedBalance,
                                          parsedCurrency,
-                                         new User(userId)));
+                                         new User(loggedUserId)));
     }
 
     /**
      * Returns all wallets owned by the user with the given id. DON'T check if the user exists.
      *
-     * @param userId id of the user that owns the wallets
+     * @param loggedUserId id of the user that owns the wallets
      *
      * @return list of wallets owned by the user with the given id
      *
      * @throws BadRequestException if user with the given id does not exist
      */
     @Override
-    public List<Wallet> getUserWallets(long userId) {
-        return walletDao.findAllByOwnerId(userId);
+    public List<Wallet> getUserWallets(long loggedUserId) {
+        return walletDao.findAllByOwnerId(loggedUserId);
     }
 
     /**
@@ -134,20 +138,20 @@ public class WalletServiceImpl implements WalletService {
         walletDao.save(wallet);
     }
 
-    private void validateCreateWallet(CreateWalletDto walletDto, long userId) {
-        if (!userDao.existsById(userId)) {
-            throw new BadRequestException("User with id " + userId + " does not exist.",
-                                          "validation.user.notFound",
+    @Override
+    public Wallet updateWalletName(Long walletId, String newName, long loggedUserId) {
+        if (!walletDao.existsById(walletId)) {
+            throw new BadRequestException("Wallet with id " + walletId + " does not exist.",
+                                          "validation.wallet.notFound",
                                           null);
         }
-        if (walletDao.existsByOwnerIdAndName(userId, walletDto.name())) {
-            throw new BadFieldException(
-                    "Wallet with name %s already exists for user with id %d."
-                            .formatted(walletDto.name(), userId),
-                    "validation.wallet.name-for-user.alreadyExists",
-                    null,
-                    "name");
+        if (!walletDao.isUserWalletOwner(walletId, loggedUserId)) {
+            throw new ActionDeniedException("Wallet with id %d does not belong to user with id %d."
+                                                    .formatted(walletId, loggedUserId));
         }
+        Wallet wallet = walletDao.getById(walletId);
+        wallet.setName(newName.trim().replaceAll("\\s+", " "));
+        return walletDao.save(wallet);
     }
 
 }

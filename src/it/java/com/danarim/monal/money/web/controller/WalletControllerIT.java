@@ -24,6 +24,7 @@ import java.util.List;
 
 import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.postExt;
+import static com.danarim.monal.TestUtils.putExt;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,7 +82,6 @@ class WalletControllerIT {
                 new Wallet("Test", 23.0, Currency.USD, new User(1L)),
                 new Wallet("Test2", 42.0, Currency.UAH, new User(1L))
         );
-
         when(walletService.getUserWallets(1L))
                 .thenReturn(wallets);
 
@@ -95,6 +95,53 @@ class WalletControllerIT {
                 .andExpect(jsonPath("$[1].balance").value(wallets.get(1).getBalance()))
                 .andExpect(jsonPath("$[1].currency").value(wallets.get(1).getCurrency()
                                                                    .toString()));
+    }
+
+    @Test
+    void updateWalletName() throws Exception {
+        when(walletService.updateWalletName(1L, "Test", 1L))
+                .thenReturn(new Wallet("Test", 23.0, Currency.USD, new User(1L)));
+
+        mockMvc.perform(putExt(WebConfig.API_V1_PREFIX + "/wallet/name")
+                                .param("walletId", "1")
+                                .param("name", "Test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Test"))
+                .andExpect(jsonPath("$.balance").value(23.0))
+                .andExpect(jsonPath("$.currency").value(Currency.USD.toString()));
+    }
+
+    @Test
+    void updateWalletName_blankName_BadRequest() throws Exception {
+        mockMvc.perform(putExt(WebConfig.API_V1_PREFIX + "/wallet/name")
+                                .param("walletId", "1")
+                                .param("name", "     "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].message").exists())
+                .andExpect(jsonPath("$[0].errorCode").value("validation.wallet.required.name"))
+                .andExpect(jsonPath("$[0].fieldName").value("name"));
+    }
+
+    @Test
+    void updateWalletName_shortName_BadRequest() throws Exception {
+        mockMvc.perform(putExt(WebConfig.API_V1_PREFIX + "/wallet/name")
+                                .param("walletId", "1")
+                                .param("name", "a"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].message").exists())
+                .andExpect(jsonPath("$[0].errorCode").value("validation.wallet.size.name"))
+                .andExpect(jsonPath("$[0].fieldName").value("name"));
+    }
+
+    @Test
+    void updateWalletName_longName_BadRequest() throws Exception {
+        mockMvc.perform(putExt(WebConfig.API_V1_PREFIX + "/wallet/name")
+                                .param("walletId", "1")
+                                .param("name", "a".repeat(33)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].message").exists())
+                .andExpect(jsonPath("$[0].errorCode").value("validation.wallet.size.name"))
+                .andExpect(jsonPath("$[0].fieldName").value("name"));
     }
 
 }

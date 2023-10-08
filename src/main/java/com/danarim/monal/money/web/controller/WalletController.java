@@ -9,21 +9,27 @@ import com.danarim.monal.money.web.dto.ViewWalletDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 /**
  * Responsible for operations on {@link Wallet} entities.
  */
 @RestController
 @RequestMapping(WebConfig.API_V1_PREFIX + "/wallet")
+@Validated
 public class WalletController {
 
     private static final ModelMapper modelMapper = new ModelMapper();
@@ -65,6 +71,20 @@ public class WalletController {
         return wallets.stream()
                 .map(wallet -> modelMapper.map(wallet, ViewWalletDto.class))
                 .toList();
+    }
+
+    @PutMapping("/name")
+    public ViewWalletDto updateWalletName(
+            @RequestParam
+            Long walletId,
+
+            @RequestParam
+            @NotBlank(message = "{validation.wallet.required.name}")
+            @Size(min = 2, max = 32, message = "{validation.wallet.size.name}")
+            String name
+    ) {
+        Wallet wallet = walletService.updateWalletName(walletId, name, AuthUtil.getLoggedUserId());
+        return modelMapper.map(wallet, ViewWalletDto.class);
     }
 
 }
