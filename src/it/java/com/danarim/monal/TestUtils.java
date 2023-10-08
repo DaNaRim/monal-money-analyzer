@@ -155,6 +155,17 @@ public final class TestUtils {
     }
 
     /**
+     * Add default headers to request.
+     *
+     * @param uri request uri
+     *
+     * @return request builder. Can be extended
+     */
+    public static MockHttpServletRequestBuilder putExt(String uri) {
+        return put(uri).secure(true);
+    }
+
+    /**
      * Add default headers to request and convert body to json.
      *
      * @param uri request uri

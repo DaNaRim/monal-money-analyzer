@@ -16,10 +16,21 @@ export const walletApiSlice = apiSlice.injectEndpoints({
                 body,
             }),
         }),
+        updateWalletName: builder.mutation<Wallet, { id: number, name: string }>({
+            query: ({ id, name }) => ({
+                url: "/wallet/name",
+                method: "PUT",
+                params: {
+                    walletId: id,
+                    name,
+                },
+            }),
+        }),
     }),
 });
 
 export const {
     useGetUserWalletsQuery,
     useCreateWalletMutation,
+    useUpdateWalletNameMutation,
 } = walletApiSlice;

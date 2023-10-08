@@ -521,6 +521,7 @@ export default {
         noWalletSelected: "Виберіть гаманець",
         loading: "Завантаження...",
         addNewWallet: "Додати новий гаманець",
+        updateWalletName: "Змінити назву гаманця",
     },
 
     dateBlock: {
@@ -566,6 +567,22 @@ export default {
             loading: "Створення...",
             submit: "Створити",
         },
+    },
+
+    updateWalletNameModal: {
+        title: "Редагувати назву гаманця",
+        form: {
+            fields: {
+                name: "Назва",
+            },
+            errors: {
+                name: {
+                    required: "Назва обов'язкова",
+                },
+            },
+        },
+        loading: "Оновлення...",
+        submit: "Оновити",
     },
 
     createTransactionModal: {

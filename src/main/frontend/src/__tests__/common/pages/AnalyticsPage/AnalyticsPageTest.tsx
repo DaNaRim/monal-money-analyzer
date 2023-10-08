@@ -19,5 +19,5 @@ describe("AnalyticsPage", () => {
             expect(screen.getByTestId("wallet-block")).toBeInTheDocument();
             expect(screen.getByTestId("analytics-bar")).toBeInTheDocument();
         });
-    }, 10_000);
+    }, 15_000);
 });

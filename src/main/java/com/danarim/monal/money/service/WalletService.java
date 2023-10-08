@@ -12,9 +12,9 @@ import java.util.Optional;
  */
 public interface WalletService {
 
-    Wallet createWallet(CreateWalletDto walletDto, long userId);
+    Wallet createWallet(CreateWalletDto walletDto, long loggedUserId);
 
-    List<Wallet> getUserWallets(long userId);
+    List<Wallet> getUserWallets(long loggedUserId);
 
     Optional<Wallet> getWalletForUpdate(long id);
 
@@ -30,5 +30,7 @@ public interface WalletService {
      * @param wallet wallet to update
      */
     void updateWallet(Wallet wallet);
+
+    Wallet updateWalletName(Long walletId, String newName, long loggedUserId);
 
 }

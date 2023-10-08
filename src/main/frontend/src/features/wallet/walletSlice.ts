@@ -62,9 +62,27 @@ const walletsSlice = createSlice({
                 wallet.balance -= deltaBalance;
             }
         },
+        updateWallet(state, action: PayloadAction<Wallet>) {
+            const { id, name, balance, currency } = action.payload;
+
+            const wallet = state.wallets.find(wallet => wallet.id === id);
+            if (wallet == null) {
+                return;
+            }
+            wallet.name = name;
+            wallet.balance = balance;
+            wallet.currency = currency;
+        },
     },
     extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
+
+export const {
+    setUserWallets,
+    addUserWallet,
+    updateWalletBalance,
+    updateWallet,
+} = walletsSlice.actions;
 
 export const selectWallets = (state: RootState) => state.wallets.wallets;
 export const selectIsWalletsInitialized = (state: RootState) => state.wallets.isInitialized;
@@ -72,7 +90,5 @@ export const selectIsWalletsExists = (state: RootState) => state.wallets.wallets
 
 export const selectWalletNameById = (state: RootState, walletId: number) =>
     state.wallets.wallets.find(wallet => wallet.id === walletId)?.name ?? "";
-
-export const { setUserWallets, addUserWallet, updateWalletBalance } = walletsSlice.actions;
 
 export default walletsSlice.reducer;
