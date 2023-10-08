@@ -21,7 +21,7 @@ describe("UpdateWalletNameModal", () => {
                     errorCode: "error",
                     fieldName: "name",
                 };
-                return await res(ctx.status(400), ctx.json([error]),);
+                return await res(ctx.status(400), ctx.json([error]));
             }
             return await res(
                 ctx.status(200),
