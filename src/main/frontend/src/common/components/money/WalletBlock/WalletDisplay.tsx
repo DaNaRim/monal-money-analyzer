@@ -47,7 +47,7 @@ const WalletDisplay = ({ name, balance, currency }: WalletCompProps) => {
         : name;
 
     return (
-        <div className={styles.wallet}>
+        <div className={`${styles.wallet} ${styles.wallet_selected}`}>
             <p className={styles.wallet_name}>{nameToDisplay}</p>
             <div>
                 <p className={styles.wallet_balance}>{balanceToDisplay}</p>

@@ -8,7 +8,9 @@ import {
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
 import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
+import UpdateWalletNameModal from "../../../modal/UpdateWalletNameModal/UpdateWalletNameModal";
 import CreateWalletButton from "./CreateWalletButton";
+import UpdateWalletNameButton from "./UpdateWalletNameButton";
 import styles from "./WalletBlock.module.scss";
 import WalletComp from "./WalletComp";
 import WalletDisplay from "./WalletDisplay";
@@ -29,6 +31,8 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
 
     const [newWalletModalOpen, setNewWalletModalOpen] = useState<boolean>(false);
 
+    const [updateWalletNameModalOpen, setUpdateWalletNameModalOpen] = useState<boolean>(false);
+
     const getWalletById = (walletId: number) => wallets.find(wallet => wallet.id === walletId);
 
     const updateSelectedWallet = (walletId: number) => {
@@ -39,9 +43,11 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
         }
     };
 
-    const handleSelectButtonKeyDown = (e: React.KeyboardEvent<HTMLLIElement>) => {
+    const handleButtonKeyDownAction = (e: React.KeyboardEvent<HTMLLIElement>,
+                                       action: (arg0: boolean) => void,
+    ) => {
         if (e.key === "Enter") {
-            setNewWalletModalOpen(true);
+            action(true);
         }
     };
 
@@ -87,24 +93,43 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
                            autoWidth={true}
                            displayEmpty={true} // To display placeholder if smth went wrong
                            label=""
+                           MenuProps={{
+                               className: styles.wallet_select_menu,
+                           }}
                            data-testid="select-wallet"
               >
                     {/* KeyDown on div because mui ignore focus and keydown events for it's
                      children */}
                 <MenuItem value={selectedWalletId}
-                          className={styles.add_wallet_button_wrapper}
+                          className={styles.action_button_wrapper}
+                          onClick={() => setUpdateWalletNameModalOpen(true)}
+                          onKeyDown={e =>
+                              handleButtonKeyDownAction(e, setUpdateWalletNameModalOpen)
+                          }
+                >
+                  <UpdateWalletNameButton setUpdateWalletNameModalOpen={setNewWalletModalOpen}/>
+                </MenuItem>
+                <MenuItem value={selectedWalletId}
+                          className={styles.action_button_wrapper}
                           onClick={() => setNewWalletModalOpen(true)}
-                          onKeyDown={handleSelectButtonKeyDown}
+                          onKeyDown={e => handleButtonKeyDownAction(e, setNewWalletModalOpen)}
                 >
                   <CreateWalletButton setNewWalletModalOpen={setNewWalletModalOpen}/>
                 </MenuItem>
                     {wallets.map(wallet => (
-                        <MenuItem value={wallet.id} key={wallet.id}>
+                        <MenuItem className={styles.wallet_wrapper}
+                                  value={wallet.id}
+                                  key={wallet.id}>
                             <WalletComp {...wallet}/>
                         </MenuItem>
                     ))}
               </Select>
             }
+            <UpdateWalletNameModal open={updateWalletNameModalOpen}
+                                   setOpen={setUpdateWalletNameModalOpen}
+                                   walletId={Number(selectedWalletId)}
+                                   walletName={getWalletById(Number(selectedWalletId))?.name ?? ""}
+            />
             <CreateWalletModal open={newWalletModalOpen}
                                setOpen={setNewWalletModalOpen}
                                setNewWalletId={setNewWalletId}

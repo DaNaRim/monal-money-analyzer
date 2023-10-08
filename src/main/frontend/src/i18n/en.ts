@@ -521,6 +521,7 @@ export default {
         noWalletSelected: "Select a wallet",
         loading: "Loading...",
         addNewWallet: "Add new wallet",
+        updateWalletName: "Edit wallet name",
     },
 
     dateBlock: {
@@ -566,6 +567,22 @@ export default {
             loading: "Creating...",
             submit: "Create",
         },
+    },
+
+    updateWalletNameModal: {
+        title: "Edit wallet name",
+        form: {
+            fields: {
+                name: "Name",
+            },
+            errors: {
+                name: {
+                    required: "Name is required",
+                },
+            },
+        },
+        loading: "Updating...",
+        submit: "Update",
     },
 
     createTransactionModal: {

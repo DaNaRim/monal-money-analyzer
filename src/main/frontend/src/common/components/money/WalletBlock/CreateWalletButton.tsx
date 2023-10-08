@@ -9,7 +9,7 @@ interface CreateWalletButtonProps {
 const CreateWalletButton = ({ setNewWalletModalOpen }: CreateWalletButtonProps) => {
     const t = useTranslation();
     return (
-        <button className={styles.add_wallet_button}
+        <button className={styles.action_button}
                 onClick={() => setNewWalletModalOpen(true)}>
             <div className={styles.plus}>+</div>
             <div className={styles.text}>{t.walletBlock.addNewWallet}</div>
