@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 
 /**
@@ -279,7 +280,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles validation errors thrown by {@link Validated} and {@link Valid} annotations.
+     * Handles validation errors thrown by {@link Valid} annotations.
      *
      * @param e       exception caused by validation.
      * @param headers http headers.
@@ -302,12 +303,39 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Handles validation errors thrown by {@link Validated} annotations.
+     *
+     * @param e       exception caused by validation.
+     * @param request request where exception occurred.
+     *
+     * @return response with list of {@link ErrorResponse}.
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<List<ErrorResponse>> handleConstraintViolationException(
+            ConstraintViolationException e,
+            WebRequest request
+    ) {
+        rexLogger.debug(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(),
+                                               e.getMessage()), e);
+
+        List<ErrorResponse> mappedErrors = e.getConstraintViolations().stream()
+                .map(violation -> ErrorResponse.fieldError(
+                        violation.getMessageTemplate().replaceAll("[{}]", ""),
+                        violation.getPropertyPath().toString().split("[.]")[1],
+                        violation.getMessage())
+                )
+                .toList();
+
+        return new ResponseEntity<>(mappedErrors, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Handles server exceptions.
      *
      * @param e       exception caused by server.
      * @param request request where exception occurred.
      *
-     * @return response with list of {@link ErrorResponse} with one element.
+     * @return response with a list of {@link ErrorResponse} with one element.
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<List<ErrorResponse>> handleInternalException(Exception e,
