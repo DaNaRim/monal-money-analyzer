@@ -522,6 +522,7 @@ export default {
         loading: "Loading...",
         addNewWallet: "Add new wallet",
         updateWalletName: "Edit wallet name",
+        changeWalletBalance: "Change wallet balance",
     },
 
     dateBlock: {
@@ -583,6 +584,24 @@ export default {
         },
         loading: "Updating...",
         submit: "Update",
+    },
+
+    changeWalletBalanceModal: {
+        title: "Change wallet balance",
+        form: {
+            fields: {
+                balance: "Balance",
+            },
+            errors: {
+                balance: {
+                    required: "Balance is required",
+                },
+            },
+        },
+        transactionDescription: "Balance change",
+        submit: "Change",
+        loading: "Changing...",
+        error: "Failed to change balance",
     },
 
     createTransactionModal: {
