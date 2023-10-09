@@ -7,8 +7,11 @@ import {
     selectWallets,
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
+import ChangeWalletBalanceModal
+    from "../../../modal/ChangeWalletBalanceModal/ChangeWalletBalanceModal";
 import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
 import UpdateWalletNameModal from "../../../modal/UpdateWalletNameModal/UpdateWalletNameModal";
+import ChangeWalletBalanceButton from "./ChangeWalletBalanceButton";
 import CreateWalletButton from "./CreateWalletButton";
 import UpdateWalletNameButton from "./UpdateWalletNameButton";
 import styles from "./WalletBlock.module.scss";
@@ -32,6 +35,9 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
     const [newWalletModalOpen, setNewWalletModalOpen] = useState<boolean>(false);
 
     const [updateWalletNameModalOpen, setUpdateWalletNameModalOpen] = useState<boolean>(false);
+
+    const [changeWalletBalanceModalOpen, setChangeWalletBalanceModalOpen]
+        = useState<boolean>(false);
 
     const getWalletById = (walletId: number) => wallets.find(wallet => wallet.id === walletId);
 
@@ -111,6 +117,16 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
                 </MenuItem>
                 <MenuItem value={selectedWalletId}
                           className={styles.action_button_wrapper}
+                          onClick={() => setChangeWalletBalanceModalOpen(true)}
+                          onKeyDown={e =>
+                              handleButtonKeyDownAction(e, setChangeWalletBalanceModalOpen)
+                          }
+                >
+                  <ChangeWalletBalanceButton
+                    setChangeWalletBalanceModalOpen={setChangeWalletBalanceModalOpen}/>
+                </MenuItem>
+                <MenuItem value={selectedWalletId}
+                          className={styles.action_button_wrapper}
                           onClick={() => setNewWalletModalOpen(true)}
                           onKeyDown={e => handleButtonKeyDownAction(e, setNewWalletModalOpen)}
                 >
@@ -133,6 +149,10 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
             <CreateWalletModal open={newWalletModalOpen}
                                setOpen={setNewWalletModalOpen}
                                setNewWalletId={setNewWalletId}
+            />
+            <ChangeWalletBalanceModal open={changeWalletBalanceModalOpen}
+                                      setOpen={setChangeWalletBalanceModalOpen}
+                                      wallet={getWalletById(Number(selectedWalletId)) ?? null}
             />
         </div>
     );

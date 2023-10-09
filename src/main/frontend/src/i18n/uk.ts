@@ -522,6 +522,7 @@ export default {
         loading: "Завантаження...",
         addNewWallet: "Додати новий гаманець",
         updateWalletName: "Змінити назву гаманця",
+        changeWalletBalance: "Змінити баланс гаманця",
     },
 
     dateBlock: {
@@ -583,6 +584,24 @@ export default {
         },
         loading: "Оновлення...",
         submit: "Оновити",
+    },
+
+    changeWalletBalanceModal: {
+        title: "Змінити баланс гаманця",
+        form: {
+            fields: {
+                balance: "Баланс",
+            },
+            errors: {
+                balance: {
+                    required: "Баланс обов'язковий",
+                },
+            },
+        },
+        transactionDescription: "Зміна балансу",
+        submit: "Змінити",
+        loading: "Оновлення...",
+        error: "Не вдалося змінити баланс",
     },
 
     createTransactionModal: {
