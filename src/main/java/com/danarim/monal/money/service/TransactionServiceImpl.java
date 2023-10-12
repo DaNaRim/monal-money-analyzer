@@ -126,6 +126,7 @@ public class TransactionServiceImpl implements TransactionService {
      * @throws ActionDeniedException if the user is not the owner of the transaction
      */
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public void deleteTransaction(long transactionId, long loggedUserId) {
         if (!transactionDao.existsById(transactionId)) {
             throw new BadRequestException(
@@ -138,7 +139,20 @@ public class TransactionServiceImpl implements TransactionService {
                     "User with ID %d is not the owner of transaction with ID %d"
                             .formatted(loggedUserId, transactionId));
         }
+        Transaction transaction = transactionDao.getById(transactionId);
+        Optional<Wallet> walletForUpdate =
+                walletService.getWalletForUpdate(transaction.getWallet().getId());
+
+        if (walletForUpdate.isEmpty()) { // Should never happen
+            throw new InternalServerException(
+                    "Wallet with ID %d does not exist.".formatted(transaction.getWallet().getId())
+            );
+        }
         transactionDao.deleteById(transactionId);
+
+        updateWalletBalance(walletForUpdate.get(),
+                            -transaction.getAmount(), // Negative amount because of deletion
+                            transaction.getCategory().getType());
     }
 
     /**
