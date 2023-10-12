@@ -255,17 +255,59 @@ class TransactionServiceImplTest {
     }
 
     @Test
-    void deleteTransaction() {
-        when(transactionDao.existsById(1L))
-                .thenReturn(true);
+    void deleteTransaction_IncomeCategory() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        Transaction transaction = new Transaction(
+                "test", new Date(), 1.0, category, wallet
+        );
+        when(transactionDao.existsById(1L)).thenReturn(true);
         when(transactionDao.isUserTransactionOwner(1L, 1L))
                 .thenReturn(true);
+        when(transactionDao.getById(1L)).thenReturn(transaction);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
 
         assertDoesNotThrow(() -> transactionService.deleteTransaction(1L, 1L));
 
+        assertEquals(-1.0, wallet.getBalance());
+
         verify(transactionDao, times(1)).existsById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(transactionDao, times(1)).getById(1L);
         verify(transactionDao, times(1)).deleteById(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
+    }
+
+    @Test
+    void deleteTransaction_OutcomeCategory() {
+        Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
+        wallet.setId(1L);
+        TransactionCategory category = new TransactionCategory(
+                "test", TransactionType.INCOME, null
+        );
+        Transaction transaction = new Transaction(
+                "test", new Date(), 1.0, category, wallet
+        );
+        when(transactionDao.existsById(1L)).thenReturn(true);
+        when(transactionDao.isUserTransactionOwner(1L, 1L))
+                .thenReturn(true);
+        when(transactionDao.getById(1L)).thenReturn(transaction);
+        when(walletService.getWalletForUpdate(1L))
+                .thenReturn(Optional.of(wallet));
+
+        assertDoesNotThrow(() -> transactionService.deleteTransaction(1L, 1L));
+
+        assertEquals(-1.0, wallet.getBalance());
+
+        verify(transactionDao, times(1)).existsById(1L);
+        verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
+        verify(transactionDao, times(1)).getById(1L);
+        verify(transactionDao, times(1)).deleteById(1L);
+        verify(walletService, times(1)).getWalletForUpdate(1L);
     }
 
     @Test

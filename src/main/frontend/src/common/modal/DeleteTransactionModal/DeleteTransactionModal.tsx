@@ -3,13 +3,17 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import { useDeleteTransactionMutation } from "../../../features/transaction/transactionApiSlice";
-import { deleteTransaction } from "../../../features/transaction/transactionSlice";
+import {
+    deleteTransaction,
+    type Transaction,
+} from "../../../features/transaction/transactionSlice";
+import { updateWalletBalance } from "../../../features/wallet/walletSlice";
 import styles from "./DeleteTransactionModal.module.scss";
 
 interface DeleteTransactionModalProps {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
-    transactionId: number;
+    transaction: Transaction;
 }
 
 /**
@@ -19,7 +23,7 @@ interface DeleteTransactionModalProps {
  * @param setOpen Function to set whether the modal is open
  * @param transactionId ID of the transaction to delete
  */
-const DeleteTransactionModal = ({ open, setOpen, transactionId }: DeleteTransactionModalProps) => {
+const DeleteTransactionModal = ({ open, setOpen, transaction }: DeleteTransactionModalProps) => {
     const t = useTranslation();
     const dispatch = useAppDispatch();
 
@@ -34,9 +38,19 @@ const DeleteTransactionModal = ({ open, setOpen, transactionId }: DeleteTransact
     ] = useDeleteTransactionMutation();
 
     const handleDelete = () => {
-        deleteTransactionMutation(transactionId).unwrap()
+        deleteTransactionMutation(transaction.id).unwrap()
             .then(() => {
-                dispatch(deleteTransaction(transactionId));
+                dispatch(deleteTransaction(transaction.id));
+
+                if (transaction.category === null) {
+                    setOpen(false);
+                    return;
+                }
+                dispatch(updateWalletBalance({
+                    walletId: transaction.walletId,
+                    categoryType: transaction.category.type,
+                    deltaBalance: -transaction.amount,
+                }));
                 setOpen(false);
             })
             .catch(e => {
