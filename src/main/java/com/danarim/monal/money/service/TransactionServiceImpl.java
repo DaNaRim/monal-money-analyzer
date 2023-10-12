@@ -81,8 +81,10 @@ public class TransactionServiceImpl implements TransactionService {
                 new TransactionCategory(createTransactionDto.categoryId()),
                 wallet
         ));
-        updateWalletBalance(wallet, amount, categoryType);
-
+        walletService.updateWalletBalance(
+                wallet,
+                categoryType == TransactionType.INCOME ? amount : -amount
+        );
         return result;
     }
 
@@ -150,9 +152,11 @@ public class TransactionServiceImpl implements TransactionService {
         }
         transactionDao.deleteById(transactionId);
 
-        updateWalletBalance(walletForUpdate.get(),
-                            -transaction.getAmount(), // Negative amount because of deletion
-                            transaction.getCategory().getType());
+        walletService.updateWalletBalance(walletForUpdate.get(),
+                                          transaction.getCategory().getType()
+                                                  == TransactionType.INCOME
+                                                  ? -transaction.getAmount()
+                                                  : transaction.getAmount());
     }
 
     /**
@@ -337,39 +341,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     /**
-     * Updates the balance of the wallet after a transaction. Update based on the transaction type.
-     *
-     * @param wallet       wallet to update
-     * @param amount       amount to add to the wallet balance
-     * @param categoryType type of the transaction category
-     *
-     * @throws InternalServerException if the transaction type is not supported for updating the
-     *                                 wallet balance (should never happen)
-     */
-    private void updateWalletBalance(Wallet wallet, double amount, TransactionType categoryType) {
-        switch (categoryType) {
-            case INCOME -> updateWalletBalance(wallet, amount);
-            case OUTCOME -> updateWalletBalance(wallet, -amount);
-            default -> throw new InternalServerException(
-                    "Unsupported transaction type " + categoryType + " for updating wallet balance."
-            );
-        }
-    }
-
-    /**
-     * Updates the balance of the wallet.
-     *
-     * @param wallet wallet to update
-     * @param amount amount to add to the wallet balance (can be negative)
-     */
-    private void updateWalletBalance(Wallet wallet, double amount) {
-        wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
-                                  .add(BigDecimal.valueOf(amount))
-                                  .doubleValue());
-        walletService.updateWallet(wallet);
-    }
-
-    /**
      * If the wallet is not changed, updates the wallet balance. If the wallet is changed, updates
      * the wallet balance for the old and new wallets.
      *
@@ -398,7 +369,7 @@ public class TransactionServiceImpl implements TransactionService {
                     transactionAmount
             );
             // Wallet is present because of validation
-            updateWalletBalance(optionalNewWallet.get(), walletAmountDelta);
+            walletService.updateWalletBalance(optionalNewWallet.get(), walletAmountDelta);
             return;
         }
         // Wallet changed
@@ -406,14 +377,14 @@ public class TransactionServiceImpl implements TransactionService {
                 walletService.getWalletForUpdate(transaction.getWallet().getId());
 
         // Wallet is present because of validation
-        updateWalletBalance(optionalOldWallet.get(),
-                            oldTransactionType == TransactionType.INCOME
-                                    ? -oldTransactionAmount
-                                    : oldTransactionAmount);
-        updateWalletBalance(optionalNewWallet.get(),
-                            newTransactionType == TransactionType.INCOME
-                                    ? transactionAmount
-                                    : -transactionAmount);
+        walletService.updateWalletBalance(optionalOldWallet.get(),
+                                          oldTransactionType == TransactionType.INCOME
+                                                  ? -oldTransactionAmount
+                                                  : oldTransactionAmount);
+        walletService.updateWalletBalance(optionalNewWallet.get(),
+                                          newTransactionType == TransactionType.INCOME
+                                                  ? transactionAmount
+                                                  : -transactionAmount);
     }
 
 }

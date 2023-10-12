@@ -23,13 +23,13 @@ public interface WalletService {
     Currency getWalletCurrency(long walletId);
 
     /**
-     * For INTERNAL use only.
+     * Updates the balance of the given wallet by adding the given amount to the current balance.
+     * {@link WalletService#getWalletForUpdate(long id)} must be used before calling this method.
      *
-     * <p>Use with {@link WalletService#getWalletForUpdate(long id)}.
-     *
-     * @param wallet wallet to update
+     * @param wallet     wallet to update
+     * @param deltaAmount amount to add to the wallet balance (can be negative)
      */
-    void updateWallet(Wallet wallet);
+    void updateWalletBalance(Wallet wallet, double deltaAmount);
 
     Wallet updateWalletName(Long walletId, String newName, long loggedUserId);
 

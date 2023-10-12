@@ -11,6 +11,7 @@ import com.danarim.monal.money.web.dto.CreateWalletDto;
 import com.danarim.monal.user.persistence.model.User;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,14 +128,18 @@ public class WalletServiceImpl implements WalletService {
     }
 
     /**
-     * For INTERNAL use only.
+     * Updates the balance of the given wallet by adding the given amount to the current balance.
      *
-     * <p>Use with {@link WalletService#getWalletForUpdate(long id)}.
+     * @param wallet      wallet to update (must be locked for update)
+     * @param deltaAmount amount to add to the wallet balance (can be negative)
      *
-     * @param wallet wallet to update in the database.
+     * @see WalletService#getWalletForUpdate(long id)
      */
     @Override
-    public void updateWallet(Wallet wallet) {
+    public void updateWalletBalance(Wallet wallet, double deltaAmount) {
+        wallet.setBalance(BigDecimal.valueOf(wallet.getBalance())
+                                  .add(BigDecimal.valueOf(deltaAmount))
+                                  .doubleValue());
         walletDao.save(wallet);
     }
 

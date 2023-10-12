@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -66,12 +67,10 @@ class TransactionServiceImplTest {
 
         transactionService.createTransaction(transactionDto, 1L);
 
-        assertEquals(1.0, wallet.getBalance());
-
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        verify(walletService, times(1)).updateWalletBalance(wallet, 1.0);
     }
 
     @Test
@@ -88,12 +87,10 @@ class TransactionServiceImplTest {
 
         transactionService.createTransaction(transactionDto, 1L);
 
-        assertEquals(-1.0, wallet.getBalance());
-
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        verify(walletService, times(1)).updateWalletBalance(wallet, -1.0);
     }
 
     @Test
@@ -110,13 +107,12 @@ class TransactionServiceImplTest {
 
         Transaction result = transactionService.createTransaction(transactionDto, 1L);
 
-        assertEquals(1.12, wallet.getBalance());
         assertEquals(1.12, result.getAmount());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        verify(walletService, times(1)).updateWalletBalance(wallet, 1.12);
     }
 
     @Test
@@ -133,13 +129,12 @@ class TransactionServiceImplTest {
 
         Transaction result = transactionService.createTransaction(transactionDto, 1L);
 
-        assertEquals(1.12345678, wallet.getBalance());
         assertEquals(1.12345678, result.getAmount());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        verify(walletService, times(1)).updateWalletBalance(wallet, 1.12345678);
     }
 
     @Test
@@ -165,7 +160,7 @@ class TransactionServiceImplTest {
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(wallet);
+        verify(walletService, never()).updateWalletBalance(wallet, 1.0);
     }
 
     @Test
@@ -187,7 +182,7 @@ class TransactionServiceImplTest {
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -211,7 +206,7 @@ class TransactionServiceImplTest {
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -273,13 +268,12 @@ class TransactionServiceImplTest {
 
         assertDoesNotThrow(() -> transactionService.deleteTransaction(1L, 1L));
 
-        assertEquals(-1.0, wallet.getBalance());
-
         verify(transactionDao, times(1)).existsById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(transactionDao, times(1)).getById(1L);
         verify(transactionDao, times(1)).deleteById(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(walletService, times(1)).updateWalletBalance(wallet, -1.0);
     }
 
     @Test
@@ -301,13 +295,12 @@ class TransactionServiceImplTest {
 
         assertDoesNotThrow(() -> transactionService.deleteTransaction(1L, 1L));
 
-        assertEquals(-1.0, wallet.getBalance());
-
         verify(transactionDao, times(1)).existsById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(transactionDao, times(1)).getById(1L);
         verify(transactionDao, times(1)).deleteById(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
+        verify(walletService, times(1)).updateWalletBalance(wallet, -1.0);
     }
 
     @Test
@@ -387,7 +380,7 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -436,7 +429,7 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -485,7 +478,7 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -525,8 +518,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Income 1.0, new: Income 2.0. Old balance: 0.0, new balance: 2.0 - 1.0 = 1.0
-        assertEquals(1.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -534,9 +525,9 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).findById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(walletService, times(1)).getWalletCurrency(1L);
-
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Income 1.0, new: Income 2.0. Old balance: 0.0, new balance: 2.0 - 1.0 = 1.0
+        verify(walletService, times(1)).updateWalletBalance(wallet, 1.0);
     }
 
     @Test
@@ -576,8 +567,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Income 2.0, new: Income 1.0. Old balance: 0.0, new balance: 1.0 - 2.0 = -1.0
-        assertEquals(-1.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -587,7 +576,8 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Income 2.0, new: Income 1.0. Old balance: 0.0, new balance: 1.0 - 2.0 = -1.0
+        verify(walletService, times(1)).updateWalletBalance(wallet, -1.0);
     }
 
     @Test
@@ -627,8 +617,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Outcome 1.0, new: Outcome 2.0. Old balance: 0.0, new balance: -2.0 - -1.0 = -1.0
-        assertEquals(-1.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -638,7 +626,8 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Outcome 1.0, new: Outcome 2.0. Old balance: 0.0, new balance: -2.0 - -1.0 = -1.0
+        verify(walletService, times(1)).updateWalletBalance(wallet, -1.0);
     }
 
     @Test
@@ -678,8 +667,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Outcome 2.0, new: Outcome 1.0. Old balance: 0.0, new balance: -1.0 - -2.0 = 1.0
-        assertEquals(1.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -687,9 +674,9 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).findById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(walletService, times(1)).getWalletCurrency(1L);
-
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Outcome 2.0, new: Outcome 1.0. Old balance: 0.0, new balance: -1.0 - -2.0 = 1.0
+        verify(walletService, times(1)).updateWalletBalance(wallet, 1.0);
     }
 
     @Test
@@ -729,8 +716,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Outcome 2.0, new: Outcome 1.12. Old balance: 0.0, new balance: -1.12 - -2.0 = 0.88
-        assertEquals(0.88, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -740,7 +725,8 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Outcome 2.0, new: Outcome 1.12. Old balance: 0.0, new balance: -1.12 - -2.0 = 0.88
+        verify(walletService, times(1)).updateWalletBalance(wallet, 0.88);
     }
 
     @Test
@@ -780,9 +766,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Outcome 2.12345678, new: Outcome 1.12345677.
-        // Old balance: 0.0, new balance: -1.12345677 - -2.12345678 = 1.00000001
-        assertEquals(1.00000001, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -790,9 +773,10 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).findById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(walletService, times(1)).getWalletCurrency(1L);
-
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Outcome 2.12345678, new: Outcome 1.12345677.
+        // Old balance: 0.0, new balance: -1.12345677 - -2.12345678 = 1.00000001
+        verify(walletService, times(1)).updateWalletBalance(wallet, 1.00000001);
     }
 
     @Test
@@ -842,7 +826,7 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -882,8 +866,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Income 2.0, new: Outcome 1.0. Old balance: 0.0, new balance: -1.0 - 2.0 = -3.0
-        assertEquals(-3.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -893,7 +875,8 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Income 2.0, new: Outcome 1.0. Old balance: 0.0, new balance: -1.0 - 2.0 = -3.0
+        verify(walletService, times(1)).updateWalletBalance(wallet, -3.0);
     }
 
     @Test
@@ -933,8 +916,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(wallet, result.getWallet());
-        // Old: Outcome 2.0, new: Income 1.0. Old balance: 0.0, new balance: 1.0 - -2.0 = 3.0
-        assertEquals(3.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -944,7 +925,8 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(1L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(wallet);
+        // Old: Outcome 2.0, new: Income 1.0. Old balance: 0.0, new balance: 1.0 - -2.0 = 3.0
+        verify(walletService, times(1)).updateWalletBalance(wallet, 3.0);
     }
 
     @Test
@@ -988,10 +970,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(newWallet, result.getWallet());
-        // Old: Outcome 1.0, Old balance: 0.0, new balance: 0.0 - -1.0 = 1.0
-        assertEquals(1.0, oldWallet.getBalance());
-        // New: Outcome 1.0, Old balance: 0.0, new balance: 0.0 + -1.0 = -1.0
-        assertEquals(-1.0, newWallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -1002,8 +980,10 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(2L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(oldWallet);
-        verify(walletService, times(1)).updateWallet(newWallet);
+        // Old: Outcome 1.0, Old balance: 0.0, new balance: 0.0 - -1.0 = 1.0
+        verify(walletService, times(1)).updateWalletBalance(oldWallet, 1.0);
+        // New: Outcome 1.0, Old balance: 0.0, new balance: 0.0 + -1.0 = -1.0
+        verify(walletService, times(1)).updateWalletBalance(newWallet, -1.0);
     }
 
     @Test
@@ -1047,10 +1027,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(newWallet, result.getWallet());
-        // Old: Outcome 1.0, Old balance: 0.0, new balance: 0.0 - -1.0 = 1.0
-        assertEquals(1.0, oldWallet.getBalance());
-        // New: Income 2.0, Old balance: 0.0, new balance: 0.0 + 2.0 = 1.0
-        assertEquals(2.0, newWallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -1059,10 +1035,11 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).findById(1L);
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
         verify(walletService, times(1)).getWalletCurrency(2L);
-
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(oldWallet);
-        verify(walletService, times(1)).updateWallet(newWallet);
+        // Old: Outcome 1.0, Old balance: 0.0, new balance: 0.0 - -1.0 = 1.0
+        verify(walletService, times(1)).updateWalletBalance(oldWallet, 1.0);
+        // New: Income 2.0, Old balance: 0.0, new balance: 0.0 + 2.0 = 1.0
+        verify(walletService, times(1)).updateWalletBalance(newWallet, 2.0);
     }
 
     @Test
@@ -1106,10 +1083,6 @@ class TransactionServiceImplTest {
         assertEquals(transactionDate, result.getDate());
         assertEquals(category.getId(), result.getCategory().getId());
         assertEquals(newWallet, result.getWallet());
-        // Old: Income 1.0, Old balance: 0.0, new balance: 0.0 - 1.0 = -1.0
-        assertEquals(-1.0, oldWallet.getBalance());
-        // New: Outcome 2.0, Old balance: 0.0, new balance: 0.0 + -2.0 = -2.0
-        assertEquals(-2.0, newWallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -1120,8 +1093,10 @@ class TransactionServiceImplTest {
         verify(walletService, times(1)).getWalletCurrency(2L);
 
         verify(transactionDao, times(1)).save(any(Transaction.class));
-        verify(walletService, times(1)).updateWallet(oldWallet);
-        verify(walletService, times(1)).updateWallet(newWallet);
+        // Old: Income 1.0, Old balance: 0.0, new balance: 0.0 - 1.0 = -1.0
+        verify(walletService, times(1)).updateWalletBalance(oldWallet, -1.0);
+        // New: Outcome 2.0, Old balance: 0.0, new balance: 0.0 + -2.0 = -2.0
+        verify(walletService, times(1)).updateWalletBalance(newWallet, -2.0);
     }
 
     @Test
@@ -1164,7 +1139,7 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).existsById(1L);
 
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -1207,7 +1182,7 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
 
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -1251,7 +1226,7 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
 
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -1295,7 +1270,7 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
 
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -1340,7 +1315,7 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
 
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
     @Test
@@ -1387,7 +1362,7 @@ class TransactionServiceImplTest {
         verify(transactionDao, times(1)).isUserTransactionOwner(1L, 1L);
 
         verify(transactionDao, never()).save(any(Transaction.class));
-        verify(walletService, never()).updateWallet(any(Wallet.class));
+        verify(walletService, never()).updateWalletBalance(any(Wallet.class), anyDouble());
     }
 
 }
