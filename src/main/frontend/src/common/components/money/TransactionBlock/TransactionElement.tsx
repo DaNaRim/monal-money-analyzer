@@ -85,7 +85,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
             </Menu>
             <DeleteTransactionModal open={isDeleteModalOpen}
                                     setOpen={setIsDeleteModalOpen}
-                                    transactionId={transaction.id}/>
+                                    transaction={transaction}/>
             <UpdateTransactionModal open={isEditModalOpen}
                                     setOpen={setIsEditModalOpen}
                                     transaction={transaction}/>

@@ -7,7 +7,22 @@ import { setupStore } from "../../../../app/store";
 import DeleteTransactionModal
     from "../../../../common/modal/DeleteTransactionModal/DeleteTransactionModal";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
-import { CategoryType } from "../../../../features/category/categorySlice";
+import { type Category, CategoryType } from "../../../../features/category/categorySlice";
+import { type Transaction } from "../../../../features/transaction/transactionSlice";
+
+const incomeCategory: Category = {
+    id: 1,
+    name: "Category",
+    type: CategoryType.INCOME,
+    subCategories: null,
+};
+
+const outcomeCategory: Category = {
+    id: 1,
+    name: "Category",
+    type: CategoryType.OUTCOME,
+    subCategories: null,
+};
 
 describe("DeleteTransactionModal", () => {
     const handlers = [
@@ -40,9 +55,17 @@ describe("DeleteTransactionModal", () => {
     afterAll(() => server.close());
 
     test("render", () => {
+        const transaction: Transaction = {
+            id: 1,
+            date: "2023-01-01 12:00",
+            amount: 100,
+            description: "Description",
+            category: incomeCategory,
+            walletId: 1,
+        };
         renderWithProviders(<DeleteTransactionModal open={true}
                                                     setOpen={jest.fn()}
-                                                    transactionId={1}/>);
+                                                    transaction={transaction}/>);
 
         expect(screen.getByText("Delete transaction?")).toBeInTheDocument();
         expect(screen.getByText("Cancel")).toBeInTheDocument();
@@ -50,43 +73,56 @@ describe("DeleteTransactionModal", () => {
     });
 
     test("cancel deleting", async () => {
+        const transaction: Transaction = {
+            id: 1,
+            date: "2023-01-01 12:00",
+            amount: 100,
+            description: "Description",
+            category: incomeCategory,
+            walletId: 1,
+        };
         const setOpen = jest.fn();
-
         renderWithProviders(<DeleteTransactionModal open={true}
                                                     setOpen={setOpen}
-                                                    transactionId={1}/>);
+                                                    transaction={transaction}/>);
 
         act(() => screen.getByText("Cancel").click());
 
         expect(setOpen).toBeCalledWith(false);
     });
 
-    test("delete transaction", async () => {
+    test("delete transaction. Income category", async () => {
         const setOpen = jest.fn();
 
+        const transaction: Transaction = {
+            id: 1,
+            date: "2023-01-01 12:00",
+            amount: 100,
+            description: "Description",
+            category: incomeCategory,
+            walletId: 1,
+        };
         const store = setupStore({
+            wallets: {
+                wallets: [
+                    {
+                        id: 1,
+                        name: "Wallet",
+                        balance: 100,
+                        currency: "USD",
+                    },
+                ],
+                isInitialized: true,
+            },
             transactions: {
                 1: {
-                    "2023-01-01": [
-                        {
-                            id: 1,
-                            date: "2023-01-01",
-                            amount: 100,
-                            description: "Description",
-                            category: {
-                                id: 1,
-                                name: "Category",
-                                type: CategoryType.OUTCOME,
-                                subCategories: null,
-                            },
-                        },
-                    ],
+                    "2023-01-01": [transaction],
                 },
             },
         });
         renderWithProviders(<DeleteTransactionModal open={true}
                                                     setOpen={setOpen}
-                                                    transactionId={1}/>, { store });
+                                                    transaction={transaction}/>, { store });
 
         act(() => screen.getByText("Delete").click());
 
@@ -97,35 +133,82 @@ describe("DeleteTransactionModal", () => {
                 "2023-01-01": [],
             },
         });
+        expect(store.getState().wallets.wallets[0].balance).toEqual(0);
+        expect(setOpen).toBeCalledWith(false);
+    });
+
+    test("delete transaction. Outcome category", async () => {
+        const setOpen = jest.fn();
+
+        const transaction: Transaction = {
+            id: 1,
+            date: "2023-01-01 12:00",
+            amount: 100,
+            description: "Description",
+            category: outcomeCategory,
+            walletId: 1,
+        };
+        const store = setupStore({
+            wallets: {
+                wallets: [
+                    {
+                        id: 1,
+                        name: "Wallet",
+                        balance: 100,
+                        currency: "USD",
+                    },
+                ],
+                isInitialized: true,
+            },
+            transactions: {
+                1: {
+                    "2023-01-01": [transaction],
+                },
+            },
+        });
+        renderWithProviders(<DeleteTransactionModal open={true}
+                                                    setOpen={setOpen}
+                                                    transaction={transaction}/>, { store });
+
+        act(() => screen.getByText("Delete").click());
+
+        await waitForElementToBeRemoved(screen.getByText("Deleting..."));
+
+        expect(store.getState().transactions).toEqual({
+            1: {
+                "2023-01-01": [],
+            },
+        });
+        expect(store.getState().wallets.wallets[0].balance).toEqual(200);
         expect(setOpen).toBeCalledWith(false);
     });
 
     test("delete transaction. BadRequest -> display error", async () => {
         const setOpen = jest.fn();
 
-        const transactions = {
-            1: {
-                "2023-01-01": [
-                    {
-                        id: 1,
-                        date: "2023-01-01",
-                        amount: 100,
-                        description: "Description",
-                        category: {
-                            id: 1,
-                            name: "Category",
-                            type: CategoryType.OUTCOME,
-                            subCategories: null,
-                        },
-                    },
-                ],
+        const transaction = {
+            id: -2,
+            date: "2023-01-01",
+            amount: 100,
+            description: "Description",
+            category: {
+                id: 1,
+                name: "Category",
+                type: CategoryType.OUTCOME,
+                subCategories: null,
             },
+            walletId: 1,
         };
-        const store = setupStore({ transactions });
-
+        const store = setupStore({
+            transactions: {
+                1: {
+                    "2023-01-01": [transaction],
+                },
+            },
+        });
         renderWithProviders(<DeleteTransactionModal open={true}
                                                     setOpen={setOpen}
-                                                    transactionId={-2}/>, { store });
+                                                    transaction={transaction}/>, { store });
 
         act(() => screen.getByText("Delete").click());
 
@@ -139,35 +222,41 @@ describe("DeleteTransactionModal", () => {
 
         await act(() => jest.advanceTimersByTime(500));
         expect(screen.queryByText("Error message")).not.toBeInTheDocument();
-        expect(store.getState().transactions).toEqual(transactions);
+        expect(store.getState().transactions).toEqual({
+            1: {
+                "2023-01-01": [
+                    transaction,
+                ],
+            },
+        });
     });
 
     test("delete transaction. networkError -> display error", async () => {
         const setOpen = jest.fn();
 
-        const transactions = {
-            1: {
-                "2023-01-01": [
-                    {
-                        id: 1,
-                        date: "2023-01-01",
-                        amount: 100,
-                        description: "Description",
-                        category: {
-                            id: 1,
-                            name: "Category",
-                            type: CategoryType.OUTCOME,
-                            subCategories: null,
-                        },
-                    },
-                ],
+        const transaction = {
+            id: -1,
+            date: "2023-01-01",
+            amount: 100,
+            description: "Description",
+            category: {
+                id: 1,
+                name: "Category",
+                type: CategoryType.OUTCOME,
+                subCategories: null,
             },
+            walletId: 1,
         };
-        const store = setupStore({ transactions });
-
+        const store = setupStore({
+            transactions: {
+                1: {
+                    "2023-01-01": [transaction],
+                },
+            },
+        });
         renderWithProviders(<DeleteTransactionModal open={true}
                                                     setOpen={setOpen}
-                                                    transactionId={-1}/>, { store });
+                                                    transaction={transaction}/>, { store });
 
         act(() => screen.getByText("Delete").click());
 
@@ -183,6 +272,10 @@ describe("DeleteTransactionModal", () => {
         await act(() => jest.advanceTimersByTime(500));
         expect(screen.queryByText("Failed to connect to server. Please try again later."))
             .not.toBeInTheDocument();
-        expect(store.getState().transactions).toEqual(transactions);
+        expect(store.getState().transactions).toEqual({
+            1: {
+                "2023-01-01": [transaction],
+            },
+        });
     });
 });
