@@ -30,6 +30,8 @@ class WalletServiceImplTest {
     @InjectMocks
     private WalletServiceImpl walletService;
 
+    // Create wallet
+
     @Test
     void createWallet_basicCurrency() {
         CreateWalletDto walletDto = new CreateWalletDto("test", 1.0112, "USD");
@@ -90,6 +92,21 @@ class WalletServiceImplTest {
         verify(walletDao, never()).save(any(Wallet.class));
     }
 
+    // Update wallet balance
+
+    @Test
+    void updateWalletBalance_cryptoCurrency() {
+        Wallet wallet = new Wallet("test", 0.00000001, Currency.BTC, new User(1L));
+
+        walletService.updateWalletBalance(wallet, 0.00000007);
+
+        assertEquals(0.00000008, wallet.getBalance());
+
+        verify(walletDao, times(1)).save(wallet);
+    }
+
+    // Update wallet name
+
     @Test
     void updateWalletName() {
         Wallet wallet = new Wallet("test", 0.0, Currency.USD, new User(1L));
@@ -138,6 +155,116 @@ class WalletServiceImplTest {
         verify(walletDao).isUserWalletOwner(1L, 1L);
         verify(walletDao, never()).getById(1L);
         verify(walletDao, never()).save(any(Wallet.class));
+    }
+
+    // Delete wallet
+
+    @Test
+    void deleteWallet() {
+        when(walletDao.existsById(1L)).thenReturn(true);
+        when(walletDao.isUserWalletOwner(1L, 1L)).thenReturn(true);
+        when(walletDao.countWalletTransactions(1L)).thenReturn(0L);
+
+        walletService.deleteWallet(1L, 1L);
+
+        verify(walletDao, times(1)).existsById(1L);
+        verify(walletDao, times(1)).isUserWalletOwner(1L, 1L);
+        verify(walletDao, times(1)).countWalletTransactions(1L);
+        verify(walletDao, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void deleteWallet_notFound_BadRequestException() {
+        when(walletDao.existsById(1L)).thenReturn(false);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> walletService.deleteWallet(1L, 1L));
+
+        assertEquals("validation.wallet.notFound", e.getMessageCode());
+
+        verify(walletDao).existsById(1L);
+        verify(walletDao, never()).isUserWalletOwner(1L, 1L);
+        verify(walletDao, never()).countWalletTransactions(1L);
+        verify(walletDao, never()).deleteById(1L);
+    }
+
+    @Test
+    void deleteWallet_userNotWalletOwner_ActionDeniedException() {
+        when(walletDao.existsById(1L)).thenReturn(true);
+        when(walletDao.isUserWalletOwner(1L, 1L)).thenReturn(false);
+
+        assertThrows(ActionDeniedException.class,
+                     () -> walletService.deleteWallet(1L, 1L));
+
+        verify(walletDao).existsById(1L);
+        verify(walletDao).isUserWalletOwner(1L, 1L);
+        verify(walletDao, never()).countWalletTransactions(1L);
+        verify(walletDao, never()).deleteById(1L);
+    }
+
+    @Test
+    void deleteWallet_hasTransaction_BadRequestException() {
+        when(walletDao.existsById(1L)).thenReturn(true);
+        when(walletDao.isUserWalletOwner(1L, 1L)).thenReturn(true);
+        when(walletDao.countWalletTransactions(1L)).thenReturn(1L);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> walletService.deleteWallet(1L, 1L));
+
+        assertEquals("validation.wallet.delete.hasTransactions", e.getMessageCode());
+
+        verify(walletDao).existsById(1L);
+        verify(walletDao).isUserWalletOwner(1L, 1L);
+        verify(walletDao).countWalletTransactions(1L);
+        verify(walletDao, never()).deleteById(1L);
+    }
+
+    // Count wallet transactions
+
+
+    @Test
+    void countWalletTransactions() {
+        when(walletDao.existsById(1L)).thenReturn(true);
+        when(walletDao.isUserWalletOwner(1L, 1L)).thenReturn(true);
+        when(walletDao.countWalletTransactions(1L)).thenReturn(34L);
+
+        long result = walletService.countWalletTransactions(1L, 1L);
+
+        assertEquals(34L, result);
+
+        verify(walletDao).existsById(1L);
+        verify(walletDao).isUserWalletOwner(1L, 1L);
+        verify(walletDao).countWalletTransactions(1L);
+    }
+
+    @Test
+    void countWalletTransactions_walletNotFound_BadRequestException() {
+        when(walletDao.existsById(1L)).thenReturn(false);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> walletService.countWalletTransactions(1L, 1L));
+
+        assertEquals("validation.wallet.notFound", e.getMessageCode());
+
+        verify(walletDao).existsById(1L);
+        verify(walletDao, never()).isUserWalletOwner(1L, 1L);
+        verify(walletDao, never()).countWalletTransactions(1L);
+    }
+
+    @Test
+    void countWalletTransactions_userNotWalletOwner_ActionDeniedException() {
+        when(walletDao.existsById(1L)).thenReturn(true);
+        when(walletDao.isUserWalletOwner(1L, 1L)).thenReturn(false);
+
+        assertThrows(ActionDeniedException.class,
+                     () -> walletService.countWalletTransactions(1L, 1L));
+
+        verify(walletDao).existsById(1L);
+        verify(walletDao).isUserWalletOwner(1L, 1L);
+        verify(walletDao, never()).countWalletTransactions(1L);
     }
 
 }
