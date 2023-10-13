@@ -523,6 +523,7 @@ export default {
         addNewWallet: "Додати новий гаманець",
         updateWalletName: "Змінити назву гаманця",
         changeWalletBalance: "Змінити баланс гаманця",
+        deleteWallet: "Видалити гаманець",
     },
 
     dateBlock: {
@@ -602,6 +603,20 @@ export default {
         submit: "Змінити",
         loading: "Оновлення...",
         error: "Не вдалося змінити баланс",
+    },
+
+    deleteWalletModal: {
+        title: "Видалити гаманець?",
+        checking: "Перевірка...",
+        checkingError: "Не вдалося перевірити гаманець. Будь ласка, спробуйте пізніше",
+        canDelete: "Гаманець порожній. Ви можете видалити його.",
+        cannotDelete: "Гаманець має транзакції ({0}). Ви не можете видалити його.",
+        loading: "Видалення...",
+        buttons: {
+            cancel: "Скасувати",
+            confirm: "Видалити",
+            goBack: "Повернутися",
+        },
     },
 
     createTransactionModal: {

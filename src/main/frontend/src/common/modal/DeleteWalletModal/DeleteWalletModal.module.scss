@@ -1,0 +1,56 @@
+.modal_block {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 1em rgb(0 0 0 / 50%);
+  border-radius: 0.5em;
+  background-color: #fff;
+  padding: 1em;
+  width: fit-content;
+
+  .error {
+    color: red;
+    font-size: 1.2em;
+    text-align: center;
+  }
+
+  .modal_title {
+    font-weight: bold;
+    font-size: 1.4em;
+    text-align: center;
+  }
+
+  .message {
+    margin-top: 1em;
+  }
+
+  .control_button {
+    cursor: pointer;
+    margin-top: 1em;
+    border: 1px solid green;
+    border-radius: 0.5em;
+    background-color: green;
+    padding: 0.5em 1em;
+    width: 100%;
+    color: #fff;
+    font-size: 1.3rem;
+
+    &.cancel_button {
+      background-color: white;
+      color: green;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .control_buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    width: 100%;
+  }
+}

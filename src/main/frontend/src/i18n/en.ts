@@ -523,6 +523,7 @@ export default {
         addNewWallet: "Add new wallet",
         updateWalletName: "Edit wallet name",
         changeWalletBalance: "Change wallet balance",
+        deleteWallet: "Delete wallet",
     },
 
     dateBlock: {
@@ -602,6 +603,21 @@ export default {
         submit: "Change",
         loading: "Changing...",
         error: "Failed to change balance",
+    },
+
+    deleteWalletModal: {
+        title: "Delete wallet?",
+        checking: "Checking...",
+        checkingError: "Failed to check wallet. Please try again later.",
+        canDelete: "Your wallet has no transactions. You can delete it.",
+        cannotDelete: "Your wallet has transactions ({0}). You can't delete it.",
+        loading: "Deleting...",
+        fetchError: "Failed to connect to server. Please try again later.",
+        buttons: {
+            cancel: "Cancel",
+            confirm: "Delete",
+            goBack: "Go back",
+        },
     },
 
     createTransactionModal: {

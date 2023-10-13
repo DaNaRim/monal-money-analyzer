@@ -9,6 +9,15 @@ export const walletApiSlice = apiSlice.injectEndpoints({
                 method: "GET",
             }),
         }),
+        getCountWalletTransactions: builder.query<number, number>({
+            query: (id) => ({
+                url: "/wallet/countTransactions",
+                method: "GET",
+                params: {
+                    walletId: id,
+                },
+            }),
+        }),
         createWallet: builder.mutation<Wallet, CreateWalletDto>({
             query: (body) => ({
                 url: "/wallet",
@@ -26,11 +35,22 @@ export const walletApiSlice = apiSlice.injectEndpoints({
                 },
             }),
         }),
+        deleteWallet: builder.mutation<void, number>({
+            query: (id) => ({
+                url: "/wallet",
+                method: "DELETE",
+                params: {
+                    walletId: id,
+                },
+            }),
+        }),
     }),
 });
 
 export const {
     useGetUserWalletsQuery,
+    useGetCountWalletTransactionsQuery,
     useCreateWalletMutation,
     useUpdateWalletNameMutation,
+    useDeleteWalletMutation,
 } = walletApiSlice;
