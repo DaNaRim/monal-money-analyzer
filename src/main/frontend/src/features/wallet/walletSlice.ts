@@ -73,6 +73,11 @@ const walletsSlice = createSlice({
             wallet.balance = balance;
             wallet.currency = currency;
         },
+        deleteWallet(state, action: PayloadAction<number>) {
+            const walletId = action.payload;
+
+            state.wallets = state.wallets.filter(wallet => wallet.id !== walletId);
+        },
     },
     extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
 });
@@ -82,6 +87,7 @@ export const {
     addUserWallet,
     updateWalletBalance,
     updateWallet,
+    deleteWallet,
 } = walletsSlice.actions;
 
 export const selectWallets = (state: RootState) => state.wallets.wallets;

@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -73,6 +74,11 @@ public class WalletController {
                 .toList();
     }
 
+    @GetMapping("/countTransactions")
+    public long countWalletTransactions(@RequestParam long walletId) {
+        return walletService.countWalletTransactions(walletId, AuthUtil.getLoggedUserId());
+    }
+
     @PutMapping("/name")
     public ViewWalletDto updateWalletName(
             @RequestParam
@@ -85,6 +91,12 @@ public class WalletController {
     ) {
         Wallet wallet = walletService.updateWalletName(walletId, name, AuthUtil.getLoggedUserId());
         return modelMapper.map(wallet, ViewWalletDto.class);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteWallet(@RequestParam long walletId) {
+        walletService.deleteWallet(walletId, AuthUtil.getLoggedUserId());
     }
 
 }

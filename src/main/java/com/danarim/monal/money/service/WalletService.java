@@ -33,4 +33,8 @@ public interface WalletService {
 
     Wallet updateWalletName(Long walletId, String newName, long loggedUserId);
 
+    void deleteWallet(long walletId, long loggedUserId);
+
+    long countWalletTransactions(long walletId, long loggedUserId);
+
 }

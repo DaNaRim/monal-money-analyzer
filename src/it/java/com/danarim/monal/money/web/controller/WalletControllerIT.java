@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.danarim.monal.TestUtils.deleteExt;
 import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.postExt;
 import static com.danarim.monal.TestUtils.putExt;
@@ -98,6 +99,17 @@ class WalletControllerIT {
     }
 
     @Test
+    void countTransactions() throws Exception {
+        when(walletService.countWalletTransactions(1L, 1L))
+                .thenReturn(42L);
+
+        mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/wallet/countTransactions")
+                                .param("walletId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(42L));
+    }
+
+    @Test
     void updateWalletName() throws Exception {
         when(walletService.updateWalletName(1L, "Test", 1L))
                 .thenReturn(new Wallet("Test", 23.0, Currency.USD, new User(1L)));
@@ -142,6 +154,13 @@ class WalletControllerIT {
                 .andExpect(jsonPath("$[0].message").exists())
                 .andExpect(jsonPath("$[0].errorCode").value("validation.wallet.size.name"))
                 .andExpect(jsonPath("$[0].fieldName").value("name"));
+    }
+
+    @Test
+    void deleteWallet() throws Exception {
+        mockMvc.perform(deleteExt(WebConfig.API_V1_PREFIX + "/wallet")
+                                .param("walletId", "1"))
+                .andExpect(status().isNoContent());
     }
 
 }

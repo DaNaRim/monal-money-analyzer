@@ -2,7 +2,9 @@ import { describe } from "@jest/globals";
 import { CategoryType } from "../../../features/category/categorySlice";
 import reducer, {
     addUserWallet,
+    deleteWallet,
     setUserWallets,
+    updateWallet,
     updateWalletBalance,
     type Wallet,
     type WalletsState,
@@ -78,12 +80,14 @@ describe("walletSlice", () => {
 
     test("updateWalletBalance income", () => {
         const prevState: WalletsState = {
-            wallets: [{
-                id: 1,
-                name: "Wallet 1",
-                balance: 100,
-                currency: "USD",
-            }],
+            wallets: [
+                {
+                    id: 1,
+                    name: "Wallet 1",
+                    balance: 100,
+                    currency: "USD",
+                },
+            ],
             isInitialized: true,
         };
 
@@ -96,12 +100,14 @@ describe("walletSlice", () => {
 
     test("updateWalletBalance outcome", () => {
         const prevState: WalletsState = {
-            wallets: [{
-                id: 1,
-                name: "Wallet 1",
-                balance: 100,
-                currency: "USD",
-            }],
+            wallets: [
+                {
+                    id: 1,
+                    name: "Wallet 1",
+                    balance: 100,
+                    currency: "USD",
+                },
+            ],
             isInitialized: true,
         };
 
@@ -110,5 +116,58 @@ describe("walletSlice", () => {
             deltaBalance: 10,
             categoryType: CategoryType.OUTCOME,
         }))?.wallets[0].balance).toEqual(90);
+    });
+
+    test("updateWallet", () => {
+        const prevState: WalletsState = {
+            wallets: [
+                {
+                    id: 1,
+                    name: "Wallet 1",
+                    balance: 100,
+                    currency: "USD",
+                },
+            ],
+            isInitialized: true,
+        };
+        expect(reducer(prevState, updateWallet({
+            id: 1,
+            name: "Wallet 2",
+            balance: 102,
+            currency: "UAH",
+        })).wallets[0]).toEqual({
+            id: 1,
+            name: "Wallet 2",
+            balance: 102,
+            currency: "UAH",
+        });
+    });
+
+    test("delete wallet", () => {
+        const prevState: WalletsState = {
+            wallets: [
+                {
+                    id: 1,
+                    name: "Wallet 1",
+                    balance: 100,
+                    currency: "USD",
+                },
+                {
+                    id: 2,
+                    name: "Wallet 2",
+                    balance: 200,
+                    currency: "USD",
+                },
+            ],
+            isInitialized: true,
+        };
+        expect(reducer(prevState, deleteWallet(1)).wallets).toEqual([
+            {
+                id: 2,
+                name: "Wallet 2",
+                balance: 200,
+                currency: "USD",
+            },
+        ]);
     });
 });

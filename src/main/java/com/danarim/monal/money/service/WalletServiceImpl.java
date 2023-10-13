@@ -128,7 +128,9 @@ public class WalletServiceImpl implements WalletService {
     }
 
     /**
-     * Updates the balance of the given wallet by adding the given amount to the current balance.
+     * For internal usage only!
+     *
+     * <p>Updates the balance of the given wallet by adding the given amount to the current balance.
      *
      * @param wallet      wallet to update (must be locked for update)
      * @param deltaAmount amount to add to the wallet balance (can be negative)
@@ -143,6 +145,19 @@ public class WalletServiceImpl implements WalletService {
         walletDao.save(wallet);
     }
 
+    /**
+     * Updates the name of the wallet with the given id. Removes all extra spaces from the name.
+     *
+     * @param walletId     id of the wallet to update
+     * @param newName      new name of the wallet
+     * @param loggedUserId id of the user that owns the wallet
+     *
+     * @return updated wallet
+     *
+     * @throws BadRequestException   if wallet with the given id does not exist
+     * @throws ActionDeniedException if wallet with the given id does not belong to the user with
+     *                               the given id
+     */
     @Override
     public Wallet updateWalletName(Long walletId, String newName, long loggedUserId) {
         if (!walletDao.existsById(walletId)) {
@@ -157,6 +172,63 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = walletDao.getById(walletId);
         wallet.setName(newName.trim().replaceAll("\\s+", " "));
         return walletDao.save(wallet);
+    }
+
+    /**
+     * Deletes the wallet with the given id.
+     *
+     * @param walletId     id of the wallet to delete
+     * @param loggedUserId id of the user that owns the wallet
+     *
+     * @throws BadRequestException   if a wallet with the given id does not exist or has
+     *                               transactions
+     * @throws ActionDeniedException if wallet with the given id does not belong to the user with
+     *                               the given id
+     */
+    @Override
+    public void deleteWallet(long walletId, long loggedUserId) {
+        if (!walletDao.existsById(walletId)) {
+            throw new BadRequestException("Wallet with id " + walletId + " does not exist.",
+                                          "validation.wallet.notFound",
+                                          null);
+        }
+        if (!walletDao.isUserWalletOwner(walletId, loggedUserId)) {
+            throw new ActionDeniedException("Wallet with id %d does not belong to user with id %d."
+                                                    .formatted(walletId, loggedUserId));
+        }
+        long transactionsCount = walletDao.countWalletTransactions(walletId);
+        if (transactionsCount > 0L) {
+            throw new BadRequestException("Wallet with id %d has transactions.".formatted(walletId),
+                                          "validation.wallet.delete.hasTransactions",
+                                          new Object[] {transactionsCount});
+        }
+        walletDao.deleteById(walletId);
+    }
+
+    /**
+     * Returns the number of transactions that belong to the wallet with the given id.
+     *
+     * @param walletId     id of the wallet
+     * @param loggedUserId id of the user that owns the wallet
+     *
+     * @return number of transactions
+     *
+     * @throws BadRequestException   if wallet with the given id does not exist
+     * @throws ActionDeniedException if wallet with the given id does not belong to the user with
+     *                               the given id
+     */
+    @Override
+    public long countWalletTransactions(long walletId, long loggedUserId) {
+        if (!walletDao.existsById(walletId)) {
+            throw new BadRequestException("Wallet with id " + walletId + " does not exist.",
+                                          "validation.wallet.notFound",
+                                          null);
+        }
+        if (!walletDao.isUserWalletOwner(walletId, loggedUserId)) {
+            throw new ActionDeniedException("Wallet with id %d does not belong to user with id %d."
+                                                    .formatted(walletId, loggedUserId));
+        }
+        return walletDao.countWalletTransactions(walletId);
     }
 
 }

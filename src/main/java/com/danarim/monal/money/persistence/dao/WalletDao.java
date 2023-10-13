@@ -41,4 +41,13 @@ public interface WalletDao extends JpaRepository<Wallet, Long> {
     )
     Currency getWalletCurrency(long walletId);
 
+    @Query(
+            """
+                SELECT COUNT(t) AS transactions_count
+                  FROM Transaction t
+                 WHERE t.wallet.id = :walletId
+                """
+    )
+    long countWalletTransactions(long walletId);
+
 }

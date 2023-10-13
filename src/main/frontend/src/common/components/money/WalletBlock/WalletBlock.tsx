@@ -9,6 +9,7 @@ import {
 } from "../../../../features/wallet/walletSlice";
 import ChangeWalletBalanceButton from "./ChangeWalletBalanceButton";
 import CreateWalletButton from "./CreateWalletButton";
+import DeleteWalletButton from "./DeleteWalletButton";
 import UpdateWalletNameButton from "./UpdateWalletNameButton";
 import styles from "./WalletBlock.module.scss";
 import WalletComp from "./WalletComp";
@@ -90,6 +91,7 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
                 <ChangeWalletBalanceButton
                   selectedWallet={getWalletById(Number(selectedWalletId))}
                 />
+                <DeleteWalletButton selectedWalletId={Number(selectedWalletId)}/>
                 <CreateWalletButton selectedWallet={getWalletById(Number(selectedWalletId))}
                                     setNewWalletId={setNewWalletId}
                 />
