@@ -1,5 +1,5 @@
 import { MenuItem, Select } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Dispatch, KeyboardEvent, SetStateAction, useEffect, useState } from "react";
 import { useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
 import {
@@ -7,25 +7,31 @@ import {
     selectWallets,
     type Wallet,
 } from "../../../../features/wallet/walletSlice";
-import ChangeWalletBalanceButton from "./ChangeWalletBalanceButton";
-import CreateWalletButton from "./CreateWalletButton";
-import DeleteWalletButton from "./DeleteWalletButton";
-import UpdateWalletNameButton from "./UpdateWalletNameButton";
+import ChangeWalletBalanceModal
+    from "../../../modal/ChangeWalletBalanceModal/ChangeWalletBalanceModal";
+import CreateWalletModal from "../../../modal/CreateWalletModal/CreateWalletModal";
+import DeleteWalletModal from "../../../modal/DeleteWalletModal/DeleteWalletModal";
+import UpdateWalletNameModal from "../../../modal/UpdateWalletNameModal/UpdateWalletNameModal";
 import styles from "./WalletBlock.module.scss";
 import WalletComp from "./WalletComp";
 import WalletDisplay from "./WalletDisplay";
 
 interface WalletBlockProps {
     selectedWalletId: string | undefined;
-    setSelectedWalletId: React.Dispatch<string>;
+    setSelectedWalletId: Dispatch<string>;
 }
 
 const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps) => {
     const t = useTranslation();
 
     const wallets = useAppSelector<Wallet[]>(selectWallets);
-
     const isWalletsInitialized = useAppSelector<boolean>(selectIsWalletsInitialized);
+
+    const [updateWalletNameModalOpen, setUpdateWalletNameModalOpen] = useState<boolean>(false);
+    const [changeWalletBalanceModalOpen, setChangeWalletBalanceModalOpen]
+        = useState<boolean>(false);
+    const [deleteWalletModalOpen, setDeleteWalletModalOpen] = useState<boolean>(false);
+    const [newWalletModalOpen, setNewWalletModalOpen] = useState<boolean>(false);
 
     const [newWalletId, setNewWalletId] = useState<number | null>(null);
 
@@ -36,6 +42,14 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
 
         if (wallet != null) {
             setSelectedWalletId(wallet.id.toString());
+        }
+    };
+
+    const handleActionButtonKeyDown = (e: KeyboardEvent<HTMLLIElement>,
+                                       action: Dispatch<SetStateAction<boolean>>,
+    ) => {
+        if (e.key === "Enter") {
+            action(true);
         }
     };
 
@@ -61,8 +75,11 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
         <div className={styles.wallet_header} data-testid="wallet-block">
             {!isWalletsInitialized && <div>{t.walletBlock.loading}</div>}
             {isWalletsInitialized && wallets.length === 0
-                && <CreateWalletButton selectedWallet={getWalletById(Number(selectedWalletId))}
-                                       setNewWalletId={setNewWalletId}/>
+                && <button className={styles.no_wallets_button}
+                           onClick={() => setNewWalletModalOpen(true)}>
+                <div className={styles.plus}>+</div>
+                <div className={styles.text}>{t.walletBlock.addNewWallet}</div>
+              </button>
             }
             {isWalletsInitialized && wallets.length !== 0
                 && <Select className={styles.wallet_select}
@@ -87,14 +104,44 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
                            }}
                            data-testid="select-wallet"
               >
-                <UpdateWalletNameButton selectedWallet={getWalletById(Number(selectedWalletId))}/>
-                <ChangeWalletBalanceButton
-                  selectedWallet={getWalletById(Number(selectedWalletId))}
-                />
-                <DeleteWalletButton selectedWalletId={Number(selectedWalletId)}/>
-                <CreateWalletButton selectedWallet={getWalletById(Number(selectedWalletId))}
-                                    setNewWalletId={setNewWalletId}
-                />
+                <MenuItem value={selectedWalletId}
+                          className={styles.action_button_wrapper}
+                          role="button"
+                          onClick={() => setUpdateWalletNameModalOpen(true)}
+                          onKeyDown={e =>
+                              handleActionButtonKeyDown(e, setUpdateWalletNameModalOpen)
+                          }
+                >
+                  <div className={styles.text}>{t.walletBlock.updateWalletName}</div>
+                </MenuItem>
+                <MenuItem value={selectedWalletId}
+                          className={styles.action_button_wrapper}
+                          role="button"
+                          onClick={() => setChangeWalletBalanceModalOpen(true)}
+                          onKeyDown={e =>
+                              handleActionButtonKeyDown(e, setChangeWalletBalanceModalOpen)
+                          }
+                >
+                  <div className={styles.text}>{t.walletBlock.changeWalletBalance}</div>
+                </MenuItem>
+                <MenuItem value={selectedWalletId}
+                          className={styles.action_button_wrapper}
+                          role="button"
+                          onClick={() => setDeleteWalletModalOpen(true)}
+                          onKeyDown={e => handleActionButtonKeyDown(e, setDeleteWalletModalOpen)}
+                >
+                  <div className={styles.text}>{t.walletBlock.deleteWallet}</div>
+                </MenuItem>
+                <MenuItem value={selectedWalletId}
+                          className={styles.action_button_wrapper}
+                          role="button"
+                          onClick={() => setNewWalletModalOpen(true)}
+                          onKeyDown={e => handleActionButtonKeyDown(e, setNewWalletModalOpen)}
+                >
+                  <div className={styles.plus}>+</div>
+                  <div className={styles.text}>{t.walletBlock.addNewWallet}</div>
+                </MenuItem>
+
                     {wallets.map(wallet => (
                         <MenuItem className={styles.wallet_wrapper}
                                   value={wallet.id}
@@ -104,6 +151,23 @@ const WalletBlock = ({ selectedWalletId, setSelectedWalletId }: WalletBlockProps
                     ))}
               </Select>
             }
+            <UpdateWalletNameModal open={updateWalletNameModalOpen}
+                                   setOpen={setUpdateWalletNameModalOpen}
+                                   walletId={Number(selectedWalletId)}
+                                   walletName={getWalletById(Number(selectedWalletId))?.name ?? ""}
+            />
+            <ChangeWalletBalanceModal open={changeWalletBalanceModalOpen}
+                                      setOpen={setChangeWalletBalanceModalOpen}
+                                      wallet={getWalletById(Number(selectedWalletId)) ?? null}
+            />
+            <DeleteWalletModal open={deleteWalletModalOpen}
+                               setOpen={setDeleteWalletModalOpen}
+                               walletId={Number(selectedWalletId)}
+            />
+            <CreateWalletModal open={newWalletModalOpen}
+                               setOpen={setNewWalletModalOpen}
+                               setNewWalletId={setNewWalletId}
+            />
         </div>
     );
 };
