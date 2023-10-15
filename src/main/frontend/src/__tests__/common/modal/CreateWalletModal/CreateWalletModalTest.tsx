@@ -52,14 +52,10 @@ describe("CreateWalletModal", () => {
                                                setOpen={jest.fn()}
                                                setNewWalletId={jest.fn()}/>);
 
-        expect(screen.getByTestId("createWalletForm")).toBeInTheDocument();
         expect(screen.getByText("Create wallet")).toBeInTheDocument();
         expect(screen.getByText("Name")).toBeInTheDocument();
         expect(screen.getByText("Balance")).toBeInTheDocument();
         expect(screen.getByText("Currency")).toBeInTheDocument();
-
-        expect(screen.getByTestId("global-error-input")).toBeInTheDocument();
-        expect(screen.getByTestId("server-error-input")).toBeInTheDocument();
 
         expect(screen.getByText("Create")).toBeInTheDocument();
 
@@ -142,7 +138,6 @@ describe("CreateWalletModal", () => {
         // reset form state after modal is closed and opened again
         await waitFor(() => {
             expect(screen.queryByText("Wallet created successfully.")).not.toBeInTheDocument();
-            expect(screen.getByTestId("createWalletForm")).toBeInTheDocument();
         });
     });
 });

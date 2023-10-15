@@ -1,5 +1,5 @@
 import { MenuItem, Select } from "@mui/material";
-import { Dispatch, KeyboardEvent, SetStateAction, useEffect, useState } from "react";
+import { type Dispatch, type KeyboardEvent, type SetStateAction, useEffect, useState } from "react";
 import { useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
 import {

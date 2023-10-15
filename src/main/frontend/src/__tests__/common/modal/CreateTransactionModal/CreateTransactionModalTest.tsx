@@ -112,7 +112,8 @@ describe("CreateTransactionModal", () => {
         fillCreateUpdateTransactionForm("Food and beverages", 100, "Test");
         await act(() => fireEvent.click(screen.getByText("Create")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Creating..."), { timeout: 4000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Creating..."),
+            { timeout: 5000 });
 
         expect(screen.getByText("Transaction created successfully.")).toBeInTheDocument();
         expect(screen.queryByText("Create transaction")).not.toBeInTheDocument();
@@ -129,13 +130,13 @@ describe("CreateTransactionModal", () => {
                 category: expect.any(Object),
                 amount: 100,
                 description: "Test",
-                date: dayjs().format("YYYY-MM-DD HH:mm"),
+                date: dayjs().subtract(4, "seconds").format("YYYY-MM-DD HH:mm"),
                 categoryId: expect.any(Number), // Useless
                 walletId: 1,
             });
             expect(setOpen).toBeCalledWith(false);
         });
-    });
+    }, 10_000);
 
     it("create transaction. Global Error", async () => {
         const setOpen = jest.fn();

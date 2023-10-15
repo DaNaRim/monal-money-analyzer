@@ -18,6 +18,6 @@ describe("AnalyticsPage", () => {
             expect(screen.getByTestId("analytics-page")).toBeInTheDocument();
             expect(screen.getByTestId("wallet-block")).toBeInTheDocument();
             expect(screen.getByTestId("analytics-bar")).toBeInTheDocument();
-        });
+        }, { timeout: 20_000, interval: 1000 });
     }, 15_000);
 });

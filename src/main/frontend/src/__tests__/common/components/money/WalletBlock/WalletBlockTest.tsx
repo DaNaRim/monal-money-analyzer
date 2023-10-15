@@ -93,7 +93,7 @@ describe("WalletBlock", () => {
         const listbox = within(screen.getByRole("listbox"));
         fireEvent.click(listbox.getByText("Add new wallet"));
 
-        await waitFor(() => expect(screen.getByTestId("createWalletForm")).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText("Create wallet")).toBeInTheDocument());
     });
 });
 

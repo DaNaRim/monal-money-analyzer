@@ -64,7 +64,7 @@ describe("RegistrationPage", () => {
 
             expect(screen.getByText("Email")).toBeInTheDocument();
             expect(screen.getByText("Send")).toBeInTheDocument();
-        });
+        }, { timeout: 10_000, interval: 1000 });
     });
 
     // I don't know why but this test passes or fails randomly

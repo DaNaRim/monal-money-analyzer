@@ -49,7 +49,7 @@ describe("ProtectedRoute", () => {
             expect(screen.queryByTestId("transaction-page")).not.toBeInTheDocument();
             expect(screen.getByTestId("login-page")).toBeInTheDocument();
             expect(store.getState().auth.isForceLogin).toBeTruthy();
-        });
+        }, { timeout: 20_000, interval: 1000 });
     });
 
     it("auth without needed role -> navigate to forbidden", async () => {

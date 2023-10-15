@@ -1,12 +1,12 @@
-import { FormEventHandler, ReactNode, useMemo } from "react";
-import { FieldErrors } from "react-hook-form/dist/types/errors";
-import { UseFormRegister } from "react-hook-form/dist/types/form";
+import { type FormEventHandler, type ReactNode, useMemo } from "react";
+import { type FieldErrors } from "react-hook-form/dist/types/errors";
+import { type UseFormRegister } from "react-hook-form/dist/types/form";
 import useTranslation from "../../../../app/hooks/translation";
 import ErrorGlobal from "../ErrorGlobal/ErrorGlobal";
 import ErrorServer from "../ErrorServer/ErrorServer";
 import styles from "./Form.module.scss";
 
-type FormProps = {
+interface FormProps {
     className?: string;
     onSubmit: FormEventHandler<HTMLFormElement>;
     children: ReactNode;
