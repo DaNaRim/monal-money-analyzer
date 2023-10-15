@@ -14,8 +14,7 @@ import {
     type ResetPasswordDto,
     useResetPasswordSetMutation,
 } from "../../../features/registration/registrationApiSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./ResetPasswordSetPage.module.scss";
 
@@ -60,8 +59,10 @@ const ResetPasswordSetPage = () => {
     return (
         <main className={styles.reset_password_set_page} data-testid="reset-password-set-page">
             <h1>{t.resetPasswordSetPage.title}</h1>
-
-            <form onSubmit={handleSubmit(handleResetPasswordSet)}>
+            <Form onSubmit={handleSubmit(handleResetPasswordSet)}
+                  componentName={COMPONENT_NAME}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
 
                 <InputPassword name="newPassword"
                                options={{ required: true }}
@@ -73,14 +74,8 @@ const ResetPasswordSetPage = () => {
                                componentName={COMPONENT_NAME}
                                {...{ register, errors }}
                 />
-                <ErrorGlobal {...{ register, errors }}/>
-                <ErrorServer {...{ register, errors }}/>
-
-                {isLoading
-                    ? <span>{t.resetPasswordSetPage.form.loading}</span>
-                    : <button type="submit">{t.resetPasswordSetPage.form.submit}</button>
-                }
-            </form>
+                <button type="submit">{t.resetPasswordSetPage.form.submit}</button>
+            </Form>
         </main>
     );
 };

@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Fade, Modal } from "@mui/material";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
@@ -56,7 +56,7 @@ const DeleteWalletModal = ({ open, setOpen, walletId }: DeleteWalletModalProps) 
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
             <Fade in={open}>
-                <Box className={styles.modal_block}>
+                <div className={styles.modal_block}>
                     <h2 className={styles.modal_title}>{t.deleteWalletModal.title}</h2>
                     {isLoadingCountWalletTransactions && <p>{t.deleteWalletModal.checking}</p>}
                     {isErrorCountWalletTransactions && <>
@@ -110,7 +110,7 @@ const DeleteWalletModal = ({ open, setOpen, walletId }: DeleteWalletModalProps) 
                           }
                       </>
                     }
-                </Box>
+                </div>
             </Fade>
         </Modal>
     );

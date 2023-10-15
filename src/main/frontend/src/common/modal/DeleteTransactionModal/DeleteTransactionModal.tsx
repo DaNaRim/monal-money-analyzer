@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Fade, Modal } from "@mui/material";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
@@ -82,7 +82,7 @@ const DeleteTransactionModal = ({ open, setOpen, transaction }: DeleteTransactio
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
             <Fade in={open}>
-                <Box className={styles.modal_block}>
+                <div className={styles.modal_block}>
                     {isLoading && <p>{t.deleteTransactionModal.loading}</p>}
                     {isError && <p className={styles.error}>{errorMessage}</p>}
                     {!isLoading && !isError &&
@@ -99,7 +99,7 @@ const DeleteTransactionModal = ({ open, setOpen, transaction }: DeleteTransactio
                         </div>
                       </>
                     }
-                </Box>
+                </div>
             </Fade>
         </Modal>
     );

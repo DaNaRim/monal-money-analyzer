@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Fade, Modal } from "@mui/material";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
@@ -68,12 +68,9 @@ const CreateWalletModal = ({
     }, [open, isSuccess]);
 
     return (
-        <Modal
-            open={open}
-            onClose={handleClose}
-        >
+        <Modal open={open} onClose={handleClose}>
             <Fade in={open}>
-                <Box className={styles.modal_block}>
+                <div className={styles.modal_block}>
                     {isSuccess
                         ? <AppMessageComp type={AppMessageType.INFO}
                                           messageCode="wallet_create_success"
@@ -87,7 +84,7 @@ const CreateWalletModal = ({
                                             handleCreateWallet={handleCreateWallet}
                         />
                     }
-                </Box>
+                </div>
             </Fade>
         </Modal>
     );

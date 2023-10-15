@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Fade, Modal } from "@mui/material";
 import React, { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils from "../../../app/hooks/formUtils";
@@ -135,12 +135,9 @@ const UpdateTransactionModal = ({ open, setOpen, transaction }: EditTransactionM
     }, [transaction]);
 
     return (
-        <Modal
-            open={open}
-            onClose={handleClose}
-        >
+        <Modal open={open} onClose={handleClose}>
             <Fade in={open}>
-                <Box className={styles.modal_block}>
+                <div className={styles.modal_block}>
                     <CreateUpdateTransactionForm mode={"update"}
                                                  register={register}
                                                  control={control}
@@ -152,7 +149,7 @@ const UpdateTransactionModal = ({ open, setOpen, transaction }: EditTransactionM
                                                  handleFormSubmit={handleSubmitForm}
                                                  walletId={transaction.walletId}
                                                  date={transaction.date}/>
-                </Box>
+                </div>
             </Fade>
         </Modal>
     );

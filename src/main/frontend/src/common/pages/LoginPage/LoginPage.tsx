@@ -25,8 +25,7 @@ import {
     setCredentials,
     setForceLogin,
 } from "../../../features/auth/authSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./LoginPage.module.scss";
@@ -117,7 +116,10 @@ const LoginPage = () => {
             {(appMessage != null) &&
               <AppMessageComp {...appMessage}>{suggestResendVerificationToken()}</AppMessageComp>
             }
-            <form onSubmit={handleSubmit(handleLogin)}>
+            <Form onSubmit={handleSubmit(handleLogin)}
+                  componentName={COMPONENT_NAME}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
 
                 <InputEmail name="username"
                             options={{ required: true }}
@@ -129,20 +131,14 @@ const LoginPage = () => {
                                componentName={COMPONENT_NAME}
                                {...{ register, errors }}
                 />
-                <ErrorGlobal {...{ register, errors }}/>
                 {isAccountNotActivated &&
                   <Link to={ROUTE_RESEND_VERIFICATION_TOKEN}>
                       {t.loginPage.resendVerificationEmail}
                   </Link>
                 }
-                <ErrorServer {...{ register, errors }}/>
-
-                {isLoading
-                    ? <span>{t.loginPage.form.loading}</span>
-                    : <button type="submit">{t.loginPage.form.submit}</button>
-                }
+                <button type="submit">{t.loginPage.form.submit}</button>
                 <Link to={ROUTE_RESET_PASSWORD}>{t.loginPage.form.forgotPassword}</Link>
-            </form>
+            </Form>
         </main>
     );
 };

@@ -8,8 +8,7 @@ import {
     type RegistrationDto,
     useRegisterMutation,
 } from "../../../features/registration/registrationApiSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import InputText from "../../components/form/InputText/InputText";
@@ -52,7 +51,10 @@ const RegistrationPage = () => {
                                           messageCode="registration_success"
                                           page="register"/>
             }
-            <form onSubmit={handleSubmit(handleRegistration)}>
+            <Form onSubmit={handleSubmit(handleRegistration)}
+                  componentName={COMPONENT_NAME}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
 
                 <InputText name="firstName"
                            options={{ required: true }}
@@ -79,16 +81,10 @@ const RegistrationPage = () => {
                                componentName={COMPONENT_NAME}
                                {...{ register, errors }}
                 />
-                <ErrorGlobal {...{ register, errors }}/>
-                <ErrorServer {...{ register, errors }}/>
-
-                {isLoading
-                    ? <span>{t.registerPage.form.loading}</span>
-                    : <button type="submit" data-testid="register-button">
-                        {t.registerPage.form.submit}
-                    </button>
-                }
-            </form>
+                <button type="submit" data-testid="register-button">
+                    {t.registerPage.form.submit}
+                </button>
+            </Form>
         </main>
     );
 };

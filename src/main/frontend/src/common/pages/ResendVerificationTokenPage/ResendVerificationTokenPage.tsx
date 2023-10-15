@@ -7,8 +7,7 @@ import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import {
     useResendVerificationTokenMutation,
 } from "../../../features/registration/registrationApiSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import styles from "./ResendVerificationTokenPage.module.scss";
 
@@ -45,21 +44,18 @@ const ResendVerificationTokenPage = () => {
                                           messageCode="email_resend_success"
                                           page="resendVerificationEmail"/>
             }
-            <form onSubmit={handleSubmit(handleResendToken)}>
+            <Form onSubmit={handleSubmit(handleResendToken)}
+                  componentName={COMPONENT_NAME}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
 
                 <InputEmail name="email"
                             options={{ required: true }}
                             componentName={COMPONENT_NAME}
                             {...{ register, errors }}
                 />
-                <ErrorGlobal {...{ register, errors }}/>
-                <ErrorServer {...{ register, errors }}/>
-
-                {isLoading
-                    ? <span>{t.resendVerificationEmailPage.form.loading}</span>
-                    : <button type="submit">{t.resendVerificationEmailPage.form.submit}</button>
-                }
-            </form>
+                <button type="submit">{t.resendVerificationEmailPage.form.submit}</button>
+            </Form>
         </main>
     );
 };

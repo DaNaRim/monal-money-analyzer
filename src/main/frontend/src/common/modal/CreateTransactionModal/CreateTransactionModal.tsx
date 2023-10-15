@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Fade, Modal } from "@mui/material";
 import React, { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
@@ -106,7 +106,7 @@ const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransac
             onClose={handleClose}
         >
             <Fade in={open}>
-                <Box className={styles.modal_block}>
+                <div className={styles.modal_block}>
                     {isSuccess
                         ? <AppMessageComp type={AppMessageType.INFO}
                                           messageCode="transaction_create_success"
@@ -125,7 +125,7 @@ const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransac
                                                        walletId={walletId}
                                                        date={date}/>
                     }
-                </Box>
+                </div>
             </Fade>
         </Modal>
     );

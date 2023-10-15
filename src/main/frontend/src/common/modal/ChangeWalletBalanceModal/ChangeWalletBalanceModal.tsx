@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Fade, Modal } from "@mui/material";
 import dayjs from "dayjs";
 import { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -13,8 +13,7 @@ import {
     type Transaction,
 } from "../../../features/transaction/transactionSlice";
 import { updateWalletBalance, type Wallet } from "../../../features/wallet/walletSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputNumber from "../../components/form/InputNumber/InputNumber";
 import styles from "./ChangeWalletBalanceModal.module.scss";
 
@@ -103,23 +102,21 @@ const ChangeWalletBalanceModal = ({ open, setOpen, wallet }: ChangeWalletBalance
     return (
         <Modal open={open} onClose={handleClose}>
             <Fade in={open}>
-                <Box className={styles.modal_block}>
+                <div className={styles.modal_block}>
                     <h2>{t.changeWalletBalanceModal.title}</h2>
-                    {isLoading && <p>{t.changeWalletBalanceModal.loading}</p>}
-                    {!isLoading &&
-                      <form onSubmit={handleSubmit(handleUpdateBalance)}>
+                    <Form onSubmit={handleSubmit(handleUpdateBalance)}
+                          componentName={"changeWalletBalanceModal"}
+                          isSubmitting={isLoading}
+                          {...{ register, errors }}>
+
                         <InputNumber name={"balance"}
                                      options={{ required: true }}
                                      componentName={"changeWalletBalanceModal"}
                                      {...{ register, errors }}/>
 
-                        <ErrorGlobal {...{ register, errors }}/>
-                        <ErrorServer {...{ register, errors }}/>
-
                         <button type="submit">{t.changeWalletBalanceModal.submit}</button>
-                      </form>
-                    }
-                </Box>
+                    </Form>
+                </div>
             </Fade>
         </Modal>
     );
