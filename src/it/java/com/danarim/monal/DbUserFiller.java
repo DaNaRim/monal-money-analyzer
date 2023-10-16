@@ -90,11 +90,7 @@ public class DbUserFiller {
         String userPassword = passwordEncoder.encode(USER_PASSWORD);
         Role userRoles = roleDao.findByRoleName(RoleName.ROLE_USER);
 
-        User user = new User("test", "test",
-                             USER_USERNAME,
-                             userPassword,
-                             Set.of(userRoles)
-        );
+        User user = new User(USER_USERNAME, userPassword, Set.of(userRoles));
         user.setEmailVerified(true);
 
         this.testUser = userDao.save(user);
@@ -105,11 +101,7 @@ public class DbUserFiller {
         String userPassword = passwordEncoder.encode(USER_PASSWORD);
         Role userRole = roleDao.findByRoleName(RoleName.ROLE_USER);
 
-        User user = new User("test", "test",
-                             USER_NOT_ACTIVATED_USERNAME,
-                             userPassword,
-                             Set.of(userRole)
-        );
+        User user = new User(USER_NOT_ACTIVATED_USERNAME, userPassword, Set.of(userRole));
         userDao.save(user);
     }
 
@@ -119,11 +111,7 @@ public class DbUserFiller {
         Role userRole = roleDao.findByRoleName(RoleName.ROLE_USER);
         Role adminRole = roleDao.findByRoleName(RoleName.ROLE_ADMIN);
 
-        User admin = new User("test", "test",
-                              ADMIN_USERNAME,
-                              adminPassword,
-                              Set.of(userRole, adminRole)
-        );
+        User admin = new User(ADMIN_USERNAME, adminPassword, Set.of(userRole, adminRole));
         admin.setEmailVerified(true);
 
         User result = userDao.save(admin);

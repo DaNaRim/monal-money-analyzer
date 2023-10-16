@@ -418,19 +418,11 @@ export default {
         },
         form: {
             fields: {
-                firstName: "Ім'я",
-                lastName: "Прізвище",
                 email: "Електронна пошта",
                 password: "Пароль",
                 matchingPassword: "Підтвердження пароля",
             },
             errors: {
-                firstName: {
-                    required: "Ім'я обов'язкове",
-                },
-                lastName: {
-                    required: "Прізвище обов'язкове",
-                },
                 email: {
                     required: "Електронна пошта обов'язкова",
                 },

@@ -2,8 +2,6 @@ import { type RootState } from "../../app/store";
 import { apiSlice } from "../api/apiSlice";
 
 export interface RegistrationDto {
-    firstName: string;
-    lastName: string;
     email: string;
     password: string;
     matchingPassword: string;

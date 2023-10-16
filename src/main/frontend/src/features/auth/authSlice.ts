@@ -8,16 +8,12 @@ export enum Role {
 
 export interface AuthResponseEntity {
     username: string; // email
-    firstName: string;
-    lastName: string;
     roles: Role[];
     csrfToken: string;
 }
 
 export interface AuthState {
     username: string | null; // email
-    firstName: string | null;
-    lastName: string | null;
     roles: Role[];
     csrfToken: string | null;
 
@@ -27,8 +23,6 @@ export interface AuthState {
 
 const initialState: AuthState = {
     username: null, // email
-    firstName: null,
-    lastName: null,
     roles: [],
     csrfToken: null,
 
@@ -44,8 +38,6 @@ const authSlice = createSlice({
             const response = action.payload;
 
             state.username = response.username;
-            state.firstName = response.firstName;
-            state.lastName = response.lastName;
             state.roles = response.roles;
             state.csrfToken = response.csrfToken;
 
@@ -56,8 +48,6 @@ const authSlice = createSlice({
         },
         clearAuthState(state) {
             state.username = null;
-            state.firstName = null;
-            state.lastName = null;
             state.roles = [];
             state.csrfToken = null;
         },
@@ -75,8 +65,6 @@ export const {
 } = authSlice.actions;
 
 export const selectAuthUsername = (state: RootState) => state.auth.username;
-export const selectAuthFirstname = (state: RootState) => state.auth.firstName;
-export const selectAuthLastname = (state: RootState) => state.auth.lastName;
 export const selectAuthRoles = (state: RootState) => state.auth.roles;
 export const selectAuthIsInitialized = (state: RootState) => state.auth.isInitialized;
 export const selectAuthIsForceLogin = (state: RootState) => state.auth.isForceLogin;

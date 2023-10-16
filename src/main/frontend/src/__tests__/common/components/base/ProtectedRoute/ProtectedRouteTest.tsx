@@ -34,8 +34,6 @@ describe("ProtectedRoute", () => {
     it("no auth -> navigate to login", async () => {
         const store = setupStore({
             auth: {
-                firstName: null,
-                lastName: null,
                 username: null,
                 roles: [],
                 csrfToken: null,
@@ -55,8 +53,6 @@ describe("ProtectedRoute", () => {
     it("auth without needed role -> navigate to forbidden", async () => {
         const store = setupStore({
             auth: {
-                firstName: "Test",
-                lastName: "Test",
                 username: "Test",
                 roles: [Role.ROLE_ADMIN],
                 csrfToken: "Test",
@@ -76,8 +72,6 @@ describe("ProtectedRoute", () => {
     it("auth check success -> navigate to page", async () => {
         const store = setupStore({
             auth: {
-                firstName: "Test",
-                lastName: "Test",
                 username: "Test",
                 roles: [Role.ROLE_USER],
                 csrfToken: "Test",

@@ -11,7 +11,6 @@ import {
 import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
-import InputText from "../../components/form/InputText/InputText";
 import styles from "./RegistrationPage.module.scss";
 
 type RegistrationFormFields = FormSystemFields & RegistrationDto;
@@ -56,16 +55,6 @@ const RegistrationPage = () => {
                   isSubmitting={isLoading}
                   {...{ register, errors }}>
 
-                <InputText name="firstName"
-                           options={{ required: true }}
-                           componentName={COMPONENT_NAME}
-                           {...{ register, errors }}
-                />
-                <InputText name="lastName"
-                           options={{ required: true }}
-                           componentName={COMPONENT_NAME}
-                           {...{ register, errors }}
-                />
                 <InputEmail name="email"
                             options={{ required: true }}
                             componentName={COMPONENT_NAME}

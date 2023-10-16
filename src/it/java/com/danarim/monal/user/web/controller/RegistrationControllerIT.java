@@ -68,9 +68,9 @@ class RegistrationControllerIT {
     @Test
     void registration() throws Exception {
         RegistrationDto registrationDto = new RegistrationDto(
-                "John", "Doe",
-                "test1234", "test1234",
-                "test@test.test"
+                "test@test.test",
+                "test1234",
+                "test1234"
         );
         when(registrationService.registerNewUserAccount(registrationDto))
                 .thenReturn(mock(User.class));
@@ -85,9 +85,9 @@ class RegistrationControllerIT {
     @Test
     void registration_InvalidData_BadRequest() throws Exception {
         RegistrationDto registrationDto = new RegistrationDto(
-                "John", "Doe",
-                "test1234", "test1234",
-                "invalid"
+                "invalid",
+                "test1234",
+                "test1234"
         );
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
                 .andExpect(status().isBadRequest())
@@ -103,9 +103,9 @@ class RegistrationControllerIT {
     @Test
     void registration_emailTaken_BadRequest() throws Exception {
         RegistrationDto registrationDto = new RegistrationDto(
-                "John", "Doe",
-                "test1234", "test1234",
-                "test@test.test"
+                "test@test.test",
+                "test1234",
+                "test1234"
         );
         doThrow(new BadFieldException("Test", "validation.user.existing.email", null, "email"))
                 .when(registrationService).registerNewUserAccount(registrationDto);

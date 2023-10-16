@@ -39,8 +39,6 @@ export function renderWithProviders(
 export const getStateHandler = rest.post("/api/v1/auth/getState", async (req, res, con) => {
     const authResponse: AuthResponseEntity = {
         username: "test",
-        firstName: "test",
-        lastName: "test",
         roles: [Role.ROLE_USER],
         csrfToken: "test1213123",
     };
@@ -50,8 +48,6 @@ export const getStateHandler = rest.post("/api/v1/auth/getState", async (req, re
 export function setupStoreWithAuth(preloadedState?: PreloadedState<RootState>) {
     return setupStore({
         auth: {
-            firstName: "Test",
-            lastName: "Test",
             username: "Test",
             roles: [Role.ROLE_USER],
             csrfToken: "Test",

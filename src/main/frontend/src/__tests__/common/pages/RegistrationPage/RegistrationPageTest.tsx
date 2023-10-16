@@ -12,18 +12,18 @@ import { type RegistrationDto } from "../../../../features/registration/registra
 describe("RegistrationPage", () => {
     const handlers = [
         rest.post("api/v1/registration", async (req, res, ctx) => {
-            const { firstName }: RegistrationDto = await req.json();
+            const { email }: RegistrationDto = await req.json();
 
-            if (firstName === "First name error") {
+            if (email === "Email error") {
                 const error: ErrorResponse = {
-                    message: "First name error",
+                    message: "Email error",
                     type: ResponseErrorType.FIELD_VALIDATION_ERROR,
                     errorCode: "code",
-                    fieldName: "firstName",
+                    fieldName: "email",
                 };
                 return await res(ctx.status(400), ctx.json([error]));
             }
-            if (firstName === "Passwords don't match") {
+            if (email === "Passwords don't match") {
                 const error: ErrorResponse = {
                     message: "Passwords don't match",
                     type: ResponseErrorType.GLOBAL_ERROR,
@@ -32,7 +32,7 @@ describe("RegistrationPage", () => {
                 };
                 return await res(ctx.status(400), ctx.json([error]));
             }
-            if (firstName === "Server error") {
+            if (email === "Server error") {
                 const error: ErrorResponse = {
                     message: "Server error",
                     type: ResponseErrorType.SERVER_ERROR,
@@ -63,8 +63,6 @@ describe("RegistrationPage", () => {
             expect(screen.getByTestId("main-footer")).toBeInTheDocument();
             expect(screen.getByTestId("registration-page")).toBeInTheDocument();
 
-            expect(screen.getByText("First name")).toBeInTheDocument();
-            expect(screen.getByText("Last name")).toBeInTheDocument();
             expect(screen.getByText("Email")).toBeInTheDocument();
             expect(screen.getByText("Password")).toBeInTheDocument();
             expect(screen.getByText("Confirm password")).toBeInTheDocument();
@@ -80,8 +78,6 @@ describe("RegistrationPage", () => {
         await waitFor(() => clickRegisterButton());
 
         await waitFor(() => {
-            expect(screen.getByText("First name is required")).toBeInTheDocument();
-            expect(screen.getByText("Last name is required")).toBeInTheDocument();
             expect(screen.getByText("Email is required")).toBeInTheDocument();
             expect(screen.getByText("Password is required")).toBeInTheDocument();
             expect(screen.getByText("Confirm password is required")).toBeInTheDocument();
@@ -92,8 +88,6 @@ describe("RegistrationPage", () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
         await waitFor(() => fillRegistrationInputs({
-            firstName: "John",
-            lastName: "Smith",
             email: "a@b",
             password: "123",
             matchingPassword: "123",
@@ -115,9 +109,7 @@ describe("RegistrationPage", () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
         await waitFor(() => fillRegistrationInputs({
-            firstName: "First name error",
-            lastName: "Smith",
-            email: "a@b",
+            email: "Email error",
             password: "123",
             matchingPassword: "123",
         }));
@@ -125,7 +117,7 @@ describe("RegistrationPage", () => {
 
         // should display error message
         await waitFor(() => {
-            expect(screen.getByTestId("error-firstName")).toHaveTextContent("First name error");
+            expect(screen.getByTestId("error-email")).toHaveTextContent("Email error");
         });
     });
 
@@ -133,9 +125,7 @@ describe("RegistrationPage", () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
         await waitFor(() => fillRegistrationInputs({
-            firstName: "Passwords don't match",
-            lastName: "Smith",
-            email: "a@b",
+            email: "Passwords don't match",
             password: "123",
             matchingPassword: "123",
         }));
@@ -151,9 +141,7 @@ describe("RegistrationPage", () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
         await waitFor(() => fillRegistrationInputs({
-            firstName: "Server error",
-            lastName: "Smith",
-            email: "a@b",
+            email: "Server error",
             password: "123",
             matchingPassword: "123",
         }));
@@ -168,24 +156,18 @@ describe("RegistrationPage", () => {
 });
 
 function fillRegistrationInputs(fields: RegistrationDto) {
-    const { firstName, lastName, email, password, matchingPassword } = fields;
+    const { email, password, matchingPassword } = fields;
 
-    const firstNameInput = screen.getByTestId("input-firstName");
-    const lastNameInput = screen.getByTestId("input-lastName");
     const emailInput = screen.getByTestId("input-email");
     const passwordInput = screen.getByTestId("input-password");
     const matchingPasswordInput = screen.getByTestId("input-matchingPassword");
 
-    if (firstNameInput == null
-        || lastNameInput == null
-        || emailInput == null
+    if (emailInput == null
         || passwordInput == null
         || matchingPasswordInput == null) {
         throw new Error("Registration inputs not found");
     }
 
-    fireEvent.change(firstNameInput, { target: { value: firstName } });
-    fireEvent.change(lastNameInput, { target: { value: lastName } });
     fireEvent.change(emailInput, { target: { value: email } });
     fireEvent.change(passwordInput, { target: { value: password } });
     fireEvent.change(matchingPasswordInput, { target: { value: matchingPassword } });

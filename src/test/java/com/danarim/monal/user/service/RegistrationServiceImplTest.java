@@ -43,11 +43,10 @@ class RegistrationServiceImplTest {
     @Test
     void registerNewUserAccount() {
         RegistrationDto registrationDto = new RegistrationDto(
-                "test", "test",
-                "password", "password",
+                "password",
+                "password",
                 "email"
         );
-
         when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(false);
         when(userDao.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -63,9 +62,9 @@ class RegistrationServiceImplTest {
     @Test
     void registerNewUserAccount_EmailExists_BadFieldException() {
         RegistrationDto registrationDto = new RegistrationDto(
-                "test", "test",
-                "password", "password",
-                "existsEmail"
+                "existsEmail",
+                "password",
+                "password"
         );
 
         when(userDao.existsByEmailIgnoreCase(anyString())).thenReturn(true);

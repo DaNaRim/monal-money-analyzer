@@ -22,8 +22,6 @@ const authTestHandlers = [
         }
         const authState = {
             username: "a@b.c",
-            firstName: "John",
-            lastName: "Smith",
             roles: ["ROLE_USER"],
             csrfToken: "1234567890",
         };
@@ -79,7 +77,7 @@ describe("Header auth block", () => {
             expect(screen.queryByText(LOADING_TEXT)).toBeNull();
             expect(screen.queryByText(LOGIN_BUTTON_TEXT)).toBeNull();
             expect(screen.queryByText(REGISTER_BUTTON_TEXT)).toBeNull();
-            expect(screen.getByText("John Smith")).toBeInTheDocument();
+            expect(screen.getByText("a@b.c")).toBeInTheDocument();
             expect(screen.getByText(LOGOUT_BUTTON_TEXT)).toBeInTheDocument();
 
             expect(store.getState().auth.isInitialized).toBeTruthy();
@@ -95,7 +93,7 @@ describe("Header auth block", () => {
         await waitFor(() => screen.getByText(LOGOUT_BUTTON_TEXT).click());
 
         await waitFor(() => {
-            expect(screen.queryByText("John Smith")).toBeNull();
+            expect(screen.queryByText("a@b.c")).toBeNull();
             expect(screen.getByText(LOGIN_BUTTON_TEXT)).toBeInTheDocument();
             expect(screen.getByText(REGISTER_BUTTON_TEXT)).toBeInTheDocument();
 
