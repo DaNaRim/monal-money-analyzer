@@ -152,9 +152,9 @@ class TokensIT {
 
         protected static void registerNewUser(String email, MockMvc mockMvc) throws Exception {
             RegistrationDto registrationDto = new RegistrationDto(
-                    "John", "Doe",
-                    "test1234", "test1234",
-                    email
+                    email,
+                    "test1234",
+                    "test1234"
             );
             mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
                     .andExpect(status().isCreated());

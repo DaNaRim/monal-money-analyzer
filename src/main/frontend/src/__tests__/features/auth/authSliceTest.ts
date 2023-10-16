@@ -13,8 +13,6 @@ describe("authSlice", () => {
     test("init state", () => {
         expect(reducer(undefined, { type: undefined })).toEqual({
             username: null,
-            firstName: null,
-            lastName: null,
             roles: [],
             csrfToken: null,
 
@@ -26,15 +24,11 @@ describe("authSlice", () => {
     test("setCredentials", () => {
         const auth: AuthResponseEntity = {
             username: "username@mail.fake",
-            firstName: "John",
-            lastName: "Doe",
             roles: [Role.ROLE_USER],
             csrfToken: "csrfToken",
         };
         expect(reducer(undefined, setCredentials(auth))).toEqual({
             username: "username@mail.fake",
-            firstName: "John",
-            lastName: "Doe",
             roles: [Role.ROLE_USER],
             csrfToken: "csrfToken",
 
@@ -46,8 +40,6 @@ describe("authSlice", () => {
     test("setInitialized", () => {
         expect(reducer(undefined, setInitialized())).toEqual({
             username: null,
-            firstName: null,
-            lastName: null,
             roles: [],
             csrfToken: null,
 
@@ -59,8 +51,6 @@ describe("authSlice", () => {
     test("clearAuthState", () => {
         const prevState: AuthState = {
             username: "username@mail.fake",
-            firstName: "John",
-            lastName: "Doe",
             roles: [Role.ROLE_USER],
             csrfToken: "csrfToken",
 
@@ -69,8 +59,6 @@ describe("authSlice", () => {
         };
         expect(reducer(prevState, clearAuthState())).toEqual({
             username: null,
-            firstName: null,
-            lastName: null,
             roles: [],
             csrfToken: null,
 
@@ -82,8 +70,6 @@ describe("authSlice", () => {
     test("setForceLogin to true", () => {
         expect(reducer(undefined, setForceLogin(true))).toEqual({
             username: null,
-            firstName: null,
-            lastName: null,
             roles: [],
             csrfToken: null,
 
@@ -95,8 +81,6 @@ describe("authSlice", () => {
     test("setForceLogin to false", () => {
         expect(reducer(undefined, setForceLogin(false))).toEqual({
             username: null,
-            firstName: null,
-            lastName: null,
             roles: [],
             csrfToken: null,
 

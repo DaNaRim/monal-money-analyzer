@@ -41,8 +41,6 @@ describe("apiSlice", () => {
             }
             const refreshResponse: AuthResponseEntity = {
                 username: "test",
-                firstName: "test",
-                lastName: "test",
                 roles: [Role.ROLE_USER],
                 csrfToken: "1234567890",
             };
@@ -60,8 +58,6 @@ describe("apiSlice", () => {
             }
             return await res(ctx.status(200), ctx.delay(100), ctx.json({
                 username: "John",
-                firstName: "John",
-                lastName: "Smith",
                 roles: ["ROLE_USER"],
                 csrfToken: "1234567890",
             }));
@@ -74,8 +70,6 @@ describe("apiSlice", () => {
             }
             const authState = {
                 username: "a@b.c",
-                firstName: "John",
-                lastName: "Smith",
                 roles: ["ROLE_USER"],
                 csrfToken: "1234567890",
             };
@@ -100,8 +94,6 @@ describe("apiSlice", () => {
         const store = setupStore({
             auth: {
                 username: "test",
-                firstName: "test",
-                lastName: "test",
                 roles: [Role.ROLE_USER],
                 csrfToken: "1234567890",
                 isInitialized: true,
@@ -125,8 +117,6 @@ describe("apiSlice", () => {
 
             expect(store.getState().auth).toEqual({
                 username: null,
-                firstName: null,
-                lastName: null,
                 roles: [],
                 csrfToken: null,
                 isInitialized: true,

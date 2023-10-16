@@ -11,8 +11,6 @@ import java.util.Objects;
  */
 public record AuthResponseEntity(
         String username,
-        String firstName,
-        String lastName,
         String[] roles,
         String csrfToken
 ) {
@@ -28,8 +26,6 @@ public record AuthResponseEntity(
     public static AuthResponseEntity generateAuthResponse(User user, String csrfToken) {
         return new AuthResponseEntity(
                 user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
                 user.getRoles().stream()
                         .map(role -> role.getRoleName().toString())
                         .toArray(String[]::new),
@@ -48,8 +44,6 @@ public record AuthResponseEntity(
         }
         AuthResponseEntity that = (AuthResponseEntity) o;
         return Objects.equals(username, that.username)
-                && Objects.equals(firstName, that.firstName)
-                && Objects.equals(lastName, that.lastName)
                 && Arrays.equals(roles, that.roles)
                 && Objects.equals(csrfToken, that.csrfToken);
     }
@@ -57,7 +51,7 @@ public record AuthResponseEntity(
     @Override
     @CoverageGenerated
     public int hashCode() {
-        int result = Objects.hash(username, firstName, lastName, csrfToken);
+        int result = Objects.hash(username, csrfToken);
         result = 31 * result + Arrays.hashCode(roles);
         return result;
     }
@@ -67,8 +61,6 @@ public record AuthResponseEntity(
     public String toString() {
         return "AuthResponseEntity{"
                 + "username='" + username + '\''
-                + ", firstName='" + firstName + '\''
-                + ", lastName='" + lastName + '\''
                 + ", roles=" + Arrays.toString(roles)
                 + ", csrfToken='" + csrfToken + '\''
                 + '}';

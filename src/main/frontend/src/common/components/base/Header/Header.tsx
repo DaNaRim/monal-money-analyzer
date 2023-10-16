@@ -15,9 +15,7 @@ import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features
 import {
     clearAuthState,
     Role,
-    selectAuthFirstname,
     selectAuthIsInitialized,
-    selectAuthLastname,
     selectAuthRoles,
     selectAuthUsername,
     setCredentials,
@@ -33,8 +31,6 @@ const Header = () => {
     const t = useTranslation();
 
     const username = useAppSelector(selectAuthUsername);
-    const firstName = useAppSelector(selectAuthFirstname);
-    const lastName = useAppSelector(selectAuthLastname);
 
     const isAuthInit = useAppSelector(selectAuthIsInitialized);
 
@@ -63,7 +59,7 @@ const Header = () => {
             return <div data-testid="auth-loader">{t.mainHeader.loading}</div>;
         } else if (username != null) {
             return <div>
-                <p>{firstName} {lastName}</p>
+                <p>{username}</p>
                 <button id="logoutButton" onClick={handleLogout}>{t.mainHeader.logout}</button>
             </div>;
         } else {

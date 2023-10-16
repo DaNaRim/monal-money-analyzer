@@ -418,19 +418,11 @@ export default {
         },
         form: {
             fields: {
-                firstName: "First name",
-                lastName: "Last name",
                 email: "Email",
                 password: "Password",
                 matchingPassword: "Confirm password",
             },
             errors: {
-                firstName: {
-                    required: "First name is required",
-                },
-                lastName: {
-                    required: "Last name is required",
-                },
                 email: {
                     required: "Email is required",
                 },

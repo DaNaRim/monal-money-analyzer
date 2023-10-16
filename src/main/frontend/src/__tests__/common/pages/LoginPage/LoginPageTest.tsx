@@ -59,9 +59,7 @@ export const loginTestHandlers = [
             return await res(ctx.status(400), ctx.json([error]), ctx.delay(50));
         }
         return await res(ctx.status(200), ctx.json({
-            username: "John",
-            firstName: "John",
-            lastName: "Smith",
+            username: "a@b.c",
             roles: ["ROLE_USER"],
             csrfToken: "1234567890",
         }), ctx.delay(50));
@@ -74,8 +72,6 @@ export const loginTestHandlers = [
         }
         const authState = {
             username: "a@b.c",
-            firstName: "John",
-            lastName: "Smith",
             roles: ["ROLE_USER"],
             csrfToken: "1234567890",
         };
@@ -128,7 +124,7 @@ describe("LoginPage", () => {
     it("login success -> navigate to home page", async () => {
         renderWithProviders(<App/>, { wrapper: BrowserRouter });
 
-        await waitFor(() => fillLoginInputs("123", "123"));
+        await waitFor(() => fillLoginInputs("a@b.c", "123"));
         act(() => clickLoginButton());
 
         // should display a loading message
@@ -136,7 +132,7 @@ describe("LoginPage", () => {
 
         // should redirect to home page
         await waitFor(() => {
-            expect(screen.getByText("John Smith")).toBeInTheDocument(); // header username
+            expect(screen.getByText("a@b.c")).toBeInTheDocument(); // header username
         });
 
         // To disable act warning. I don't know how to fix it
@@ -295,8 +291,6 @@ describe("LoginPage", () => {
         const store = setupStore({
             auth: {
                 username: null,
-                firstName: null,
-                lastName: null,
                 roles: [],
                 csrfToken: null,
                 isInitialized: true,
@@ -326,8 +320,6 @@ describe("LoginPage", () => {
         const store = setupStore({
             auth: {
                 username: null,
-                firstName: null,
-                lastName: null,
                 roles: [],
                 csrfToken: null,
                 isInitialized: true,

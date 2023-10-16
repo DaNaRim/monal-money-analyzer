@@ -38,12 +38,6 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String firstName;
-
-    @Column(nullable = false)
-    private String lastName;
-
     @Column(unique = true, nullable = false)
     private String email;
 
@@ -82,20 +76,14 @@ public class User implements UserDetails {
     /**
      * Creates a new user entity.
      *
-     * @param firstName first name of the user
-     * @param lastName  last name of the user
      * @param email     email of the user
      * @param password  password of the user
      * @param roles     roles of the user
      */
-    public User(String firstName,
-                String lastName,
-                String email,
+    public User(String email,
                 String password,
                 Set<Role> roles
     ) {
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.isEmailVerified = false;
@@ -143,14 +131,6 @@ public class User implements UserDetails {
 
     public Long getId() {
         return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
     }
 
     public String getEmail() {
