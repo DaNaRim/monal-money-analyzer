@@ -63,8 +63,6 @@ describe("RegistrationPage", () => {
             expect(screen.getByTestId("main-footer")).toBeInTheDocument();
             expect(screen.getByTestId("registration-page")).toBeInTheDocument();
 
-            expect(screen.getByText("First name")).toBeInTheDocument();
-            expect(screen.getByText("Last name")).toBeInTheDocument();
             expect(screen.getByText("Email")).toBeInTheDocument();
             expect(screen.getByText("Password")).toBeInTheDocument();
             expect(screen.getByText("Confirm password")).toBeInTheDocument();
@@ -80,8 +78,6 @@ describe("RegistrationPage", () => {
         await waitFor(() => clickRegisterButton());
 
         await waitFor(() => {
-            expect(screen.getByText("First name is required")).toBeInTheDocument();
-            expect(screen.getByText("Last name is required")).toBeInTheDocument();
             expect(screen.getByText("Email is required")).toBeInTheDocument();
             expect(screen.getByText("Password is required")).toBeInTheDocument();
             expect(screen.getByText("Confirm password is required")).toBeInTheDocument();
