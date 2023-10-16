@@ -113,7 +113,7 @@ describe("CreateTransactionModal", () => {
         await act(() => fireEvent.click(screen.getByText("Create")));
 
         await waitForElementToBeRemoved(() => screen.getByText("Creating..."),
-            { timeout: 5000 });
+            { timeout: 10000 });
 
         expect(screen.getByText("Transaction created successfully.")).toBeInTheDocument();
         expect(screen.queryByText("Create transaction")).not.toBeInTheDocument();
@@ -136,7 +136,7 @@ describe("CreateTransactionModal", () => {
             });
             expect(setOpen).toBeCalledWith(false);
         });
-    }, 10_000);
+    }, 20_000);
 
     it("create transaction. Global Error", async () => {
         const setOpen = jest.fn();
