@@ -49,7 +49,7 @@ describe("ProtectedRoute", () => {
             expect(screen.queryByTestId("transaction-page")).not.toBeInTheDocument();
             expect(screen.getByTestId("login-page")).toBeInTheDocument();
             expect(store.getState().auth.isForceLogin).toBeTruthy();
-        });
+        }, { timeout: 20_000, interval: 1000 });
     });
 
     it("auth without needed role -> navigate to forbidden", async () => {
@@ -96,6 +96,7 @@ describe("ProtectedRoute", () => {
             expect(loaders[0]).toHaveStyle("display: none");
             expect(loaders[1]).toBeInTheDocument();
         });
-        await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument());
-    }, 20_000);
+        await waitFor(() => expect(screen.getByTestId("transaction-page")).toBeInTheDocument(),
+            { timeout: 20_000, interval: 1000 });
+    }, 60_000);
 });

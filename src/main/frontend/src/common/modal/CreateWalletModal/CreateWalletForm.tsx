@@ -5,8 +5,7 @@ import { type FieldErrors } from "react-hook-form/dist/types/errors";
 import { type UseFormRegister } from "react-hook-form/dist/types/form";
 import useTranslation from "../../../app/hooks/translation";
 import { WALLET_BALANCE_MAX_VALUE } from "../../../features/wallet/walletSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputNumber from "../../components/form/InputNumber/InputNumber";
 import InputText from "../../components/form/InputText/InputText";
 import OptionInput from "../../components/form/OptionInput/OptionInput";
@@ -42,7 +41,11 @@ const CreateWalletForm = ({
     return (
         <>
             <h1>{t.createWalletModal.title}</h1>
-            <form onSubmit={handleSubmit(handleCreateWallet)} data-testid="createWalletForm">
+            <Form onSubmit={handleSubmit(handleCreateWallet)}
+                  componentName={componentName}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
+
                 <InputText name="name"
                            options={{ required: true }}
                            componentName={componentName}
@@ -113,15 +116,10 @@ const CreateWalletForm = ({
                             />)}
                     />
                 </div>
-                <ErrorGlobal {...{ register, errors }}/>
-                <ErrorServer {...{ register, errors }}/>
-                {isLoading
-                    ? <span>{t.createWalletModal.form.loading}</span>
-                    : <button className={styles.submit_button} type="submit">
-                        {t.createWalletModal.form.submit}
-                    </button>
-                }
-            </form>
+                <button className={styles.submit_button} type="submit">
+                    {t.createWalletModal.form.submit}
+                </button>
+            </Form>
         </>
     );
 };

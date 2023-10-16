@@ -12,8 +12,7 @@ import {
 } from "../../../features/category/categorySlice";
 import { getCategoryLocalName } from "../../../features/category/categoryUtil";
 import { selectWallets, WALLET_BALANCE_MAX_VALUE } from "../../../features/wallet/walletSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputButton from "../../components/form/InputButton/InputButton";
 import InputDateTime from "../../components/form/InputDateTime/InputDateTime";
 import InputNumber from "../../components/form/InputNumber/InputNumber";
@@ -136,10 +135,15 @@ const CreateUpdateTransactionForm = ({
     return (
         <>
             <h1 className={styles.title}>{t[`${componentName}`].title}</h1>
-            {mode === "update" &&
-              <p className={styles.description}>{t.updateTransactionModal.description}</p>
-            }
-            <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)}>
+            <Form className={styles.form}
+                  onSubmit={handleSubmit(handleFormSubmit)}
+                  componentName={componentName}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
+
+                {mode === "update" &&
+                  <p className={styles.description}>{t.updateTransactionModal.description}</p>
+                }
                 <div className={styles.double_field}>
                     <InputSelect
                         name="walletId"
@@ -199,16 +203,10 @@ const CreateUpdateTransactionForm = ({
                                componentName={componentName}
                                {...{ control, errors }}
                 />
-                <ErrorGlobal {...{ register, errors }}/>
-                <ErrorServer {...{ register, errors }}/>
-
-                {isLoading
-                    ? <span>{t[`${componentName}`].form.loading}</span>
-                    : <button className={styles.submit_button} type="submit">
-                        {t[`${componentName}`].form.submit}
-                    </button>
-                }
-            </form>
+                <button className={styles.submit_button} type="submit">
+                    {t[`${componentName}`].form.submit}
+                </button>
+            </Form>
             <SelectCategoryModal open={selectCategoryModalOpen}
                                  setOpen={setSelectCategoryModalOpen}
                                  selectedCategory={selectedCategory}

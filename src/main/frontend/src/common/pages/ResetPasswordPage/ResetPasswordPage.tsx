@@ -5,8 +5,7 @@ import useTranslation from "../../../app/hooks/translation";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import { useResetPasswordMutation } from "../../../features/registration/registrationApiSlice";
-import ErrorGlobal from "../../components/form/ErrorGlobal/ErrorGlobal";
-import ErrorServer from "../../components/form/ErrorServer/ErrorServer";
+import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import styles from "./ResetPasswordPage.module.scss";
 
@@ -41,21 +40,18 @@ const ResetPasswordPage = () => {
                                           messageCode="reset_password_success"
                                           page="resetPassword"/>
             }
-            <form onSubmit={handleSubmit(handleResetPassword)}>
+            <Form onSubmit={handleSubmit(handleResetPassword)}
+                  componentName={COMPONENT_NAME}
+                  isSubmitting={isLoading}
+                  {...{ register, errors }}>
 
                 <InputEmail name="email"
                             options={{ required: true }}
                             componentName={COMPONENT_NAME}
                             {...{ register, errors }}
                 />
-                <ErrorGlobal {...{ register, errors }}/>
-                <ErrorServer {...{ register, errors }}/>
-
-                {isLoading
-                    ? <span>{t.resetPasswordPage.form.loading}</span>
-                    : <button type="submit">{t.resetPasswordPage.form.submit}</button>
-                }
-            </form>
+                <button type="submit">{t.resetPasswordPage.form.submit}</button>
+            </Form>
         </main>
     );
 };

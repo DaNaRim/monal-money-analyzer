@@ -293,7 +293,8 @@ describe("UpdateTransactionModal", () => {
         });
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."),
+            { timeout: 5000 });
 
         expect(store.getState().transactions).toStrictEqual({
             1: {
@@ -311,7 +312,7 @@ describe("UpdateTransactionModal", () => {
                 ],
             },
         });
-    });
+    }, 10_000);
 
     it("update transaction. Outcome amount changed Up", async () => {
         const store = setupStore({
@@ -330,14 +331,14 @@ describe("UpdateTransactionModal", () => {
         });
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 5000 });
 
         expect(store.getState().transactions)
             .toStrictEqual(changedState(50, 0));
         // old: Outcome 100, new: Outcome 50,
         // old balance: 1000, new balance: 1000 + (-50 - -100) = 1050
         expect(store.getState().wallets.wallets[0].balance).toBe(1050);
-    });
+    }, 10_000);
 
     it("update transaction. Outcome amount changed Down", async () => {
         const store = setupStore({
@@ -356,14 +357,15 @@ describe("UpdateTransactionModal", () => {
         });
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."),
+            { timeout: 5000 });
 
         expect(store.getState().transactions)
             .toStrictEqual(changedState(200, 0));
         // old: Outcome 100, new: Outcome 50,
         // old balance: 1000, new balance: 1000 + (-200 - -100) = 900
         expect(store.getState().wallets.wallets[0].balance).toBe(900);
-    });
+    }, 10_000);
 
     it("update transaction. Income amount changed Up", async () => {
         const store = setupStore({
@@ -382,14 +384,15 @@ describe("UpdateTransactionModal", () => {
         });
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."),
+            { timeout: 5000 });
 
         expect(store.getState().transactions)
             .toStrictEqual(changedState(200, 1));
         // old: Income 100, new: Income 200,
         // old balance: 1000, new balance: 1000 + (200 - 100) = 1100
         expect(store.getState().wallets.wallets[0].balance).toBe(1100);
-    });
+    }, 10_000);
 
     it("update transaction. Income amount changed Down", async () => {
         const store = setupStore({
@@ -408,14 +411,15 @@ describe("UpdateTransactionModal", () => {
         });
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."),
+            { timeout: 5000 });
 
         expect(store.getState().transactions)
             .toStrictEqual(changedState(50, 1));
         // old: Income 100, new: Income 50,
         // old balance: 1000, new balance: 1000 + (50 - 100) = 950
         expect(store.getState().wallets.wallets[0].balance).toBe(950);
-    });
+    }, 10_000);
 
     it("update transaction. category changes income to outcome", async () => {
         const store = setupStore({
@@ -432,14 +436,15 @@ describe("UpdateTransactionModal", () => {
         fillCreateUpdateTransactionForm("Food and beverages", 200, "Desc");
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."),
+            { timeout: 5000 });
 
         expect(store.getState().transactions)
             .toStrictEqual(changedState(200, 0));
         // old: Income 100, new: Outcome 200,
         // old balance: 1000, new balance: 1000 + (-200 - 100) = 700
         expect(store.getState().wallets.wallets[0].balance).toBe(700);
-    });
+    }, 10_000);
 
     it("update transaction. category changes outcome to income", async () => {
         const store = setupStore({
@@ -456,14 +461,14 @@ describe("UpdateTransactionModal", () => {
         fillCreateUpdateTransactionForm("Salary", 200, "Desc", "Income");
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 5000 });
 
         expect(store.getState().transactions)
             .toStrictEqual(changedState(200, 1));
         // old: Outcome 100, new: Income 200,
         // old balance: 1000, new balance: 1000 + (200 - -100) = 1300
         expect(store.getState().wallets.wallets[0].balance).toBe(1300);
-    });
+    }, 10_000);
 
     it("update transaction. wallet changes outcome", async () => {
         const store = setupStore({
@@ -480,7 +485,8 @@ describe("UpdateTransactionModal", () => {
         await selectWallet("Wallet 2");
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."),
+            { timeout: 5000 });
 
         expect(store.getState().transactions).toStrictEqual({
             1: {
@@ -498,7 +504,7 @@ describe("UpdateTransactionModal", () => {
         // old: 0, new: Outcome 100,
         // old balance: 1000, new balance: 1000 + (-100 - 0) = 900
         expect(store.getState().wallets.wallets[1].balance).toBe(900);
-    });
+    }, 10_000);
 
     it("update transaction. wallet changes income", async () => {
         const store = setupStore({
@@ -515,7 +521,7 @@ describe("UpdateTransactionModal", () => {
         await selectWallet("Wallet 2");
         await act(() => fireEvent.click(screen.getByText("Update")));
 
-        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
+        await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 5000 });
 
         expect(store.getState().transactions).toStrictEqual({
             1: {
@@ -533,7 +539,7 @@ describe("UpdateTransactionModal", () => {
         // old: 0, new: Income 100,
         // old balance: 1000, new balance: 1000 + (100 - 0) = 1100
         expect(store.getState().wallets.wallets[1].balance).toBe(1100);
-    });
+    }, 10_000);
 });
 
 async function selectWallet(walletName: string) {

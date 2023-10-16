@@ -10,8 +10,62 @@
   }
 }
 
+.no_wallets_button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 1em;
+  border-radius: 0.5em;
+  background-color: #e3e3e3;
+  height: 4em;
+
+  .plus {
+    margin-right: 0.5em;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+
+  .text {
+    font-size: 1.2rem;
+  }
+}
+
 .wallet_select_menu > [class^="MuiPaper-root"] li {
   padding: 0;
+
+  &.action_button_wrapper {
+    display: flex;
+    position: relative;
+    align-items: center;
+    background-color: #e3e3e3;
+    padding: 0.5em 1em 0.5em 2.5em;
+    width: 100%;
+
+    &:last-child {
+      border-bottom: 2px solid black;
+    }
+
+    &:hover {
+      background-color: rgb(0 0 0 / 4%);
+    }
+
+    &:focus {
+      background-color: rgb(0 0 0 / 8%);
+    }
+
+    .plus {
+      position: absolute;
+      left: 0.5em;
+      margin-right: 0.5em;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .text {
+      font-size: 1.2rem;
+    }
+  }
 }
 
 .wallet {
@@ -47,43 +101,5 @@
       margin-left: 0.2em;
       font-size: 1.2rem;
     }
-  }
-}
-
-.action_button_wrapper {
-  background-color: #e3e3e3 !important; // Just to override default styles and add color for action buttons
-
-  &:hover {
-    background-color: rgb(0 0 0 / 4%) !important;
-  }
-
-  &:focus {
-    background-color: rgb(0 0 0 / 8%) !important;
-  }
-}
-
-.action_button {
-  @include clear-button-styles;
-
-  display: flex;
-  position: relative;
-  align-items: center;
-  padding: 0.5em 1em 0.5em 2.5em;
-  width: 100%;
-
-  &:last-child {
-    border-bottom: 2px solid black;
-  }
-
-  .plus {
-    position: absolute;
-    left: 0.5em;
-    margin-right: 0.5em;
-    font-weight: bold;
-    font-size: 1.5rem;
-  }
-
-  .text {
-    font-size: 1.2rem;
   }
 }
