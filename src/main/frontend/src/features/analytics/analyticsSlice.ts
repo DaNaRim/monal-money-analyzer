@@ -123,7 +123,7 @@ export const selectAnalyticsForBarChart = (state: RootState,
     const mergedResult = unionAnalyticsData(incomeParsedData, outcomeParsedData);
 
     fillWithEmptyDates(mergedResult, dateFrom, dateTo, periodType);
-    mergedResult.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+    mergedResult.sort((a, b) => Number(a.date) - Number(b.date));
     return mergedResult;
 };
 
@@ -229,7 +229,7 @@ const parseAnalyticsDataToBarChartFormat = (analytics: DateCategoryAnalytics,
     const resultData: AnalyticsBarData[] = [];
 
     for (const date in analytics) {
-        if (!Object.prototype.hasOwnProperty.call(analytics, date)) {
+        if (!Object.hasOwn(analytics, date)) {
             continue;
         }
         const valueCategoryData = analytics[date];
@@ -274,7 +274,7 @@ const parseAnalyticsChunkWithCategories = (data: CategoryAnalytics,
     const resultData: AnalyticsBarData = {};
 
     for (const category in data) {
-        if (!Object.prototype.hasOwnProperty.call(data, category)) {
+        if (!Object.hasOwn(data, category)) {
             continue;
         }
         const value = data[category];
@@ -315,7 +315,7 @@ const parseAnalyticsChunkWithoutCategories = (data: CategoryAnalytics,
     const resultData: AnalyticsBarData = {};
 
     for (const category in data) {
-        if (!Object.prototype.hasOwnProperty.call(data, category)) {
+        if (!Object.hasOwn(data, category)) {
             continue;
         }
         const value = data[category];
@@ -352,8 +352,7 @@ const unionAnalyticsData = (incomeData: AnalyticsBarData[],
             continue;
         }
         for (const category in outcomeChunk) {
-            if (!Object.prototype.hasOwnProperty.call(outcomeChunk, category)
-                || category === "date") {
+            if (!Object.hasOwn(outcomeChunk, category) || category === "date") {
                 continue;
             }
             incomeChunk[category] = outcomeChunk[category];
