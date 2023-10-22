@@ -1,4 +1,6 @@
 export default {
+    appName: "Monal. money analyzer",
+
     mainHeader: {
         loading: "Loading...",
         login: "Login",
@@ -345,6 +347,7 @@ export default {
     // Error pages
 
     errorPage: {
+        seo_title: "Something went wrong - {0}",
         header: "Error",
         desc: "Something went wrong. Please try again later. If the problem persists,"
             + " please contact the administrator.",
@@ -352,12 +355,14 @@ export default {
     },
 
     forbiddenPage: {
+        seo_title: "Forbidden - {0}",
         header: "Forbidden",
         desc: "You don't have permission to access this page.",
         link: "Go to home page",
     },
 
     notFoundPage: {
+        seo_title: "Page not found - {0}",
         header: "Not found",
         desc: "The page you are looking for does not exist.",
         link: "Go to home page",
@@ -370,6 +375,7 @@ export default {
     },
 
     loginPage: {
+        seo_title: "Login - {0}",
         title: "Login",
         resendVerificationEmail: "Resend verification email",
         appMessages: {
@@ -410,6 +416,7 @@ export default {
     },
 
     registerPage: {
+        seo_title: "Register - {0}",
         title: "Register",
         appMessages: {
             registration_success: "Registration successful."
@@ -439,6 +446,7 @@ export default {
     },
 
     resendVerificationEmailPage: {
+        seo_title: "Resend verification email - {0}",
         title: "Resend verification email",
         appMessages: {
             email_resend_success: "Verification email sent."
@@ -460,6 +468,7 @@ export default {
     },
 
     resetPasswordPage: {
+        seo_title: "Reset password - {0}",
         title: "Reset password",
         appMessages: {
             reset_password_success: "Check your email for a link to reset your password."
@@ -480,6 +489,7 @@ export default {
     },
 
     resetPasswordSetPage: {
+        seo_title: "Set new password - {0}",
         title: "Set new password",
         form: {
             fields: {
@@ -502,11 +512,16 @@ export default {
     // Money
 
     transactionsPage: {
+        seo_title: "Transactions - {0}",
         appMessages: {
             wallet_create_success: "Wallet created successfully.",
             transaction_create_success: "Transaction created successfully.",
         },
         addNewTransaction: "Add new transaction",
+    },
+
+    analyticsPage: {
+        seo_title: "Analytics - {0}",
     },
 
     walletBlock: {

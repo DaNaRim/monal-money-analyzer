@@ -1,5 +1,5 @@
-import React from "react";
 import useLocalStorage from "react-use-localstorage";
+import usePageTitle from "../../../app/hooks/usePageTitle";
 import AnalyticsBar from "../../components/money/AnalyticsBar/AnalyticsBar";
 import WalletBlock from "../../components/money/WalletBlock/WalletBlock";
 import WalletCategoriesInitializer
@@ -8,6 +8,8 @@ import { LOCAL_STORAGE_SELECTED_WALLET_ID } from "../../utils/moneyUtils";
 import styles from "../TransactionsPage/TransactionsPage.module.scss";
 
 const AnalyticsPage = () => {
+    usePageTitle("analyticsPage");
+
     const [selectedWalletId, setSelectedWalletId]
         = useLocalStorage(LOCAL_STORAGE_SELECTED_WALLET_ID);
 

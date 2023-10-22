@@ -1,9 +1,11 @@
-import React from "react";
 import useTranslation from "../../../app/hooks/translation";
+import usePageTitle from "../../../app/hooks/usePageTitle";
 
 import styles from "./HomePage.module.scss";
 
 const HomePage = () => {
+    usePageTitle();
+
     const t = useTranslation();
 
     return (

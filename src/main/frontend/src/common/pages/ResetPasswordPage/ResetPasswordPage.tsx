@@ -1,7 +1,7 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
+import usePageTitle from "../../../app/hooks/usePageTitle";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import { useResetPasswordMutation } from "../../../features/registration/registrationApiSlice";
@@ -16,6 +16,8 @@ type ResetPasswordFields = FormSystemFields & {
 const COMPONENT_NAME = "resetPasswordPage";
 
 const ResetPasswordPage = () => {
+    usePageTitle(COMPONENT_NAME);
+
     const t = useTranslation();
 
     const { handleResponseError } = useFetchUtils();
@@ -29,9 +31,10 @@ const ResetPasswordPage = () => {
 
     const [resetPassword, { isLoading, isSuccess }] = useResetPasswordMutation();
 
-    const handleResetPassword = async (data: ResetPasswordFields) =>
-        await resetPassword(data.email).unwrap()
+    const handleResetPassword = async (data: ResetPasswordFields) => {
+        return await resetPassword(data.email).unwrap()
             .catch(e => handleResponseError(e, setError));
+    };
 
     return (
         <main className={styles.reset_password_page} data-testid="reset-password-page">

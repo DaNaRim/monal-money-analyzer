@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
@@ -8,6 +8,7 @@ import useFetchUtils, {
 } from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
+import usePageTitle from "../../../app/hooks/usePageTitle";
 import {
     ROUTE_RESEND_VERIFICATION_TOKEN,
     ROUTE_RESET_PASSWORD,
@@ -39,9 +40,11 @@ type LoginFormError = ErrorResponse & {
 const COMPONENT_NAME = "loginPage";
 
 const LoginPage = () => {
+    usePageTitle(COMPONENT_NAME);
+
+    const t = useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const t = useTranslation();
 
     const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
@@ -59,15 +62,6 @@ const LoginPage = () => {
     const [isAccountNotActivated, setIsAccountNotActivated] = useState<boolean>(false);
 
     const [login, { isLoading }] = useLoginMutation();
-
-    useEffect(() => {
-        return () => { // unmount
-            dispatch(setForceLogin(false));
-            if (appMessage != null) {
-                dispatch(deleteAppMessage(appMessage.messageCode));
-            }
-        };
-    }, []);
 
     const handleLogin = (data: LoginFormFields) => {
         clearFormSystemFields(data);
@@ -109,6 +103,15 @@ const LoginPage = () => {
         }
         return null;
     };
+
+    useEffect(() => {
+        return () => { // unmount
+            dispatch(setForceLogin(false));
+            if (appMessage != null) {
+                dispatch(deleteAppMessage(appMessage.messageCode));
+            }
+        };
+    }, []);
 
     return (
         <main className={styles.login_page} data-testid="login-page">

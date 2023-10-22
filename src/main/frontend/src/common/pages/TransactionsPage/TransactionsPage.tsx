@@ -1,8 +1,9 @@
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import { useState } from "react";
 import useLocalStorage from "react-use-localstorage";
 import { useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
+import usePageTitle from "../../../app/hooks/usePageTitle";
 import { selectIsWalletsExists } from "../../../features/wallet/walletSlice";
 import DailyAnalyticsBlock from "../../components/money/DailyAnalyticsBlock/DailyAnalyticsBlock";
 import DateBlock, { DATE_BLOCK_DATE_FORMAT } from "../../components/money/DateBlock/DateBlock";
@@ -15,6 +16,8 @@ import { LOCAL_STORAGE_SELECTED_WALLET_ID } from "../../utils/moneyUtils";
 import styles from "./TransactionsPage.module.scss";
 
 const TransactionsPage = () => {
+    usePageTitle("transactionsPage");
+
     const t = useTranslation();
 
     const [selectedWalletId, setSelectedWalletId]

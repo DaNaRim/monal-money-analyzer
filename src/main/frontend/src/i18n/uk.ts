@@ -1,4 +1,6 @@
 export default {
+    appName: "Monal. аналізатор грошей",
+
     mainHeader: {
         loading: "Завантаження...",
         login: "Увійти",
@@ -345,6 +347,7 @@ export default {
     // Error pages
 
     errorPage: {
+        seo_title: "Щось пішло не так - {0}",
         header: "Помилка",
         desc: "Щось пішло не так. Будь ласка, спробуйте пізніше. Якщо проблема не зникне,"
             + " зверніться до адміністратора.",
@@ -352,12 +355,14 @@ export default {
     },
 
     forbiddenPage: {
+        seo_title: "Заборонено - {0}",
         header: "Заборонено",
         desc: "У вас немає дозволу на доступ до цієї сторінки.",
         link: "Перейти на домашню сторінку",
     },
 
     notFoundPage: {
+        seo_title: "Сторінку не знайдено - {0}",
         header: "Не знайдено",
         desc: "Сторінка, яку ви шукаєте, не існує.",
         link: "Перейти на домашню сторінку",
@@ -370,6 +375,7 @@ export default {
     },
 
     loginPage: {
+        seo_title: "Вхід - {0}",
         title: "Вхід",
         resendVerificationEmail: "Повторно надіслати листа з підтвердженням",
         appMessages: {
@@ -410,6 +416,7 @@ export default {
     },
 
     registerPage: {
+        seo_title: "Реєстрація - {0}",
         title: "Реєстрація",
         appMessages: {
             registration_success: "Реєстрація успішна."
@@ -439,6 +446,7 @@ export default {
     },
 
     resendVerificationEmailPage: {
+        seo_title: "Повторно надіслати листа з підтвердженням - {0}",
         title: "Повторно надіслати листа з підтвердженням",
         appMessages: {
             email_resend_success: "Листа з підтвердженням успішно надіслано."
@@ -460,6 +468,7 @@ export default {
     },
 
     resetPasswordPage: {
+        seo_title: "Скидання пароля - {0}",
         title: "Скидання пароля",
         appMessages: {
             reset_password_success: "Вам надіслано листа з посиланням для скидання пароля."
@@ -480,6 +489,7 @@ export default {
     },
 
     resetPasswordSetPage: {
+        seo_title: "Встановлення нового пароля - {0}",
         title: "Встановлення нового пароля",
         form: {
             fields: {
@@ -502,11 +512,16 @@ export default {
     // Money
 
     transactionsPage: {
+        seo_title: "Транзакції - {0}",
         appMessages: {
             wallet_create_success: "Гаманець успішно створено.",
             transaction_create_success: "Транзакція успішно створена.",
         },
         addNewTransaction: "Додати нову транзакцію",
+    },
+
+    analyticsPage: {
+        seo_title: "Аналітика - {0}",
     },
 
     walletBlock: {
