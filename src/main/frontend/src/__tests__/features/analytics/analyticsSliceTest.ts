@@ -549,8 +549,8 @@ describe("analyticsSlice", () => {
             },
             {
                 date: "05",
-                "income": 100,
-                "outcome": -100,
+                income: 100,
+                outcome: -100,
             },
             ...emptyDates.slice(2),
         ]);
