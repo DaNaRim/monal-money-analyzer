@@ -22,6 +22,7 @@ import {
     setInitialized,
 } from "../../../../features/auth/authSlice";
 import LanguageHandler from "../LanguageHandler/LanguageHandler";
+import ThemeHandler from "../ThemeHandler/ThemeHandler";
 
 import styles from "./Header.module.scss";
 
@@ -85,6 +86,7 @@ const Header = () => {
                 </ul>
             </nav>
             <LanguageHandler/>
+            <ThemeHandler/>
             <div>
                 {getAuthBlock()}
             </div>
