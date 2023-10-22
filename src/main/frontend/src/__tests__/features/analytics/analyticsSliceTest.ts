@@ -508,6 +508,53 @@ describe("analyticsSlice", () => {
             );
             expect(result).toEqual([]);
         });
+
+    test("selectAnalyticsForBarChart Daily. Analytics dates in the middle of period.", () => {
+        const store = setupStore({
+            analytics: {
+                1: {
+                    [AnalyticsPeriod.DAILY]: {
+                        income: {
+                            "2021-01-05": {
+                                "Category 1": 100,
+                            },
+                        },
+                        outcome: {
+                            "2021-01-05": {
+                                "Category 3": 100,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        const result = selectAnalyticsForBarChart(
+            store.getState(),
+            1,
+            AnalyticsPeriod.DAILY,
+            "2021-01-01",
+        );
+        expect(result).toEqual([
+            {
+                date: "01",
+            },
+            {
+                date: "02",
+            },
+            {
+                date: "03",
+            },
+            {
+                date: "04",
+            },
+            {
+                date: "05",
+                "income": 100,
+                "outcome": -100,
+            },
+            ...emptyDates.slice(2),
+        ]);
+    });
 });
 
 const emptyDates = [
