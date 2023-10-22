@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import LanguageContextProvider from "./app/contexts/LanguageContext";
+import ThemeContextProvider from "./app/contexts/ThemeContext";
 import { setupStore } from "./app/store";
 import reportWebVitals from "./reportWebVitals";
 
@@ -19,9 +20,11 @@ root.render(
     <React.StrictMode>
         <Provider store={setupStore()}>
             <BrowserRouter basename={process.env.PUBLIC_URL}>
-                <LanguageContextProvider>
-                    <App/>
-                </LanguageContextProvider>
+                <ThemeContextProvider>
+                    <LanguageContextProvider>
+                        <App/>
+                    </LanguageContextProvider>
+                </ThemeContextProvider>
             </BrowserRouter>
         </Provider>
     </React.StrictMode>,
