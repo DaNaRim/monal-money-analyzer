@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react";
 import useLocalStorage from "react-use-localstorage";
 
 const LOCAL_STORAGE_THEME = "theme";
 
 export enum Theme {
     DARK = "dark",
-    LIGHT = "light",
+    LIGHT = "light"
 }
 
 interface ContextType {

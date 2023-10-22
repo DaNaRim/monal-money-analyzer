@@ -1,7 +1,7 @@
-import { Theme, useThemeContext } from "../../../../app/contexts/ThemeContext";
+import { type Theme, useThemeContext } from "../../../../app/contexts/ThemeContext";
 
 const ThemeHandler = () => {
-    const {theme, changeTheme} =useThemeContext();
+    const { theme, changeTheme } = useThemeContext();
 
     return (
         <select
