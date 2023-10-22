@@ -1,10 +1,12 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import useTranslation from "../../../../app/hooks/translation";
+import usePageTitle from "../../../../app/hooks/usePageTitle";
 import { ROUTE_HOME } from "../../../../app/routes";
 import styles from "./NotFoundPage.module.scss";
 
 const NotFoundPage = () => {
+    usePageTitle("notFoundPage");
+
     const t = useTranslation();
 
     return (

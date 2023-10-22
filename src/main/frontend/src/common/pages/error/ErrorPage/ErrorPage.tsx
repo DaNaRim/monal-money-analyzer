@@ -1,10 +1,12 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import useTranslation from "../../../../app/hooks/translation";
+import usePageTitle from "../../../../app/hooks/usePageTitle";
 import { ROUTE_HOME } from "../../../../app/routes";
 import styles from "./ErrorPage.module.scss";
 
 const ErrorPage = () => {
+    usePageTitle("errorPage");
+
     const t = useTranslation();
 
     return (

@@ -1,9 +1,9 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
+import usePageTitle from "../../../app/hooks/usePageTitle";
 import { ROUTE_LOGIN } from "../../../app/routes";
 import {
     addAppMessage,
@@ -23,9 +23,11 @@ type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
 const COMPONENT_NAME = "resetPasswordSetPage";
 
 const ResetPasswordSetPage = () => {
+    usePageTitle(COMPONENT_NAME);
+
+    const t = useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const t = useTranslation();
 
     const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
