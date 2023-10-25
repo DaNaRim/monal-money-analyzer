@@ -79,9 +79,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/favicon.ico",
-                                    "logo192.png",
-                                    "logo512.png",
+        registry.addResourceHandler("/index.html",
+                                    "/favicon.ico",
+                                    "/logo192.png",
+                                    "/logo512.png",
                                     "/manifest.json",
                                     "/robots.txt")
                 .addResourceLocations("classpath:/static/");
@@ -92,7 +93,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         for (String url : FRONTEND_URLS) {
-            registry.addViewController(url).setViewName("index.html");
+            registry.addViewController(url).setViewName("forward:/index.html");
         }
     }
 

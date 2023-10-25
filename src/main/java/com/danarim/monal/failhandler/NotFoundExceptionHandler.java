@@ -22,7 +22,7 @@ public class NotFoundExceptionHandler {
      *
      * @param e exception
      *
-     * @return Forward to index page. It will be handled by Frontend router.
+     * @return Forward to index page. Error will be handled by Frontend router.
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -30,7 +30,7 @@ public class NotFoundExceptionHandler {
         logger.warn("No handler found for %s %s"
                             .formatted(e.getHttpMethod(), e.getRequestURL()));
 
-        return new ModelAndView("forward:/");
+        return new ModelAndView("forward:/index.html");
     }
 
 }

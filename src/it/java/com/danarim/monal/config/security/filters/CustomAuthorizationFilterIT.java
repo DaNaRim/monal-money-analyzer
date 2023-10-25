@@ -23,6 +23,7 @@ import static com.danarim.monal.TestUtils.getExt;
 import static com.danarim.monal.TestUtils.getExtWithAuth;
 import static com.danarim.monal.TestUtils.getLoginResult;
 import static com.danarim.monal.TestUtils.getRefreshTokenCookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,7 +41,8 @@ class CustomAuthorizationFilterIT {
     @Test
     void authorization_NoLoginAccess() throws Exception {
         mockMvc.perform(getExt("/"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/index.html"));
 
         mockMvc.perform(getExt(WebConfig.API_V1_PREFIX + "/stub"))
                 .andExpect(status().isForbidden());
