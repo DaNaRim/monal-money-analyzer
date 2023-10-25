@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "../../app/store";
+import { LOCAL_STORAGE_SELECTED_WALLET_ID } from "../../common/utils/moneyUtils";
 import { clearAuthState } from "../auth/authSlice";
 import { CategoryType } from "../category/categorySlice";
 
@@ -79,7 +80,10 @@ const walletsSlice = createSlice({
             state.wallets = state.wallets.filter(wallet => wallet.id !== walletId);
         },
     },
-    extraReducers: builder => builder.addCase(clearAuthState, () => initialState),
+    extraReducers: builder => builder.addCase(clearAuthState, () => {
+        localStorage.removeItem(LOCAL_STORAGE_SELECTED_WALLET_ID);
+        return initialState;
+    }),
 });
 
 export const {
