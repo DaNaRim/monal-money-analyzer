@@ -149,7 +149,8 @@ describe("LoginPage", () => {
 
         // should display error message
         await waitFor(() => {
-            expect(screen.getByTestId("error-username")).toHaveTextContent("Email must be a valid email address");
+            expect(screen.getByTestId("error-username"))
+                .toHaveTextContent("Email must be a valid email address");
         });
     });
 

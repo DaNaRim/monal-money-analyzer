@@ -250,7 +250,7 @@ describe("UpdateTransactionModal", () => {
 
         expect(store.getState().transactions).toStrictEqual(transactionOutcomeState);
         expect(screen.getByText(
-            "Unknown error. Please contact the administrator. Error code: code"
+            "Unknown error. Please contact the administrator. Error code: code",
         )).toBeInTheDocument();
     });
 
