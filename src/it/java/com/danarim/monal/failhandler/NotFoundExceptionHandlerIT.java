@@ -29,6 +29,7 @@ class NotFoundExceptionHandlerIT {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:AvoidEscapedUnicodeCharacters")
     void handleNoHandlerFoundException_notLatinCharacters() throws Exception {
         mockMvc.perform(getExt("/\uFFFD\uFFFD\uFFFD\uFFFD"))
                 .andExpect(status().isNotFound())
