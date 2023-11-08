@@ -87,7 +87,7 @@ class WalletServiceImplTest {
         BadRequestException e = assertThrows(BadRequestException.class,
                                              () -> walletService.createWallet(walletDto, 1L));
 
-        assertEquals("validation.wallet.invalid.currency", e.getMessageCode());
+        assertEquals("validation.wallet.currency.invalid", e.getMessageCode());
         verify(walletDao).existsByOwnerIdAndName(1L, "test");
         verify(walletDao, never()).save(any(Wallet.class));
     }

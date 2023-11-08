@@ -246,7 +246,7 @@ class TransactionServiceImplTest {
                 () -> transactionService.getTransactionsBetweenDates(from, to, 1L, 1L));
 
         assertNotNull(e.getMessage());
-        assertEquals("validation.transaction.date-from-after-date-to", e.getMessageCode());
+        assertEquals("validation.transaction.date_from_after_date_to", e.getMessageCode());
     }
 
     @Test
@@ -1353,7 +1353,7 @@ class TransactionServiceImplTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             transactionService.updateTransaction(transactionDto, 1L);
         });
-        assertEquals("validation.transaction.wallet-has-different-currency",
+        assertEquals("validation.transaction.wallet_has_different_currency",
                      exception.getMessageCode());
 
         verify(categoryService, times(1)).getCategoryType(1L);
