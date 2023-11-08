@@ -110,7 +110,10 @@ class RegistrationControllerIT {
                 "test1234",
                 "test1234"
         );
-        doThrow(new BadFieldException("Test", "validation.user.existing.email", null, "email"))
+        doThrow(new BadFieldException("Test",
+                                      "validation.user.email.already_exists",
+                                      null,
+                                      "email"))
                 .when(registrationService).registerNewUserAccount(registrationDto);
 
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))

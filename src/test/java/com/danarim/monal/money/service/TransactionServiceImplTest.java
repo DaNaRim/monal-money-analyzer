@@ -154,7 +154,7 @@ class TransactionServiceImplTest {
                 () -> transactionService.createTransaction(transactionDto, 1L));
 
         assertEquals("category", e.getField());
-        assertEquals("validation.category.notFound", e.getMessageCode());
+        assertEquals("validation.category.not_found", e.getMessageCode());
         assertEquals(0.0, wallet.getBalance());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
@@ -177,7 +177,7 @@ class TransactionServiceImplTest {
                 BadRequestException.class,
                 () -> transactionService.createTransaction(transactionDto, 1L));
 
-        assertEquals("validation.wallet.notFound", e.getMessageCode());
+        assertEquals("validation.wallet.not_found", e.getMessageCode());
 
         verify(categoryService, times(1)).getCategoryType(transactionDto.categoryId());
         verify(walletService, times(1)).getWalletForUpdate(transactionDto.walletId());
@@ -312,7 +312,7 @@ class TransactionServiceImplTest {
                 BadRequestException.class,
                 () -> transactionService.deleteTransaction(1L, 1L));
 
-        assertEquals("validation.transaction.notFound", e.getMessageCode());
+        assertEquals("validation.transaction.not_found", e.getMessageCode());
 
         verify(transactionDao, times(1)).existsById(1L);
         verify(transactionDao, never()).isUserTransactionOwner(1L, 1L);
@@ -1132,7 +1132,7 @@ class TransactionServiceImplTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             transactionService.updateTransaction(transactionDto, 1L);
         });
-        assertEquals("validation.transaction.notFound", exception.getMessageCode());
+        assertEquals("validation.transaction.not_found", exception.getMessageCode());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -1218,7 +1218,7 @@ class TransactionServiceImplTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             transactionService.updateTransaction(transactionDto, 1L);
         });
-        assertEquals("validation.category.notFound", exception.getMessageCode());
+        assertEquals("validation.category.not_found", exception.getMessageCode());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(1L);
@@ -1262,7 +1262,7 @@ class TransactionServiceImplTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             transactionService.updateTransaction(transactionDto, 1L);
         });
-        assertEquals("validation.wallet.notFound", exception.getMessageCode());
+        assertEquals("validation.wallet.not_found", exception.getMessageCode());
 
         verify(categoryService, times(1)).getCategoryType(1L);
         verify(walletService, times(1)).getWalletForUpdate(2L);

@@ -24,17 +24,17 @@ public record CreateTransactionDto(
         @Size(max = 255, message = ValidationCodes.TRANSACTION_DESCRIPTION_SIZE)
         String description,
 
-        @NotNull(message = "{validation.transaction.date.notnull}")
+        @NotNull(message = ValidationCodes.TRANSACTION_DATE_REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         Date date,
 
         @Positive(message = TRANSACTION_AMOUNT_POSITIVE)
         double amount,
 
-        @NotNull(message = "{validation.transaction.categoryId.notnull}")
+        @NotNull(message = ValidationCodes.TRANSACTION_CATEGORY_ID_REQUIRED)
         long categoryId,
 
-        @NotNull(message = "{validation.transaction.walletId.notnull}")
+        @NotNull(message = ValidationCodes.TRANSACTION_WALLET_ID_REQUIRED)
         long walletId
 ) {
 

@@ -82,13 +82,13 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
         ErrorResponse errorResponse;
         switch (authError) {
             case USERNAME_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.fieldError(
-                    "validation.auth.notFound",
+                    ValidationCodes.AUTH_NOT_FOUND, null,
                     "username",
-                    messages.getMessage("validation.auth.notFound", null, locale));
+                    messages.getMessage(ValidationCodes.AUTH_NOT_FOUND, null, locale));
             case BAD_CREDENTIALS_EXCEPTION -> errorResponse = ErrorResponse.fieldError(
-                    "validation.auth.badCredentials",
+                    ValidationCodes.AUTH_BAD_CREDENTIALS, null,
                     "password",
-                    messages.getMessage("validation.auth.badCredentials", null, locale));
+                    messages.getMessage(ValidationCodes.AUTH_BAD_CREDENTIALS, null, locale));
             case DISABLED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
                     ValidationCodes.AUTH_DISABLED, null,
                     messages.getMessage(ValidationCodes.AUTH_DISABLED, null, locale));
@@ -99,11 +99,11 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                     ValidationCodes.AUTH_EXPIRED, null,
                     messages.getMessage(ValidationCodes.AUTH_EXPIRED, null, locale));
             case CREDENTIALS_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.invalidBody",
-                    messages.getMessage("validation.auth.invalidBody", null, locale));
+                    ValidationCodes.AUTH_INVALID_BODY, null,
+                    messages.getMessage(ValidationCodes.AUTH_INVALID_BODY, null, locale));
             case CREDENTIALS_EXPIRED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.credentialsExpired",
-                    messages.getMessage("validation.auth.credentialsExpired", null, locale));
+                    ValidationCodes.AUTH_CREDENTIALS_EXPIRED, null,
+                    messages.getMessage(ValidationCodes.AUTH_CREDENTIALS_EXPIRED, null, locale));
             default -> {
                 logger.error("Unexpected authentication error " + exception.getMessage(),
                              exception);

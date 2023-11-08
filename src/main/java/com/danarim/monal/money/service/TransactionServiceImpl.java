@@ -134,7 +134,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (!transactionDao.existsById(transactionId)) {
             throw new BadRequestException(
                     "Transaction with ID %d does not exist.".formatted(transactionId),
-                    "validation.transaction.notFound",
+                    ValidationCodes.TRANSACTION_NOT_FOUND,
                     null);
         }
         if (!transactionDao.isUserTransactionOwner(transactionId, loggedUserId)) {
@@ -225,14 +225,14 @@ public class TransactionServiceImpl implements TransactionService {
         if (categoryType == null) {
             throw new BadFieldException(
                     "Missing category with ID " + createTransactionDto.categoryId(),
-                    "validation.category.notFound",
+                    ValidationCodes.CATEGORY_NOT_FOUND,
                     null,
                     "category");
         }
         if (optionalWallet.isEmpty()) {
             throw new BadRequestException(
                     "Wallet with ID " + createTransactionDto.walletId() + " does not exist.",
-                    "validation.wallet.notFound",
+                    ValidationCodes.WALLET_NOT_FOUND,
                     null);
         }
         if (optionalWallet.get().getOwner().getId() != userId) {
@@ -322,7 +322,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (!transactionDao.existsById(updateTransactionDto.id())) {
             throw new BadRequestException(
                     "Transaction with ID %d does not exist.".formatted(updateTransactionDto.id()),
-                    "validation.transaction.notFound",
+                    ValidationCodes.TRANSACTION_NOT_FOUND,
                     null);
         }
         if (!transactionDao.isUserTransactionOwner(updateTransactionDto.id(), userId)) {

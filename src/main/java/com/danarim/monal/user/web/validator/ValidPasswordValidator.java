@@ -44,10 +44,7 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
             return true;
         }
         context.buildConstraintViolationWithTemplate(
-                        validator.getMessages(result)
-                                .stream()
-                                .findFirst()
-                                .orElseGet(context::getDefaultConstraintMessageTemplate)
+                        result.getDetails().get(0).toString()
                 )
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();

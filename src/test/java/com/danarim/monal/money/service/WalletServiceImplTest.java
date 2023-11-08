@@ -72,7 +72,7 @@ class WalletServiceImplTest {
         BadFieldException e = assertThrows(BadFieldException.class,
                                            () -> walletService.createWallet(walletDto, 1L));
 
-        assertEquals("validation.wallet.name-for-user.alreadyExists", e.getMessageCode());
+        assertEquals("validation.wallet.name.exists_for_user", e.getMessageCode());
 
         verify(walletDao).existsByOwnerIdAndName(1L, "test");
         verify(walletDao, never()).save(any(Wallet.class));
@@ -135,7 +135,7 @@ class WalletServiceImplTest {
                 BadRequestException.class,
                 () -> walletService.updateWalletName(1L, "test", 1L));
 
-        assertEquals("validation.wallet.notFound", e.getMessageCode());
+        assertEquals("validation.wallet.not_found", e.getMessageCode());
 
         verify(walletDao).existsById(1L);
         verify(walletDao, never()).isUserWalletOwner(1L, 1L);
@@ -181,7 +181,7 @@ class WalletServiceImplTest {
                 BadRequestException.class,
                 () -> walletService.deleteWallet(1L, 1L));
 
-        assertEquals("validation.wallet.notFound", e.getMessageCode());
+        assertEquals("validation.wallet.not_found", e.getMessageCode());
 
         verify(walletDao).existsById(1L);
         verify(walletDao, never()).isUserWalletOwner(1L, 1L);
@@ -213,7 +213,7 @@ class WalletServiceImplTest {
                 BadRequestException.class,
                 () -> walletService.deleteWallet(1L, 1L));
 
-        assertEquals("validation.wallet.delete.hasTransactions", e.getMessageCode());
+        assertEquals("validation.wallet.delete.has_transactions", e.getMessageCode());
 
         verify(walletDao).existsById(1L);
         verify(walletDao).isUserWalletOwner(1L, 1L);
@@ -247,7 +247,7 @@ class WalletServiceImplTest {
                 BadRequestException.class,
                 () -> walletService.countWalletTransactions(1L, 1L));
 
-        assertEquals("validation.wallet.notFound", e.getMessageCode());
+        assertEquals("validation.wallet.not_found", e.getMessageCode());
 
         verify(walletDao).existsById(1L);
         verify(walletDao, never()).isUserWalletOwner(1L, 1L);

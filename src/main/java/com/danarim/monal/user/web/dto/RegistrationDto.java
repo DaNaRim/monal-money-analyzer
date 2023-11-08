@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
  * @param matchingPassword confirmation of user password
  * @param email            user email
  */
-@PasswordMatches(message = "{validation.user.matching.password}")
+@PasswordMatches(message = ValidationCodes.USER_PASSWORD_MATCHING)
 public record RegistrationDto(
 
         @NotBlank(message = ValidationCodes.USER_EMAIL_REQUIRED)

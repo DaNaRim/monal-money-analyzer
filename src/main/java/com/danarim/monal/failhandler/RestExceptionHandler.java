@@ -28,6 +28,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -362,16 +363,25 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param errors errors to map.
      */
-    private static ArrayList<ErrorResponse> mapErrors(BindingResult errors) {
+    private ArrayList<ErrorResponse> mapErrors(BindingResult errors) {
         ArrayList<ErrorResponse> result = new ArrayList<>();
 
-        errors.getFieldErrors()
-                .forEach(error -> result.add(ErrorResponse.fieldError(error.getCode(),
-                                                                      error.getField(),
-                                                                      error.getDefaultMessage())));
-        errors.getGlobalErrors()
-                .forEach(error -> result.add(ErrorResponse.globalError(error.getCode(),
-                                                                       error.getDefaultMessage())));
+        errors.getFieldErrors().forEach(error -> result.add(mapFieldError(error)));
+        errors.getGlobalErrors().forEach(error -> {
+            Object[] preparedErrorCodes =
+                    Arrays.copyOfRange(error.getArguments(), 1, error.getArguments().length);
+
+            List<Object> args = new ArrayList<>(Arrays.stream(preparedErrorCodes).toList());
+
+            result.add(ErrorResponse.globalError(
+                    error.getDefaultMessage(),
+                    args.toArray(),
+                    messages.getMessage(
+                            error.getDefaultMessage(),
+                            args.toArray(),
+                            LocaleContextHolder.getLocale()
+                    )));
+        });
         return result;
     }
 
