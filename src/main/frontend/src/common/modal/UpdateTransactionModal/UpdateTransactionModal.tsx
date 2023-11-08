@@ -1,7 +1,6 @@
 import { Fade, Modal } from "@mui/material";
 import React, { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import useFetchUtils from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import {
     CategoryType,
@@ -15,6 +14,7 @@ import {
     type ViewTransactionDto,
 } from "../../../features/transaction/transactionSlice";
 import { updateWalletBalance } from "../../../features/wallet/walletSlice";
+import { clearFormSystemFields, handleResponseError } from "../../utils/formUtils";
 import { type TransactionFormFields } from "../CreateTransactionModal/CreateTransactionModal";
 import styles from "../CreateTransactionModal/CreateTransactionModal.module.scss";
 import CreateUpdateTransactionForm from "../CreateTransactionModal/CreateUpdateTransactionForm";
@@ -34,8 +34,6 @@ interface EditTransactionModalProps {
  */
 const UpdateTransactionModal = ({ open, setOpen, transaction }: EditTransactionModalProps) => {
     const dispatch = useAppDispatch();
-
-    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
     const categoriesWithSubcategories = useAppSelector(selectCategoriesWithSubcategories);
 
@@ -84,7 +82,7 @@ const UpdateTransactionModal = ({ open, setOpen, transaction }: EditTransactionM
                 handleClose();
                 resetForm();
             })
-            .catch(err => handleResponseError(err, setError));
+            .catch(e => handleResponseError(e, setError));
     };
 
     const handleClose = () => {

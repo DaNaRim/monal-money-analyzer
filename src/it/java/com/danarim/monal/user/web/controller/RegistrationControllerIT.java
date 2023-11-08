@@ -89,6 +89,9 @@ class RegistrationControllerIT {
                 "test1234",
                 "test1234"
         );
+        when(messages.getMessage(eq("validation.user.email.invalid"), any(), any()))
+                .thenReturn("error");
+
         mockMvc.perform(postExt(WebConfig.API_V1_PREFIX + "/registration", registrationDto))
                 .andExpect(status().isBadRequest())
 

@@ -1,5 +1,6 @@
 package com.danarim.monal.user.web.dto;
 
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.user.web.validator.PasswordMatches;
 import com.danarim.monal.user.web.validator.ValidPassword;
 

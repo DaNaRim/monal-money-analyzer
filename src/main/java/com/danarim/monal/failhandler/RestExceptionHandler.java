@@ -6,6 +6,7 @@ import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
+import com.danarim.monal.user.web.validator.ValidPassword;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
@@ -17,6 +18,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -75,8 +77,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
 
-        ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
-
+        ErrorResponse errorResponse = ErrorResponse.globalError(
+                e.getMessageCode(),  e.getMessageArgs(), message
+        );
         return new ResponseEntity<>(Collections.singletonList(errorResponse),
                                     HttpStatus.BAD_REQUEST);
     }
@@ -99,9 +102,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
 
-        ErrorResponse errorResponse =
-                ErrorResponse.fieldError(e.getMessageCode(), e.getField(), message);
-
+        ErrorResponse errorResponse = ErrorResponse.fieldError(
+                e.getMessageCode(), e.getMessageArgs(), e.getField(), message
+        );
         return new ResponseEntity<>(Collections.singletonList(errorResponse),
                                     HttpStatus.BAD_REQUEST);
     }
@@ -127,7 +130,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String extendedMessage = message + ' ' + e.getMessage();
 
         ErrorResponse errorResponse =
-                ErrorResponse.globalError("error.access.denied", extendedMessage);
+                ErrorResponse.globalError("error.access.denied", null, extendedMessage);
 
         return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.FORBIDDEN);
     }
@@ -150,7 +153,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                                               e.getMessage()), e);
 
         ErrorResponse errorResponse =
-                ErrorResponse.globalError("error.action.denied", e.getMessage());
+                ErrorResponse.globalError("error.action.denied", null, e.getMessage());
 
         return new ResponseEntity<>(Collections.singletonList(errorResponse), HttpStatus.FORBIDDEN);
     }
@@ -221,7 +224,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Locale locale = LocaleContextHolder.getLocale();
         String message = messages.getMessage(e.getMessageCode(), e.getMessageArgs(), locale);
 
-        ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), message);
+        ErrorResponse errorResponse = ErrorResponse.globalError(e.getMessageCode(), null, message);
 
         return new ResponseEntity<>(Collections.singletonList(errorResponse),
                                     HttpStatus.BAD_REQUEST);
@@ -321,6 +324,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         List<ErrorResponse> mappedErrors = e.getConstraintViolations().stream()
                 .map(violation -> ErrorResponse.fieldError(
                         violation.getMessageTemplate().replaceAll("[{}]", ""),
+                        violation.getExecutableParameters(),
                         violation.getPropertyPath().toString().split("[.]")[1],
                         violation.getMessage())
                 )
@@ -355,6 +359,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Maps errors from {@link BindingResult} to list of {@link ErrorResponse}.
+     *
+     * @param errors errors to map.
      */
     private static ArrayList<ErrorResponse> mapErrors(BindingResult errors) {
         ArrayList<ErrorResponse> result = new ArrayList<>();
@@ -367,6 +373,47 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .forEach(error -> result.add(ErrorResponse.globalError(error.getCode(),
                                                                        error.getDefaultMessage())));
         return result;
+    }
+
+    /**
+     * Maps {@link FieldError} to {@link ErrorResponse}.
+     * If error code is {@link ValidPassword} then it is mapped to specific password validation.
+     * Password validation error codes get from a default message in format:
+     * "[errorCode]:{code1=value1, code2=value2}"
+     *
+     *
+     * @param error field error to map.
+     *
+     * @return {@link ErrorResponse} with field error.
+     */
+    private ErrorResponse mapFieldError(FieldError error) {
+        String errorCode = error.getDefaultMessage();
+        List<Object> args = new ArrayList<>();
+
+        // Specific handling for password validation.
+        if (List.of(error.getCodes()).contains(ValidPassword.class.getSimpleName())) {
+            errorCode = "validation.user.password." + error.getDefaultMessage()
+                    .split(":")[0]
+                    .replaceAll("[\\[\\]]", "")
+                    .toLowerCase();
+
+            args.addAll(Arrays.stream(error.getDefaultMessage()
+                                              .split(":")[1]
+                                              .replaceAll("[{}]", "")
+                                              .split(", "))
+                                .map(s -> s.split("=")[1])
+                                .toList());
+        } else { // Default handling.
+            Object[] preparedErrorCodes =
+                    Arrays.copyOfRange(error.getArguments(), 1, error.getArguments().length);
+
+            args.addAll(Arrays.stream(preparedErrorCodes).toList());
+        }
+        return ErrorResponse.fieldError(
+                errorCode,
+                args.toArray(),
+                error.getField(),
+                messages.getMessage(errorCode, args.toArray(), LocaleContextHolder.getLocale()));
     }
 
 }

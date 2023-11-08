@@ -4,6 +4,7 @@ import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InternalServerException;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.money.persistence.dao.TransactionDao;
 import com.danarim.monal.money.persistence.model.CurrencyType;
 import com.danarim.monal.money.persistence.model.Transaction;
@@ -112,7 +113,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         if (from.after(to)) {
             throw new BadRequestException("Date 'from' must be before date 'to'",
-                                          "validation.transaction.date-from-after-date-to",
+                                          ValidationCodes.TRANSACTION_DATE_FROM_AFTER_DATE_TO,
                                           null);
         }
         return transactionDao.getTransactionsByWalletIdAndDateBetween(walletId, from, to);
@@ -186,7 +187,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new BadRequestException(
                     "Wallet with ID %d has different currency than transaction with ID %d"
                             .formatted(transactionDto.walletId(), transactionDto.id()),
-                    "validation.transaction.wallet-has-different-currency",
+                    ValidationCodes.TRANSACTION_WALLET_HAS_DIFFERENT_CURRENCY,
                     null);
         }
         // Wallet, category type or amount changed

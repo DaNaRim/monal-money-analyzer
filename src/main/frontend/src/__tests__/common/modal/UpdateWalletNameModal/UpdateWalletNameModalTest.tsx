@@ -3,10 +3,10 @@ import { screen } from "@testing-library/dom";
 import { act, fireEvent, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import UpdateWalletNameModal
     from "../../../../common/modal/UpdateWalletNameModal/UpdateWalletNameModal";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 
 describe("UpdateWalletNameModal", () => {

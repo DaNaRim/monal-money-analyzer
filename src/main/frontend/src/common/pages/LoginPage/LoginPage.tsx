@@ -2,10 +2,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
-import useFetchUtils, {
-    type ErrorResponse,
-    type FormSystemFields,
-} from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import usePageTitle from "../../../app/hooks/usePageTitle";
@@ -29,6 +25,12 @@ import {
 import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
+import {
+    clearFormSystemFields,
+    type ErrorResponse,
+    type FormSystemFields,
+    handleResponseError,
+} from "../../utils/formUtils";
 import styles from "./LoginPage.module.scss";
 
 type LoginFormFields = FormSystemFields & Credentials;
@@ -45,8 +47,6 @@ const LoginPage = () => {
     const t = useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
-    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
     const {
         register,

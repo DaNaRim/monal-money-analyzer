@@ -5,7 +5,7 @@ import { setupServer } from "msw/node";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { getStateHandler, renderWithProviders } from "../../../../common/utils/test-utils";
 
 describe("RegistrationPage", () => {
@@ -17,17 +17,8 @@ describe("RegistrationPage", () => {
                 const error: ErrorResponse = {
                     message: "Email error",
                     type: ResponseErrorType.FIELD_VALIDATION_ERROR,
-                    errorCode: "code",
+                    errorCode: "validation.user.email.invalid",
                     fieldName: "email",
-                };
-                return await res(ctx.status(400), ctx.json([error]));
-            }
-            if (email === "Global error") {
-                const error: ErrorResponse = {
-                    message: "Global error",
-                    type: ResponseErrorType.GLOBAL_ERROR,
-                    errorCode: "code",
-                    fieldName: ResponseErrorType.GLOBAL_ERROR,
                 };
                 return await res(ctx.status(400), ctx.json([error]));
             }
@@ -106,20 +97,9 @@ describe("RegistrationPage", () => {
 
         // should display error message
         await waitFor(() => {
-            expect(screen.getByTestId("error-email")).toHaveTextContent("Email error");
+            expect(screen.getByTestId("error-email"))
+                .toHaveTextContent("Email must be a valid email address");
         });
-    });
-
-    it("reset global error -> display error message", async () => {
-        renderWithProviders(<App/>, { wrapper: BrowserRouter });
-
-        await waitFor(() => fillPasswordResetInput("Global error"));
-        clickSendButton();
-
-        // should display error message
-        await waitFor(() =>
-            expect(screen.getByTestId("global-error-message"))
-                .toHaveTextContent("Global error"));
     });
 
     it("reset server error -> display error message", async () => {

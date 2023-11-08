@@ -1,7 +1,6 @@
 import { Fade, Modal } from "@mui/material";
 import React, { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
@@ -16,6 +15,11 @@ import {
     type Transaction,
 } from "../../../features/transaction/transactionSlice";
 import { updateWalletBalance } from "../../../features/wallet/walletSlice";
+import {
+    clearFormSystemFields,
+    type FormSystemFields,
+    handleResponseError,
+} from "../../utils/formUtils";
 import styles from "./CreateTransactionModal.module.scss";
 import CreateUpdateTransactionForm from "./CreateUpdateTransactionForm";
 
@@ -38,8 +42,6 @@ export type TransactionFormFields = CreateTransactionDto & FormSystemFields;
  */
 const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransactionModalProps) => {
     const dispatch = useAppDispatch();
-
-    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
     const categoriesWithSubcategories = useAppSelector(selectCategoriesWithSubcategories);
 
@@ -85,7 +87,7 @@ const CreateTransactionModal = ({ open, setOpen, walletId, date }: CreateTransac
                     handleClose();
                     resetForm();
                 }, 1_500);
-            }).catch(err => handleResponseError(err, setError));
+            }).catch(e => handleResponseError(e, setError));
     };
 
     const handleClose = () => {

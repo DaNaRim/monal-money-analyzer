@@ -336,6 +336,96 @@ export default {
         },
     },
 
+    validation: {
+        unknown: "Unknown error. Please contact the administrator. Error code: {0}",
+        auth: {
+            invalid_body: "Authentication failed. Please log in again",
+            not_found: "Fail to find user. Please log in again",
+            bad_credentials: "Invalid password",
+            disabled: "Your account has been disabled. Please contact the administrator",
+            expired: "Your session has expired. Please contact the administrator",
+            blocked: "Your account has been blocked",
+            credentials_expired: "Your password has expired. Please change it",
+            unexpected: "Unexpected error. . Please contact the administrator",
+
+            "token.expired": "Your session has expired. Please log in again",
+            "token.invalid": "Authentication failed. Please log in again",
+            "csrf.invalid": "Authentication failed. Please log in again",
+        },
+        user: {
+            email: {
+                required: "Email is required",
+                size: "Email must be between {0} and {1} characters",
+                invalid: "Email must be a valid email address",
+                occupied: "User with this email already exists",
+                not_found: "Cannot find user with this email",
+            },
+            password: {
+                required: "Password is required",
+                illegal_whitespace: "Password cannot contain whitespace",
+                insufficient_uppercase: "Password must contain at least {0} uppercase letter(s)",
+                insufficient_lowercase: "Password must contain at least {0} lowercase letter(s)",
+                insufficient_digit: "Password must contain at least {0} digit(s)",
+                insufficient_special: "Password must contain at least {0} special character(s)",
+                too_long: "Password must be between {0} and {1} characters",
+                too_short: "Password must be between {0} and {1} characters",
+                same_as_old: "New password must be different from the old one",
+            },
+            new_password: {
+                required: "New password is required",
+            },
+            confirm_password: {
+                required: "Confirm password is required",
+            },
+            password_matching: "Password and confirm password must match",
+            already_verified: "User with this email has already been verified",
+        },
+        token: {
+            create_delay: "You can create a new token in {0} minutes {1} seconds",
+        },
+        wallet: {
+            name: {
+                required: "Wallet name is required",
+                size: "Wallet name must be between {0} and {1} characters",
+                exists_for_user: "You already have a wallet with this name.",
+            },
+            currency: {
+                required: "Currency is required",
+                invalid: "Please select a valid currency",
+            },
+            balance: {
+                max: "Balance must be less than {0}",
+                min: "Balance must be greater than {0}",
+            },
+            not_found: "Cannot find wallet",
+            "delete.has_transactions": "Cannot delete wallet with transactions",
+        },
+        category: {
+            not_found: "Cannot find category. Please refresh the page",
+        },
+        transaction: {
+            date: {
+                required: "Date is required",
+            },
+            category: {
+                required: "Category is required",
+            },
+            wallet: {
+                required: "Wallet is required",
+            },
+            description: {
+                size: "Description must be less than {0} characters",
+            },
+            amount: {
+                positive: "Amount must be positive. If you want to create an outcome transaction, "
+                    + "please select the outcome category",
+            },
+            date_from_after_date_to: "Date from must be less than date to",
+            not_found: "Cannot find transaction. Please refresh the page",
+            wallet_has_different_currency: "New wallet must have the same currency as the old one",
+        },
+    },
+
     fetchErrors: {
         fetchError: "Server unavailable. please try again later",
         serverError: "Server error. Please try again later. If the problem persists,"

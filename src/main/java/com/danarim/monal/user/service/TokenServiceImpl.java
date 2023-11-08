@@ -2,6 +2,7 @@ package com.danarim.monal.user.service;
 
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InvalidTokenException;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.user.persistence.dao.TokenDao;
 import com.danarim.monal.user.persistence.model.Token;
 import com.danarim.monal.user.persistence.model.TokenType;
@@ -199,7 +200,7 @@ public class TokenServiceImpl implements TokenService {
     protected void deleteDeprecatedTokens() {
         logger.info("Scheduled task: delete deprecated tokens started");
 
-        //Get date before which tokens will be deleted
+        //Get the date before which tokens will be deleted
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.DAY_OF_MONTH, -DELETE_TOKENS_THAT_EXPIRED_BEFORE_DAYS);
@@ -209,8 +210,8 @@ public class TokenServiceImpl implements TokenService {
             int tokensToDelete = tokenDao.countTokensByExpirationDateBefore(removeBeforeDate);
 
             if (tokensToDelete == 0) {
-                logger.info("Scheduled task: delete deprecated tokens finished. No tokens to "
-                                    + "delete");
+                logger.info(
+                        "Scheduled task: delete deprecated tokens finished. No tokens to delete");
                 return;
             }
             tokenDao.deleteByExpirationDateBefore(removeBeforeDate);
@@ -259,7 +260,7 @@ public class TokenServiceImpl implements TokenService {
             throw new BadRequestException("User already created " + tokenType
                                                   + " token and delay between creation of tokens "
                                                   + "is not passed",
-                                          "validation.token.create.delay",
+                                          ValidationCodes.TOKEN_CREATE_DELAY,
                                           new Object[] {minutesToWait, secondsToWait});
         }
     }

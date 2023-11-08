@@ -3,10 +3,10 @@ import { act, fireEvent, screen, waitForElementToBeRemoved } from "@testing-libr
 import dayjs from "dayjs";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import UpdateTransactionModal
     from "../../../../common/modal/UpdateTransactionModal/UpdateTransactionModal";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 import { type CategoryState, CategoryType } from "../../../../features/category/categorySlice";
 import { type WalletsState } from "../../../../features/wallet/walletSlice";
@@ -249,7 +249,9 @@ describe("UpdateTransactionModal", () => {
         await waitForElementToBeRemoved(() => screen.getByText("Updating..."), { timeout: 2000 });
 
         expect(store.getState().transactions).toStrictEqual(transactionOutcomeState);
-        expect(screen.getByText("Smth went wrong")).toBeInTheDocument();
+        expect(screen.getByText(
+            "Unknown error. Please contact the administrator. Error code: code"
+        )).toBeInTheDocument();
     });
 
     it("update transaction. Server error", async () => {

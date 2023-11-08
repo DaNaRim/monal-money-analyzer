@@ -4,6 +4,7 @@ import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InternalServerException;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.money.persistence.dao.WalletDao;
 import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
@@ -53,7 +54,7 @@ public class WalletServiceImpl implements WalletService {
             parsedCurrency = Currency.valueOf(walletDto.currency().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new BadFieldException("Currency " + walletDto.currency() + " is not valid.", e,
-                                        "validation.wallet.invalid.currency",
+                                        ValidationCodes.WALLET_CURRENCY_INVALID,
                                         null,
                                         "currency");
         }

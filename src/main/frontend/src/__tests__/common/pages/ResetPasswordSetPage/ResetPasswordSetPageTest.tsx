@@ -5,7 +5,7 @@ import { setupServer } from "msw/node";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { getStateHandler, renderWithProviders } from "../../../../common/utils/test-utils";
 import { type ResetPasswordDto } from "../../../../features/registration/registrationApiSlice";
 
@@ -18,7 +18,7 @@ describe("ResendVerificationTokenPage", () => {
                 const error: ErrorResponse = {
                     message: "Password error",
                     type: ResponseErrorType.FIELD_VALIDATION_ERROR,
-                    errorCode: "code",
+                    errorCode: "validation.user.new_password.required",
                     fieldName: "newPassword",
                 };
                 return await res(ctx.status(400), ctx.json([error]));
@@ -27,7 +27,7 @@ describe("ResendVerificationTokenPage", () => {
                 const error: ErrorResponse = {
                     message: "Global error",
                     type: ResponseErrorType.GLOBAL_ERROR,
-                    errorCode: "code",
+                    errorCode: "validation.user.password_matching",
                     fieldName: ResponseErrorType.GLOBAL_ERROR,
                 };
                 return await res(ctx.status(400), ctx.json([error]));
@@ -106,7 +106,8 @@ describe("ResendVerificationTokenPage", () => {
 
         clickSubmitButton();
 
-        await waitFor(async () => expect(screen.getByText("Password error")).toBeInTheDocument());
+        await waitFor(async () => expect(screen.getByText("New password is required"))
+            .toBeInTheDocument());
     });
 
     it("reset global error -> display error message", async () => {
@@ -121,7 +122,7 @@ describe("ResendVerificationTokenPage", () => {
         // should display error message
         await waitFor(() =>
             expect(screen.getByTestId("global-error-message"))
-                .toHaveTextContent("Global error"));
+                .toHaveTextContent("Password and confirm password must match"));
     });
 
     it("reset server error -> display error message", async () => {

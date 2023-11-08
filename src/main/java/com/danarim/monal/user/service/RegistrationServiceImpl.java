@@ -2,6 +2,7 @@ package com.danarim.monal.user.service;
 
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.RoleName;

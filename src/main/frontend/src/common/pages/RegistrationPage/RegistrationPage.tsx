@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
 import usePageTitle from "../../../app/hooks/usePageTitle";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
@@ -11,6 +10,11 @@ import {
 import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
+import {
+    clearFormSystemFields,
+    type FormSystemFields,
+    handleResponseError,
+} from "../../utils/formUtils";
 import styles from "./RegistrationPage.module.scss";
 
 type RegistrationFormFields = FormSystemFields & RegistrationDto;
@@ -21,8 +25,6 @@ const RegistrationPage = () => {
     usePageTitle(COMPONENT_NAME);
 
     const t = useTranslation();
-
-    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
     const {
         register,
