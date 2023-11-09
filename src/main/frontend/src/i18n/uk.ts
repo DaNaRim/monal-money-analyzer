@@ -340,7 +340,7 @@ export default {
         unknown: "Невідома помилка. Будь ласка, зверніться до адміністратора. Код помилки: {0}",
         auth: {
             invalid_body: "Помилка авторизації. Будь ласка, увійдіть знову",
-            not_found: "Не вдалося вас ідентифікувати. Будь ласка, увійдіть знову",
+            not_found: "Користувача з такою поштою не знайдено",
             bad_credentials: "Неправильний пароль",
             disabled: "Ваш обліковий запис відключено. Будь ласка, зв'яжіться з адміністратором",
             expired: "Ваш обліковий запис застарів. Будь ласка, зв'яжіться з адміністратором",
@@ -473,14 +473,15 @@ export default {
         appMessages: {
             account_confirmation_success: "Аккаунт успішно активовано. Тепер ви можете увійти.",
 
-            validation_token_wrong_type: "Невірний тип токена.",
-            validation_token_not_found: "Токен не знайдено. Будь ласка, спробуйте ще раз.",
-            validation_token_used: "Токен вже був використаний.",
-            validation_token_expired: "Час дії токену минув",
+            validation_token_wrong_type: "Неправильне посилання. Будь ласка, спробуйте ще раз.",
+            validation_token_not_found: "Неправильне посилання. Будь ласка, спробуйте ще раз.",
+            validation_token_used: "Операція для цього посилання вже виконана.",
+            validation_token_expired: "Час дії посилання закінчився. Будь ласка, спробуйте ще раз.",
 
-            validation_token_verification_not_found: "Токен підтвердження не знайдено."
+            validation_token_verification_not_found: "Неправильне посилання для підтвердження."
                 + " Будь ласка, спробуйте ще раз.",
-            validation_token_verification_expired: "Токен підтвердження застарів.",
+            validation_token_verification_expired:
+                "Час дії посилання для підтвердження закінчився.",
             validation_token_verification_user_enabled: "Аккаунт вже активовано."
                 + " Ви можете увійти.",
 

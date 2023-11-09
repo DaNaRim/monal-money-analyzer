@@ -340,7 +340,7 @@ export default {
         unknown: "Unknown error. Please contact the administrator. Error code: {0}",
         auth: {
             invalid_body: "Authentication failed. Please log in again",
-            not_found: "Fail to find user. Please log in again",
+            not_found: "Cannot find user with this email",
             bad_credentials: "Invalid password",
             disabled: "Your account has been disabled. Please contact the administrator",
             expired: "Your session has expired. Please contact the administrator",
@@ -471,14 +471,14 @@ export default {
         appMessages: {
             account_confirmation_success: "Account activated successfully. You can now log in.",
 
-            validation_token_wrong_type: "Wrong token type.",
-            validation_token_not_found: "Token not found. Please try again.",
-            validation_token_used: "Token already used.",
-            validation_token_expired: "Token expired.",
+            validation_token_wrong_type: "Invalid link. Please try again.",
+            validation_token_not_found: "Invalid link. Please try again.",
+            validation_token_used: "Operation for this link already performed.",
+            validation_token_expired: "Operation expired. Please try again.",
 
-            validation_token_verification_not_found: "Verification token not found."
+            validation_token_verification_not_found: "Verification link is invalid."
                 + " Please try again.",
-            validation_token_verification_expired: "Verification token expired.",
+            validation_token_verification_expired: "Verification link expired. Please try again.",
             validation_token_verification_user_enabled: "Account already activated."
                 + " You can log in.",
 
