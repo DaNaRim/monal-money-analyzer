@@ -51,7 +51,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     protected static final String LOG_TEMPLATE = "%s during request: %s : %s";
 
-    private static final String INTERNAL_SERVER_ERROR_CODE = "error.server.internal-error";
+    private static final String INTERNAL_SERVER_ERROR_CODE = "error.server.internal_error";
 
     //Use own logger because Spring's logger defaults to INFO level and configures by own property.
     private static final Log rexLogger = LogFactory.getLog(RestExceptionHandler.class);
