@@ -6,6 +6,7 @@ import com.danarim.monal.util.appmessage.AppMessage;
 import com.danarim.monal.util.appmessage.AppMessageType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +22,7 @@ import static com.danarim.monal.failhandler.RestExceptionHandler.LOG_TEMPLATE;
  * Handler exceptions thrown by controllers (not rest controllers).
  */
 @ControllerAdvice(annotations = Controller.class)
+@Order(2)
 public class ViewExceptionHandler {
 
     private static final Log logger = LogFactory.getLog(ViewExceptionHandler.class);
@@ -62,10 +64,8 @@ public class ViewExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected View handleException(Exception e, WebRequest request) {
-
         logger.error(LOG_TEMPLATE.formatted(e.getClass(), request.getContextPath(), e.getMessage()),
                      e);
-
         return new RedirectView("/error");
     }
 
