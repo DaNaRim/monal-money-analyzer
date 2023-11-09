@@ -1,13 +1,13 @@
 import { Fade, Modal } from "@mui/material";
 import { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import { useUpdateWalletNameMutation } from "../../../features/wallet/walletApiSlice";
 import { updateWallet } from "../../../features/wallet/walletSlice";
 import Form from "../../components/form/Form/Form";
 import InputText from "../../components/form/InputText/InputText";
+import { type FormSystemFields, handleResponseError } from "../../utils/formUtils";
 import styles from "./UpdateWalletNameModal.module.scss";
 
 interface UpdateWalletNameModalProps {
@@ -29,8 +29,6 @@ const UpdateWalletNameModal = ({
                                }: UpdateWalletNameModalProps) => {
     const t = useTranslation();
     const dispatch = useAppDispatch();
-
-    const { handleResponseError } = useFetchUtils();
 
     const [
         updateWalletName,
@@ -55,7 +53,7 @@ const UpdateWalletNameModal = ({
                 dispatch(updateWallet(res));
                 setOpen(false);
             })
-            .catch((error) => handleResponseError(error, setError));
+            .catch(e => handleResponseError(e, setError));
     };
 
     const handleClose = () => {

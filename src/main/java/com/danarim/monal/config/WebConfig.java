@@ -38,8 +38,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-    //If you change list count of supported locales, you should also change
-    // SUPPORTED_LOCALE_COUNT in ValidPasswordValidatorTest
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             DEFAULT_LOCALE,
             new Locale("uk")
@@ -105,7 +103,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     /**
-     * Bean for locale resolver.
+     * Bean for locale resolver. Uses cookie to store locale.
      *
      * @return LocaleResolver
      */

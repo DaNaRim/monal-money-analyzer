@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import usePageTitle from "../../../app/hooks/usePageTitle";
@@ -16,6 +15,11 @@ import {
 } from "../../../features/registration/registrationApiSlice";
 import Form from "../../components/form/Form/Form";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
+import {
+    clearFormSystemFields,
+    type FormSystemFields,
+    handleResponseError,
+} from "../../utils/formUtils";
 import styles from "./ResetPasswordSetPage.module.scss";
 
 type ResetPasswordSetFields = FormSystemFields & ResetPasswordDto;
@@ -28,8 +32,6 @@ const ResetPasswordSetPage = () => {
     const t = useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
-    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
     const {
         register,

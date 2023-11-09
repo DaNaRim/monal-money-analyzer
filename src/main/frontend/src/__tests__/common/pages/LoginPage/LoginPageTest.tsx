@@ -5,8 +5,8 @@ import { setupServer } from "msw/node";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 import {
     type AppMessage,
@@ -26,7 +26,7 @@ export const loginTestHandlers = [
             const error: ErrorResponse = {
                 message: "Invalid username or password", // Not real. Just Example
                 type: ResponseErrorType.GLOBAL_ERROR,
-                errorCode: "code",
+                errorCode: "validation.auth.bad_credentials",
                 fieldName: ResponseErrorType.GLOBAL_ERROR,
             };
             return await res(ctx.status(401), ctx.json([error]), ctx.delay(50));
@@ -44,7 +44,7 @@ export const loginTestHandlers = [
             const error: ErrorResponse = {
                 message: "Email error",
                 type: ResponseErrorType.FIELD_VALIDATION_ERROR,
-                errorCode: "code",
+                errorCode: "validation.user.email.invalid",
                 fieldName: "username",
             };
             return await res(ctx.status(400), ctx.json([error]), ctx.delay(50));
@@ -149,7 +149,8 @@ describe("LoginPage", () => {
 
         // should display error message
         await waitFor(() => {
-            expect(screen.getByTestId("error-username")).toHaveTextContent("Email error");
+            expect(screen.getByTestId("error-username"))
+                .toHaveTextContent("Email must be a valid email address");
         });
     });
 
@@ -162,7 +163,7 @@ describe("LoginPage", () => {
         // should display error message
         await waitFor(() =>
             expect(screen.getByTestId("global-error-message"))
-                .toHaveTextContent("Invalid username or password"));
+                .toHaveTextContent("Invalid password"));
     });
 
     it("login server error -> display error message", async () => {

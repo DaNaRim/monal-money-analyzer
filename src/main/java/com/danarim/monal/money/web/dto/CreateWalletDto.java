@@ -1,5 +1,7 @@
 package com.danarim.monal.money.web.dto;
 
+import com.danarim.monal.exceptions.ValidationCodes;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -13,15 +15,15 @@ import javax.validation.constraints.Size;
  */
 public record CreateWalletDto(
 
-        @NotBlank(message = "{validation.wallet.required.name}")
-        @Size(min = 2, max = 32, message = "{validation.wallet.size.name}")
+        @NotBlank(message = ValidationCodes.WALLET_NAME_REQUIRED)
+        @Size(min = 2, max = 32, message = ValidationCodes.WALLET_NAME_SIZE)
         String name,
 
-        @Max(value = 1_000_000_000L, message = "{validation.wallet.max.balance}")
-        @Min(value = -1_000_000_000L, message = "{validation.wallet.min.balance}")
+        @Max(value = 1_000_000_000L, message = ValidationCodes.WALLET_BALANCE_MAX)
+        @Min(value = -1_000_000_000L, message = ValidationCodes.WALLET_BALANCE_MIN)
         double balance,
 
-        @NotBlank(message = "{validation.wallet.required.currency}")
+        @NotBlank(message = ValidationCodes.WALLET_CURRENCY_REQUIRED)
         String currency
 ) {
 

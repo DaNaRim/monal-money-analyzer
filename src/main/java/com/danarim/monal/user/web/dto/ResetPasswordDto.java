@@ -1,5 +1,6 @@
 package com.danarim.monal.user.web.dto;
 
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.user.web.validator.PasswordMatches;
 import com.danarim.monal.user.web.validator.ValidPassword;
 
@@ -11,14 +12,14 @@ import javax.validation.constraints.NotBlank;
  * @param newPassword      new password to be set
  * @param matchingPassword confirmation of the new password
  */
-@PasswordMatches(message = "{validation.user.matching.password}")
+@PasswordMatches(message = ValidationCodes.USER_PASSWORD_MATCHING)
 public record ResetPasswordDto(
 
-        @NotBlank(message = "{validation.user.required.newPassword}")
+        @NotBlank(message = ValidationCodes.USER_NEW_PASSWORD_REQUIRED)
         @ValidPassword
         String newPassword,
 
-        @NotBlank(message = "{validation.user.required.matchingPassword}")
+        @NotBlank(message = ValidationCodes.USER_CONFIRM_PASSWORD_REQUIRED)
         String matchingPassword
 
 ) implements PasswordEntity {

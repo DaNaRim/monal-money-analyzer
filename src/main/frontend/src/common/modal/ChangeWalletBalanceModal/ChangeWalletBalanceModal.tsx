@@ -2,7 +2,6 @@ import { Fade, Modal } from "@mui/material";
 import dayjs from "dayjs";
 import { type Dispatch, type SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks/reduxHooks";
 import useTranslation from "../../../app/hooks/translation";
 import { selectCategoriesWithSubcategories } from "../../../features/category/categorySlice";
@@ -15,6 +14,11 @@ import {
 import { updateWalletBalance, type Wallet } from "../../../features/wallet/walletSlice";
 import Form from "../../components/form/Form/Form";
 import InputNumber from "../../components/form/InputNumber/InputNumber";
+import {
+    clearFormSystemFields,
+    type FormSystemFields,
+    handleResponseError,
+} from "../../utils/formUtils";
 import styles from "./ChangeWalletBalanceModal.module.scss";
 
 interface ChangeWalletBalanceModalProps {
@@ -32,8 +36,6 @@ const ChangeWalletBalanceModal = ({ open, setOpen, wallet }: ChangeWalletBalance
     const dispatch = useAppDispatch();
 
     const [createTransaction, { isLoading }] = useCreateTransactionMutation();
-
-    const { clearFormSystemFields, handleResponseError } = useFetchUtils();
 
     const categories = useAppSelector(selectCategoriesWithSubcategories);
 
@@ -84,7 +86,7 @@ const ChangeWalletBalanceModal = ({ open, setOpen, wallet }: ChangeWalletBalance
                 }));
                 handleClose();
             })
-            .catch((error) => handleResponseError(error, setError));
+            .catch(e => handleResponseError(e, setError));
     };
 
     const handleClose = () => {

@@ -5,7 +5,7 @@ import { setupServer } from "msw/node";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../app/App";
-import { type ErrorResponse, ResponseErrorType } from "../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../common/utils/formUtils";
 import { getStateHandler, renderWithProviders } from "../../../common/utils/test-utils";
 
 const handlers = [
@@ -15,13 +15,13 @@ const handlers = [
         if (email === "400") {
             const errorMessage1: ErrorResponse = {
                 message: "Bad request1",
-                errorCode: "error.code",
+                errorCode: "validation.user.email.invalid",
                 type: ResponseErrorType.FIELD_VALIDATION_ERROR,
                 fieldName: "email",
             };
             const errorMessage2: ErrorResponse = {
                 message: "Bad request2",
-                errorCode: "error.code",
+                errorCode: "validation.user.already_verified",
                 type: ResponseErrorType.GLOBAL_ERROR,
                 fieldName: ResponseErrorType.GLOBAL_ERROR,
             };
@@ -30,25 +30,34 @@ const handlers = [
         if (email === "fetch error") {
             res.networkError("Failed to connect");
         }
+        if (email === "unknown code") {
+            const errorMessage: ErrorResponse = {
+                message: "Bad code",
+                errorCode: "code321",
+                type: ResponseErrorType.GLOBAL_ERROR,
+                fieldName: ResponseErrorType.GLOBAL_ERROR,
+            };
+            return await res(ctx.status(400), ctx.json([errorMessage]));
+        }
         if (email === "server error") {
             return await res(ctx.status(500));
         }
         if (email === "unknown error") {
-            // Also it can be some error during fetch in frontend
+            // Also, it can be some error during fetch in frontend
             return await res(ctx.status(501));
         }
         return await res(ctx.status(200));
     }),
     rest.post("api/v1/login", async (req, res, ctx) => {
         const errorMessage1: ErrorResponse = {
-            message: "Bad credentials1",
-            errorCode: "error.code",
+            message: "Bad request1",
+            errorCode: "validation.user.email.invalid",
             type: ResponseErrorType.FIELD_VALIDATION_ERROR,
             fieldName: "username",
         };
         const errorMessage2: ErrorResponse = {
-            message: "Bad credentials2",
-            errorCode: "error.code",
+            message: "Bad request2",
+            errorCode: "validation.user.already_verified",
             type: ResponseErrorType.GLOBAL_ERROR,
             fieldName: ResponseErrorType.GLOBAL_ERROR,
         };
@@ -75,8 +84,9 @@ describe("formUtils", () => {
         act(() => clickSendButton());
 
         await waitFor(() => {
-            expect(screen.getByText("Bad request1")).toBeInTheDocument();
-            expect(screen.getByText("Bad request2")).toBeInTheDocument();
+            expect(screen.getByText("Email must be a valid email address")).toBeInTheDocument();
+            expect(screen.getByText("User with this email has already been verified"))
+                .toBeInTheDocument();
         });
     });
 
@@ -91,8 +101,9 @@ describe("formUtils", () => {
         act(() => clickLoginButton());
 
         await waitFor(() => {
-            expect(screen.getByText("Bad credentials1")).toBeInTheDocument();
-            expect(screen.getByText("Bad credentials2")).toBeInTheDocument();
+            expect(screen.getByText("Email must be a valid email address")).toBeInTheDocument();
+            expect(screen.getByText("User with this email has already been verified"))
+                .toBeInTheDocument();
         });
     });
 
@@ -130,6 +141,19 @@ describe("formUtils", () => {
         await waitFor(() => {
             expect(screen.getByText("Unknown error. Please try again later. If the problem "
                 + "persists, please contact the administrator")).toBeInTheDocument();
+        });
+    });
+
+    it("unresolved code -> display default message", async () => {
+        renderWithProviders(<App/>, { wrapper: BrowserRouter });
+
+        await waitFor(() => fillResendInput("unknown code"));
+        act(() => clickSendButton());
+
+        await waitFor(() => {
+            expect(screen.getByText(
+                "Unknown error. Please contact the administrator. Error code: code321",
+            )).toBeInTheDocument();
         });
     });
 });

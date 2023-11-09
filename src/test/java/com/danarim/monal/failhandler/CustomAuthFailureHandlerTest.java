@@ -67,8 +67,8 @@ class CustomAuthFailureHandlerTest {
 
     @Test
     void onAuthenticationFailure_UsernameNotFoundException() throws IOException {
-        when(messages.getMessage(eq("validation.auth.notFound"), any(), any()))
-                .thenReturn("auth.notFound");
+        when(messages.getMessage(eq("validation.auth.not_found"), any(), any()))
+                .thenReturn("auth.not_found");
 
         try (MockedConstruction<ObjectMapper> mapper = mockConstruction(ObjectMapper.class)) {
             failHandler.onAuthenticationFailure(request, response,
@@ -85,15 +85,15 @@ class CustomAuthFailureHandlerTest {
             ErrorResponse error = errors.get(0);
             assertEquals("username", error.fieldName());
             assertEquals("fieldValidationError", error.type());
-            assertEquals("auth.notFound", error.message());
-            assertEquals("validation.auth.notFound", error.errorCode());
+            assertEquals("auth.not_found", error.message());
+            assertEquals("validation.auth.not_found", error.errorCode());
         }
     }
 
     @Test
     void onAuthenticationFailure_BadCredentialsException() throws IOException {
-        when(messages.getMessage(eq("validation.auth.badCredentials"), any(), any()))
-                .thenReturn("auth.badCredentials");
+        when(messages.getMessage(eq("validation.auth.bad_credentials"), any(), any()))
+                .thenReturn("auth.bad_credentials");
 
         try (MockedConstruction<ObjectMapper> mapper = mockConstruction(ObjectMapper.class)) {
             failHandler.onAuthenticationFailure(request, response,
@@ -110,8 +110,8 @@ class CustomAuthFailureHandlerTest {
             ErrorResponse error = errors.get(0);
             assertEquals("password", error.fieldName());
             assertEquals("fieldValidationError", error.type());
-            assertEquals("auth.badCredentials", error.message());
-            assertEquals("validation.auth.badCredentials", error.errorCode());
+            assertEquals("auth.bad_credentials", error.message());
+            assertEquals("validation.auth.bad_credentials", error.errorCode());
         }
     }
 
@@ -192,8 +192,8 @@ class CustomAuthFailureHandlerTest {
 
     @Test
     void onAuthenticationFailure_AuthenticationCredentialsNotFoundException() throws IOException {
-        when(messages.getMessage(eq("validation.auth.invalidBody"), any(), any()))
-                .thenReturn("auth.invalidBody");
+        when(messages.getMessage(eq("validation.auth.invalid_body"), any(), any()))
+                .thenReturn("auth.invalid_body");
 
         try (MockedConstruction<ObjectMapper> mapper = mockConstruction(ObjectMapper.class)) {
             failHandler.onAuthenticationFailure(request, response,
@@ -211,15 +211,15 @@ class CustomAuthFailureHandlerTest {
             ErrorResponse error = errors.get(0);
             assertEquals("globalError", error.fieldName());
             assertEquals("globalError", error.type());
-            assertEquals("auth.invalidBody", error.message());
-            assertEquals("validation.auth.invalidBody", error.errorCode());
+            assertEquals("auth.invalid_body", error.message());
+            assertEquals("validation.auth.invalid_body", error.errorCode());
         }
     }
 
     @Test
     void onAuthenticationFailure_CredentialsExpiredException() throws IOException {
-        when(messages.getMessage(eq("validation.auth.credentialsExpired"), any(), any()))
-                .thenReturn("auth.credentialsExpired");
+        when(messages.getMessage(eq("validation.auth.credentials_expired"), any(), any()))
+                .thenReturn("auth.credentials_expired");
 
         try (MockedConstruction<ObjectMapper> mapper = mockConstruction(ObjectMapper.class)) {
             failHandler.onAuthenticationFailure(request, response,
@@ -237,8 +237,8 @@ class CustomAuthFailureHandlerTest {
             ErrorResponse error = errors.get(0);
             assertEquals("globalError", error.fieldName());
             assertEquals("globalError", error.type());
-            assertEquals("auth.credentialsExpired", error.message());
-            assertEquals("validation.auth.credentialsExpired", error.errorCode());
+            assertEquals("auth.credentials_expired", error.message());
+            assertEquals("validation.auth.credentials_expired", error.errorCode());
         }
     }
 

@@ -3,10 +3,10 @@ import { act, fireEvent, screen, waitFor, waitForElementToBeRemoved } from "@tes
 import dayjs from "dayjs";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import CreateTransactionModal
     from "../../../../common/modal/CreateTransactionModal/CreateTransactionModal";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 import { type CategoryState, CategoryType } from "../../../../features/category/categorySlice";
 import { type WalletsState } from "../../../../features/wallet/walletSlice";

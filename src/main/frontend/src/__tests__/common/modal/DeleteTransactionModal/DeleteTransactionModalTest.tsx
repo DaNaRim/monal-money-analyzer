@@ -2,10 +2,10 @@ import { describe } from "@jest/globals";
 import { act, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import DeleteTransactionModal
     from "../../../../common/modal/DeleteTransactionModal/DeleteTransactionModal";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 import { type Category, CategoryType } from "../../../../features/category/categorySlice";
 import { type Transaction } from "../../../../features/transaction/transactionSlice";

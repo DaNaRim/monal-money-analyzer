@@ -1,12 +1,16 @@
 import { Fade, Modal } from "@mui/material";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import { useAppDispatch } from "../../../app/hooks/reduxHooks";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import { useCreateWalletMutation } from "../../../features/wallet/walletApiSlice";
 import { addUserWallet, type CreateWalletDto } from "../../../features/wallet/walletSlice";
+import {
+    clearFormSystemFields,
+    type FormSystemFields,
+    handleResponseError,
+} from "../../utils/formUtils";
 import CreateWalletForm from "./CreateWalletForm";
 import styles from "./CreateWalletModal.module.scss";
 
@@ -24,8 +28,6 @@ const CreateWalletModal = ({
                                setNewWalletId,
                            }: CreateWalletModalProps) => {
     const dispatch = useAppDispatch();
-
-    const { handleResponseError, clearFormSystemFields } = useFetchUtils();
 
     const [createWallet, { isLoading, isSuccess, reset: resetMutation }]
         = useCreateWalletMutation();

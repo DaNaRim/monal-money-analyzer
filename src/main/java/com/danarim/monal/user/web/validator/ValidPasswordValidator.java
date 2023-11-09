@@ -1,31 +1,17 @@
 package com.danarim.monal.user.web.validator;
 
-import com.danarim.monal.exceptions.InternalServerException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.passay.LengthRule;
-import org.passay.MessageResolver;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
-import org.passay.PropertiesMessageResolver;
 import org.passay.Rule;
 import org.passay.RuleResult;
 import org.passay.WhitespaceRule;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import static com.danarim.monal.config.WebConfig.DEFAULT_LOCALE;
 
 /**
  * Checks if the password is valid by passwordRules.
@@ -33,14 +19,10 @@ import static com.danarim.monal.config.WebConfig.DEFAULT_LOCALE;
 @Component
 public class ValidPasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
-    private static final String PASSAY_MESSAGE_FILE_PATH = "i18n/validation%s.properties";
-
     private static final List<Rule> passwordRules = Arrays.asList(
             new LengthRule(8, 30),
             new WhitespaceRule()
     );
-
-    private static final Log logger = LogFactory.getLog(ValidPasswordValidator.class);
 
     /**
      * Checks if the password is valid by passwordRules. If not, add error message to the context.
@@ -55,50 +37,19 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
         if (password == null) {
             return false;
         }
-        PasswordValidator validator =
-                new PasswordValidator(generateMessageResolver(), passwordRules);
+        PasswordValidator validator = new PasswordValidator(passwordRules);
         RuleResult result = validator.validate(new PasswordData(password));
 
         if (result.isValid()) {
             return true;
         }
-
         context.buildConstraintViolationWithTemplate(
-                        validator.getMessages(result)
-                                .stream()
-                                .findFirst()
-                                .orElseGet(context::getDefaultConstraintMessageTemplate)
+                        result.getDetails().get(0).toString()
                 )
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();
 
         return false;
-    }
-
-    /**
-     * Generates a message resolver for the current locale.
-     */
-    private MessageResolver generateMessageResolver() {
-        Locale locale = LocaleContextHolder.getLocale();
-
-        String suffix = locale.equals(DEFAULT_LOCALE) ? "" : "_%s".formatted(locale.getLanguage());
-
-        String path = String.format(PASSAY_MESSAGE_FILE_PATH, suffix);
-
-        try (InputStream ioStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
-
-            if (ioStream == null) {
-                logger.error("Could not find validation properties file for locale: " + locale);
-                throw new InternalServerException("Cannot find the file: %s".formatted(path));
-            }
-            Properties props = new Properties();
-
-            props.load(new InputStreamReader(ioStream, StandardCharsets.UTF_8));
-            return new PropertiesMessageResolver(props);
-        } catch (IOException e) {
-            logger.error("Error while loading Passay messages file");
-            throw new InternalServerException("Error while loading Passay messages file", e);
-        }
     }
 
 }

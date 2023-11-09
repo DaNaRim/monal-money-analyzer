@@ -5,7 +5,7 @@ import { setupServer } from "msw/node";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import App from "../../../../app/App";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { getStateHandler, renderWithProviders } from "../../../../common/utils/test-utils";
 import { type RegistrationDto } from "../../../../features/registration/registrationApiSlice";
 
@@ -18,7 +18,7 @@ describe("RegistrationPage", () => {
                 const error: ErrorResponse = {
                     message: "Email error",
                     type: ResponseErrorType.FIELD_VALIDATION_ERROR,
-                    errorCode: "code",
+                    errorCode: "validation.user.email.invalid",
                     fieldName: "email",
                 };
                 return await res(ctx.status(400), ctx.json([error]));
@@ -27,7 +27,7 @@ describe("RegistrationPage", () => {
                 const error: ErrorResponse = {
                     message: "Passwords don't match",
                     type: ResponseErrorType.GLOBAL_ERROR,
-                    errorCode: "code",
+                    errorCode: "validation.user.password_matching",
                     fieldName: ResponseErrorType.GLOBAL_ERROR,
                 };
                 return await res(ctx.status(400), ctx.json([error]));
@@ -117,7 +117,8 @@ describe("RegistrationPage", () => {
 
         // should display error message
         await waitFor(() => {
-            expect(screen.getByTestId("error-email")).toHaveTextContent("Email error");
+            expect(screen.getByTestId("error-email"))
+                .toHaveTextContent("Email must be a valid email address");
         });
     });
 
@@ -134,7 +135,7 @@ describe("RegistrationPage", () => {
         // should display error message
         await waitFor(() =>
             expect(screen.getByTestId("global-error-message"))
-                .toHaveTextContent("Passwords don't match"));
+                .toHaveTextContent("Password and confirm password must match"));
     });
 
     it("register server error -> display error message", async () => {

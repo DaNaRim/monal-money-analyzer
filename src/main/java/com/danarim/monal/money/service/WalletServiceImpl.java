@@ -4,6 +4,7 @@ import com.danarim.monal.exceptions.ActionDeniedException;
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
 import com.danarim.monal.exceptions.InternalServerException;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.money.persistence.dao.WalletDao;
 import com.danarim.monal.money.persistence.model.Currency;
 import com.danarim.monal.money.persistence.model.Wallet;
@@ -44,7 +45,7 @@ public class WalletServiceImpl implements WalletService {
             throw new BadFieldException(
                     "Wallet with name %s already exists for user with id %d."
                             .formatted(walletDto.name(), loggedUserId),
-                    "validation.wallet.name-for-user.alreadyExists",
+                    ValidationCodes.WALLET_NAME_EXISTS_FOR_USER,
                     null,
                     "name");
         }
@@ -53,7 +54,7 @@ public class WalletServiceImpl implements WalletService {
             parsedCurrency = Currency.valueOf(walletDto.currency().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new BadFieldException("Currency " + walletDto.currency() + " is not valid.", e,
-                                        "validation.wallet.invalid.currency",
+                                        ValidationCodes.WALLET_CURRENCY_INVALID,
                                         null,
                                         "currency");
         }
@@ -162,7 +163,7 @@ public class WalletServiceImpl implements WalletService {
     public Wallet updateWalletName(Long walletId, String newName, long loggedUserId) {
         if (!walletDao.existsById(walletId)) {
             throw new BadRequestException("Wallet with id " + walletId + " does not exist.",
-                                          "validation.wallet.notFound",
+                                          ValidationCodes.WALLET_NOT_FOUND,
                                           null);
         }
         if (!walletDao.isUserWalletOwner(walletId, loggedUserId)) {
@@ -189,7 +190,7 @@ public class WalletServiceImpl implements WalletService {
     public void deleteWallet(long walletId, long loggedUserId) {
         if (!walletDao.existsById(walletId)) {
             throw new BadRequestException("Wallet with id " + walletId + " does not exist.",
-                                          "validation.wallet.notFound",
+                                          ValidationCodes.WALLET_NOT_FOUND,
                                           null);
         }
         if (!walletDao.isUserWalletOwner(walletId, loggedUserId)) {
@@ -199,7 +200,7 @@ public class WalletServiceImpl implements WalletService {
         long transactionsCount = walletDao.countWalletTransactions(walletId);
         if (transactionsCount > 0L) {
             throw new BadRequestException("Wallet with id %d has transactions.".formatted(walletId),
-                                          "validation.wallet.delete.hasTransactions",
+                                          ValidationCodes.WALLET_DELETE_HAS_TRANSACTIONS,
                                           new Object[] {transactionsCount});
         }
         walletDao.deleteById(walletId);
@@ -221,7 +222,7 @@ public class WalletServiceImpl implements WalletService {
     public long countWalletTransactions(long walletId, long loggedUserId) {
         if (!walletDao.existsById(walletId)) {
             throw new BadRequestException("Wallet with id " + walletId + " does not exist.",
-                                          "validation.wallet.notFound",
+                                          ValidationCodes.WALLET_NOT_FOUND,
                                           null);
         }
         if (!walletDao.isUserWalletOwner(walletId, loggedUserId)) {

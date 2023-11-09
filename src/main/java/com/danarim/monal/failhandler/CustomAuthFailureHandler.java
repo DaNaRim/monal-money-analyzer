@@ -1,5 +1,6 @@
 package com.danarim.monal.failhandler;
 
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -79,39 +80,37 @@ public class CustomAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
                                            AuthenticationException exception
     ) {
         ErrorResponse errorResponse;
-
         switch (authError) {
             case USERNAME_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.fieldError(
-                    "validation.auth.notFound",
+                    ValidationCodes.AUTH_NOT_FOUND, null,
                     "username",
-                    messages.getMessage("validation.auth.notFound", null, locale));
+                    messages.getMessage(ValidationCodes.AUTH_NOT_FOUND, null, locale));
             case BAD_CREDENTIALS_EXCEPTION -> errorResponse = ErrorResponse.fieldError(
-                    "validation.auth.badCredentials",
+                    ValidationCodes.AUTH_BAD_CREDENTIALS, null,
                     "password",
-                    messages.getMessage("validation.auth.badCredentials", null, locale));
+                    messages.getMessage(ValidationCodes.AUTH_BAD_CREDENTIALS, null, locale));
             case DISABLED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.disabled",
-                    messages.getMessage("validation.auth.disabled", null, locale));
+                    ValidationCodes.AUTH_DISABLED, null,
+                    messages.getMessage(ValidationCodes.AUTH_DISABLED, null, locale));
             case ACCOUNT_LOCKED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.blocked",
-                    messages.getMessage("validation.auth.blocked", null, locale));
+                    ValidationCodes.AUTH_BLOCKED, null,
+                    messages.getMessage(ValidationCodes.AUTH_BLOCKED, null, locale));
             case ACCOUNT_EXPIRED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.expired",
-                    messages.getMessage("validation.auth.expired", null, locale));
+                    ValidationCodes.AUTH_EXPIRED, null,
+                    messages.getMessage(ValidationCodes.AUTH_EXPIRED, null, locale));
             case CREDENTIALS_NOT_FOUND_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.invalidBody",
-                    messages.getMessage("validation.auth.invalidBody", null, locale));
+                    ValidationCodes.AUTH_INVALID_BODY, null,
+                    messages.getMessage(ValidationCodes.AUTH_INVALID_BODY, null, locale));
             case CREDENTIALS_EXPIRED_EXCEPTION -> errorResponse = ErrorResponse.globalError(
-                    "validation.auth.credentialsExpired",
-                    messages.getMessage("validation.auth.credentialsExpired", null, locale));
+                    ValidationCodes.AUTH_CREDENTIALS_EXPIRED, null,
+                    messages.getMessage(ValidationCodes.AUTH_CREDENTIALS_EXPIRED, null, locale));
             default -> {
                 logger.error("Unexpected authentication error " + exception.getMessage(),
                              exception);
-                errorResponse = ErrorResponse.serverError("validation.auth.unexpected",
-                                                          messages.getMessage(
-                                                                  "validation.auth.unexpected",
-                                                                  null,
-                                                                  locale));
+                errorResponse = ErrorResponse.serverError(
+                        ValidationCodes.AUTH_UNEXPECTED,
+                        messages.getMessage(ValidationCodes.AUTH_UNEXPECTED, null, locale)
+                );
             }
         }
         return errorResponse;

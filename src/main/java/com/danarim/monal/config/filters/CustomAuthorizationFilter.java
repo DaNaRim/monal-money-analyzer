@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.danarim.monal.config.WebConfig;
 import com.danarim.monal.config.security.jwt.JwtUtil;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.user.persistence.model.Role;
 import com.danarim.monal.user.persistence.model.RoleName;
 import com.danarim.monal.util.CookieUtil;
@@ -84,11 +85,15 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (CsrfException e) {
-            processException(request, response, SC_FORBIDDEN, "validation.auth.csrf.invalid");
+            processException(request, response, SC_FORBIDDEN, ValidationCodes.AUTH_CSRF_INVALID);
         } catch (TokenExpiredException e) {
-            processException(request, response, SC_UNAUTHORIZED, "validation.auth.token.expired");
+            processException(
+                    request, response, SC_UNAUTHORIZED, ValidationCodes.AUTH_TOKEN_EXPIRED
+            );
         } catch (JWTVerificationException e) {
-            processException(request, response, SC_UNAUTHORIZED, "validation.auth.token.invalid");
+            processException(
+                    request, response, SC_UNAUTHORIZED, ValidationCodes.AUTH_TOKEN_INVALID
+            );
         }
     }
 
@@ -130,7 +135,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
      * @throws JWTVerificationException if accessToken have wrong type or blocked
      */
     private void validateToken(DecodedJWT decodedJwt, String csrfToken) {
-
         String csrfTokenFromJwt = decodedJwt.getClaim(JwtUtil.CLAIM_CSRF_TOKEN).asString();
         String tokenType = decodedJwt.getClaim(JwtUtil.CLAIM_TOKEN_TYPE).asString();
         String tokenId = decodedJwt.getId();

@@ -9,9 +9,9 @@ import {
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import React from "react";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import CreateWalletModal from "../../../../common/modal/CreateWalletModal/CreateWalletModal";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 import { type Wallet } from "../../../../features/wallet/walletSlice";
 
@@ -23,7 +23,7 @@ const walletTestHandler = [
             const error: ErrorResponse = {
                 message: "Name error",
                 type: ResponseErrorType.FIELD_VALIDATION_ERROR,
-                errorCode: "code",
+                errorCode: "validation.wallet.name.required",
                 fieldName: "name",
             };
             return await res(ctx.status(400), ctx.json([error]));
@@ -86,7 +86,7 @@ describe("CreateWalletModal", () => {
         fillNewWalletFrom("fieldError", 100, "AED");
         act(() => screen.getByText("Create").click());
 
-        expect(await screen.findByText("Name error")).toBeInTheDocument();
+        expect(await screen.findByText("Wallet name is required")).toBeInTheDocument();
     });
 
     it("create success -> save wallet and close modal", async () => {

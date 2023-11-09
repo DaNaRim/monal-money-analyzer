@@ -36,12 +36,12 @@ public class StubController {
 
     @GetMapping("/badRequestStub")
     public String badRequestStub() {
-        throw new BadRequestException("Bad request stub", "error.server.internal-error", null);
+        throw new BadRequestException("Bad request stub", "error.server.internal_error", null);
     }
 
     @GetMapping("/badFieldStub")
     public String badFieldStub() {
-        throw new BadFieldException("Bad request stub", "error.server.internal-error", null,
+        throw new BadFieldException("Bad request stub", "error.server.internal_error", null,
                                     "field");
     }
 

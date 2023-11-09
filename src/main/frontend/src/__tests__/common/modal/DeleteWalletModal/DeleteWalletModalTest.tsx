@@ -2,9 +2,9 @@ import { describe } from "@jest/globals";
 import { act, fireEvent, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { type ErrorResponse, ResponseErrorType } from "../../../../app/hooks/formUtils";
 import { setupStore } from "../../../../app/store";
 import DeleteWalletModal from "../../../../common/modal/DeleteWalletModal/DeleteWalletModal";
+import { type ErrorResponse, ResponseErrorType } from "../../../../common/utils/formUtils";
 import { renderWithProviders } from "../../../../common/utils/test-utils";
 
 const deletableWallets = {

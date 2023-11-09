@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import useFetchUtils, { type FormSystemFields } from "../../../app/hooks/formUtils";
 import useTranslation from "../../../app/hooks/translation";
 import usePageTitle from "../../../app/hooks/usePageTitle";
 import AppMessageComp from "../../../features/appMessages/AppMessageComp";
@@ -9,6 +8,7 @@ import {
 } from "../../../features/registration/registrationApiSlice";
 import Form from "../../components/form/Form/Form";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
+import { type FormSystemFields, handleResponseError } from "../../utils/formUtils";
 import styles from "./ResendVerificationTokenPage.module.scss";
 
 type ResendVerificationTokenFields = FormSystemFields & {
@@ -21,8 +21,6 @@ const ResendVerificationTokenPage = () => {
     usePageTitle(COMPONENT_NAME);
 
     const t = useTranslation();
-
-    const { handleResponseError } = useFetchUtils();
 
     const {
         register,

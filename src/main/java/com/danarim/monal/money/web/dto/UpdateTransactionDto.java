@@ -1,11 +1,14 @@
 package com.danarim.monal.money.web.dto;
 
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+
+import static com.danarim.monal.exceptions.ValidationCodes.TRANSACTION_WALLET_ID_REQUIRED;
 
 /**
  * DTO for updating a {@link com.danarim.monal.money.persistence.model.Transaction Transaction}.
@@ -21,20 +24,20 @@ public record UpdateTransactionDto(
 
         long id,
 
-        @Size(max = 255, message = "{validation.transaction.description.size}")
+        @Size(max = 255, message = ValidationCodes.TRANSACTION_DESCRIPTION_SIZE)
         String description,
 
-        @NotNull(message = "{validation.transaction.date.notnull}")
+        @NotNull(message = ValidationCodes.TRANSACTION_DATE_REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         Date date,
 
-        @Positive(message = "{validation.transaction.amount.positive}")
+        @Positive(message = ValidationCodes.TRANSACTION_AMOUNT_POSITIVE)
         double amount,
 
-        @NotNull(message = "{validation.transaction.categoryId.notnull}")
+        @NotNull(message = ValidationCodes.TRANSACTION_CATEGORY_ID_REQUIRED)
         long categoryId,
 
-        @NotNull(message = "{validation.transaction.walletId.notnull}")
+        @NotNull(message = TRANSACTION_WALLET_ID_REQUIRED)
         long walletId
 ) {
 

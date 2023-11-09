@@ -2,6 +2,7 @@ package com.danarim.monal.user.service;
 
 import com.danarim.monal.exceptions.BadFieldException;
 import com.danarim.monal.exceptions.BadRequestException;
+import com.danarim.monal.exceptions.ValidationCodes;
 import com.danarim.monal.user.persistence.dao.RoleDao;
 import com.danarim.monal.user.persistence.dao.UserDao;
 import com.danarim.monal.user.persistence.model.RoleName;
@@ -65,7 +66,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (userDao.existsByEmailIgnoreCase(registrationDto.email())) {
             throw new BadFieldException(
                     "User with email '" + registrationDto.email() + "' already exists",
-                    "validation.user.existing.email",
+                    ValidationCodes.USER_EMAIL_OCCUPIED,
                     null,
                     "email");
         }
@@ -104,13 +105,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         if (user == null) {
             throw new BadFieldException("Can't find user with email '" + userEmail + "'",
-                                        "validation.user.email.notFound",
+                                        ValidationCodes.USER_EMAIL_NOT_FOUND,
                                         null,
                                         "email");
         }
         if (user.isEnabled()) {
             throw new BadRequestException("User with email '" + userEmail + "' already verified",
-                                          "validation.user.email.alreadyVerified",
+                                          ValidationCodes.USER_ALREADY_VERIFIED,
                                           null);
         }
         Token verificationToken = tokenService.createVerificationToken(user);
@@ -130,7 +131,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         if (user == null) {
             throw new BadFieldException("Can't find user with email '" + userEmail + "'",
-                                        "validation.user.email.notFound",
+                                        ValidationCodes.USER_EMAIL_NOT_FOUND,
                                         null,
                                         "email");
         }
@@ -158,7 +159,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         //check if password is not the same as old
         if (passwordEncoder.matches(resetPasswordDto.password(), user.getPassword())) {
             throw new BadFieldException("New password can't be the same as old",
-                                        "validation.user.password.sameAsOld",
+                                        ValidationCodes.USER_PASSWORD_SAME_AS_OLD,
                                         null,
                                         "newPassword");
         }
