@@ -15,6 +15,7 @@ import {
     useResetPasswordSetMutation,
 } from "../../../features/registration/registrationApiSlice";
 import Form from "../../components/form/Form/Form";
+import FormButton from "../../components/form/FormButton/FormButton";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./ResetPasswordSetPage.module.scss";
 
@@ -76,7 +77,7 @@ const ResetPasswordSetPage = () => {
                                componentName={COMPONENT_NAME}
                                {...{ register, errors }}
                 />
-                <button type="submit">{t.resetPasswordSetPage.form.submit}</button>
+                <FormButton type="submit" text={t.resetPasswordSetPage.form.submit}/>
             </Form>
         </main>
     );

@@ -1,3 +1,5 @@
+@import "src/assets/styles/mixins";
+
 .registration_page {
   display: flex;
   flex-direction: column;
@@ -17,6 +19,7 @@
     width: 20rem;
 
     button[type="submit"] {
+      @include form-button;
       margin-top: 1rem;
     }
   }

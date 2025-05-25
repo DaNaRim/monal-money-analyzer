@@ -1,17 +1,23 @@
+@import "src/common/pages/TransactionsPage/TransactionsPage.module.scss";
 @import "src/assets/styles/mixins";
+
+$block-margins: 1em;
 
 .transactions {
   position: relative;
-  padding: 1em;
-  height: 30em;
-  overflow-y: scroll;
+  margin: 0 0.5em 1em 1em;
+  //padding: 1em;
+  //height: 30em;
+  overflow-y: auto;
+  height: calc(100% - $transaction-header-height - $block-margins);
+  //box-shadow: inset 0px -16px 10px -14px #d2d2d2;
 
   .message {
     position: absolute;
-    top: 50%;
+    top: 19.25em;
     left: 50%;
     transform: translate(-50%, -50%);
-    opacity: 0.8;
+    opacity: 0.5;
   }
 
   .error {
@@ -20,7 +26,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     height: fit-content;
-    color: red;
+    color: var(--error);
     font-weight: bold;
     text-align: center;
   }
@@ -64,12 +70,12 @@
         align-items: center;
 
         .transaction_amount {
-          color: red;
+          color: var(--expense);
           font-weight: bold;
           font-size: 2em;
 
           &.transaction_income {
-            color: green;
+            color: var(--income);
           }
         }
 
@@ -83,7 +89,7 @@
           height: 2em;
 
           &:hover {
-            color: #1e90ff;
+            color: var(--accent);
           }
 
           svg {

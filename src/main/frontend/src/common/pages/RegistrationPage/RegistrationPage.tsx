@@ -9,6 +9,7 @@ import {
     useRegisterMutation,
 } from "../../../features/registration/registrationApiSlice";
 import Form from "../../components/form/Form/Form";
+import FormButton from "../../components/form/FormButton/FormButton";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./RegistrationPage.module.scss";
@@ -72,9 +73,9 @@ const RegistrationPage = () => {
                                componentName={COMPONENT_NAME}
                                {...{ register, errors }}
                 />
-                <button type="submit" data-testid="register-button">
-                    {t.registerPage.form.submit}
-                </button>
+                <FormButton type="submit"
+                            text={t.registerPage.form.submit}
+                            data-testid="register-button"/>
             </Form>
         </main>
     );

@@ -1,7 +1,13 @@
+@import "src/assets/styles/color-palette";
+@import "src/assets/styles/variables";
+
 .main_footer {
-  border-top: 1px solid red;
-  padding: 0.5em;
+  //border-top: 1px solid red;
+  height: $footer-height;
+  padding: 1em;
   width: 100%;
+  background-color: var(--secondary);
+  color: var(--text-primary);
 
   h2 {
     text-align: center;

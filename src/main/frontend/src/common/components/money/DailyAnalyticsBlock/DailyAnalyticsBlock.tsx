@@ -131,6 +131,7 @@ const DailyAnalyticsBlock = ({ walletId, date }: DailyAnalyticsBlockProps) => {
     return (
         <div className={styles.analytics_wrapper}>
             <Tabs value={selectedTab}
+                  className={styles.tabs_wrapper}
                   classes={{
                       indicator: styles.category_type_tab_indicator,
                   }}
@@ -163,7 +164,10 @@ const DailyAnalyticsBlock = ({ walletId, date }: DailyAnalyticsBlockProps) => {
                   <p className={styles.no_data}>{t.analyticsBlock.noDataForAnalytics}</p>
                 }
                 <ResponsivePie data={categoryDiagramData}
-                               theme={{ legends: { text: { fontSize: 14 } } }}
+                               theme={{
+                                   legends: { text: { fontSize: 16 } },
+                                   fontSize: 16,
+                               }}
                                sortByValue={true}
                                valueFormat={value => addSpacesToNumber(value)}
                                margin={{ top: 48, right: 48, bottom: 80, left: 80 }}

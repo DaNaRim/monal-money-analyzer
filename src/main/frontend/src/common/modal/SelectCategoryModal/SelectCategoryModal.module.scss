@@ -6,9 +6,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 1em rgb(0 0 0 / 50%);
+  box-shadow: 0 0 1em rgb(0 0 0 / 50%); //TODO change
   border-radius: 0.5em;
-  background-color: #fff;
+  background-color: var(--background);
+  color: var(--text-primary);
   padding: 1em;
   width: 30em;
 
@@ -16,12 +17,12 @@
     width: 50%;
 
     &[aria-selected="true"] {
-      color: green;
+      color: var(--secondary);
     }
   }
 
   .category_type_tab_indicator {
-    background-color: green;
+    background-color: var(--secondary);
   }
 
   .categories_list {
@@ -31,7 +32,7 @@
     .category_group {
       border-bottom-right-radius: 0.5em;
       border-bottom-left-radius: 0.5em;
-      background: rgb(255 255 255);
+      background: rgb(255 255 255); //TODO change
       background: linear-gradient(180deg, rgb(255 255 255 / 100%) 0%, rgb(239 239 239) 2.75em);
       width: calc(100% - 0.5em);
     }
@@ -42,11 +43,11 @@
       font-size: 1.2em;
 
       &:hover {
-        background-color: color.adjust(#fff, $lightness: -15%)
+        background-color: color.adjust(#fff, $lightness: -15%) //TODO change
       }
 
       &.selected {
-        background-color: color.adjust(#fff, $lightness: -10%);
+        background-color: color.adjust(#fff, $lightness: -10%); //TODO change
         color: green;
         font-weight: bold;
       }
@@ -58,11 +59,11 @@
       .dotsWrapper {
         display: flex;
         margin-right: 1em;
-        border-top: 2px solid green;
+        border-top: 2px solid var(--secondary);
 
         .dots {
           margin-bottom: 1.5em;
-          border-left: 3px dotted green;
+          border-left: 3px dotted var(--secondary);
           width: 0;
         }
 
@@ -78,17 +79,17 @@
       height: 3em;
 
       &.selected {
-        background-color: color.adjust(#fff, $lightness: -10%);
-        color: green;
+        background-color: color.adjust(#fff, $lightness: -10%); //TODO change
+        color: var(--secondary);
         font-weight: bold;
       }
 
       &:hover {
-        background-color: color.adjust(#fff, $lightness: -15%)
+        background-color: color.adjust(#fff, $lightness: -15%) //TODO change
       }
 
       .subcategories_dot {
-        border-bottom: 3px dotted green;
+        border-bottom: 3px dotted var(--secondary);
         width: 0.75em;
         height: 0;
       }
@@ -106,7 +107,7 @@
 
       padding: 0.5em 0.5em 1em 1.5em;
       width: calc(100% - 1em);
-      color: green;
+      color: var(--secondary);
       font-weight: bold;
       text-align: left;
     }

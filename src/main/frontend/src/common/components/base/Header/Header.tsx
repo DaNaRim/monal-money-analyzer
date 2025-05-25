@@ -1,3 +1,5 @@
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
@@ -10,6 +12,8 @@ import {
     ROUTE_REGISTRATION,
     ROUTE_TRANSACTIONS,
 } from "../../../../app/routes";
+
+import logo_small from "../../../../assets/img/logo/monal_logo_small.png";
 import { apiSlice } from "../../../../features/api/apiSlice";
 import { useAuthGetStateMutation, useLogoutMutation } from "../../../../features/auth/authApiSlice";
 import {
@@ -61,7 +65,10 @@ const Header = () => {
         } else if (username != null) {
             return <div>
                 <p>{username}</p>
-                <button id="logoutButton" onClick={handleLogout}>{t.mainHeader.logout}</button>
+                <button id="logoutButton" className={styles.logout_button} onClick={handleLogout}>
+                    <FontAwesomeIcon icon={faSignOutAlt}/>
+                    {/*{t.mainHeader.logout}*/}
+                </button>
             </div>;
         } else {
             return <ul>
@@ -74,9 +81,16 @@ const Header = () => {
     return (
         <header className={styles.main_header} data-testid="main-header">
             <nav>
+                <div className={styles.logo}>
+                    <NavLink to={ROUTE_HOME}>
+                        <img src={logo_small} alt="logo" height="64"/>
+                        <div className={styles.logo_text}>
+                            {t.mainHeader.logo_main_text}<br/>
+                            <span>{t.mainHeader.logo_sub_text}</span>
+                        </div>
+                    </NavLink>
+                </div>
                 <ul>
-                    <li><NavLink to={ROUTE_HOME}>{t.mainHeader.nav.home}</NavLink></li>
-
                     <PrivateLink to={ROUTE_TRANSACTIONS}>
                         {t.mainHeader.nav.transactions}
                     </PrivateLink>
@@ -85,10 +99,12 @@ const Header = () => {
                     </PrivateLink>
                 </ul>
             </nav>
-            <LanguageHandler/>
-            <ThemeHandler/>
-            <div>
-                {getAuthBlock()}
+            <div className={styles.right_block}>
+                <LanguageHandler/>
+                <ThemeHandler/>
+                <div className={styles.auth_block}>
+                    {getAuthBlock()}
+                </div>
             </div>
         </header>
     );

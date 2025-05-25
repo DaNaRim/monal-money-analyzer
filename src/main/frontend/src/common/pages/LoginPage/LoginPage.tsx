@@ -27,6 +27,7 @@ import {
     setForceLogin,
 } from "../../../features/auth/authSlice";
 import Form from "../../components/form/Form/Form";
+import FormButton from "../../components/form/FormButton/FormButton";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import InputPassword from "../../components/form/InputPassword/InputPassword";
 import styles from "./LoginPage.module.scss";
@@ -139,8 +140,10 @@ const LoginPage = () => {
                       {t.loginPage.resendVerificationEmail}
                   </Link>
                 }
-                <button type="submit">{t.loginPage.form.submit}</button>
-                <Link to={ROUTE_RESET_PASSWORD}>{t.loginPage.form.forgotPassword}</Link>
+                <FormButton type="submit" text={t.loginPage.form.submit}/>
+                <Link to={ROUTE_RESET_PASSWORD} className={styles.additional_link}>
+                    {t.loginPage.form.forgotPassword}
+                </Link>
             </Form>
         </main>
     );

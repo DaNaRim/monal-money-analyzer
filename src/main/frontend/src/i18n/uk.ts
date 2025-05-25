@@ -6,15 +6,17 @@ export default {
         login: "Увійти",
         logout: "Вийти",
         register: "Зареєструватися",
+        logo_main_text: "Monal",
+        logo_sub_text: "Аналіз грошей",
         nav: {
-            home: "Домашня",
+            home: "Monal money analyzer",
             transactions: "Транзакції",
             analytics: "Аналітика",
         },
     },
 
     mainFooter: {
-        desc: "Це футер",
+        desc: "Автор: Назар Горшевіков. Зроблено з ❤️",
     },
 
     mainLoader: "Завантаження...",
@@ -371,7 +373,12 @@ export default {
     // Pages
 
     homePage: {
-        title: "Домашня сторінка",
+        title: "Простий спосіб керувати особистими фінансами",
+        title_part_1: "Простий спосіб",
+        title_part_2: "керувати",
+        title_part_3: " особистими фінансами",
+        button_register: "Зареєструватися",
+        button_login: "Увійти",
     },
 
     loginPage: {

@@ -32,19 +32,22 @@ const TransactionsPage = () => {
     return (
         <WalletCategoriesInitializer>
             <main className={styles.transaction_page} data-testid="transaction-page">
-                <header className={styles.wallet_header}>
-                    <WalletBlock selectedWalletId={selectedWalletId}
-                                 setSelectedWalletId={setSelectedWalletId}/>
-                    {isWalletsExists && (
-                        <button className={styles.add_transaction_button}
-                                onClick={() => setNewWalletModalOpen(true)}>
-                            {t.transactionsPage.addNewTransaction}
-                        </button>
-                    )}
-                </header>
                 <div className={styles.wrapper}>
                     <div className={styles.transaction_left}>
-                        <DateBlock {...{ date, setDate }}/>
+                        <header className={styles.wallet_header}>
+                            <WalletBlock selectedWalletId={selectedWalletId}
+                                         setSelectedWalletId={setSelectedWalletId}/>
+                            <DateBlock {...{ date, setDate }}/>
+                            {isWalletsExists && (
+                                <button className={styles.add_transaction_button}
+                                        onClick={() => setNewWalletModalOpen(true)}
+                                        title={t.transactionsPage.addNewTransaction}
+                                >
+                                    {/*{t.transactionsPage.addNewTransaction}*/}
+                                    <div>+</div>
+                                </button>
+                            )}
+                        </header>
                         <TransactionBlock walletId={Number(selectedWalletId)} date={date}/>
                     </div>
                     <div className={styles.transaction_right}>

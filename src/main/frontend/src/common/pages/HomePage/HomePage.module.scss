@@ -1,9 +1,49 @@
+@import "src/assets/styles/mixins";
+
+$margin-vertical: 4.25rem;
+
 .home_page {
   width: 100%;
 
-  h1 {
-    margin: 1rem 0;
-    font-size: 2rem;
+  & h1 {
+    margin: $margin-vertical 0;
+    font-size: 3.75rem;
     text-align: center;
+    font-weight: 500;
+
+    .title_highlight {
+      color: var(--primary);
+    }
+  }
+
+  .join_buttons {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+
+    & > a {
+      @include form-button;
+      display: flex;
+      align-items: center;
+      color: var(--background);
+
+      &:first-child {
+        color: var(--primary);
+        background-color: var(--background);
+        border: 1px solid var(--primary);
+      }
+    }
+  }
+
+  .demo_images {
+    margin: $margin-vertical;
+    display: flex;
+    justify-content: center;
+
+    & > img {
+      width: 100%;
+      height: 25em;
+      object-fit: contain;
+    }
   }
 }

@@ -6,6 +6,7 @@ import AppMessageComp from "../../../features/appMessages/AppMessageComp";
 import { AppMessageType } from "../../../features/appMessages/appMessagesSlice";
 import { useResetPasswordMutation } from "../../../features/registration/registrationApiSlice";
 import Form from "../../components/form/Form/Form";
+import FormButton from "../../components/form/FormButton/FormButton";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import styles from "./ResetPasswordPage.module.scss";
 
@@ -53,7 +54,7 @@ const ResetPasswordPage = () => {
                             componentName={COMPONENT_NAME}
                             {...{ register, errors }}
                 />
-                <button type="submit">{t.resetPasswordPage.form.submit}</button>
+                <FormButton type="submit" text={t.resetPasswordPage.form.submit}/>
             </Form>
         </main>
     );

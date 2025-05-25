@@ -1,28 +1,44 @@
 @import "src/assets/styles/mixins";
 
+$transaction-header-height: 4em;
+
 .transaction_page {
   .wallet_header {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--secondary);
     width: 100%;
-    height: fit-content;
+    height: $transaction-header-height;
+    padding: 0.5em 1em;
+    gap: 1em;
 
     .add_transaction_button {
       @include clear-button-styles;
 
-      margin-left: 1em;
-      border: 1px solid black;
-      border-radius: 0.5em;
-      padding: 1em;
+      //border: 1px solid var(--secondary);
+      height: 100%;
+      aspect-ratio: 1;
+      border-radius: 100%;
+      color: var(--background);
+      padding: 0.5em;
+      background-color: var(--secondary);
+
+      & div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 800;
+        font-size: 1.5rem;
+      }
     }
   }
 
   .wrapper {
     display: flex;
+    height: calc(100vh - $header-height/* - $footer-height - $transaction-header-height*/);
 
     .transaction_left {
-      border-right: 1px solid black;
+      border-right: 2px solid var(--secondary);
       width: 50%;
       min-width: 40em;
     }

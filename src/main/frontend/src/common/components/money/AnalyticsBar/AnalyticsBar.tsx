@@ -3,8 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Checkbox, FormControlLabel, MenuItem, Select } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { type LocalizedStrings } from "react-localization";
+import useLocalStorage from "react-use-localstorage";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks/reduxHooks";
 import useTranslation from "../../../../app/hooks/translation";
 import { useGetAnalyticsQuery } from "../../../../features/analytics/analyticsApiSlice";
@@ -24,17 +25,24 @@ import {
 } from "../../../../features/category/categoryUtil";
 import { type Localization } from "../../../../i18n";
 import { getParsedCurrentDate } from "../../../pages/TransactionsPage/TransactionsPage";
+import { LOCAL_STORAGE_SELECTED_WALLET_ID } from "../../../utils/moneyUtils";
 import { DATE_BLOCK_DATE_FORMAT } from "../DateBlock/DateBlock";
+import WalletBlock from "../WalletBlock/WalletBlock";
 import styles from "./AnalyticsBar.module.scss";
 import ZeroLine from "./ZeroLine";
 
 interface AnalyticsBarProps {
-    walletId: number;
+    // walletId: number;
 }
 
-const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
+const AnalyticsBar = (/*{ walletId }: AnalyticsBarProps*/) => {
     const t = useTranslation();
     const dispatch = useAppDispatch();
+
+    const [selectedWalletId, setSelectedWalletId]
+        = useLocalStorage(LOCAL_STORAGE_SELECTED_WALLET_ID);
+
+    const walletId = useMemo(() => Number(selectedWalletId), [selectedWalletId]);
 
     const [periodType, setPeriodType] = useState<AnalyticsPeriod>(AnalyticsPeriod.DAILY);
 
@@ -86,6 +94,8 @@ const AnalyticsBar = ({ walletId }: AnalyticsBarProps) => {
             {isAnalyticsError
                 && <div className={styles.data_error}>{t.analyticsBar.error}</div>}
             <div className={styles.controls}>
+                <WalletBlock selectedWalletId={selectedWalletId}
+                             setSelectedWalletId={setSelectedWalletId}/>
                 <Select className={styles.period_select}
                         value={periodType}
                         renderValue={value =>

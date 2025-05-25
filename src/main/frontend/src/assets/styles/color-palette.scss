@@ -1,0 +1,33 @@
+:root[data-theme="light"] {
+  --background: #f5f9f3;
+
+  --primary: #76b04f;
+  --secondary: #3b6024;
+  --accent: #4f872c;
+  --darkened-accent: #183508;
+
+  --text-primary: #20300b;
+
+  --error: #ef4444;
+  --warning: orange;
+
+  --income: #6dbf4b; //also change in src/main/frontend/src/features/category/categoryColorMap.ts
+  --expense: #e04b4b; //also change in src/main/frontend/src/features/category/categoryColorMap.ts
+}
+
+:root[data-theme="dark"] {
+  --background: #090e07;
+
+  --primary: #76b04f;
+  --secondary: #3b6024;
+  --accent: #4f872c;
+  --darkened-accent: #3b6024;
+
+  --text-primary: #f2f6ef;
+
+  --error: #fa2929;
+  --warning: orange;
+
+  --income: #6dbf4b; //also change in src/main/frontend/src/features/category/categoryColorMap.ts
+  --expense: #e04b4b; //also change in src/main/frontend/src/features/category/categoryColorMap.ts
+}

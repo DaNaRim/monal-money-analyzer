@@ -8,6 +8,7 @@ import {
     useResendVerificationTokenMutation,
 } from "../../../features/registration/registrationApiSlice";
 import Form from "../../components/form/Form/Form";
+import FormButton from "../../components/form/FormButton/FormButton";
 import InputEmail from "../../components/form/InputEmail/InputEmail";
 import styles from "./ResendVerificationTokenPage.module.scss";
 
@@ -56,7 +57,7 @@ const ResendVerificationTokenPage = () => {
                             componentName={COMPONENT_NAME}
                             {...{ register, errors }}
                 />
-                <button type="submit">{t.resendVerificationEmailPage.form.submit}</button>
+                <FormButton type="submit" text={t.resendVerificationEmailPage.form.submit}/>
             </Form>
         </main>
     );

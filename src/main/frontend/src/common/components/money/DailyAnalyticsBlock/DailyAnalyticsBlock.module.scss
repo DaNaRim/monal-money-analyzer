@@ -1,23 +1,33 @@
+@import "src/common/pages/TransactionsPage/TransactionsPage.module.scss";
+
+
 .analytics_wrapper {
   height: 100%;
 
   .category_type_tab {
     width: 50%;
     max-width: 50%;
+    height: $transaction-header-height + 0.5em;
 
     &[aria-selected="true"] {
-      color: green;
+      color: var(--secondary);
     }
   }
 
+  .tabs_wrapper {
+    height: $transaction-header-height;
+    border-bottom: 1px solid var(--secondary);
+  }
+
   .category_type_tab_indicator {
-    background-color: #008000;
+    background-color: var(--secondary);
   }
 
   .circle_wrapper {
     position: relative;
     width: 100%;
-    height: 23em;
+    //height: 23em;
+    height: 70%;
 
     .total_amount_wrapper {
       display: flex;
@@ -30,11 +40,11 @@
         text-align: center;
 
         &:nth-child(1) {
-          color: red;
+          color: var(--expense);
         }
 
         &:nth-child(2) {
-          color: green;
+          color: var(--income);
         }
       }
     }

@@ -6,15 +6,17 @@ export default {
         login: "Login",
         logout: "Logout",
         register: "Register",
+        logo_main_text: "Monal",
+        logo_sub_text: "Money Analyzer",
         nav: {
-            home: "Home",
+            home: "Monal money analyzer",
             transactions: "Transactions",
             analytics: "Analytics",
         },
     },
 
     mainFooter: {
-        desc: "This is a footer",
+        desc: "Made with ❤️ by Nazar Horshevikov",
     },
 
     mainLoader: "Loading...",
@@ -371,7 +373,12 @@ export default {
     // Pages
 
     homePage: {
-        title: "Home page",
+        title: "Simple way to manage personal finances",
+        title_part_1: "Simple way",
+        title_part_2: "to manage",
+        title_part_3: " personal finances",
+        button_register: "Register",
+        button_login: "Login",
     },
 
     loginPage: {

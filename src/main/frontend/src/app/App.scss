@@ -1,7 +1,19 @@
+$color-transition: 0.3s ease;
+
 * {
   box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+  transition: color $color-transition,
+  background-color $color-transition,
+  border-color $color-transition;
 }
 
 h1, h2, h3, h4, h5, h6, p, a, li, span, label {
   margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: bold;
 }

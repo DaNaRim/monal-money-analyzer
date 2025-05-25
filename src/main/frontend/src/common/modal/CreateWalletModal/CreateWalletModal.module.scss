@@ -5,9 +5,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 1em rgb(0 0 0 / 50%);
+  box-shadow: 0 0 1em rgb(0 0 0 / 50%); //TODO change
   border-radius: 0.5em;
-  background-color: #fff;
+  background-color: var(--background);
+  color: var(--text-primary);
   padding: 1em;
   width: 22.5em;
 
@@ -39,10 +40,10 @@
       margin-top: 1em;
       border: none;
       border-radius: 0.5em;
-      background-color: green;
+      background-color: var(--secondary);
       padding: 0.5em 1em;
       width: 100%;
-      color: #fff;
+      color: var(--text-primary);
       font-size: 1.4rem;
     }
   }
