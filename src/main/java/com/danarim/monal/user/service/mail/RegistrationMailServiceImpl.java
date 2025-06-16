@@ -57,8 +57,8 @@ public class RegistrationMailServiceImpl implements RegistrationMailService {
     public void sendVerificationEmail(String tokenValue, String userEmail) {
 
         Locale locale = LocaleContextHolder.getLocale();
-        String contextPath =
-                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String contextPath = "http://duiktai.vps.webdock.cloud/";
+//                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
 
         String confirmUrl = String.format(TOKEN_LINK_TEMPLATE,
                                           contextPath,

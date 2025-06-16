@@ -151,7 +151,7 @@ const AnalyticsBar = (/*{ walletId }: AnalyticsBarProps*/) => {
                 data={analyticsData}
                 keys={[...categories.map(cur => cur.name), "income", "outcome"]}
                 indexBy="date"
-                margin={{ top: 20, right: 100, bottom: 50, left: 100 }}
+                margin={{ top: 20, right: 60, bottom: 50, left: 100 }}
                 maxValue={maxNumberWithoutSign}
                 minValue={-maxNumberWithoutSign}
                 enableLabel={false}
